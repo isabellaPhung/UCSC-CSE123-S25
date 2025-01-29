@@ -3,27 +3,20 @@
 Lennan Tuffy,
 <your name here>
 
-Submit the following as sections in a single PDF document:
+## Personas
+\input{../common/personas}
 
-- Personas
-- Need Statement
-- Goal Statement
-- Design Objectives in Words
-- Design Objectives as Quantified Table
-
-## Problem statement
-\input{../common/problem_statement}
+## Need statement
+\input{../common/need_statement}
 
 - We came up with this through...
 
 ## Goal statement
-
+\input{../common/goal_statement}
 
 ## Design Objective in words
+\input{../common/design_objective}
 
 ## Design Objective as Quantified Table
+\input{../common/design_objective_table}
 
-| Key  | Value | reason |
-|------|-------|--------|
-| Cost | low   | ??     |
-|      |       |        |
