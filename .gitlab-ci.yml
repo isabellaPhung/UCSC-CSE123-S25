@@ -2,9 +2,9 @@ variables:
   GIT_SUBMODULE_STRATEGY: recursive
 
 make-pdf:
-  only:
+  rules:
     changes:
-      - doc
+      - doc/**
   image:
     name: pandoc/latex
     entrypoint: ["/bin/sh", "-c"]
