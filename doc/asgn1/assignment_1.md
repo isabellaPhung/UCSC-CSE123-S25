@@ -9,8 +9,6 @@ Lennan Tuffy,
 ## Need statement
 \input{../common/need_statement}
 
-- We came up with this through...
-
 ## Goal statement
 \input{../common/goal_statement}
 
