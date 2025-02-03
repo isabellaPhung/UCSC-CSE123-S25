@@ -4,7 +4,7 @@ variables:
 make-pdf:
   rules:
     - changes:
-      - doc/**
+      - doc/**/*
   image:
     name: pandoc/latex
     entrypoint: ["/bin/sh", "-c"]
