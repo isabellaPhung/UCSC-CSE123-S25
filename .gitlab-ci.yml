@@ -10,8 +10,10 @@ make-pdf:
     name: pandoc/latex
     entrypoint: ["/bin/sh", "-c"]
   script:
+    - tlmgr install fvextra lineno
+    - apk --no-cache add make
     - cd doc/asgn1
-    - pandoc -f markdown -t pdf --metadata-file ../misc/metadata.md --lua-filter=../misc/include-files/include-files.lua assignment_1.md -o build/assignment_1.pdf
+    - make pdf
   artifacts:
     paths:
       - doc/asgn1/build/assignment_1.pdf
