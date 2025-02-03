@@ -3,7 +3,7 @@ variables:
 
 make-pdf:
   rules:
-    changes:
+    - changes:
       - doc/**
   image:
     name: pandoc/latex
