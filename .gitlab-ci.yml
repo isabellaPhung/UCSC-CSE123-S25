@@ -5,12 +5,13 @@ make-pdf:
   rules:
     - changes:
       - doc/**/*
+      - .gitlab-ci.yml
   image:
     name: pandoc/latex
     entrypoint: ["/bin/sh", "-c"]
   script:
     - cd doc/asgn1
-    - make pdf
+    - pandoc -f markdown -t pdf --metadata-file ../misc/metadata.md --lua-filter=../misc/include-files/include-files.lua assignment_1.md -o build/assignment_1.pdf
   artifacts:
     paths:
       - doc/asgn1/build/assignment_1.pdf
