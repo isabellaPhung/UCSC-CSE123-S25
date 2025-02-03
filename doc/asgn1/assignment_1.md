@@ -4,7 +4,10 @@ Lennan Tuffy,
 <your name here>
 
 ## Personas
-\input{../common/personas}
+
+```{.include}
+../common/personas.md
+```
 
 ## Need statement
 \input{../common/need_statement}
