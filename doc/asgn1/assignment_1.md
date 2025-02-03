@@ -1,6 +1,6 @@
 # Assignment 1: Group 2
 
-Lennan Tuffy,
+Lennan Tuffy, Mason Becker
 <your name here>
 
 ## Personas
