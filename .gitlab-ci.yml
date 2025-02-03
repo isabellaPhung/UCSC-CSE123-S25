@@ -1,0 +1,13 @@
+make-pdf:
+  only:
+    changes:
+      - doc
+  image:
+    name: pandoc/latex
+    entrypoint: ["/bin/sh", "-c"]
+  script:
+    - cd doc/asgn1
+    - make pdf
+  artifacts:
+    paths:
+      - doc/asgn1/build/assignment_1.pdf
