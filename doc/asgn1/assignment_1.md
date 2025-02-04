@@ -1,6 +1,6 @@
 # Assignment 1: Group 2
 
-Lennan Tuffy, Mason Becker, Isabella Phung, Akanksha Rajagopalan
+Lennan Tuffy, Mason Becker, Isabella Phung, Akanksha Rajagopalan, Sulaiman Islam
 <your name here>
 
 ## Personas
