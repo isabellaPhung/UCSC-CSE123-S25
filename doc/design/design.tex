@@ -1,0 +1,74 @@
+\documentclass{article}
+\usepackage{graphicx}
+\graphicspath{{../common/personas}}
+\usepackage{hyperref}
+
+% TODO fix this!!
+\newcommand{\pandocbounded}[1]{#1}
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+\title{CSE123}
+\author{
+  Mason Becker \\
+  \texttt{marobeck@ucsc.edu}
+  \and
+  Sulaiman Islam \\
+  \texttt{suaislam@ucsc.edu} \\
+  \and
+  Isabella Phung \\
+  \texttt{itphung@ucsc.edu}
+  \and
+  Akanksha Rajagopalan \\
+  \texttt{akrajago@ucsc.edu} \\
+  \and
+  Lennan Tuffy \\
+  \texttt{ltuffy@ucsc.edu} \\
+}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+% TODO fix this!!!
+\newpage
+
+% Front Matter
+  % Executive Summary
+  % Ethics Statement
+  % Table of Contents
+
+% Appendices
+  % Models and Simulations
+  % Decision Table Inputs
+  % Test Plan
+  % Test Results
+
+% Body
+  % Background
+    % Personas
+  % Problem Definition
+    % Need & Goal Statements
+    % Design Objectives
+  % Concepts Considered
+    % Conceptualizations
+    % Brainstorming Output
+  % Concept Selection
+    % Decision Table
+  % Detail of Design
+    % Free format description
+  % Economic Analysis
+    % Design for Manufacture & Assembly
+    % Life Cycle Assessment
+  % Outstanding Issues
+
+\section{Background}
+\subsection{Personas}
+\input{build/camillia_md}
+\input{build/elijah_md}
+\subsection{Need}
+\input{../common/need_statement}
+\subsection{Goal}
+\input{../common/goal_statement}
+
+\end{document}

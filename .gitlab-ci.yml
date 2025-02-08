@@ -4,7 +4,8 @@ variables:
 make-pdf:
   rules:
     - changes:
-      - doc/**/*
+      - doc/common/**/*
+      - doc/asgn1/*
       - .gitlab-ci.yml
   image:
     name: pandoc/latex
@@ -17,3 +18,21 @@ make-pdf:
   artifacts:
     paths:
       - doc/asgn1/build/assignment_1.pdf
+
+make-design:
+  rules:
+    - changes:
+      - doc/common/**/*
+      - doc/design/*
+      - .gitlab-ci.yml
+  image:
+    name: pandoc/latex
+    entrypoint: ["/bin/sh", "-c"]
+  script:
+    - apk --no-cache add make
+    - cd doc/design
+    - make pdf
+  artifacts:
+    paths:
+      - doc/design/build/CSE123_Design_Document_Group2.pdf
+
