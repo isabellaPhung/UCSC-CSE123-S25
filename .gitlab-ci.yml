@@ -6,6 +6,7 @@ make-pdf:
     - changes:
       - doc/common/**/*
       - doc/asgn1/*
+      - doc/asgn2/*
       - .gitlab-ci.yml
   image:
     name: pandoc/latex
@@ -15,9 +16,12 @@ make-pdf:
     - apk --no-cache add make
     - cd doc/asgn1
     - make pdf
+    - cd ../asgn2
+    - make pdf
   artifacts:
     paths:
       - doc/asgn1/build/assignment_1.pdf
+      - doc/asgn2/build/assignment_2.pdf
 
 make-design:
   rules:
