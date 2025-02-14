@@ -1,3 +1,6 @@
 [submodule "doc/misc/include-files"]
 	path = doc/misc/include-files
 	url = https://github.com/pandoc-ext/include-files.git
+[submodule "thirt_party/gitlab-gantt-maker"]
+	path = thirt_party/gitlab-gantt-maker
+	url = https://github.com/eub-sweden/gitlab-gantt-maker/

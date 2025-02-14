@@ -1,0 +1,90 @@
+diff --git a/gitlab-gantt-maker.py b/gitlab-gantt-maker.py
+index 6690e72..39d125c 100644
+--- a/gitlab-gantt-maker.py
++++ b/gitlab-gantt-maker.py
+@@ -105,15 +105,13 @@ def extract_milestone(ms):
+ 
+ 
+ def extract_issue(i, start_date, due_date):
++    start = i.created_at
+     if i.due_date:
+         due = i.due_date
+-        start = datestr_subtract_a_day(due)
+     else:
+-        start = start_date if i.created_at < start_date else i.created_at
+         due = datestr_add_a_day(start)
+     return i.title, strip_tz(start), strip_tz(due), i.web_url
+ 
+-
+ def main():
+ 
+     parser = argparse.ArgumentParser(
+@@ -152,47 +150,36 @@ def main():
+     # information to be printed to the terminal.
+     # gl.enable_debug()
+ 
+-    g = gl.groups.list(search=cfg_group)
+-
+-    if not g:
+-        print("Group not found or API permissions missing")
+-        exit(1)
++    cfg_proj = "cse123-project"
++    project = gl.projects.list(search=cfg_proj)
+ 
+     gc = GanttMaker(args.output)
+ 
+-    group = g[0]
+-    projlist = sorted(group.projects.list(), key=lambda d: d.created_at)
+-
+-    # Group milestones
+-    for groupms in sorted(
+-        group.milestones.list(state="active"), key=lambda d: d.due_date
++    p = project[0]
++    for pm in sorted(p.milestones.list(state="active"), key=lambda d: d.due_date):
++        title, start_date, due_date, url = extract_milestone(pm)
++        gc.add_task(
++            title, start_date, due_date, url, gc.current_color()
++        )
++    for i in sorted(
++        p.issues.list(get_all=True), key=lambda d: "" if not d.due_date else d.due_date
+     ):
+-        gm = group.milestones.get(groupms.id)
+-        title, start_date, due_date, url = extract_milestone(gm)
+-        gc.add_task(title, start_date, due_date, url)
+-
+-    # Project milestones
+-    for proj in projlist:
+-        p = gl.projects.get(proj.id)
+-        for pm in sorted(p.milestones.list(state="active"), key=lambda d: d.due_date):
+-            title, start_date, due_date, url = extract_milestone(pm)
+-            gc.add_task(
+-                p.name + "/" + title, start_date, due_date, url, gc.current_color()
++        if not i.state == "closed":
++            ititle, istart_date, idue_date, url = extract_issue(
++                i, start_date, due_date
++            )
++            gc.add_task(ititle, istart_date, idue_date, url, "gray")
++        else:
++            ititle, istart_date, idue_date, url = extract_issue(
++                i, start_date, due_date
+             )
+-            for i in sorted(
+-                pm.issues(), key=lambda d: "" if not d.due_date else d.due_date
+-            ):
+-                if not i.state == "closed":
+-                    ititle, istart_date, idue_date, url = extract_issue(
+-                        i, start_date, due_date
+-                    )
+-                    gc.add_task(ititle, istart_date, idue_date, url, "gray")
+-        gc.next_color()
++            gc.add_task(ititle, istart_date, idue_date, url, "green")
++
++    gc.next_color()
+ 
+     if args.verbose:
+         print(gc)
+     gc.write()
+ 
+-
+ if __name__ == "__main__":
+     main()
