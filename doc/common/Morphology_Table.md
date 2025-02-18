@@ -1,5 +1,3 @@
-**Morphology Table**
-
 | User Input       | Output          | Connectivity      | Form Factor  | Power                |
 | ---------------- | --------------- | ----------------- | ------------ | -------------------- |
 | Physical Buttons | Speaker         | WiFi              | Watch/Pocket | Battery Powered      |
