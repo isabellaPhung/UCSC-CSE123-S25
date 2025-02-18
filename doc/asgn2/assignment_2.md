@@ -7,6 +7,17 @@ Lennan Tuffy, Mason Becker, Isabella Phung, Akanksha Rajagopalan, Sulaiman Islam
 
 ## Morphological Charts
 
+| User input       | Output                 | Connectivity                    | Form Factor | Power           |
+| ---------------- | ---------------------- | ------------------------------- | ----------- | --------------- |
+| Physical buttons | Speaker                | Connectivity                    | Tablet      | Battery powered |
+| Touchscreen      | LCD                    | SD Card                         | Watch size  | Rechargable     |
+| Camera           | EInk (black and white) | Bluetooth                       | Pocket size | AC adapter      |
+| Microphone       | Haptic                 | USB                             | Puck        | Solar           |
+| Web interface    | Web interface          | None                            | Desk        | Crank power     |
+|                  | Lights (LED)           |                                 | House       |                 |
+|                  |                        |                                 | Drone       |                 |
+|                  |                        |                                 | Chair       |                 |
+
 ## Decision Tables
 
 ## Gantt Chart
