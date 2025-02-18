@@ -4,23 +4,24 @@ Lennan Tuffy, Mason Becker, Isabella Phung, Akanksha Rajagopalan, Sulaiman Islam
 [Git repository](https://git.ucsc.edu/itphung/cse123-project)
 
 ## Brainstorming
+```{.include}
+../common/brainstorm.md
+```
 
-## Morphological Charts
-
-| User input       | Output                 | Connectivity                    | Form Factor | Power           |
-| ---------------- | ---------------------- | ------------------------------- | ----------- | --------------- |
-| Physical buttons | Speaker                | Connectivity                    | Tablet      | Battery powered |
-| Touchscreen      | LCD                    | SD Card                         | Watch size  | Rechargable     |
-| Camera           | EInk (black and white) | Bluetooth                       | Pocket size | AC adapter      |
-| Microphone       | Haptic                 | USB                             | Puck        | Solar           |
-| Web interface    | Web interface          | None                            | Desk        | Crank power     |
-|                  | Lights (LED)           |                                 | House       |                 |
-|                  |                        |                                 | Drone       |                 |
-|                  |                        |                                 | Chair       |                 |
+## Morphological Chart
+```{.include}
+../common/Morphology_Table.md
+```
 
 ## Decision Tables
+```{.include}
+../common/decision_table.md
+```
 
 ## Gantt Chart
+```{.include}
+../common/gantt.md
+```
 
 ## Changes from assignemnt 1
 The need and goal statements were modified to fit closer the vision we had for the problem we wanted to solve.

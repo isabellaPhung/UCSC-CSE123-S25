@@ -1,9 +1,8 @@
 MAIN_MD := assignment_2.md
 
-INSERT_TEX := ../common/need_statement.tex
-INSERT_TEX += ../common/goal_statement.tex
- 
-
-INSERT_MD := 
+INSERT_MD := ../common/brainstorm.md
+INSERT_MD += ../common/Morphology_Table.md
+INSERT_MD += ../common/decision_table.md
+INSERT_MD += ../common/gantt.md
 
 include ../pdf.mk
