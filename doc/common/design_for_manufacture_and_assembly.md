@@ -1,0 +1,6 @@
+- Focus on making the device easy to repair for users
+	- Avoid using glue, tape, or clips to assemble parts
+	- Standardize parts such as screws (M1, M2, M3)
+	- Modularize components
+- Prioritize durability and recyclability when choosing materials
+	- Use injection mold and metal to create the frame for the device
