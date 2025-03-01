@@ -10,7 +10,7 @@ Lennan Tuffy, Mason Becker, Isabella Phung, Akanksha Rajagopalan, Sulaiman Islam
 
 ## Morphological Chart
 ```{.include}
-../common/Morphology_Table.md
+../common/morphological_chart.md
 ```
 
 ## Decision Tables
