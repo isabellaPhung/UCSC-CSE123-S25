@@ -1,0 +1,1 @@
+Our commitment to users is to prioritize transparency, sustainability, and the confidentiality of user data. Our mission is to provide a recyclable device with a minimal carbon footprint and end-to-end encryption. We are committed to providing complete transparency for all services, policies, and practices.  
