@@ -1,0 +1,7 @@
+| Product Name           | Quantity | Shipping time | Shipping Price | Tariff/Duty | Price | Website/Datasheet                                                                                       |
+|------------------------|----------|---------------|----------------|-------------|-------|---------------------------------------------------------------------------------------------------------|
+| microSD breakout board | 1        | ~6 days       | 0              | 0           | 2.99  | [Amazon](https://www.amazon.com//dp/B08C4WY2WR)                                                         |
+| ESP32C3 devkit Rust 1  | 1        | ~6 days       | 6.99           | 1.98        | 19.81 | [Digikey](https://www.digikey.com/en/products/detail/espressif-systems/ESP32-C3-DEVKIT-RUST-1/17883272) |
+| Touch screen           | 1        | ~6 days       | 0              | 0           | 16.99 | [Amazon](https://www.amazon.com/dp/B0BWJHK4M6)                                                          |
+| Motor                  | 1        | 7 days        | 6.99           | 0.02        | 0.99  | [Digikey](https://www.digikey.com/en/products/detail/dfrobot/FIT0774/14322639)                         |
+| Speaker                | 1        | 7 days        | 6.99           | 0.29        | 1.88  | [Digikey](https://www.digikey.com/en/products/detail/soberton-inc/SP-4005Y/9924431)                    |
