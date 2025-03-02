@@ -16,7 +16,10 @@ Lennan Tuffy, Mason Becker, Isabella Phung, Akanksha Rajagopalan, Sulaiman Islam
 \input{../common/goal_statement}
 
 ## Design Objective in words
-\input{../common/design_objective}
+
+```{.include}
+../common/design_objective.md
+```
 
 ## Design Objective as Quantified Table
 \input{../common/design_objective_table}
