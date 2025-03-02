@@ -1,4 +1,4 @@
-**High Performance Electronics:**
+**High-Performance Electronics**
 
 Objects:  
 
@@ -12,7 +12,7 @@ Sustainability:
 
 Material extraction is correlated with high carbon emissions. Manufacturing requires high energy expenditure. Recycling is difficult and often costs a lot of money. We will work with suppliers who adhere to environmental and social governance (ESG) standards.
 
-**Device Display:**
+**Device Display**
 
 Objects:
 
@@ -28,7 +28,7 @@ Sustainability:
 
 LCDs have established separation streams that make for easier recycling. E-Ink panels are easier to recycle and have significantly longer life spans relative to LCDs. Both are significantly more energy-efficient and sustainable than OLED displays.
 
-**Device External Structure:**
+**Device External Structure**
 
 Objects:
 
@@ -42,7 +42,7 @@ Sustainability:
 
 The plastic blend would require less energy and is engineered for easier recyclability.
 
-**Device Internal Structure:**
+**Device Internal Structure**
 
 Objects:
 
@@ -70,10 +70,9 @@ Sustainability:
 
 Production requires fewer emissions and toxic waste and is easier to recycle. 
 
-\
 
 
-**Packaging:**
+**Packaging**
 
 Objects:
 
@@ -85,7 +84,6 @@ Sourcing:
 
 FSC-certified recycled Cardboard comes from European suppliers, and The Bio-Based Films are generally sourced from South East Asia, generally from Indonesia and Malaysia. 
 
-\
 
 
 Sustainability:
