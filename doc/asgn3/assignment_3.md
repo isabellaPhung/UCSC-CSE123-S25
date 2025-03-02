@@ -30,6 +30,10 @@ Lennan Tuffy, Mason Becker, Isabella Phung, Akanksha Rajagopalan, Sulaiman Islam
 
 ## Updates to information already submitted
 
-### Changes to assignemnt 1
-### Changes to assignemnt 2
+### Changes to assignment 1
+```{.include}
+../common/design_objective.md
+```
+### Changes to assignment 2
+
 
