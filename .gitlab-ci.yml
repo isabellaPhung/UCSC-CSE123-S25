@@ -25,6 +25,7 @@ make-pdf:
     paths:
       - doc/asgn1/build/assignment_1.pdf
       - doc/asgn2/build/assignment_2.pdf
+      - doc/asgn3/build/assignment_3.pdf
     expire_in: 1 week
 
 make-design:
