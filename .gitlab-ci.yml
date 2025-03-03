@@ -7,6 +7,7 @@ make-pdf:
       - doc/common/**/*
       - doc/asgn1/*
       - doc/asgn2/*
+      - doc/asgn3/*
       - .gitlab-ci.yml
   image:
     name: pandoc/latex
@@ -18,10 +19,13 @@ make-pdf:
     - make pdf
     - cd ../asgn2
     - make pdf
+    - cd ../asgn3
+    - make pdf
   artifacts:
     paths:
       - doc/asgn1/build/assignment_1.pdf
       - doc/asgn2/build/assignment_2.pdf
+    expire_in: 1 week
 
 make-design:
   rules:
@@ -39,4 +43,5 @@ make-design:
   artifacts:
     paths:
       - doc/design/build/CSE123_Design_Document_Group2.pdf
+    expire_in: 1 week
 
