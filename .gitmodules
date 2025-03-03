@@ -4,3 +4,4 @@
 [submodule "thirt_party/gitlab-gantt-maker"]
 	path = third_party/gitlab-gantt-maker
 	url = https://github.com/eub-sweden/gitlab-gantt-maker/
+  ignore = dirty
