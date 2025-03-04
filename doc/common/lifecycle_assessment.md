@@ -1,15 +1,3 @@
-Energy Goals TODO
-- in production
-- in use
-
-The case for the device will follow common designs in the market and use plastics and metals for construction.
-In order to reduce negative impact on the environment, the device will use a biodegradable corn-based plastic as well as recycled aluminium.
-Majority of the casing materials will come from environmentally concious sources. 
-Unfortunately we don't have a say in the materials used for the other components of the device.
-
-In order to satisfy the portability requirement, the device will need a rechargeable battery as the power source.
-Compared to sourcing a brand new battery, recycled batteries consume less energy, water, and produce less emissions in their production. 
-
 **High Performance Electronics:**
 
 Objects:  
@@ -101,20 +89,3 @@ Sustainability:
 
 FSC-certified recycled Cardboard boasts a lower carbon footprint. Both require less energy expenditure and are easily recycled. 
 
-TODO add to bibliography
-Apple Inc. (2020). iPad Air (4th generation) product environmental report. Retrieved February 28, 2025, from https://www.apple.com/environment/pdf/products/ipad/iPadAir_PER_sept2020.pdf
-
-Amazon.com, Inc. (n.d.). Amazon devices. Retrieved February 28, 2025, from https://sustainability.aboutamazon.com/products-services/devices
-
-Nintendo Co., Ltd. (n.d.). CSR information: Environment. Retrieved February 28, 2025, from https://www.nintendo.co.jp/csr/en-us/report/environment/topics/index.html
-
-Cordella, M., Alfieri, F., & Sanfelix, J. (2020). Guide for the assessment of material efficiency: Application to smartphones. Publications Office of the European Union. Retrieved from https://op.europa.eu/en/publication-detail/-/publication/19c79488-4641-11ea-b81b-01aa75ed71a1
-
-Cordella, M., Alfieri, F., Clemm, C., & Berwald, A. (2021). Durability of smartphones: A technical analysis of reliability and repairability aspects. Journal of Cleaner Production, 286, 125388. https://doi.org/10.1016/j.jclepro.2020.125388
-
-Circular Computing. (2018). What is the carbon footprint of a laptop? Retrieved from https://circularcomputing.com/news/carbon-footprint-laptop/
-
-Sources
-https://www.epa.gov/hw/lithium-ion-battery-recycling
-https://news.stanford.edu/stories/2025/01/recycling-lithium-ion-batteries-cuts-emissions-and-strengthens-supply-chain
-https://www.epa.gov/facts-and-figures-about-materials-waste-and-recycling/aluminum-material-specific-data
