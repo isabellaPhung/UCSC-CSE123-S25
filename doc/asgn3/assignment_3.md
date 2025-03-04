@@ -45,5 +45,6 @@ We updated the design objectives as follows:
 ../common/design_objective.md
 ```
 ### Changes to assignment 2
+The gantt chart was updated with new issues added since assignment 2.
 
-
+![The updated gantt chart](../common/gantt.png)
