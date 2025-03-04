@@ -35,6 +35,12 @@ Lennan Tuffy, Mason Becker, Isabella Phung, Akanksha Rajagopalan, Sulaiman Islam
 ## Updates to information already submitted
 
 ### Changes to assignment 1
+We updated the need statement as follows:
+```{.include}
+../common/need_statement.md
+```
+
+We updated the design objectives as follows:
 ```{.include}
 ../common/design_objective.md
 ```
