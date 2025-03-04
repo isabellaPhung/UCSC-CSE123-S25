@@ -1,6 +1,3 @@
-- Focus on making the device easy to repair for users
-	- Avoid using glue, tape, or clips to assemble parts
-	- Standardize parts such as screws (M1, M2, M3)
-	- Modularize components
-- Prioritize durability and recyclability when choosing materials
-	- Use injection mold and metal to create the frame for the device
+When designing and assembling the device, the focus should be on making it easy for users to repair. This means avoiding the use of glue, tape, or clips in the assembly process, as these can make disassembly difficult. The device should use standardized parts such as common screws, the device being modularized to facilitate easy replacement and upgrades. To further support user repairs, consumer-available parts should be utilized whenever possible, or replacement parts should be sold directly. 
+
+Additionally, durability and recyclability should be key considerations when selecting materials. The device’s chassis should be made using injection molding and metal to ensure long-lasting construction while also supporting sustainable disposal and recycling efforts.
