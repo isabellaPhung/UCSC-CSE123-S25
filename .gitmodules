@@ -1,7 +1,11 @@
 [submodule "doc/misc/include-files"]
 	path = doc/misc/include-files
 	url = https://github.com/pandoc-ext/include-files.git
-[submodule "thirt_party/gitlab-gantt-maker"]
+[submodule "third_party/gitlab-gantt-maker"]
 	path = third_party/gitlab-gantt-maker
 	url = https://github.com/eub-sweden/gitlab-gantt-maker/
   ignore = dirty
+[submodule "esp-tentative-name/components/esp-aws-iot"]
+	path = esp-tentative-name/components/esp-aws-iot
+	url = https://github.com/espressif/esp-aws-iot
+	branch = release/202406.01-LTS
