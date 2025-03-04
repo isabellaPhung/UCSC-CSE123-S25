@@ -1,7 +1,6 @@
 # Assignment 1: Group 2
 
 Lennan Tuffy, Mason Becker, Isabella Phung, Akanksha Rajagopalan, Sulaiman Islam
-<your name here>
 
 ## Personas
 
@@ -10,10 +9,14 @@ Lennan Tuffy, Mason Becker, Isabella Phung, Akanksha Rajagopalan, Sulaiman Islam
 ```
 
 ## Need statement
-\input{../common/need_statement}
+```{.include}
+../common/need_statement.md
+```
 
 ## Goal statement
-\input{../common/goal_statement}
+```{.include}
+../common/goal_statement.md
+```
 
 ## Design Objective in words
 
@@ -22,5 +25,6 @@ Lennan Tuffy, Mason Becker, Isabella Phung, Akanksha Rajagopalan, Sulaiman Islam
 ```
 
 ## Design Objective as Quantified Table
-\input{../common/design_objective_table}
-
+```{.include}
+../common/design_objective_table.md
+```

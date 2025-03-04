@@ -25,8 +25,9 @@ Lennan Tuffy, Mason Becker, Isabella Phung, Akanksha Rajagopalan, Sulaiman Islam
 
 ## Changes from assignemnt 1
 The need and goal statements were modified to fit closer the vision we had for the problem we wanted to solve.
-
-- \input{../common/need_statement}
-
-- \input{../common/goal_statement}
-
+```{.include}
+../common/need_statement.md
+```
+```{.include}
+../common/goal_statement.md
+```
