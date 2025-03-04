@@ -1,1 +1,1 @@
-People struggle with procrastination and managing their resppnsibilities.
+People struggle with managing their responsibilities.
