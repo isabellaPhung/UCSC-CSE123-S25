@@ -6,4 +6,5 @@ header-includes:
  - \usepackage[letterpaper, margin=1in]{geometry}
  - \usepackage{hyperref}
  - \hypersetup{colorlinks=true,urlcolor=blue,allbordercolors={0 0 0},pdfborderstyle={/S/U/W 1}}
+link-citations: true
 ---

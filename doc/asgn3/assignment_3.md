@@ -1,3 +1,8 @@
+---
+nocite: |
+  @noauthor_ipad_nodate, @noauthor_amazon_nodate, @noauthor_environment_nodate, @joint_research_centre_european_commission_guidance_2020, @cordella_durability_2021, @haughton_what_2021
+---
+
 # Assignment 3: Group 2
 Lennan Tuffy, Mason Becker, Isabella Phung, Akanksha Rajagopalan, Sulaiman Islam
 
@@ -27,10 +32,6 @@ Lennan Tuffy, Mason Becker, Isabella Phung, Akanksha Rajagopalan, Sulaiman Islam
 ```{.include}
 ../common/test_plan.md
 ```
-## Bibliography
-```{.include}
-../common/bibliography.md
-```
 
 ## Updates to information already submitted
 
@@ -48,3 +49,7 @@ We updated the design objectives as follows:
 The gantt chart was updated with new issues added since assignment 2.
 
 ![The updated gantt chart](../common/gantt.png)
+
+# References
+:::{#refs}
+:::
