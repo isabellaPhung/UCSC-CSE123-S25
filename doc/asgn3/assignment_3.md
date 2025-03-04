@@ -27,6 +27,10 @@ Lennan Tuffy, Mason Becker, Isabella Phung, Akanksha Rajagopalan, Sulaiman Islam
 ```{.include}
 ../common/test_plan.md
 ```
+## Bibliography
+```{.include}
+../common/bibliography.md
+```
 
 ## Updates to information already submitted
 
