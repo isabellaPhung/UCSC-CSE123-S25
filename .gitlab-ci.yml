@@ -38,6 +38,7 @@ make-design:
     name: pandoc/latex
     entrypoint: ["/bin/sh", "-c"]
   script:
+    - tlmgr install fvextra lineno
     - apk --no-cache add make
     - cd doc/design
     - make pdf
@@ -46,3 +47,21 @@ make-design:
       - doc/design/build/CSE123_Design_Document_Group2.pdf
     expire_in: 1 week
 
+make-presentation:
+  rules:
+    - changes:
+      - doc/common/**/*
+      - doc/presentation/*
+      - .gitlab-ci.yml
+  image:
+    name: pandoc/latex
+    entrypoint: ["/bin/sh", "-c"]
+  script:
+    - tlmgr install fvextra lineno
+    - apk --no-cache add make
+    - cd doc/presentation
+    - make pdf
+  artifacts:
+    paths:
+      - doc/presentation/build/CSE123_Presentation_Group2.pdf
+    expire_in: 1 week
