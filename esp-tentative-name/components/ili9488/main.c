@@ -280,6 +280,7 @@ void update_text(char *text)
     lv_label_set_text(label, text);
 }
 
+/*
 void app_main()
 {
     display_brightness_init();
@@ -303,3 +304,4 @@ void app_main()
     }
     free(text);
 }
+*/

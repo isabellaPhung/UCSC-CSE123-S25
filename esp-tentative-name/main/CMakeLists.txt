@@ -3,6 +3,7 @@ idf_component_register(
     "app_main.c"
   REQUIRES
     "mqtt_conn"
+    "ili9488"
     "nvs_flash"
     "esp_event"
     "esp_netif"
