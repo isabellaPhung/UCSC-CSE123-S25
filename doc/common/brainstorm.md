@@ -1,6 +1,8 @@
-### Need Statement
+### Need Statement (02/12)
 
 Time management software is ineffective because it fails to keep users off their devices.
+
+**Assumption**: the user _wants_ to improve their productivity
 
 ### Time Management Hardware (Ideas)
 
@@ -50,28 +52,3 @@ Time management software is ineffective because it fails to keep users off their
 	- Level up
 	- Fun buttons/crank
 		- Fidget toy
-
-### Assumptions
-
-The user wants to improve their productivity
-
-### Decision Table
-
-- Need to quantify:
-	- Methodology
-	- Budget?
-	- Existing Market?
-	- Distraction potential?
-	- Marketability?
-	- Barrier of entry
-	- Ease of use (number of interactions?)
-	- Internet reliance
-	- Physical presence?
-	- Annoyance?
-
-### Morphological Table
-
-- User input: buttons, touchscreen
-- Output: speaker, color or black & white
-- Form factor: portable/battery
-- Connectivity: internet, bluetooth
