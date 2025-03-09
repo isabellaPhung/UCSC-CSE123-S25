@@ -1,4 +1,4 @@
-# Device Criteria
+## Device Criteria
 
 Our solution included the following criteria tackling the questions:
 - **Budget:** How expensive would the device be to produce?
@@ -19,7 +19,7 @@ These topics were distributed into a weighting system such that our designs can 
 | Sustainability   | 10     |
 | Privacy          | 10     |
 
-# Brainstorming
+## Brainstorming
 After a brainstorming section 8 general concepts were considered:
 - A PDA style, portable device
 - Tablet planner
@@ -30,7 +30,7 @@ After a brainstorming section 8 general concepts were considered:
 - Speaker Assistant
 - Wearable Device  
 
-## A PDA device
+### A PDA device
 A portable interface device designed to be handheld, providing tasks as needed in a self contained network.
 
 | Criteria         | Score | Weighted Score | Note                                                           |
@@ -44,7 +44,7 @@ A portable interface device designed to be handheld, providing tasks as needed i
 
 **Total: 550**
 
-## A Tablet Planner  
+### A Tablet Planner  
 
 | Criteria         | Score | Weighted Score | Note |
 | ---------------- | ----- | -------------- | ---- |
@@ -57,7 +57,7 @@ A portable interface device designed to be handheld, providing tasks as needed i
 
 **Total: 630**
 
-## Face-tracking Water Sprayer
+### Face-tracking Water Sprayer
 
 A device that sprays water at the user when they appear distracted during focus sessions. This system would use facial tracking for determining user focus and for aiming the sprayer.
 
@@ -72,7 +72,7 @@ A device that sprays water at the user when they appear distracted during focus 
 
 **Total: 480**
 
-## Game Device
+### Game Device
 
 A device designed to be located on a desktop designed to gamify tasks. The device would have unorthodox controls to allow for more fun interactions, as well as a robust speaker and lighting system for maximum presence and feedback.
 
@@ -87,7 +87,7 @@ A device designed to be located on a desktop designed to gamify tasks. The devic
 
 **Total: 630**
 
-## Focus Desk
+### Focus Desk
 
 A smart desk with an in built notification system and lighting system to improve focus.
 
@@ -102,7 +102,7 @@ A smart desk with an in built notification system and lighting system to improve
 
 **Total: 340**
 
-## Security Camera System
+### Security Camera System
 
 An array of cameras to set up around the house that monitors the user with a cloud-powered system
   
@@ -116,7 +116,7 @@ An array of cameras to set up around the house that monitors the user with a clo
 | Privacy          | 1     | 10             | Sends highly sensitive data to cloud constantly         |
 **Total: 380**
 
-## Speaker Assistant
+### Speaker Assistant
 
 An assistant that communitcates when tasks should be done.
 
@@ -130,7 +130,7 @@ An assistant that communitcates when tasks should be done.
 | Privacy          | 3     | 30             | Always listening                      |
 **Total: 490**
 
-## Wearable Device
+### Wearable Device
 
 A watch like device with a gantt chart like interface.
 
@@ -145,7 +145,8 @@ A watch like device with a gantt chart like interface.
 
 **Total: 480**
 
-# Conclusion
+## Conclusion
 
-Both the tablet planner and game style device appear to be the most ideal for the considerations given.
+Both the **tablet planner** and **game style device** appear to be the most ideal for the considerations given.
+
 A combination of the two was chosen in the end, a sizeable desktop device with a large and present screen as was suggested from the tablet planner, yet with the addition of several interfacing buttons for clear interfacing.
