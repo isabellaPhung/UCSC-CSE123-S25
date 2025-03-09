@@ -17,5 +17,7 @@ INSERT_MD += ../common/design_objective_table.md
 INSERT_MD += ../common/morphological_chart.md
 INSERT_MD += ../common/brainstorm.md
 
+INSERT_MD += ../common/decision_table.md
+
 INSERT_MD += ../common/design_for_manufacture_and_assembly.md
 INSERT_MD += ../common/lifecycle_assessment.md
