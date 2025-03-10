@@ -1,0 +1,13 @@
+- PDA device
+- Focus chair w/aromatherapy
+- Tablet-sized digital planner
+- Virtual/augmented reality
+- Software-paired device
+- Face-tracking sprayer
+- A taser/baseball bat
+- Game device
+- Focus desk
+- Security camera/smart house
+- Speaker assistant (e.g. Alexa)
+- Wearable technology
+- Phone case w/sprayer
