@@ -13,17 +13,59 @@
 
 \begin{frame}
   \frametitle{Design Objectives}
-  \input{build/design_objective_md}
+  Four key objectives:
+  \begin{itemize}
+    \item Presence
+    \item Portability / ease of set-up
+    \item Configurable
+    \item Accessible
+  \end{itemize}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Conceptualizations}
-  \input{build/brainstorm_md}
+  \frametitle{What out project could have been...}
+  % TODO
+  We considered several methods of and created hypothetical devices that may ???
+  \\~\\
+  \begin{columns}
+    \column{0.5\textwidth}
+    Method
+    \begin{itemize}
+      \item Personal assistant
+      \item Accountability
+      \item Notification
+      \item Planner
+    \end{itemize}
+
+    \column{0.5\textwidth}
+    Device
+    \begin{itemize}
+      \item House-wide security system
+      \item Face tracking water sprayer
+      \item Home assistant
+      \item PDA Device
+    \end{itemize}
+
+  \end{columns}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Decision Table}
-  \input{build/decision_table_md}
+  \frametitle{Choosing the best design}
+  % TODO
+  We derived weights from
+  \begin{longtable}[]{@{}ll@{}}
+  \toprule
+  Criteria & Weight \\
+  \midrule
+  \endhead
+  Budget & 20 \\
+  Presence & 20 \\
+  Ease of Use & 20 \\
+  Barrier of Entry & 20 \\
+  Sustainability & 10 \\
+  Privacy & 10 \\
+  \bottomrule
+  \end{longtable}
 \end{frame}
 
 \begin{frame}
@@ -33,8 +75,27 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Test Plan}
-  \input{build/test_plan_md}
+  \frametitle{Testing}
+
+  \begin{columns}
+    \column{0.7\textwidth}
+    Testing on the microcontroller can be automated with Unity and pytest.
+    \\~\\
+    For tests that go beyond the software level, the following need to be defined in the tests:
+    \begin{itemize}
+      \item Stimulus
+      \item Control variables
+      \item Expected Results
+      \item Walkthrough of the procedure
+    \end{itemize}
+
+    \column{0.3\textwidth}
+    \includegraphics[width=0.5\textwidth]{pytest_logo.png} \\
+    \includegraphics[width=0.5\textwidth]{unity_logo.png}
+
+  \end{columns}
+  \vskip0pt plus 1fill
+  \hfill {\tiny Source: pytest docs, Unity homepage}
 \end{frame}
 
 \begin{frame}
