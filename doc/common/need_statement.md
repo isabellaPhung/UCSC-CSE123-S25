@@ -1,1 +1,1 @@
-Software tailored to assiting users in the organization of their use of time does not assist the user in scheduling of time or adhering to schedulinh of time. 
+Software tailored to assist users in organizing their time does not assist the user in scheduling time or adhering to thier schedule.
