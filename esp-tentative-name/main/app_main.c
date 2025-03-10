@@ -9,9 +9,20 @@
 #include "esp_netif.h"
 #include "protocol_examples_common.h"
 
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/semphr.h"
+
 #include "esp_log.h"
 
-int aws_iot_demo_main( int argc, char ** argv );
+void aws_iot_demo_main(void *pvParameters);
+void lcd_task(void *pvParameters);
+
+struct {
+  SemaphoreHandle_t buffer_sem;
+  char payload[512];
+  size_t payload_len;
+} task_params;
 
 static const char *TAG = "MQTT_EXAMPLE";
 
@@ -48,5 +59,8 @@ void app_main()
      */
     ESP_ERROR_CHECK(example_connect());
 
-    aws_iot_demo_main(0,NULL);
+    vSemaphoreCreateBinary(task_params.buffer_sem);
+
+    xTaskCreate(aws_iot_demo_main, "AWS_DEMO", 4069, (void *)&task_params, 5, NULL);
+    xTaskCreate(lcd_task, "LCD_DEMO", 4069, (void *)&task_params, 5, NULL);
 }

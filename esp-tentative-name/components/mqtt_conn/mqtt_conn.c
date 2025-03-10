@@ -371,7 +371,14 @@ static StaticSemaphore_t xTlsContextSemaphoreBuffer;
 
 /*-----------------------------------------------------------*/
 
-int aws_iot_demo_main( int argc, char ** argv );
+struct main_param{
+  SemaphoreHandle_t buffer_sem;
+  char payload[512];
+  size_t payload_len;
+};
+static struct main_param *mp;
+
+void aws_iot_demo_main(void *pvParameters);
 
 /**
  * @brief The random number generator to use for exponential backoff with
@@ -505,7 +512,7 @@ static int unsubscribeFromTopic( MQTTContext_t * pMqttContext );
  * @return EXIT_SUCCESS if PUBLISH was successfully sent;
  * EXIT_FAILURE otherwise.
  */
-static int publishToTopic( MQTTContext_t * pMqttContext );
+//static int publishToTopic( MQTTContext_t * pMqttContext );
 
 /**
  * @brief Function to get the free index at which an outgoing publish
@@ -517,7 +524,7 @@ static int publishToTopic( MQTTContext_t * pMqttContext );
  * @return EXIT_FAILURE if no more publishes can be stored;
  * EXIT_SUCCESS if an index to store the next outgoing publish is obtained.
  */
-static int getNextFreeIndexForOutgoingPublishes( uint8_t * pIndex );
+//static int getNextFreeIndexForOutgoingPublishes( uint8_t * pIndex );
 
 /**
  * @brief Function to clean up an outgoing publish at given index from the
@@ -775,6 +782,7 @@ static int connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContext
 
 /*-----------------------------------------------------------*/
 
+/*
 static int getNextFreeIndexForOutgoingPublishes( uint8_t * pIndex )
 {
     int returnStatus = EXIT_FAILURE;
@@ -785,20 +793,25 @@ static int getNextFreeIndexForOutgoingPublishes( uint8_t * pIndex )
 
     for( index = 0; index < MAX_OUTGOING_PUBLISHES; index++ )
     {
+    */
         /* A free index is marked by invalid packet id.
          * Check if the the index has a free slot. */
+/*
         if( outgoingPublishPackets[ index ].packetId == MQTT_PACKET_ID_INVALID )
         {
             returnStatus = EXIT_SUCCESS;
             break;
         }
     }
+    */
 
     /* Copy the available index into the output param. */
+/*
     *pIndex = index;
 
     return returnStatus;
 }
+*/
 /*-----------------------------------------------------------*/
 
 static void cleanupOutgoingPublishAt( uint8_t index )
@@ -943,6 +956,13 @@ static void handleIncomingPublish( MQTTPublishInfo_t * pPublishInfo,
                    packetIdentifier,
                    ( int ) pPublishInfo->payloadLength,
                    ( const char * ) pPublishInfo->pPayload ) );
+        if (xSemaphoreTake(mp->buffer_sem, portMAX_DELAY)){
+           // copy just 511 bytes to leave space for 0 
+            mp->payload_len = (pPublishInfo->payloadLength > 511) 
+              ? 511 : pPublishInfo->payloadLength;
+            memcpy(mp->payload, pPublishInfo->pPayload, mp->payload_len);
+            xSemaphoreGive(mp->buffer_sem);
+        }
     }
     else
     {
@@ -1334,6 +1354,7 @@ static int unsubscribeFromTopic( MQTTContext_t * pMqttContext )
 
 /*-----------------------------------------------------------*/
 
+/*
 static int publishToTopic( MQTTContext_t * pMqttContext )
 {
     int returnStatus = EXIT_SUCCESS;
@@ -1342,10 +1363,12 @@ static int publishToTopic( MQTTContext_t * pMqttContext )
 
     assert( pMqttContext != NULL );
 
+    */
     /* Get the next free index for the outgoing publish. All QoS1 outgoing
      * publishes are stored until a PUBACK is received. These messages are
      * stored for supporting a resend if a network connection is broken before
      * receiving a PUBACK. */
+/*
     returnStatus = getNextFreeIndexForOutgoingPublishes( &publishIndex );
 
     if( returnStatus == EXIT_FAILURE )
@@ -1354,17 +1377,21 @@ static int publishToTopic( MQTTContext_t * pMqttContext )
     }
     else
     {
+    */
         /* This example publishes to only one topic and uses QOS1. */
+/*
         outgoingPublishPackets[ publishIndex ].pubInfo.qos = MQTTQoS1;
         outgoingPublishPackets[ publishIndex ].pubInfo.pTopicName = MQTT_EXAMPLE_TOPIC;
         outgoingPublishPackets[ publishIndex ].pubInfo.topicNameLength = MQTT_EXAMPLE_TOPIC_LENGTH;
         outgoingPublishPackets[ publishIndex ].pubInfo.pPayload = MQTT_EXAMPLE_MESSAGE;
         outgoingPublishPackets[ publishIndex ].pubInfo.payloadLength = MQTT_EXAMPLE_MESSAGE_LENGTH;
+        */
 
         /* Get a new packet id. */
-        outgoingPublishPackets[ publishIndex ].packetId = MQTT_GetPacketId( pMqttContext );
+        //outgoingPublishPackets[ publishIndex ].packetId = MQTT_GetPacketId( pMqttContext );
 
         /* Send PUBLISH packet. */
+/*
         mqttStatus = MQTT_Publish( pMqttContext,
                                    &outgoingPublishPackets[ publishIndex ].pubInfo,
                                    outgoingPublishPackets[ publishIndex ].packetId );
@@ -1387,6 +1414,7 @@ static int publishToTopic( MQTTContext_t * pMqttContext )
 
     return returnStatus;
 }
+*/
 
 /*-----------------------------------------------------------*/
 
@@ -1449,8 +1477,8 @@ static int subscribePublishLoop( MQTTContext_t * pMqttContext )
 {
     int returnStatus = EXIT_SUCCESS;
     MQTTStatus_t mqttStatus = MQTTSuccess;
-    uint32_t publishCount = 0;
-    const uint32_t maxPublishCount = MQTT_PUBLISH_COUNT_PER_LOOP;
+    //uint32_t publishCount = 0;
+    //const uint32_t maxPublishCount = MQTT_PUBLISH_COUNT_PER_LOOP;
 
     assert( pMqttContext != NULL );
 
@@ -1499,6 +1527,7 @@ static int subscribePublishLoop( MQTTContext_t * pMqttContext )
     {
         /* Publish messages with QOS1, receive incoming messages and
          * send keep alive messages. */
+      /*
         for( publishCount = 0; publishCount < maxPublishCount; publishCount++ )
         {
             LogInfo( ( "Sending Publish to the MQTT topic %.*s.",
@@ -1506,6 +1535,7 @@ static int subscribePublishLoop( MQTTContext_t * pMqttContext )
                        MQTT_EXAMPLE_TOPIC ) );
             returnStatus = publishToTopic( pMqttContext );
 
+            */
             /* Calling MQTT_ProcessLoop to process incoming publish echo, since
              * application subscribed to the same topic the broker will send
              * publish message back to the application. This function also
@@ -1521,14 +1551,14 @@ static int subscribePublishLoop( MQTTContext_t * pMqttContext )
                 LogError( ( "MQTT_ProcessLoop returned with status = %s.",
                             MQTT_Status_strerror( mqttStatus ) ) );
                 returnStatus = EXIT_FAILURE;
-                break;
+                //break;
             }
 
             LogInfo( ( "Delay before continuing to next iteration.\n\n" ) );
 
             /* Leave connection idle for some time. */
             sleep( DELAY_BETWEEN_PUBLISHES_SECONDS );
-        }
+        //}
     }
 
     if( returnStatus == EXIT_SUCCESS )
@@ -1661,8 +1691,8 @@ static MQTTStatus_t processLoopWithTimeout( MQTTContext_t * pMqttContext,
  * are resent in this demo. In order to support retransmission all the outgoing
  * publishes are stored until a PUBACK is received.
  */
-int aws_iot_demo_main( int argc,
-          char ** argv )
+
+void aws_iot_demo_main(void *pvParameters)
 {
     int returnStatus = EXIT_SUCCESS;
     MQTTContext_t mqttContext = { 0 };
@@ -1670,8 +1700,7 @@ int aws_iot_demo_main( int argc,
     bool clientSessionPresent = false, brokerSessionPresent = false;
     struct timespec tp;
 
-    ( void ) argc;
-    ( void ) argv;
+    mp = (struct main_param *)pvParameters;
 
     /* Seed pseudo random number generator (provided by ISO C standard library) for
      * use by retry utils library when retrying failed network operations. */
@@ -1751,7 +1780,7 @@ int aws_iot_demo_main( int argc,
         }
     }
 
-    return returnStatus;
+    //return returnStatus;
 }
 
 /*-----------------------------------------------------------*/

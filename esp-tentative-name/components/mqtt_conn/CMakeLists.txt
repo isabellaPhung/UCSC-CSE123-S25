@@ -2,6 +2,7 @@ idf_component_register(
   SRCS
     "mqtt_conn.c"
   REQUIRES
+    "freertos"
     "backoffAlgorithm"
     "coreMQTT"
     "posix_compat"

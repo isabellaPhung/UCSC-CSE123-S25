@@ -17,6 +17,7 @@
 #include <esp_timer.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
+#include <freertos/semphr.h>
 #include <lvgl.h>
 #include <stdio.h>
 #include "sdkconfig.h"
@@ -280,8 +281,14 @@ void update_text(char *text)
     lv_label_set_text(label, text);
 }
 
-/*
-void app_main()
+struct main_param{
+  SemaphoreHandle_t buffer_sem;
+  char payload[512];
+  size_t payload_len;
+};
+static struct main_param *mp;
+
+void lcd_task(void *pvParameters)
 {
     display_brightness_init();
     display_brightness_set(0);
@@ -289,19 +296,23 @@ void app_main()
     initialize_display();
     initialize_lvgl();
     display_brightness_set(100);
+
+    mp = (struct main_param *)pvParameters;
     
-    char *text = (char*)malloc(512*sizeof(char)); //allocate buffer for text
-    strcpy(text, "Hello, world! This is is test text for the ESP32C3 board using LVGL on a ili9488 3.5 inch TFT spi board!"); //initial text
+    char text[512] = { 0 };
     create_demo_ui(text); //create initial demo background and text
     while (1)
     {
         vTaskDelay(pdMS_TO_TICKS(10));
         lv_timer_handler(); //update screen
         vTaskDelay(pdMS_TO_TICKS(5000)); //delay
-        strcpy(text, "This text has been updated after 5 seconds!"); //new string
+        if (xSemaphoreTake(mp->buffer_sem, portMAX_DELAY)){
+          memcpy(text, (char *)mp->payload, mp->payload_len);
+          xSemaphoreGive(mp->buffer_sem);
+        }
+        ESP_LOGW("LCD", "The LCD Text is: %s\n", text);
+        text[mp->payload_len] = '\0';
         update_text(text); //update label
         lv_timer_handler(); //update screen
     }
-    free(text);
 }
-*/
