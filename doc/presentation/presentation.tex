@@ -1,78 +1,112 @@
-\documentclass[10pt]{beamer}
-
-\usetheme[progressbar=frametitle]{metropolis}
-\usepackage{appendixnumberbeamer}
-
-\usepackage{booktabs}
-\usepackage[scale=2]{ccicons}
-
-\usepackage{pgfplots}
-\usepgfplotslibrary{dateplot}
-
-\usepackage{xspace}
-\newcommand{\themename}{\textbf{\textsc{metropolis}}\xspace}
-
-\title{The Electronic Planner}
-\subtitle{CSE 123A Final Presentation}
-\date{}
-\author{Lennan Tuffy, Isabella Phung, Mason Becker, Akanksha Rajagopalan, Sulaiman Islam}
-\institute{UCSC}
+\documentclass{beamer}
+\usepackage{presentation}
 
 \begin{document}
 
-\maketitle
+\frame{\titlepage}
 
-\begin{frame}{Table of contents}
-  \setbeamertemplate{section in toc}[sections numbered]
-  \tableofcontents
+\begin{frame}
+  \frametitle{Need and goal statement}
+  Need Statement:
+  \input{build/need_statement_md} \\
+  Goal Statement:
+  \input{build/goal_statement_md} \\
 \end{frame}
 
-\section{Need \& Goal Statements}
-
-\begin{frame}{Need \& Goal Statements}
-  % Content for Need & Goal Statements
+\begin{frame}
+  \frametitle{Design Objectives}
+  Four key objectives:
+  \begin{itemize}
+    \item Presence
+    \item Portability / ease of set-up
+    \item Configurable
+    \item Accessible
+  \end{itemize}
 \end{frame}
 
-\section{Design Objectives}
+\begin{frame}
+  \frametitle{What our project could have been...}
+  % TODO
+  We considered several ideas to address our goal statement after analyzing existing methods:
+  \\~\\
+  \begin{columns}
+    \column{0.5\textwidth}
+    Method
+    \begin{itemize}
+      \item Personal assistant
+      \item Accountability
+      \item Notification
+      \item Planner
+    \end{itemize}
 
-\begin{frame}{Design Objectives}
-  % Content for Design Objectives
+    \column{0.5\textwidth}
+    Device
+    \begin{itemize}
+      \item Game device
+      \item Face tracking water sprayer
+      \item Home assistant
+      \item PDA Device
+    \end{itemize}
+
+  \end{columns}
 \end{frame}
 
-\section{Conceptualisations}
-
-\begin{frame}{Conceptualisations}
-  % Content for Conceptualisations
+\begin{frame}
+  \frametitle{Choosing the best design}
+  % TODO
+  We derived weights from
+  \begin{longtable}[]{@{}ll@{}}
+  \toprule
+  Criteria & Weight \\
+  \midrule
+  \endhead
+  Budget & 20 \\
+  Presence & 20 \\
+  Ease of Use & 20 \\
+  Barrier of Entry & 20 \\
+  Sustainability & 10 \\
+  Privacy & 10 \\
+  \bottomrule
+  \end{longtable}
 \end{frame}
 
-\section{Decision Table}
-
-\begin{frame}{Decision Table}
-  % Content for Decision Table
+\begin{frame}
+  \frametitle{Planning: CPM \& Gantt chart}
+  \includegraphics[width=\textwidth]{gantt.png}
+  The gantt chart was generated from gitlab issues.
 \end{frame}
 
-\section{Planning}
+\begin{frame}
+  \frametitle{Testing}
 
-\begin{frame}{Planning: CPM \& Gantt Chart}
-  % Content for Planning: CPM & Gantt Chart
+  \begin{columns}
+    \column{0.7\textwidth}
+    Testing on the microcontroller can be automated with Unity and pytest.
+    \\~\\
+    For tests that go beyond the software level, the following need to be defined in the tests:
+    \begin{itemize}
+      \item Stimulus
+      \item Control variables
+      \item Expected Results
+      \item Walkthrough of the procedure
+    \end{itemize}
+
+    \column{0.3\textwidth}
+    \includegraphics[width=0.5\textwidth]{pytest_logo.png} \\
+    \includegraphics[width=0.5\textwidth]{unity_logo.png}
+
+  \end{columns}
+  \vskip0pt plus 1fill
+  \hfill {\tiny Source: pytest docs, Unity homepage}
 \end{frame}
 
-\section{Test Plan}
-
-\begin{frame}{Test Plan}
-  % Content for Test Plan
+\begin{frame}
+  \frametitle{Prototype}
+  text
 \end{frame}
 
-\section{Prototypes}
-
-\begin{frame}{Prototype(s)}
-  % Content for Prototype(s)
+\begin{frame}
+  \frametitle{What's next?}
+  % Confidence on on-time completion
 \end{frame}
-
-\section{Summary}
-
-\begin{frame}{Brief Summary}
-  % Content for Brief Summary
-\end{frame}
-
 \end{document}
