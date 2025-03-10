@@ -1,13 +1,49 @@
 \documentclass{beamer}
+\usepackage{presentation}
 
 \begin{document}
 
 \frame{\titlepage}
 
 \begin{frame}
-  \frametitle{Sample text}
-  This is a sample slide. \\
-  \input{build/need_statement_md}
+  \frametitle{Need and goal statement}
+  \input{build/need_statement_md} \\
+  \input{build/goal_statement_md} \\
 \end{frame}
 
+\begin{frame}
+  \frametitle{Design Objectives}
+  \input{build/design_objective_md}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Conceptualizations}
+  \input{build/brainstorm_md}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Decision Table}
+  \input{build/decision_table_md}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Planning: CPM \& Gantt chart}
+  \includegraphics[width=\textwidth]{gantt.png}
+  The gantt chart was generated from gitlab issues.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Test Plan}
+  \input{build/test_plan_md}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Prototype}
+  text
+\end{frame}
+
+\begin{frame}
+  \frametitle{What's next?}
+  % Confidence on on-time completion
+\end{frame}
 \end{document}
