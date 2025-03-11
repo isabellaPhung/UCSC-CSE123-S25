@@ -7,16 +7,21 @@
 
 \begin{frame}
   \frametitle{Need and goal statement}
-  \textbf{Need Statement}:
+
+  What we
+  \textbf{need}:
   \input{build/need_statement_md}
   \newline
   \newline
-  \textbf{Goal Statement}:
-  \input{build/goal_statement_md} \\
+  Our
+  \textbf{goal}:
+  \input{build/goal_statement_md}
+
 \end{frame}
 
 \begin{frame}
   \frametitle{Design Objectives}
+
   Four key objectives:
   \begin{itemize}
     \item Presence
@@ -25,42 +30,43 @@
     \item Accessible
   \end{itemize}
 
-  \note{This is a note}
 \end{frame}
 
 \begin{frame}
   \frametitle{What our project could have been...}
-  % TODO
-  We considered several ideas to address our goal statement after analyzing existing methods:
-  \\~\\
+
+  Map task management methods to devices, generate unique ideas
+  \newline
+  \newline
+
   \begin{columns}
     \column{0.5\textwidth}
     Method
     \begin{itemize}
       \item Personal assistant
       \item Accountability
-      \item Notification
+      \item Streaks, levels
       \item Planner
     \end{itemize}
 
     \column{0.5\textwidth}
     Device
     \begin{itemize}
-      \item Game device
-      \item Face tracking water sprayer
       \item Home assistant
+      \item Face tracking sprayer
+      \item Game device
       \item PDA Device
     \end{itemize}
 
   \end{columns}
 
-  \note{This is a note}
 \end{frame}
 
 \begin{frame}
   \frametitle{Choosing the best design}
-  % TODO
-  We derived weights from
+
+  We derived weights from our daily use of electronics and apps
+
   \begin{longtable}[]{@{}ll@{}}
   \toprule
   Criteria & Weight \\
@@ -75,18 +81,30 @@
   \bottomrule
   \end{longtable}
 
-  Top designs: game device, tablet-sized planner, PDA device
+  \note[item]{Explain what each of these mean}
+  \note[item]{Connect weights with decision chart}
+  \note[item]{Show how these weights apply to the products shown in the previous slide}
 
-  \note{This is a note}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Planning: CPM \& Gantt chart}
-  \includegraphics[width=\textwidth]{gantt.png}
-  The gantt chart was generated from gitlab issues.
+  \frametitle{Embedded System Flow}
 
-  \note{This is a note}
+  \begin{center}
+    \includegraphics[height=0.7\textheight]{embedded_system_flow_chart.png}
+  \end{center}
+
+  \hfill {\tiny Source: Created with AI on Apple Playground}
+
+  \note[item]{AWS IoT provides MQTT connection with esp32}
+  \note[item]{Simple Storage Service (S3) provides database}
+  \note[item]{Elastic Compute Cloud (EC2) provides web server}
+  \note[item]{Web server with Flask + boto3 (S3 SDK) on python, nginx for the actual server, all on docker}
+  \note[item]{Audio, LCD, and storage will be managed by their own components}
+  \note[item]{Everything will be running as a FreeRTOS task with some shared resources}
+
 \end{frame}
+
 
 \begin{frame}
   \frametitle{Testing}
@@ -94,7 +112,8 @@
   \begin{columns}
     \column{0.7\textwidth}
     Testing on the microcontroller can be automated with Unity and pytest.
-    \\~\\
+    \newline
+    \newline
     For physical and software tests, we will define the following:
     \begin{itemize}
       \item Stimulus
@@ -108,32 +127,20 @@
     \includegraphics[width=0.5\textwidth]{unity_logo.png}
 
   \end{columns}
+
   \hfill {\tiny Source: pytest docs, Unity homepage}
-  \note{This is a note}
+  \note[item]{Unity for unit testing functions}
+  \note[item]{pytest for automating tests on the target}
+  \note[item]{Mention testing for areas outside areas defined by software - durability, user experience, etc.}
 \end{frame}
 
-% --- Prototyping ---
 \begin{frame}
   \frametitle{Prototype}
-  \begin{columns}
-    \column{0.5\textwidth}
+
+  \begin{center}
     \includegraphics[height=0.7\textheight]{aws_demo.jpg}
-    \column{0.5\textwidth}
-    Functionality is spread across three tasks, the latter two running concurrently
-    \begin{enumerate}
-      \item app\_main
-      \item AWS IoT connection
-      \item LCD screen updates
-    \end{enumerate}
-  \end{columns}
-  \hfill {\tiny Source: pytest Apple Playground}
+  \end{center}
 
-  \note{This is a note}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Embedded System Flow}
-  \includegraphics[width=\textwidth]{embedded_system_flow_chart.png}
 \end{frame}
 
 \begin{frame}
