@@ -132,6 +132,21 @@
   \note[item]{Unity for unit testing functions}
   \note[item]{pytest for automating tests on the target}
   \note[item]{Mention testing for areas outside areas defined by software - durability, user experience, etc.}
+  \note[item]{Any automated tests performed on the software will be done using pytest and Unity. pytest is capable of running automated tests on individual components of the esp32c3 while unity can run any tests that don't require a driver, so it doesn't require the usage of the esp32 for testing.}
+  \note[item]{we can design a variety of tests on for example, expected outputs when the user makes a choice. If the user chooses to delay a task, we can directly compare the output of a task checker function against expected values. These tests can be automated and repeated multiple times. This is especially useful when combined with the ESP ERROR output values.}
+\note[item]{checking user data persistence on the sd card}
+\note[item]{visual inspections to ensure lcd connectivity and functionality}
+\note[item]{checking the implemented scheduling algorithm to see if it's displaying what's expected}
+\note[item]{stress testing the algorithm by creating impossible schedules or very complex schedules}
+\note[item]{testing internet connectivity}
+\note[item]{ensuring data is consistent between both the cloud database and the device}
+\note[item]{restoration from a cloud backup in the event of sd card corruption or full system failure.}
+\note[item]{persistent data display when not connected to the cloud. although this device can sync to the cloud so someone can check their phone for more information, this device can also be brought to discourage someone from relying on their phone as much.}
+\note[item]{modularity testing, in the event a part is broken and the user could possibly send their unit in for repair, we want to ensure data and user settings are fully restored from the sd card}
+\note[item]{checking encryption to ensure data is fully encrypted end to end and is still decryptable via a replacement device}
+\note[item]{strength checks to ensure the body is durable enough to not be bent.}
+\note[item]{begin with 1/2 foot drop tests to ensure the body does not instantly break as this is intended to be somewhat portable}
+\note[item]{chemical tests, we've discussed some more ecofriendly packaging, but it's important to check what chemicals the device may be sensitive to.}
 \end{frame}
 
 \begin{frame}
