@@ -4,12 +4,12 @@ Our solution included the following criteria tackling the questions:
 
 - **Budget:** How expensive would the device be to produce?
 - **Presence:** How often will our user acknowledge the device during their work period?
-- **Ease of Use:** How coinvent is it to interface with the device?
+- **Ease of Use:** How convenient is it to interface with the device?
 - **Barrier of Entry:** How much will the user be forced to learn in order to properly use the device?
 - **Sustainability:** Is the device created from sustainable materials?
 - **Privacy:** Is the user's data being safely managed? Is the data collected sensitive?
 
-These topics were distributed into a weighting system such that our designs can be properly scored, which can be seen in the table below:
+These topics were distributed into a weighting system such that our designs could be properly scored, which can be seen in the table below:
 
 | Criteria         | Weight |
 | ---------------- | ------ |
@@ -21,7 +21,7 @@ These topics were distributed into a weighting system such that our designs can 
 | Privacy          | 10     |
 
 ### Brainstorming
-After a brainstorming section 8 general concepts were considered:
+After a brainstorming session, 8 general concepts were considered:
 
 - A PDA style, portable device
 - Tablet planner
@@ -33,7 +33,7 @@ After a brainstorming section 8 general concepts were considered:
 - Wearable Device  
 
 ### A PDA device {.unlisted .unnumbered}
-A portable interface device designed to be handheld, providing tasks as needed in a self contained network.
+A portable interface device designed to be handheld, providing tasks as needed in a self-contained network.
 
 | Criteria         | Score | Weighted Score | Note                                                           |
 | ---------------- | ----- | -------------- | -------------------------------------------------------------- |
@@ -91,7 +91,7 @@ A device designed to be located on a desktop designed to gamify tasks. The devic
 
 ### Focus Desk {.unlisted .unnumbered}
 
-A smart desk with an in built notification system and lighting system to improve focus.
+A smart desk with an in-built notification system and lighting system to improve focus.
 
 | Criteria         | Score | Weighted Score | Note |
 | ---------------- | ----- | -------------- | ---- |
@@ -120,7 +120,7 @@ An array of cameras to set up around the house that monitors the user with a clo
 
 ### Speaker Assistant {.unlisted .unnumbered}
 
-An assistant that communitcates when tasks should be done.
+An assistant that communicates when tasks should be done.
 
 | Criteria         | Score | Weighted Score | Note                                  |
 | ---------------- | ----- | -------------- | ------------------------------------- |
@@ -134,7 +134,7 @@ An assistant that communitcates when tasks should be done.
 
 ### Wearable Device {.unlisted .unnumbered}
 
-A watch like device with a gantt chart like interface.
+A watch-like device with a gantt chart-like interface.
 
 | Criteria         | Score | Weighted Score | Note                                                                             |
 | ---------------- | ----- | -------------- | -------------------------------------------------------------------------------- |
@@ -150,4 +150,4 @@ A watch like device with a gantt chart like interface.
 ### Conclusion
 
 Both the **tablet planner** and **game style device** appear to be the most ideal for the considerations given.
-A combination of the two was chosen in the end, a sizeable desktop device with a large and present screen as was suggested from the tablet planner, yet with the addition of several interfacing buttons for clear interfacing.
+A combination of the two was chosen in the end: a sizeable desktop device with a large and present screen as was suggested from the tablet planner, yet with the addition of several interfacing buttons.
