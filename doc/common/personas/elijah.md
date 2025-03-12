@@ -1,6 +1,6 @@
 ### Elijah Eiko {-} 
 
-![Elijah](Elijah.png){width=33%}
+![Elijah](Elijah.png)
 
 ### Info {#e_info .unnumbered .unlisted}
 
