@@ -1,5 +1,6 @@
-1.DFM Emphasis:
+1. DFM Emphasis:
 Minimize part count, ensure ease of assembly, and use sustainable, readily sourced materials that adhere to ESG standards.
+
 2. Component and Part Optimization
 Simplified System Architecture:
 Use a low‑power SoC that provides enough performance for basic apps without unnecessary complexity.
@@ -7,6 +8,7 @@ Limit the number of integrated peripherals to only those essential for Wi‑Fi c
 Minimization of Part Count:
 Integrate functions wherever possible to reduce separate components.
 Use a unified PCB design that consolidates sensor circuits, display driver circuitry, and memory modules to simplify assembly.
+
 3. Material and Process Selection
 External Casing:
 Use a blend of recycled polymers and bio‑based sugarcane materials sourced from suppliers in Malaysia/Indonesia that meet ISO 14021 standards.
@@ -16,6 +18,7 @@ Use recycled aluminum for internal structural supports, taking advantage of its 
 Display Options:
 Provide two models: an LCD variant and an E‑Ink variant for users who prioritize energy efficiency and long life cycles.
 Design the display mounting system to be common across models, with slight adjustments for backplane electronics.
+
 4. Assembly and Integration
 Ease of Assembly:
 Design the device with self‑orienting parts and clearly marked alignment features to facilitate automated or manual assembly.
@@ -26,6 +29,7 @@ Allow for easy disassembly to facilitate repair or recycling.
 Interconnects and Tolerances:
 Define clear tolerances for PCB components, connectors, and display interfaces to minimize assembly errors.
 Include “keyed” connectors to prevent misalignment during the integration of sensors, memory, and driver circuits.
+
 5. Process Considerations and Supplier Collaboration
 Manufacturing Process:
 Choose manufacturing techniques that are optimized for high‑volume, low‑cost production.
