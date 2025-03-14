@@ -1,7 +1,7 @@
 ### Persistence of data after power-off
 Scope: flash storage, file operations
 
-Apparatus: The device, host machine for flashing and running tests
+Apparatus: productivity device, host machine for flashing and running tests
 
 Independent variables: The flash device and model
 
