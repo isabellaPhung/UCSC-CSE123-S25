@@ -13,9 +13,9 @@ The following are tests that will be performed on both the prototype and the man
 - The device should have continued standard functionality when not connected to the cloud. Device will be disconnected from the internet and should continue to function with its existing schedule.
 
 Qualitative analysis can be made on user input to determine if the device can positively affect productivity.
-The user would be provided the device and have it placed on their workspace for approximately two to three hours, afterwards they would be given a questionaire that would ask users to rate on a scale of -5 to 5 to determine how much the device improved their workflow.
+The user would be provided the device and have it placed on their workspace for approximately two to three hours, afterwards they would be given a questionnaire that would ask users to rate on a scale of -5 to 5 to determine how much the device improved their workflow.
 
 The following are tests should be performed on a few samples of the manufactured product to ensure its construction quality:
 - Checking the integrity of the device via tensile testing machines to ensure the device can withstand standard usage.
 - Half foot and one foot drop tests to verify the durability of the build. 
-- Surface chemical testing with standard househould products to ensure the combination of PVA and ABS plastics do not dissolve under exposure to these chemicals.
+- Surface chemical testing with standard household products to ensure the combination of PVA and ABS plastics do not dissolve under exposure to these chemicals.
