@@ -1,19 +1,17 @@
-### Persistence of data after power-off
+### Data cloud synchronization
 Scope: flash storage, file operations, cloud operations
 
-Apparatus: The device, host machine for flashing and running tests, cloud server access
+Apparatus: productivity device, host machine for flashing and running tests, cloud server access
 
-Independent variables: The flash device and model, cloud data storage.
+Independent variables: cloud data storage.
 
-Dependent variables: File contents (randomized bytes, database), file size (bytes), power off behaviour (planned, power-loss)
+Dependent variables: File contents (database), file size (bytes), power off behaviour (planned, power-loss)
 
 Procedure:
 
-1. Before booting up the device, verify it is connected to the internet to ensure the device is not paired with the internet and that data is not overwritten on the device.
-2. Create a test user and some schedule data to be written. This data is automatically written to the sd card.
-3. Run the data_comparator.py pytest tool. This test program requests user data from the ESP device and compares the data to expected output.
-4. Run the test to check the contents of the user data and compare it against the expected results.
-5. Remove power to the device, wait 10 seconds before restoring power.
-6. Rerun the test program.
+1. Verify the device is connected to the internet to ensure the device is paired with the internet.
+2. Create a test user and some schedule data to be written. This data is automatically written to the sd card and should automatically be written to cloud storage.
+3. Log into the user via a laptop or mobile device and add schedule data and change the settings.
+4. Check the device to verify that the new schedule data has been added and the settings have been changed.
 
-Expectation: All file contents stay the same
+Expectation: Within 10 seconds, the device should be updated with the new schedule and setting information.

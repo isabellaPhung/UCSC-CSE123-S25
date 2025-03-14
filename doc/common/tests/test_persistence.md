@@ -5,7 +5,7 @@ Apparatus: productivity device, host machine for flashing and running tests
 
 Independent variables: The flash device and model
 
-Dependent variables: File contents (randomized bytes, database), file size (bytes), power off behaviour (planned, power-loss)
+Dependent variables: File contents (database), file size (bytes), power off behaviour (planned, power-loss)
 
 Procedure:
 
