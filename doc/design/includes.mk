@@ -1,6 +1,14 @@
 INSERT_MD += ../common/ethics_statement.md
 
 INSERT_MD += ../common/tests/test_persistence.md
+INSERT_MD += ../common/tests/test_cloud.md
+INSERT_MD += ../common/tests/test_drop.md
+INSERT_MD += ../common/tests/test_chemical.md
+INSERT_MD += ../common/tests/test_tensile.md
+INSERT_MD += ../common/tests/test_lcd.md
+INSERT_MD += ../common/tests/test_offline.md
+INSERT_MD += ../common/tests/test_restoration.md
+INSERT_MD += ../common/tests/test_wifi.md
 
 INSERT_MD += ../common/personas/camillia.md
 INSERT_MD += ../common/personas/elijah.md
@@ -23,3 +31,5 @@ INSERT_MD += ../common/design_for_manufacture_and_assembly.md
 INSERT_MD += ../common/lifecycle_assessment.md
 
 INSERT_MD += ../common/executive_summary.md
+
+INSERT_MD += ../common/test_plan.md
