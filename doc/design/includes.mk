@@ -21,3 +21,5 @@ INSERT_MD += ../common/decision_table.md
 
 INSERT_MD += ../common/design_for_manufacture_and_assembly.md
 INSERT_MD += ../common/lifecycle_assessment.md
+
+INSERT_MD := ../common/executive_summary.md
