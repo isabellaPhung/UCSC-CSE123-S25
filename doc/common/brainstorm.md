@@ -4,28 +4,9 @@ Time management software is ineffective because it fails to keep users off their
 
 **Assumption**: the user _wants_ to improve their productivity
 
-### Time Management Hardware (Ideas)
-
-- PDA device
-- Focus chair
-	- Aromatherapy
-- Tablet-sized digital planner
-- Virtual reality
-- Software-paired device
-	- Upload data to device
-	- Reduce distractions
-	- Tracks phone usage metrics
-- Face-tracking sprayer
-- A taser/baseball bat
-- Game device
-- Focus desk
-- Security camera/smart house
-- Speaker assistant (e.g. Alexa)
-- Wearable technology
-- Augmented reality
-- Phone case w/sprayer
-
 ### Methodology
+
+We came up with the following existing methods of time management:
 
 - Planner
 - Accountability
@@ -52,3 +33,26 @@ Time management software is ineffective because it fails to keep users off their
 	- Level up
 	- Fun buttons/crank
 		- Fidget toy
+
+### Time Management Hardware (Ideas)
+
+We came up with the following design ideas that map to at least one of the methods above:
+
+- PDA device
+- Focus chair
+	- Aromatherapy
+- Tablet-sized digital planner
+- Virtual reality
+- Software-paired device
+	- Upload data to device
+	- Reduce distractions
+	- Tracks phone usage metrics
+- Face-tracking sprayer
+- A taser/baseball bat
+- Game device
+- Focus desk
+- Security camera/smart house
+- Speaker assistant (e.g. Alexa)
+- Wearable technology
+- Augmented reality
+- Phone case w/sprayer
