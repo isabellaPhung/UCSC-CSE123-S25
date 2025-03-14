@@ -1,6 +1,6 @@
-For code that requires the use of the ESP32C3, we'll be using pytest, which can compare expected output values directly to values from the microcontroller.
+For code that requires the use of the ESP32C3, we'll be using [pytest](https://docs.pytest.org/en/stable/), which can compare expected output values directly to values from the microcontroller.
 For high-level code that functions without access to the peripherals and low-level definitions specific to the microcontroller, unit tests will be created to test changes to these functions.
-The ESP-IDF environment includes the unit testing framework 'Unity' which allows for easy creation, execution, and repeatability of these unit tests.
+The ESP-IDF environment includes the unit testing framework [Unity](https://github.com/ThrowTheSwitch/Unity) which allows for easy creation, execution, and repeatability of these unit tests.
 
 Some tests can be performed on the prototype, but additional testing on the manufactured product will have to be performed as well.
 The following are tests that will be performed on both the prototype and the manufactured product:
