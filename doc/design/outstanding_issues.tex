@@ -1,0 +1,17 @@
+The prototype currently does not do much other then show the latest publish on the LCD.
+The following needs to be added to the prototype to get closer to representing the final product:
+
+\begin{itemize}
+  \item Better organization for cross-task communication. The current design dedicates only a buffer with a semaphore.
+  \item Implement the planning algorithm and have it pull new tasks from the MQTT task
+  \item Find and implement drivers for various peripherals.
+  \begin{enumerate}
+    \item Real time clock
+    \item Speaker + amplifier + DAC
+    \item Haptic motor
+  \end{enumerate}
+  \item Create a better user experience and GUI screens
+  \item Implement a low-power sleep mode
+  \item Create a more in-depth mockup of the final design.
+\end{itemize}
+

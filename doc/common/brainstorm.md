@@ -1,9 +1,3 @@
-### Need Statement (02/12)
-
-Time management software is ineffective because it fails to keep users off their devices.
-
-**Assumption**: the user _wants_ to improve their productivity
-
 ### Methodology
 
 We came up with the following existing methods of time management:
