@@ -1,4 +1,4 @@
-INSERT_MD += ../common/ethics_statement.md
+INSERT_MD := ../common/ethics_statement.md
 
 INSERT_MD += ../common/tests/test_persistence.md
 INSERT_MD += ../common/tests/test_cloud.md
@@ -31,5 +31,7 @@ INSERT_MD += ../common/design_for_manufacture_and_assembly.md
 INSERT_MD += ../common/lifecycle_assessment.md
 
 INSERT_MD += ../common/executive_summary.md
+
+INSERT_MD += ../common/cloud_design.md
 
 INSERT_MD += ../common/test_plan.md

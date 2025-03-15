@@ -4,7 +4,7 @@
 \usepackage{array}
 \usepackage{calc}
 \usepackage{graphicx}
-\graphicspath{{../common/personas}}
+\graphicspath{{../common/personas}{../common}}
 \usepackage{hyperref}
 
 % TODO replace with a better, more complete style
@@ -15,17 +15,25 @@
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+
 % TODO give the document a proper title
-\title{CSE123}
+\title{CSE123 Group 2 \\ Schedule Companion}
 \author{
   Mason Becker \\
-  \texttt{marobeck@ucsc.edu}
+  \texttt{marobeck@ucsc.edu} \\
   \and
   Sulaiman Islam \\
   \texttt{suaislam@ucsc.edu} \\
   \and
   Isabella Phung \\
-  \texttt{itphung@ucsc.edu}
+  \texttt{itphung@ucsc.edu} \\
   \and
   Akanksha Rajagopalan \\
   \texttt{akrajago@ucsc.edu} \\
