@@ -1,91 +1,91 @@
-**High Performance Electronics:**
+### High Performance Electronics
 
 Objects:  
 
-Semiconductor Chips, Memory Modules, Sensors, Display Driver Circuitry, Backplane Electronics
+- Semiconductor Chips, Memory Modules, Sensors, Display Driver Circuitry, Backplane Electronics
 
 Sourcing:
 
-Generally Sourced from Semiconductor Fabs in Taiwan, South Korea, or China.
+- Generally Sourced from Semiconductor Fabs in Taiwan, South Korea, or China.
 
 Sustainability:
 
-Material extraction is correlated with high carbon emissions. Manufacturing requires high energy expenditure. Recycling is difficult and often costs a lot of money. We will work with suppliers who adhere to environmental and social governance (ESG) standards.
+- Material extraction is correlated with high carbon emissions. Manufacturing requires high energy expenditure. Recycling is difficult and often costs a lot of money. We will work with suppliers who adhere to environmental and social governance (ESG) standards.
 
-**Device Display:**
+
+### Device Display
 
 Objects:
 
-LCD Variant or E-Ink Variant will be supported as different models of the same product.
+- LCD Variant or E-Ink Variant will be supported as different models of the same product.
 
 Sourcing:
 
-LCD model panels are generally sourced in South Korea, Japan, or China. They are generally regulated to optimize for production energy efficiency and reduction of waste. 
+- LCD model panels are generally sourced in South Korea, Japan, or China. They are generally regulated to optimize for production energy efficiency and reduction of waste. 
 
-E-Inks are generally sourced from Taiwan from companies such as E-Ink Holdings. These suppliers generally also focus on sustainability. 
+- E-Inks are generally sourced from Taiwan from companies such as E-Ink Holdings. These suppliers generally also focus on sustainability. 
 
 Sustainability:
 
-LCDs have established separation streams that make for easier recycling. E-Ink panels are easier to recycle and have significantly longer life spans relative to LCDs. Both are significantly more energy-efficient and sustainable than OLED displays.
+- LCDs have established separation streams that make for easier recycling. E-Ink panels are easier to recycle and have significantly longer life spans relative to LCDs. Both are significantly more energy-efficient and sustainable than OLED displays.
 
-**Device External Structure:**
+### Device External Structure
 
 Objects:
 
-A blend of recycled polymers and bio-based sugarcane renewable source
+- A blend of recycled polymers and bio-based sugarcane renewable source
 
 Sourcing:
 
-They are generally sourced from Malaysia and Indonesia, which specialize in recycled plastics and exercise  ISO 14021 audits and similar standards to verify their recycled content and eco-friendly production processes.
+- They are generally sourced from Malaysia and Indonesia, which specialize in recycled plastics and exercise  ISO 14021 audits and similar standards to verify their recycled content and eco-friendly production processes.
 
 Sustainability:
 
-The plastic blend would require less energy and is engineered for easier recyclability.
+- The plastic blend would require less energy and is engineered for easier recyclability.
 
-**Device Internal Structure:**
+
+### Device Internal Structure
 
 Objects:
 
-Recycled Aluminum
+- Recycled Aluminum
 
 Sourcing:
 
-Generally sourced from certified European or American Recycling plants.
+- Generally sourced from certified European or American Recycling plants.
 
 Sustainability:
 
-Reprocessing recycled Aluminum requires about 5% of the energy expenditure of newly processed Aluminum. This process lowers embodied carbon as well
+- Reprocessing recycled Aluminum requires about 5% of the energy expenditure of newly processed Aluminum. This process lowers embodied carbon as well
 
-**Prints On Packaging and Printed Materials:** 
+### Prints On Packaging and Printed Materials
 
 Objects:
 
-Vegetable non-VOC Inks: These Inks are made from renewable sources and contain minimal volatile organic compound (VOC) concentrations.
+- Vegetable non-VOC Inks: These Inks are made from renewable sources and contain minimal volatile organic compound (VOC) concentrations.
 
 Sourcing:
 
-These are generally sourced from eco-friendly chemical suppliers in Europe. 
+- These are generally sourced from eco-friendly chemical suppliers in Europe. 
 
 Sustainability:
 
-Production requires fewer emissions and toxic waste and is easier to recycle. 
+- Production requires fewer emissions and toxic waste and is easier to recycle. 
 
 
-
-**Packaging:**
+### Packaging
 
 Objects:
 
-FSC-Certified Recycled Cardboard(Forest Stewardship Council) and Minimal Bio-Based Plastic Films.
+- FSC-Certified Recycled Cardboard(Forest Stewardship Council) and Minimal Bio-Based Plastic Films.
 
-The Films are used for shrink wrapping in packaging.
+- The Films are used for shrink wrapping in packaging.
 
 Sourcing:
 
-FSC-certified recycled Cardboard comes from European suppliers, and The Bio-Based Films are generally sourced from South East Asia, generally from Indonesia and Malaysia. 
-
+- FSC-certified recycled Cardboard comes from European suppliers, and The Bio-Based Films are generally sourced from South East Asia, generally from Indonesia and Malaysia. 
 
 Sustainability:
 
-FSC-certified recycled Cardboard boasts a lower carbon footprint. Both require less energy expenditure and are easily recycled. 
+- FSC-certified recycled Cardboard boasts a lower carbon footprint. Both require less energy expenditure and are easily recycled. 
 
