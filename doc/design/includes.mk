@@ -33,6 +33,7 @@ INSERT_MD += ../common/lifecycle_assessment.md
 INSERT_MD += ../common/executive_summary.md
 
 INSERT_MD += ../common/cloud_design.md
+INSERT_MD += ../common/device_design.md
 
 INSERT_MD += ../common/test_plan.md
 
