@@ -1,4 +1,4 @@
-![Overall structure of the device\label{emb_flow}](embedded_system_flow_chart.png){ width=70% }
+## Cloud Design
 
 The main goal of connecting the ESP32 to the cloud is to allow configuration from any device with access to a web browser, as well as allowing backups of the user's data.
 The basic structure of the cloud is described in Figure \ref{emb_flow}
