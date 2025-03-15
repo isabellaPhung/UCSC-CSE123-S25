@@ -26,4 +26,4 @@ Events are time blocks within the internal calender system, they can be marked a
 
 Finally, habits are tasks that are consistently repeated. These entries lack due dates, instead opting for a *frequency*, which allows the user to dictate how often they want to accomplish something. Habits are displayed in a distinct window, allowing the user to keep track of their habits. The device should frequently display this window to remind the user that they should achieve their daily habits.
 
-Notably, in the time block section of Figure \fig{design_logic}, there is an additional block for hobbies. This is an optional extension of the task system, allowing for *undated tasks* which can be used to guide the user though any personal projects they want to achieve without the pressure of a deadline.
+Notably, in the time block section of Figure \ref{design_logic}, there is an additional block for hobbies. This is an optional extension of the task system, allowing for *undated tasks* which can be used to guide the user though any personal projects they want to achieve without the pressure of a deadline.
