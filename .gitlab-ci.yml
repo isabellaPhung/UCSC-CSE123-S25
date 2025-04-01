@@ -53,9 +53,9 @@ make-design:
 make-presentation:
   rules:
     - changes:
-      - doc/common/**/*
+      #- doc/common/**/*
       - doc/presentation/*
-      - .gitlab-ci.yml
+      #- .gitlab-ci.yml
   image:
     name: pandoc/latex
     entrypoint: ["/bin/sh", "-c"]
