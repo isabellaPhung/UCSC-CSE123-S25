@@ -1,1 +1,1 @@
-Software tailored to assist users in organizing their time does not assist the user in scheduling time or adhering to their schedule.
+Scheduling software on generic devices like mobile phones come with distractions from other apps, leading to reduced effectiveness.
