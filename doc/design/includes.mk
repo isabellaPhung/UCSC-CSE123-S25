@@ -37,5 +37,7 @@ INSERT_MD += ../common/cloud_design.md
 
 INSERT_MD += ../common/test_plan.md
 
+INSERT_MD += ../common/demo_procedure.md
+
 INSERT_TEX := tests.tex
 INSERT_TEX += outstanding_issues.tex
