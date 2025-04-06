@@ -57,6 +57,7 @@ void app_main()
      * Read "Establishing Wi-Fi or Ethernet Connection" section in
      * examples/protocols/README.md for more information about this function.
      */
+    // TODO replace with a more complete wifi connection function that supports low power mode
     ESP_ERROR_CHECK(example_connect());
 
     vSemaphoreCreateBinary(task_params.buffer_sem);
