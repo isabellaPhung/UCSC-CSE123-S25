@@ -69,3 +69,48 @@
     </style>
 </head>
 <body>
+
+    <div class="left-section">
+        <div class="date-time">
+            <h2>Date & Time</h2>
+            <div id="current-date-time"></div>
+        </div>
+
+        <div class-"deadlines">
+            <h2>Deadlines</h2>
+            <div class="deadline-list">
+                <!-- Space for deadlines -->
+            </div>
+        </div>
+
+        <div class="habits">
+            <h2>Habits</h2>
+            <div class="habit-list">
+                <!-- Space for habits -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Middle Section - 2/4 width -->
+    <div class="middle-section">
+        <div class="current-task">
+            <h1>Current Task</h1>
+            <div class="task-title">Task Name Goes Here</div>
+            <div class="timer" id="countdown-timer">00:00:00</div>
+        </div>
+    </div>
+
+    <!-- Right Section - 1/4 width -->
+    <div class= "right-section">
+        <div class="event-notification">
+            <h2>Event Notification</h2>
+            <div id="notifications">
+                <!-- Event notifications will appear here -->
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // Update Date and Time
+
+            
