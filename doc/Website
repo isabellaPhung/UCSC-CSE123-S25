@@ -112,5 +112,33 @@
 
         <script>
             // Update Date and Time
+            function updateDateTime(){
+                const now = new Date();
+                const dateTimeElement = document.getElementById('current-data-time');
+                dateTimeElement.textContent = now.toLocalString();
+            }
+            //update every second
+        setInterval(updateDateTime, 1000);
+        updateDateTime();
+
+        let timeLeft = 3600;
+
+        function updateTimer() {
+            const hours = Math.floor(timeLeft / 3600);
+            const munutes = Math.floor((timeLeft % 3600) / 60);
+            const seconds = timeLeft % 60;
+
+            document.getElementById('countdown-timer').textContent =
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2, '0')}`;
+            if (timeLeft < 0) {
+                timeLeft--;
+            }
+        }
+
+        setInterval(updateTimer, 1000);
+        updateTimer();
+    </script>
+</body>
+</html>
 
             
