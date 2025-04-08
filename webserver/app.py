@@ -1,0 +1,22 @@
+from flask import Flask, request
+
+app = Flask(__name__)
+
+
+@app.route("/")
+def hello():
+    return {"message": "Hello!"}, 200
+
+
+@app.route("/view_schedule", methods=["GET"])
+def get_schedule():
+    """
+    Retrieve tasks from the cloud database for the user <uuid>
+    HTTP request should include in JSON: {"user": <uuid>"}
+    """
+    # Flask will handle cases of wrong content type/bad request
+    uuid = request.json.get("user")
+    # TODO: encrypt the uuid? can decrypt before querying db and encrypt before response
+    return {"message": uuid}, 200
+
+# TEST: curl --header "Content-Type: application/json" --request GET --data '{"user": "uuid123"}' http://127.0.0.1:5000/view_schedule
