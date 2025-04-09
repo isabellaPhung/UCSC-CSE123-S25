@@ -1,11 +1,11 @@
-from flask import Flask, request
+from flask import Flask, request, render_template
 
 app = Flask(__name__)
 
 
 @app.route("/")
-def hello():
-    return {"message": "Hello!"}, 200
+def home():
+    return render_template("home.html")
 
 
 @app.route("/view_schedule", methods=["GET"])
