@@ -2,7 +2,9 @@ FROM python:3.10.16-slim
 
 WORKDIR /usr/src/app
 
-RUN pip3 install Flask gunicorn
+COPY requirements.txt .
+
+RUN pip3 install --no-cache-dir -r requirements.txt
 
 COPY . .
 
