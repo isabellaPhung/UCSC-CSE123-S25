@@ -6,16 +6,6 @@
 // Initializes the database and ensures the tasks table exists
 int InitSQL(sqlite3 **db);
 
-// Adds a new entry to the tasks table
-int AddEntry(sqlite3 *db, sqlite3_int64 *id, const char *name, const char *datetime, int priority, int completed, const char *description);
-
-// Removes an entry from the tasks table based on the id
-int RemoveEntry(sqlite3 *db, sqlite3_int64 id);
-
-// Toggles the completion status of an entry
-void CompleteEntry(sqlite3 *db, sqlite3_int64 id);
-
-// Prints entry info
-int PrintEntry(sqlite3 *db, sqlite3_int64 id);
+int CloseSQL(sqlite3 **db);
 
 #endif  // SQL_H
