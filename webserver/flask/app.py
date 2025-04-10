@@ -22,6 +22,3 @@ def get_schedule():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8081)
-
-
-# TEST: curl --header "Content-Type: application/json" --request GET --data '{"user": "uuid123"}' http://127.0.0.1:5000/view_schedule
