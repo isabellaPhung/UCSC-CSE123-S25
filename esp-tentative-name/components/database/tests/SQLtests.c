@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <sqlite3.h>
 #include "../src/SQL.h"
+#include "../src/task.h"
 
 #define RESET  "\033[0m"
 #define GREEN  "\033[32m"
@@ -34,53 +35,54 @@ int main() {
 
 	LOG_TEST("Create task with description:");
     // Add a task with a description
-    if (AddEntry(db, &entry_id, "C moment", "2025-04-02T22:40:44Z", 1, 0, "Complete C project") != SQLITE_OK) {
+    if (AddEntry(db, &entry_id, "C moment", 1744414429, 1, 0, "Complete C project") != SQLITE_OK) {
         sqlite3_close(db);
         return 1;
     }
 	LOG_TEST("Task created! ID: %lld", entry_id);
 	// Print task 1 information
     if (PrintEntry(db, entry_id) != SQLITE_OK) {
-        sqlite3_close(db);
+        LOG_TEST("SQL Encountered an error: %s", sqlite3_errmsg(db));
+        CloseSQL(&db);
         return 1;
     }
 
 	LOG_TEST("Create task with NULL description:");
     // Add a task without a description
-    if (AddEntry(db, &entry_id, "Stare at sun", "2025-04-02T22:40:44Z", 2, 0, NULL) != SQLITE_OK) {
-        sqlite3_close(db);
+    if (AddEntry(db, &entry_id, "Stare at sun", 1744354429, 2, 0, NULL) != SQLITE_OK) {
+        CloseSQL(&db);
         return 1;
     }
 	LOG_TEST("Task created! ID: %lld\n", entry_id);
     // Print task 2 information
     if (PrintEntry(db, entry_id) != SQLITE_OK) {
-        sqlite3_close(db);
+        CloseSQL(&db);
         return 1;
     }
 
 	LOG_TEST("Deleting task %lld...", entry_id);
     // Remove a task
     if (RemoveEntry(db, entry_id) != SQLITE_OK) {
-        sqlite3_close(db);
+        CloseSQL(&db);
         return 1;
     }
 	LOG_TEST("Task %lld deleted!\n", entry_id);
 
 	LOG_TEST("Adding another task after removal:");
 	// Add a task without a description
-    if (AddEntry(db, &entry_id, "Drink water", "2025-04-05T22:40:44Z", 9, 0, NULL) != SQLITE_OK) {
-        sqlite3_close(db);
+    if (AddEntry(db, &entry_id, "Drink water", 1774314429, 9, 0, NULL) != SQLITE_OK) {
+        CloseSQL(&db);
         return 1;
     }
 	LOG_TEST("Task created! ID: %lld\n", entry_id);
 	// Print task 2 information
     if (PrintEntry(db, entry_id) != SQLITE_OK) {
-        sqlite3_close(db);
+        CloseSQL(&db);
         return 1;
     }
 
-	if (AddEntry(db, &entry_id, "Drink water", "2025-04-05T22:40:44Z", 9, 0, NULL) != SQLITE_OK) {
-        sqlite3_close(db);
+	if (AddEntry(db, &entry_id, "Drink water", 1744362429, 9, 0, NULL) != SQLITE_OK) {
+        CloseSQL(&db);
         return 1;
     }
 
