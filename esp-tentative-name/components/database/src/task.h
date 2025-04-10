@@ -41,6 +41,12 @@ int RemoveEntry(sqlite3 *db,
 void CompleteEntry(sqlite3 *db,
                    sqlite3_int64 id);
 
+// Retrieve task entries
+int RetrieveEntry(sqlite3 *db, sqlite3_int64 id, Task *ent);
+
+// TODO: Retrieve sorted entries
+int RetrieveEntriesSorted(sqlite3 *db, int count);
+
 // Prints entry info
 int PrintEntry(sqlite3 *db,
                sqlite3_int64 id);
