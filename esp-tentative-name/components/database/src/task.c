@@ -89,13 +89,22 @@ int RetrieveEntry(sqlite3 *db, sqlite3_int64 id, Task *ent)
         const char *description = (const char *)sqlite3_column_text(stmt, 5);
 
         ent->id = id;
-        strcpy(ent->name, name);
+
+        if (strlen(name) > MAX_NAME)
+        {
+            LOG_WARNING("Task::RetrieveEntry: Task Name is oversized, string will be truncated!");
+        }
+        strncpy(ent->name, name, MAX_NAME);
         ent->time = time;
         ent->priority = priority;
         ent->completion = completed;
         if (description)
         {
-            strcpy(ent->description, description);
+            if (strlen(name) > MAX_NAME)
+            {
+                LOG_WARNING("Task::RetrieveEntry: Task Description is oversized, string will be truncated!");
+            }
+            strncpy(ent->description, description, MAX_DESC);
         }
         else
         {
