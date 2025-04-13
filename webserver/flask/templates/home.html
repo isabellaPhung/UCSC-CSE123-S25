@@ -204,22 +204,50 @@
 
     <!-- Middle Section - 2/4 width -->
     <div class="middle-section">
-        <div class="current-task">
-            <h1>Current Task</h1>
-            <div class="task-title">Task Name Goes Here</div>
-            <div class="timer" id="countdown-timer">00:00:00</div>
-        </div>
-    </div>
+        <div class="deadlines-section">
+            <div class= "deadlines-header">
+                <div class="section-title">
+                    <h1>Deadlines</h1>
+                    <div class="controls">
+                        <button class="control-btn add-task">+</button>
+                        <button class="control-btn remove-task">-</button>
+                    </div>
+                </div>
+                <div class= "section-title">
+                    <h1>Assigned Time</h1>
+                    <div class="controls">
+                        <button class="control-btn add-time">+</button>
+                        <button class="control-btn remove-time">-</button> 
+                    </div>
+                </div>
+            </div>
 
-    <!-- Right Section - 1/4 width -->
-    <div class= "right-section">
-        <div class="event-notification">
-            <h2>Event Notification</h2>
-            <div id="notifications">
-                <!-- Event notifications will appear here -->
+            <div class="tasks-container">
+                <div class="tasks-list" id="tasks-list">
+                    <div class="task-row">Task1</div>
+                    <div class="task-row">Task2</div>
+                    <div class="task-row">Task3</div>
+                    <div class="task-row">Task4</div>
+                    <div class="task-row">Task5</div>
+                    <div class="task-row">Task6</div>
+                    <div class="task-row">Task7</div>
+                    <div class="task-row">Task8</div>
+                </div>
+
+                <div class ="assigned-times" id="assigned-times">
+                    <div class="time-row">9:00 AM</div>
+                    <div class="time-row">10:00 AM</div>
+                    <div class="time-row">11:00 AM</div>
+                    <div class="time-row">12:00 PM</div>
+                    <div class="time-row">1:00 PM</div>
+                    <div class="time-row">2:00 PM</div>
+                    <div class="time-row">3:00 PM</div>
+                    <div class="time-row">4:00 PM</div>
+                    <div class="time-row">5:00 PM</div>
                 </div>
             </div>
         </div>
+    </div>
 
         <script>
             // Update Date and Time
