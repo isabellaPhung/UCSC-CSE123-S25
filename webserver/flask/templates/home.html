@@ -337,8 +337,54 @@
             eventsList.appendChild(eventContainer);
         });
     }
-    
+    function saveHabits(habits){
+        localStorage.setItem('habits', JSON.stringify(habits));
+    }
+    function saveEvents(events){
+        localStorage.setItem('events', JSON.stringify(events));
+    }
 
+    function makeEditableHabit(element, habitsArray){
+        const currentText = element.textContent;
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = currentText;
+        input.className = 'editable-input';
+
+        element.textContent = '';
+        element.appendChild(input);
+        input.focus();
+
+        function saveEdit() {
+            if(input.parentElement) {
+                const newText = input.value.trim() || currentText;
+                input.parentElement.textContent = newText;
+
+                const habitItem = input.parentElement.parentElement;
+                const habitsList = habitItem.parentElement;
+                const index = Array.from(habitsList.children).indexOf(habitItem);
+
+                if (index !== -1 && habitsArray[index]){
+                    habitsArray[index].text = newText;
+                    saveHabits(habitsArray);
+                }
+                input.parentElement.addEventListener('click', function(){
+                    makeEditableHabit(this, habitsArray);
+                });
+            }
+        }
+        input.addEventListener('blur', saveEdit);
+        input.addEventListener('keydown', function(e){
+            if (e.key === 'Enter'){
+                saveEdit();
+            }
+        });
+        
+        element.removeEventListener('click', function(){
+            makeEditableHabit(element, habitsArray);
+        });
+    }
+    
         function updateTimer() {
             const hours = Math.floor(timeLeft / 3600);
             const munutes = Math.floor((timeLeft % 3600) / 60);
