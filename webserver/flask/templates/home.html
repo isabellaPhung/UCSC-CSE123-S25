@@ -260,7 +260,56 @@
         setInterval(updateDateTime, 1000);
         updateDateTime();
 
-        let timeLeft = 3600;
+        const defaultHabits = [
+            { text: "Morning Excercise", completed:false},
+            { text: "Read 30 minutes", completed: false },
+            { text: "Drink 8 glasses of water", completed: true},
+            { text: "Plan next day", completed: false }
+        ];
+
+        const defaultEvents = [
+            { name: "Team Meeting", time: "2:00 PM" },
+            { name: "Project Deadline", time: "5:00 PM" },
+            { name: "Doctor Appointment", time: "9:30 AM" }
+        ];
+
+        function loadHabits() {
+            let habits = JSON.parse(localStorage.getItem('habits')) || defaultHabits;
+            const habitsList = document.getElementById('main-habits-list');
+            habitsList.innerHTML = ' ';
+       
+
+        habits.forEach(habit => {
+
+            const habitItem = document.createElement('div');
+            habitItem.className = 'habit-item';
+
+            const checkbox = document.createElement('div');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'habit-checkbox';
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'habit-checkbox';
+            checkbox.checked = habit.completed;
+            checkbox.addEventListener('change', function() {
+                habit.completed = this.checked;
+                saveHabits(habits);
+            });
+            
+            const habitText = document.createElement('div');
+            habitText.className = 'habit-text';
+            habitText.textContent = habit.text;
+            habitText.addEventListener('click', function(){
+                makeEditableHabit(this, habits);
+            });
+
+            habitItem.appendChild(checkbox);
+            habitItem.appendChild(habitText);
+            habitList.appendChild(habitItem);
+        });
+
+    }
 
         function updateTimer() {
             const hours = Math.floor(timeLeft / 3600);
