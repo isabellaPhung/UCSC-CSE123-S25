@@ -310,6 +310,34 @@
         });
 
     }
+    function loadEvents() {
+        let events = JSON.parse(localStorage.getItem('events')) || defaultEvents;
+        const eventsList = document.getElementById('events');
+        eventsList.innerHTML = '';
+
+        events.forEach(event => {
+
+            const eventContainer = document.createElement('div');
+            eventContainer.className = 'events-container';
+
+            const eventName = document.createElement('div');
+            eventName.className = 'event-name';
+            eventName.textContent = eventName;
+            eventName.addEventListener('click', function(){
+                makeEditableEvent(this, 'name', events);
+            });
+            const eventTime = document.createElement('div');
+            eventTime.className = 'event-time';
+            eventTime.textContent = eventTime;
+            eventTime.addEventListener('click', function(){
+                makeEditableEvent(this, 'time', events);
+            });
+            eventContainer.appendChild(eventName);
+            eventContainer.appendChild(eventTime);
+            eventsList.appendChild(eventContainer);
+        });
+    }
+    
 
         function updateTimer() {
             const hours = Math.floor(timeLeft / 3600);
