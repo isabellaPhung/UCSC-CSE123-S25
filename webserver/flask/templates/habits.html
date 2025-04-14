@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Habits</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        h1{
+            margin:0;
+        }
+        .controls {
+            display: flex;
+            gap: 5px;
+        }
+        .control-btn {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            border: 1px solid #ccc;
+            background: f5f5f5;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;    
+        }
+        .control-btn:hover {
+            background: #e0e0e0;
+        }
+        .habits-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .habit-item {
+            padding: 12px;
+            margin-bottom:10px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .habit-item:hover {
+            background-color:#f0f0f0;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #0066cc;
+            text-decoration:none;
+        }  
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .editable-input {
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            padding: 5px;
+            width: 90%;
+            font-family:inherit;
+            font-size:inherit;
+        }
+    <style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Habits</h1>
+            <div class="controls">
+                <button class="control-btn add-habit">+</button>
+                <button class="control-btn remove-habit">-</button>
+            </div>
+        </div>
+
+        <div class= "habits-list" id="habits-list">
+            <div class
