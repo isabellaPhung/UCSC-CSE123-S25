@@ -18,7 +18,7 @@ int InitSQL(sqlite3 **db)
 
     // Ensures tasks table exists
     char *sql = "CREATE TABLE IF NOT EXISTS tasks ("
-                "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                "id INTEGER PRIMARY KEY AUTOINCREMENT,"	// TODO: Convert to BLOB for UUID key
                 "name TEXT NOT NULL,"
                 "datetime INTEGER NOT NULL,"
                 "priority INTEGER NOT NULL,"
