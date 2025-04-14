@@ -8,6 +8,8 @@ project(caldata
 
 find_package(SQLite3 REQUIRED)
 
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
+
 # Include directories
 include_directories(${SQLite3_INCLUDE_DIRS})
 
