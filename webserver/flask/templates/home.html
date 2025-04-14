@@ -384,6 +384,51 @@
             makeEditableHabit(element, habitsArray);
         });
     }
+
+    function makeEditableEvent(element, field, eventsArray){
+        const currentText = element.textContent;
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = currentText;
+        input.className = 'editable-input';
+
+        if (field === 'time') {
+            input.style.width = '80px';
+        }
+
+        element.textContent = '';
+        element.appendChild(input);
+        input.focus();
+
+        function saveEdit () {
+            if (input.parentElement) {
+                const newText = input.value.trim() || currentText;
+                input.parentElement.textContent = newText;
+
+                const eventContainer = input.parentElement.parentElement;
+                const eventsList = eventContainer.parentElement;
+                const index = Array.from(eventsList.children).indexOf(eventContainer);
+
+                if (index !== -1 && eventsArray[index]){
+                    eventsArray[index][field] = newText;
+                    saveEvents(eventsArray);
+                }
+                input.parentElement.addEventListener('click', function(){
+                    makeEditableEvent(this, field, eventsArray);
+                });
+            }
+        }
+        input.addEventListener('blur', saveEdit);
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                saveEdit();
+            }
+        });
+        element.removeEventListener('click', function(){
+            makeEditableEvent(element, field, eventsArray)
+        });
+    }
+
     
         function updateTimer() {
             const hours = Math.floor(timeLeft / 3600);
