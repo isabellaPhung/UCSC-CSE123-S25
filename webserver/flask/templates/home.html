@@ -523,22 +523,31 @@
             loadEvents();
         }
     });
-    
-    
-        function updateTimer() {
-            const hours = Math.floor(timeLeft / 3600);
-            const munutes = Math.floor((timeLeft % 3600) / 60);
-            const seconds = timeLeft % 60;
 
-            document.getElementById('countdown-timer').textContent =
-                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2, '0')}`;
-            if (timeLeft < 0) {
-                timeLeft--;
-            }
+    //Helper function to generate next time
+    function generateNextTime(timeStr) {
+        //Parse time string 
+        const[time, period] = timeStr.split(' ');
+        let [hours, minutes] = time.split(':').map(Number);
+
+        //Add 1.5 hours
+        minutes += 30;
+        if (minutes >= 60) {
+            hours += 1;
+            minutes -= 60;
         }
-
-        setInterval(updateTimer, 1000);
-        updateTimer();
+        hours +=1;
+        let newPeriod = period;
+        if (hours > 12){
+            hours -= 12;
+            newPeriod = period === 'AM' ? 'PM' : 'AM';
+        }
+        if (hours === 12){
+            newPeriod = period === 'AM' ? 'PM' : 'AM';
+        }
+        return `${hours}:${minutes.toString().padStart(2, '0')} ${newPeriod}`;
+    }
+    
     </script>
 </body>
 </html>
