@@ -468,11 +468,62 @@
         loadHabits();
         loadEvents();
         //set up task and edit
-        document.querySelector('.task-row, .time-row').forEach(item => {
+        document.querySelectorAll('.task-row, .time-row').forEach(item => {
             item.addEventListener('click', handleClick);
         });
     });
 
+    document.querySelector('.add-task').addEventListener('click', function(){
+        const tasksList = document.getElementById('tasks-list');
+        const newTaskNumber = tasksList.children. length + 1;
+        const newTask = document.createElement('div');
+        newTask.className = 'task-row';
+        newTask.textContent = `Task${newTaskNumber}`;
+        newTask.addEventListener('click', handleClick);
+        tasksList.appendChild(newTask);
+    });
+
+    document.querySelector('.remove-task').addEventListener('click', function(){
+        const tasksList = document.getElementById('tasks-list');
+        if (tasksList.children.length > 0) {
+            tasksList.removeChild(tasksList.lastChild);
+        }
+    });
+    //time managment
+    document.querySelector('.add-time').addEventListener('click', function(){
+        const timesList = document.getElementById('assigned-times');
+        const newTime = document.createElement('div');
+        newTime.className = 'time-row';
+
+        const lastTime = timesList.lastChild ? timesList.lastChild.textContent : "8:00 AM";
+        const newTimeValue = generateNextTime(lastTime);
+
+        newTime.textContent = newTimeValue;
+        newTime.addEventListener('click', handleClick);
+        timesList.appendChild(newTime);
+    });
+    document.querySelector('.remove-time').addEventListener('click', function(){
+        const timesList = document.getElementById('assigned-times');
+        if (timesList.children.length > 0) {
+            timesList.removeChild(timesList.lastChild);
+        }
+    });
+    document.querySelector('.add-event').addEventListener('click', function() {
+        const events = JSON.parse(localStorage.getItem('events')) || defaultEvents;
+        events.push({ name: `New Event ${events.length + 1}`, time: "12:00 PM"});
+        saveEvents(events);
+        loadEvents();
+    });
+
+    document.querySelector('.remove-event').addEventListener('click', function() {
+        const events = JSON.parse(localStorage.getItem('events')) || defaultEvents;
+        if (events.length > 0) {
+            events.pop();
+            saveEvents(events);
+            loadEvents();
+        }
+    });
+    
     
         function updateTimer() {
             const hours = Math.floor(timeLeft / 3600);
