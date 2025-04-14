@@ -8,16 +8,10 @@ def home():
     return render_template("home.html")
 
 
-@app.route("/view_schedule", methods=["GET"])
-def get_schedule():
-    """
-    Retrieve tasks from the cloud database for the user <uuid>
-    HTTP request should include in JSON: {"user": <uuid>"}
-    """
-    # Flask will handle cases of wrong content type/bad request
-    uuid = request.json.get("user")
-    # TODO: encrypt the uuid? can decrypt before querying db and encrypt before response
-    return {"message": uuid}, 200
+@app.route("/habits", methods=["GET"])
+def habits():
+    # TODO: modify home.html to properly link to habits.html
+    return render_template("habits.html")
 
 
 if __name__ == "__main__":
