@@ -15,7 +15,7 @@ include_directories(${SQLite3_INCLUDE_DIRS})
 
 # Add the main executable
 file(GLOB_RECURSE SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "src/*.c")
-add_executable(caldata tests/SQLtests.c ${SOURCES})
+add_executable(test_task_db tests/SQLtests.c ${SOURCES})
 
 # Link libraries to the main executable
-target_link_libraries(caldata ${SQLite3_LIBRARIES})
+target_link_libraries(test_task_db ${SQLite3_LIBRARIES})

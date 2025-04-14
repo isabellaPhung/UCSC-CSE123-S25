@@ -74,7 +74,6 @@ int main()
 		return 1;
 	}
 	LOG_TEST("Task %lld deleted!\n", entry_id);
-	PrintEntry(db, entry_id);
 
 	LOG_TEST("Adding another task after removal:");
 	// Add a task without a description
