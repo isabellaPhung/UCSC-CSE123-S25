@@ -428,6 +428,50 @@
             makeEditableEvent(element, field, eventsArray)
         });
     }
+    // make elements editable on click
+    function makeEditable(element){
+        const currentText = element.textContent;
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = currentText;
+        input.className = 'editable-input';
+
+        //replace the element with the input
+        element.textContent = '';
+        element.appendChild(input);
+        input.focus();
+
+        function saveEdit() {
+            if (input.parentElement){
+                const newText = input.value.trim() || currentText;
+                input.parentElement.textContent = newText;
+                input.parentElement.addEventListener('click', handleClick)
+            }
+        }
+        input.addEventListener('blur', saveEdit);
+        input.addEventListener('keydown', function(e){
+            if (e.key === 'Enter'){
+                saveEdit();
+            }
+        });
+        element.removeEventListener('click', handleClick);
+    }
+    function handleClick(e) {
+        if (e.target.classList.contains('task-row')||
+            e.target.classList.contains('time-row')) {
+            makeEditable(e.target);
+        }
+    }
+    //initialize editable elements
+    document.addEventListener('DOMContentLoaded', function(){
+        //load habits and events
+        loadHabits();
+        loadEvents();
+        //set up task and edit
+        document.querySelector('.task-row, .time-row').forEach(item => {
+            item.addEventListener('click', handleClick);
+        });
+    });
 
     
         function updateTimer() {
