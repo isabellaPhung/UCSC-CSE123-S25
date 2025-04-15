@@ -1,8 +1,8 @@
 from flask import Flask, request, render_template
-# from aws_helper import AwsS3
+from aws_helper import AwsS3
 
 app = Flask(__name__)
-# s3_conn = AwsS3()
+s3_conn = AwsS3()
 
 
 @app.route("/")
@@ -15,6 +15,11 @@ def habits():
     # TODO: modify home.html to properly link to habits.html
     # TODO: have different HTTP request methods?
     return render_template("habits.html")
+
+
+@app.route("/tasks")
+def tasks():
+    return s3_conn.get_tasks()
 
 
 if __name__ == "__main__":

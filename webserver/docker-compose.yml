@@ -5,6 +5,7 @@ services:
         build:
             context: flask
             dockerfile: Dockerfile
+        env_file: flask/.env
         container_name: app
         ports:
             - 8081:8081
