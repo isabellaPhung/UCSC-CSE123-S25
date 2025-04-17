@@ -9,6 +9,3 @@
 	path = esp-tentative-name/components/esp-aws-iot
 	url = https://github.com/espressif/esp-aws-iot
 	branch = release/202406.01-LTS
-[submodule "LVGL_sim"]
-	path = LVGL_sim
-	url = https://github.com/lvgl/lv_port_pc_vscode
