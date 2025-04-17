@@ -1,0 +1,6 @@
+dependencies:
+  idf: ">=4.4"
+  atanisoft/esp_lcd_ili9488: ^1.0.11
+  esp_lvgl_port:
+    version: "*"
+  lvgl/lvgl: ^9.2
