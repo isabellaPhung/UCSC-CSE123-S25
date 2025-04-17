@@ -170,7 +170,7 @@ static void app_main_display(void)
     lvgl_port_unlock();
 }
 
-void app_main(void)
+void lcd_task(void)
 {
     /* LCD HW initialization */
     ESP_ERROR_CHECK(app_lcd_init());
