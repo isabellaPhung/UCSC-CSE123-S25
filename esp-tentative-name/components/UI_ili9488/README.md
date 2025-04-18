@@ -7,7 +7,7 @@ I haven't figured out how to get it to use a default font if it can't find the r
 
 ## Default pin assignments
 
-For the ESP32C2 pins are as follows:
+For the ESP32C2 and ILI9488 screen pins are as follows:
 | pin | usage |
 | --- | ----- |
 | SPI MISO | 0 |
@@ -19,3 +19,11 @@ For the ESP32C2 pins are as follows:
 | TFT Backlight | 2 |
 
 not 100% sure if TFT reset works since in the original code it was plugged into a weakly low strapping pin on the S3, but C3 does not have that function.
+
+Currently trying to figure out how to get the buttons working with LVGL
+pin out is as follows:
+| select | 7 |
+| down | 6 |
+| right | 21 |
+| left | 20 |
+| up | 9 |
