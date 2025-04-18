@@ -1,4 +1,8 @@
+//uses code from io_button repo's test code for GPIO buttons
+
 #include "lvgl__lvgl/lvgl.h"
+#include "iot_button.h"
+#include "button_gpio.h"
 
 /* Text settings */
 static lv_style_t style_text_muted;
@@ -7,12 +11,67 @@ static lv_style_t style_timer;
 static const lv_font_t * font_large;
 static const lv_font_t * font_giant;
 
+//assorted graphic items used across functions
 static lv_obj_t * tileview;
 static lv_obj_t * tile1;
 static lv_obj_t * tile2;
 static lv_obj_t * tile3;
 static lv_obj_t * btn1;
 static lv_obj_t * btn2;
+static button_handle_t down_btn;
+static button_handle_t up_btn;
+
+static const char *BUTTON = "button";
+
+//callback function for the down button
+static void down_btn_cb(void *arg,void *usr_data)
+{
+    lv_obj_t * currentTile = lv_tileview_get_tile_active(tileview);
+    
+    if(currentTile == tile1){
+        lv_tileview_set_tile(tileview, tile2, LV_ANIM_OFF);
+    }else if(currentTile == tile2){
+        lv_tileview_set_tile(tileview, tile3, LV_ANIM_OFF);
+    }
+}
+
+//callback function for the up button
+static void up_btn_cb(void *arg,void *usr_data)
+{
+    lv_obj_t * currentTile = lv_tileview_get_tile_active(tileview);
+    
+    if(currentTile == tile2){
+        lv_tileview_set_tile(tileview, tile1, LV_ANIM_OFF);
+    }else if(currentTile == tile3){
+        lv_tileview_set_tile(tileview, tile2, LV_ANIM_OFF);
+    }
+}
+
+void initButtons(int pin, button_handle_t * name){
+    // create gpio button
+    const button_config_t btn_cfg = {0};
+    const button_gpio_config_t gpio_btn_cfg = {
+        .gpio_num = pin,
+        .active_level = 0,
+    };
+
+    esp_err_t ret = iot_button_new_gpio_device(&btn_cfg, &gpio_btn_cfg, name);
+    if(ret != ESP_OK) {
+        ESP_LOGE(BUTTON, "Button create failed");
+    }
+}
+
+void makeButtons(){
+    initButtons(GPIO_DOWN_BUTTON, &down_btn);    
+    initButtons(GPIO_UP_BUTTON, &up_btn);    
+    //initButtons(GPIO_LEFT_BUTTON);    
+    //initButtons(GPIO_RIGHT_BUTTON);    
+    //initButtons(GPIO_SELECT_BUTTON);    
+    iot_button_register_cb(down_btn, BUTTON_SINGLE_CLICK, NULL, down_btn_cb, NULL);
+    iot_button_register_cb(down_btn, BUTTON_PRESS_REPEAT, NULL, down_btn_cb, NULL);
+    iot_button_register_cb(up_btn, BUTTON_SINGLE_CLICK, NULL, up_btn_cb, NULL);
+    iot_button_register_cb(up_btn, BUTTON_PRESS_REPEAT, NULL, up_btn_cb, NULL);
+}
 
 static lv_obj_t * create_task(lv_obj_t * parent, const char * name, const char * dueDate)
 {
@@ -41,50 +100,6 @@ static lv_obj_t * create_task(lv_obj_t * parent, const char * name, const char *
     return cont;
 }
 
-static void event_cb(lv_event_t * e){
-    //scroll down to task menu
-    lv_obj_t * target = lv_event_get_target(e);
-    lv_obj_t * currentTile = lv_tileview_get_tile_act(tileview);
-    lv_obj_t * label = lv_obj_get_child(target, 0); 
-    if(target == btn1){
-        if(currentTile == tile1){
-            lv_label_set_text(label, "^");
-            lv_tileview_set_tile(tileview, tile2, LV_ANIM_ON);
-        }else if(currentTile == tile2){
-            lv_label_set_text(label, "v");
-            lv_tileview_set_tile(tileview, tile1, LV_ANIM_ON);
-        }
-    }else if(target == btn2){
-        if(currentTile == tile2){
-            lv_label_set_text(label, "^");
-            lv_tileview_set_tile(tileview, tile3, LV_ANIM_ON);
-        }else if(currentTile == tile3){
-            lv_label_set_text(label, "v");
-            lv_tileview_set_tile(tileview, tile2, LV_ANIM_ON);
-        }
-    }
-}
-
-/*
-static void scroll_event_cb(lv_event_t * e){
-    lv_obj_t * target = lv_event_get_target(e);
-    lv_obj_t * currentTile = lv_tileview_get_tile_active(tileview);
-    lv_obj_t * label1 = lv_obj_get_child(btn1, 0); 
-    lv_obj_t * label2 = lv_obj_get_child(btn2, 0); 
-    if(currentTile == tile1){
-        lv_label_set_text(label1, "v");
-    }else if(currentTile == tile2){
-        lv_label_set_text(label1, "^");
-    }
-
-    if(currentTile == tile2){
-        lv_label_set_text(label2, "v");
-    }else if(currentTile == tile3){
-        lv_label_set_text(label2, "^");
-    }
-}
-*/
-
 void taskEvent_create(lv_obj_t * parent){
     //TODO: needs time from RTC
     lv_obj_t * dateTime = lv_label_create(parent);
@@ -96,8 +111,7 @@ void taskEvent_create(lv_obj_t * parent){
     btn1 = lv_button_create(parent);
     lv_obj_set_size(btn1, 25, 25);
     lv_obj_align(btn1, LV_ALIGN_TOP_RIGHT, -5, 5);
-    lv_obj_add_event_cb(btn1, event_cb, LV_EVENT_CLICKED, NULL);
-    //lv_obj_set_style_bg_color(btn, lv_obj_get_style_bg_color(parent, LV_PART_MAIN), 0);
+    //lv_obj_add_event_cb(btn1, event_cb, LV_EVENT_CLICKED, NULL);
 
     lv_obj_t * label = lv_label_create(btn1);
     lv_label_set_text(label, "v");
@@ -158,7 +172,7 @@ void habitMenu_create(lv_obj_t * parent){
     btn2 = lv_button_create(parent);
     lv_obj_set_size(btn2, 25, 25);
     lv_obj_align(btn2, LV_ALIGN_TOP_RIGHT, -5, 5);
-    lv_obj_add_event_cb(btn2, event_cb, LV_EVENT_CLICKED, NULL);
+    //lv_obj_add_event_cb(btn2, event_cb, LV_EVENT_CLICKED, NULL);
     
     lv_obj_t * label = lv_label_create(btn2);
     lv_label_set_text(label, "v");
@@ -171,7 +185,6 @@ void habitMenu_create(lv_obj_t * parent){
     lv_obj_align(habits, LV_ALIGN_TOP_LEFT, 5, 5);
     */
 }
-#include "lvgl.h"
 
 void create_ui(){
     /*initialize fonts*/ 
@@ -186,13 +199,10 @@ void create_ui(){
     lv_style_set_text_opa(&style_text_muted, LV_OPA_50);
 
     tileview = lv_tileview_create(lv_screen_active());
-    //lv_screen_activelv_obj_add_event_cb(tileview, scroll_event_cb, LV_EVENT_GESTURE, NULL);
     lv_obj_set_scrollbar_mode(tileview, LV_SCROLLBAR_MODE_OFF);
-    //lv_gridnav_add(tileview, LV_GRIDNAV_CTRL_NONE);
 
     //create first tile
     tile1 = lv_tileview_add_tile(tileview, 0, 0, LV_DIR_BOTTOM);
-    
     //create blue color
     lv_color_t pastelBlue = lv_color_hex(0xcaf9ff); 
     lv_obj_set_style_bg_color(tile1, pastelBlue, 0);
@@ -203,7 +213,6 @@ void create_ui(){
     //create second tile
     tile2 = lv_tileview_add_tile(tileview, 0, 1,(lv_dir_t)(LV_DIR_TOP | LV_DIR_BOTTOM));
     lv_obj_set_pos(tile2, lv_pct(0 * 90), lv_pct(1 * 90));
-
     //create green color
     lv_color_t pastelGreen = lv_color_hex(0xcaffe8); 
     lv_obj_set_style_bg_color(tile2, pastelGreen, 0);
@@ -214,11 +223,13 @@ void create_ui(){
     //third tile
     tile3 = lv_tileview_add_tile(tileview, 0, 2, LV_DIR_TOP);
     lv_obj_set_pos(tile3, lv_pct(0 * 90), lv_pct(2 * 90));
-    
     //create yellow color
     lv_color_t pastelYellow = lv_color_hex(0xdbffca); 
     lv_obj_set_style_bg_color(tile3, pastelYellow, 0);
     lv_obj_set_style_bg_opa(tile3, LV_OPA_100, 0);
     lv_obj_set_style_pad_all(tile3, 0, LV_PART_MAIN);
     habitMenu_create(tile3);
+
+    lv_tileview_set_tile(tileview, tile1, LV_ANIM_OFF);
+    makeButtons();
 }

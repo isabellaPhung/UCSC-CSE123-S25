@@ -4,24 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "esp_err.h"
-#include "esp_log.h"
-#include "esp_check.h"
-#include "driver/i2c.h"
-#include "driver/gpio.h"
-#include "driver/spi_master.h"
-#include "esp_lcd_panel_io.h"
-#include "esp_lcd_panel_vendor.h"
-#include "esp_lcd_panel_ops.h"
-#include "esp_lvgl_port.h"
-
-#include <esp_lcd_ili9488.h>
-
 /* LCD size */
 #define LCD_H_RES   (480)
 #define LCD_V_RES   (320)
-
-#include "ui.c"
 
 /* LCD settings */
 #define LCD_SPI_NUM         (SPI2_HOST)
@@ -33,7 +18,7 @@
 #define LCD_DRAW_BUFF_DOUBLE (0) //enables double buffering
 #define LCD_DRAW_BUFF_HEIGHT (50) //draw buffer height
 #define LCD_BL_ON_LEVEL     (1) //backlight on level
-                                        //
+                                        
 /* LCD pins */
 #define LCD_GPIO_SCLK       (GPIO_NUM_8)
 #define LCD_GPIO_MOSI       (GPIO_NUM_10)
@@ -42,7 +27,28 @@
 #define LCD_GPIO_CS         (GPIO_NUM_3)
 #define LCD_GPIO_BL         (GPIO_NUM_2)
 
-static const char *TAG = "EXAMPLE";
+/* Button Pins */
+#define GPIO_SELECT_BUTTON  (GPIO_NUM_7)
+#define GPIO_UP_BUTTON      (GPIO_NUM_21)
+#define GPIO_DOWN_BUTTON    (GPIO_NUM_6)
+#define GPIO_LEFT_BUTTON    (GPIO_NUM_20)
+#define GPIO_RIGHT_BUTTON   (GPIO_NUM_9)
+
+#include "esp_err.h"
+#include "esp_log.h"
+#include "esp_check.h"
+#include "driver/i2c.h"
+#include "driver/gpio.h"
+#include "driver/spi_master.h"
+#include "esp_lcd_panel_io.h"
+#include "esp_lcd_panel_vendor.h"
+#include "esp_lcd_panel_ops.h"
+#include "esp_lvgl_port.h" //ports lvgl to esp
+#include <esp_lcd_ili9488.h> //screen driver
+
+#include "ui.c"
+
+static const char *UI = "UI";
 
 /* LCD IO and panel */
 static esp_lcd_panel_io_handle_t lcd_io = NULL;
@@ -51,9 +57,8 @@ static esp_lcd_panel_handle_t lcd_panel = NULL;
 /* LVGL display*/
 static lv_display_t *lvgl_disp = NULL;
 
-
-static esp_err_t app_lcd_init(void)
-{
+//initializes LCD
+static esp_err_t app_lcd_init(void){
     esp_err_t ret = ESP_OK;
 
     /* LCD backlight */
@@ -64,7 +69,7 @@ static esp_err_t app_lcd_init(void)
     ESP_ERROR_CHECK(gpio_config(&bk_gpio_config));
 
     /* LCD initialization */
-    ESP_LOGD(TAG, "Initialize SPI bus");
+    ESP_LOGD(UI, "Initialize SPI bus");
     const spi_bus_config_t buscfg = {
         .sclk_io_num = LCD_GPIO_SCLK,
         .mosi_io_num = LCD_GPIO_MOSI,
@@ -73,9 +78,9 @@ static esp_err_t app_lcd_init(void)
         .quadhd_io_num = GPIO_NUM_NC,
         .max_transfer_sz = LCD_H_RES * LCD_DRAW_BUFF_HEIGHT * sizeof(uint16_t),
     };
-    ESP_RETURN_ON_ERROR(spi_bus_initialize(LCD_SPI_NUM, &buscfg, SPI_DMA_CH_AUTO), TAG, "SPI init failed");
+    ESP_RETURN_ON_ERROR(spi_bus_initialize(LCD_SPI_NUM, &buscfg, SPI_DMA_CH_AUTO), UI, "SPI init failed");
 
-    ESP_LOGD(TAG, "Install panel IO");
+    ESP_LOGD(UI, "Install panel IO");
     const esp_lcd_panel_io_spi_config_t io_config = {
         .dc_gpio_num = LCD_GPIO_DC,
         .cs_gpio_num = LCD_GPIO_CS,
@@ -85,15 +90,15 @@ static esp_err_t app_lcd_init(void)
         .spi_mode = 0,
         .trans_queue_depth = 10,
     };
-    ESP_GOTO_ON_ERROR(esp_lcd_new_panel_io_spi((esp_lcd_spi_bus_handle_t)LCD_SPI_NUM, &io_config, &lcd_io), err, TAG, "New panel IO failed");
+    ESP_GOTO_ON_ERROR(esp_lcd_new_panel_io_spi((esp_lcd_spi_bus_handle_t)LCD_SPI_NUM, &io_config, &lcd_io), err, UI, "New panel IO failed");
 
-    ESP_LOGD(TAG, "Install LCD driver");
+    ESP_LOGD(UI, "Install LCD driver");
     const esp_lcd_panel_dev_config_t panel_config = {
         .reset_gpio_num = LCD_GPIO_RST,
         .color_space = LCD_COLOR_SPACE,
         .bits_per_pixel = LCD_BITS_PER_PIXEL,
     };
-    ESP_GOTO_ON_ERROR(esp_lcd_new_panel_ili9488(lcd_io, &panel_config, LCD_H_RES * LCD_DRAW_BUFF_HEIGHT, &lcd_panel), err, TAG, "New panel failed");
+    ESP_GOTO_ON_ERROR(esp_lcd_new_panel_ili9488(lcd_io, &panel_config, LCD_H_RES * LCD_DRAW_BUFF_HEIGHT, &lcd_panel), err, UI, "New panel failed");
 
     esp_lcd_panel_reset(lcd_panel);
     esp_lcd_panel_init(lcd_panel);
@@ -117,6 +122,7 @@ err:
     return ret;
 }
 
+//initalizes LVGL
 static esp_err_t app_lvgl_init(void)
 {
     /* Initialize LVGL */
@@ -127,10 +133,10 @@ static esp_err_t app_lvgl_init(void)
         .task_max_sleep_ms = 500,   /* Maximum sleep in LVGL task */
         .timer_period_ms = 5        /* LVGL timer tick period in ms */
     };
-    ESP_RETURN_ON_ERROR(lvgl_port_init(&lvgl_cfg), TAG, "LVGL port initialization failed");
+    ESP_RETURN_ON_ERROR(lvgl_port_init(&lvgl_cfg), UI, "LVGL port initialization failed");
 
     /* Add LCD screen */
-    ESP_LOGD(TAG, "Add LCD screen");
+    ESP_LOGD(UI, "Add LCD screen");
     const lvgl_port_display_cfg_t disp_cfg = {
         .io_handle = lcd_io,
         .panel_handle = lcd_panel,
@@ -164,13 +170,14 @@ static void app_main_display(void)
     /* Task lock */
     lvgl_port_lock(0);
 
+    /* Draws UI using LVGL */
     create_ui();    
     
     /* Task unlock */
     lvgl_port_unlock();
 }
 
-void lcd_task(void)
+void app_main(void)
 {
     /* LCD HW initialization */
     ESP_ERROR_CHECK(app_lcd_init());
@@ -180,4 +187,8 @@ void lcd_task(void)
 
     /* Show LVGL objects */
     app_main_display();
+    while(1){
+        vTaskDelay(1);
+        lv_timer_handler(); //update screen
+    }
 }
