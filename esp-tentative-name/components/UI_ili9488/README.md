@@ -24,6 +24,6 @@ Currently trying to figure out how to get the buttons working with LVGL
 pin out is as follows:
 | select | 7 |
 | down | 6 |
-| right | 21 |
+| right | 9 |
 | left | 20 |
-| up | 9 |
+| up | 21 |
