@@ -1,5 +1,5 @@
 # LVGL Example using ILI9488 display
-
+For demo purposes only, can be used to test a screen for functionality.
 This is a very basic example using LVGL and an ILI9488 SPI display using [atanisoft's driver and example](https://components.espressif.com/components/atanisoft/esp_lcd_ili9488/versions/1.0.11)and has been edited by Isabella Phung for UCSC CSE123 for capstone project.
 Screen has been set to landscape mode and currently draws some demo text.
 Touch has yet to be implemented
