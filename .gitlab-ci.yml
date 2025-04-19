@@ -5,11 +5,11 @@ variables:
 make-pdf:
   rules:
     - changes:
-      - doc/common/**/*
+      #- doc/common/**/*
       - doc/asgn1/*
       - doc/asgn2/*
       - doc/asgn3/*
-      - .gitlab-ci.yml
+      #- .gitlab-ci.yml
   image:
     name: pandoc/latex
     entrypoint: ["/bin/sh", "-c"]
