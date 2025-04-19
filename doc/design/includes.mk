@@ -9,6 +9,9 @@ INSERT_MD += ../common/tests/test_lcd.md
 INSERT_MD += ../common/tests/test_offline.md
 INSERT_MD += ../common/tests/test_restoration.md
 INSERT_MD += ../common/tests/test_wifi.md
+INSERT_MD += ../common/tests/test_sync_basic.md
+INSERT_MD += ../common/tests/test_sync_dual.md
+INSERT_MD += ../common/tests/test_sync_redo.md
 
 INSERT_MD += ../common/personas/camillia.md
 INSERT_MD += ../common/personas/elijah.md
