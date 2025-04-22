@@ -65,7 +65,7 @@ if __name__ == '__main__':
     time.sleep(3)
     mqttc.subscribe(topic)
     mqttc.publish(topic, json_text)
-    time.sleep(5)
+    time.sleep(10)
     mqttc.unsubscribe(topic)
     time.sleep(1)
 
