@@ -37,3 +37,9 @@ sudo apt -y install libsqlite3-dev
 # SQLite3 ESP32
 The database will rely on [SQLite3 for the esp32](https://github.com/nopnop2002/esp32-idf-sqlite3) for database management.
 - Note: This directory attempts to use flags that do not work with the riscv compiler. Current fix is to go into `build.ninja` and `compile_commands.json` and remove all references to the flag "-mlongcalls". Doing this will allow the project to build.
+
+# TODO
+- [x] Task Table
+- [ ] Event Table
+- [ ] Habit Table
+- [ ] Read from JSON to SQLite
