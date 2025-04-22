@@ -37,14 +37,14 @@ int main()
 
 	LOG_TEST("Create task with description:");
 	// Add a task with a description
-	if (AddEntry(db, &entry_id, "C moment", 1744414429, 1, 0, "Complete C project") != SQLITE_OK)
+	if (AddTaskDB(db, &entry_id, "C moment", 1744414429, 1, 0, "Complete C project") != SQLITE_OK)
 	{
 		sqlite3_close(db);
 		return 1;
 	}
 	LOG_TEST("Task created! ID: %lld", entry_id);
 	// Print task 1 information
-	if (PrintEntry(db, entry_id) != SQLITE_OK)
+	if (PrintTaskDB(db, entry_id) != SQLITE_OK)
 	{
 		LOG_TEST("SQL Encountered an error: %s", sqlite3_errmsg(db));
 		CloseSQL(&db);
@@ -53,14 +53,14 @@ int main()
 
 	LOG_TEST("Create task with NULL description:");
 	// Add a task without a description
-	if (AddEntry(db, &entry_id, "Stare at sun", 1744354429, 2, 0, NULL) != SQLITE_OK)
+	if (AddTaskDB(db, &entry_id, "Stare at sun", 1744354429, 2, 0, NULL) != SQLITE_OK)
 	{
 		CloseSQL(&db);
 		return 1;
 	}
 	LOG_TEST("Task created! ID: %lld\n", entry_id);
 	// Print task 2 information
-	if (PrintEntry(db, entry_id) != SQLITE_OK)
+	if (PrintTaskDB(db, entry_id) != SQLITE_OK)
 	{
 		CloseSQL(&db);
 		return 1;
@@ -68,7 +68,7 @@ int main()
 
 	LOG_TEST("Deleting task %lld...", entry_id);
 	// Remove a task
-	if (RemoveEntry(db, entry_id) != SQLITE_OK)
+	if (RemoveTaskDB(db, entry_id) != SQLITE_OK)
 	{
 		CloseSQL(&db);
 		return 1;
@@ -77,33 +77,33 @@ int main()
 
 	LOG_TEST("Adding another task after removal:");
 	// Add a task without a description
-	if (AddEntry(db, &entry_id, "Drink water", 1774314429, 9, 0, NULL) != SQLITE_OK)
+	if (AddTaskDB(db, &entry_id, "Drink water", 1774314429, 9, 0, NULL) != SQLITE_OK)
 	{
 		CloseSQL(&db);
 		return 1;
 	}
 	LOG_TEST("Task created! ID: %lld\n", entry_id);
 	// Print task 2 information
-	if (PrintEntry(db, entry_id) != SQLITE_OK)
+	if (PrintTaskDB(db, entry_id) != SQLITE_OK)
 	{
 		CloseSQL(&db);
 		return 1;
 	}
 
 	LOG_TEST("Filling database...");
-	if (AddEntry(db, &entry_id, "Drink water", 1744362429, 9, 0, NULL) != SQLITE_OK)
+	if (AddTaskDB(db, &entry_id, "Drink water", 1744362429, 9, 0, NULL) != SQLITE_OK)
 	{
 		CloseSQL(&db);
 		return 1;
 	}
 
-	if (AddEntry(db, &entry_id, "Sleep", 1744364429, 6, 0, NULL) != SQLITE_OK)
+	if (AddTaskDB(db, &entry_id, "Sleep", 1744364429, 6, 0, NULL) != SQLITE_OK)
 	{
 		CloseSQL(&db);
 		return 1;
 	}
 
-	if (AddEntry(db, &entry_id, "Play video games", 1744364429, 8, 0, NULL) != SQLITE_OK)
+	if (AddTaskDB(db, &entry_id, "Play video games", 1744364429, 8, 0, NULL) != SQLITE_OK)
 	{
 		CloseSQL(&db);
 		return 1;
@@ -111,7 +111,7 @@ int main()
 
 	LOG_TEST("Ask for too many entries (10):");
 	Task ents[10];
-	int ret = RetrieveEntriesSorted(db, ents, 10);
+	int ret = RetrieveTasksSortedDB(db, ents, 10);
 
 	if (ret < 0)
 	{
@@ -125,7 +125,7 @@ int main()
 	}
 
 	LOG_TEST("Ask for less entries than in database (3):");
-	ret = RetrieveEntriesSorted(db, ents, 3);
+	ret = RetrieveTasksSortedDB(db, ents, 3);
 
 	if (ret < 0)
 	{

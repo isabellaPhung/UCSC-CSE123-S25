@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
-int AddEntry(sqlite3 *db, sqlite3_int64 *id, const char *name, time_t datetime, char priority, CompletionStatus completed, const char *description)
+int AddTaskDB(sqlite3 *db, sqlite3_int64 *id, const char *name, time_t datetime, char priority, CompletionStatus completed, const char *description)
 {
 	const char *sql;
 	sqlite3_stmt *stmt;
@@ -30,7 +30,7 @@ int AddEntry(sqlite3 *db, sqlite3_int64 *id, const char *name, time_t datetime, 
 	sqlite3_bind_int(stmt, index++, (int)priority);
 	sqlite3_bind_int(stmt, index++, (int)completed);
 
-	sqlite3_bind_text(stmt, index++, description, -1, SQLITE_STATIC);
+	sqlite3_bind_text(stmt, index++, description ? description : " ", -1, SQLITE_STATIC);
 
 	// Execute the statement
 	rc = sqlite3_step(stmt);
@@ -53,7 +53,7 @@ int AddEntry(sqlite3 *db, sqlite3_int64 *id, const char *name, time_t datetime, 
 	return SQLITE_OK;
 }
 
-int RetrieveEntry(sqlite3 *db, sqlite3_int64 id, Task *ent)
+int RetrieveTaskDB(sqlite3 *db, sqlite3_int64 id, Task *ent)
 {
 	sqlite3_stmt *stmt;
 
@@ -63,11 +63,11 @@ int RetrieveEntry(sqlite3 *db, sqlite3_int64 id, Task *ent)
 
 	if (rc != SQLITE_OK)
 	{
-		LOG_ERROR("SQL::RetrieveEntry: Failed to fetch data: %s", sqlite3_errmsg(db));
+		LOG_ERROR("SQL::RetrieveTaskDB: Failed to fetch data: %s", sqlite3_errmsg(db));
 		return rc;
 	}
 
-	//LOG_INFO("SQL::RetrieveEntry: Retrieving tasks at id: %d", id);
+	// LOG_INFO("SQL::RetrieveTaskDB: Retrieving tasks at id: %d", id);
 
 	// Execute the statement and fetch rows
 	while (sqlite3_step(stmt) != SQLITE_DONE)
@@ -80,21 +80,21 @@ int RetrieveEntry(sqlite3 *db, sqlite3_int64 id, Task *ent)
 
 		ent->id = id;
 
-		if (strlen(name) > MAX_NAME)
+		if (strlen(name) > MAX_TASK_NAME_SIZE)
 		{
-			LOG_WARNING("Task::RetrieveEntry: Task Name is oversized, string will be truncated!");
+			LOG_WARNING("Task::RetrieveTaskDB: Task Name is oversized, string will be truncated!");
 		}
-		strncpy(ent->name, name, MAX_NAME);
+		strncpy(ent->name, name, MAX_TASK_NAME_SIZE);
 		ent->time = time;
 		ent->priority = priority;
 		ent->completion = completed;
 		if (description)
 		{
-			if (strlen(name) > MAX_NAME)
+			if (strlen(name) > MAX_TASK_NAME_SIZE)
 			{
-				LOG_WARNING("Task::RetrieveEntry: Task Description is oversized, string will be truncated!");
+				LOG_WARNING("Task::RetrieveTaskDB: Task Description is oversized, string will be truncated!");
 			}
-			strncpy(ent->description, description, MAX_DESC);
+			strncpy(ent->description, description, MAX_TASK_DESC_SIZE);
 		}
 		else
 		{
@@ -120,10 +120,10 @@ void PrintTask(Task ent)
 			 ent.id, ent.name, datetime, ent.time, ent.priority, ent.completion, ent.description);
 }
 
-int PrintEntry(sqlite3 *db, sqlite3_int64 id)
+int PrintTaskDB(sqlite3 *db, sqlite3_int64 id)
 {
 	Task ent;
-	int rc = RetrieveEntry(db, id, &ent);
+	int rc = RetrieveTaskDB(db, id, &ent);
 	if (rc != SQLITE_OK)
 	{
 		return rc;
@@ -133,7 +133,7 @@ int PrintEntry(sqlite3 *db, sqlite3_int64 id)
 	return SQLITE_OK;
 }
 
-int RemoveEntry(sqlite3 *db, sqlite3_int64 id)
+int RemoveTaskDB(sqlite3 *db, sqlite3_int64 id)
 {
 	char *zErrMsg = 0;
 	char sql[1024];
@@ -150,7 +150,7 @@ int RemoveEntry(sqlite3 *db, sqlite3_int64 id)
 	return SQLITE_OK;
 }
 
-int RetrieveEntriesSorted(sqlite3 *db, Task *taskMemory, int count)
+int RetrieveTasksSortedDB(sqlite3 *db, Task *taskMemory, int count)
 {
 	if (!taskMemory || !db)
 	{
@@ -189,8 +189,8 @@ int RetrieveEntriesSorted(sqlite3 *db, Task *taskMemory, int count)
 		task->id = sqlite3_column_int64(stmt, 0);
 
 		const unsigned char *nameText = sqlite3_column_text(stmt, 1);
-		strncpy(task->name, nameText ? (const char *)nameText : "", MAX_NAME - 1);
-		task->name[MAX_NAME - 1] = '\0';
+		strncpy(task->name, nameText ? (const char *)nameText : "", MAX_TASK_NAME_SIZE - 1);
+		task->name[MAX_TASK_NAME_SIZE - 1] = '\0';
 
 		sqlite3_int64 timestamp = sqlite3_column_int64(stmt, 2);
 		task->time = (time_t)timestamp;
@@ -199,8 +199,8 @@ int RetrieveEntriesSorted(sqlite3 *db, Task *taskMemory, int count)
 		task->completion = (CompletionStatus)sqlite3_column_int(stmt, 4);
 
 		const unsigned char *descText = sqlite3_column_text(stmt, 5);
-		strncpy(task->description, descText ? (const char *)descText : "", MAX_DESC - 1);
-		task->description[MAX_DESC - 1] = '\0';
+		strncpy(task->description, descText ? (const char *)descText : "", MAX_TASK_DESC_SIZE - 1);
+		task->description[MAX_TASK_DESC_SIZE - 1] = '\0';
 
 		i++;
 	}
@@ -219,7 +219,7 @@ int RetrieveEntriesSorted(sqlite3 *db, Task *taskMemory, int count)
 /// @brief Toggles the completion status of an entry in the tasks table
 /// @param db Database
 /// @param id The ID of the entry to be toggled
-void CompleteEntry(sqlite3 *db, sqlite3_int64 id)
+void CompleteTaskDB(sqlite3 *db, sqlite3_int64 id)
 {
 	char *zErrMsg = 0;
 	char sql[1024];
