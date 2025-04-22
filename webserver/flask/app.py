@@ -18,8 +18,9 @@ def habits():
 
 
 @app.route("/tasks")
-def tasks():
-    return s3_conn.get_tasks()
+def test_tasks():
+    # NOTE: this is a test endpoint
+    return render_template("test_tasks.html", db_data=s3_conn.get_tasks())
 
 
 if __name__ == "__main__":
