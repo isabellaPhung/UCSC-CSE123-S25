@@ -9,4 +9,4 @@ class AwsS3:
         self.data = json.loads(self.obj.get()["Body"].read().decode('utf-8'))
 
     def get_tasks(self):
-        return self.data
+        return self.data["tasks"]
