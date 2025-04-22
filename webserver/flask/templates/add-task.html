@@ -111,9 +111,49 @@
                     </select>
 
                     <select id="minute-select">
-                
+                        <option value="00" slected>00</option>
+                        <option value="15">15</option>
+                        <option value="30">30</option>
+                        <option value="45">45</option>
+                    </select>
 
+                    <select id="period-select">
+                        <option value="AM" selected>AM</option>
+                        <option value="PM">PM</option>
+                    </select>
+                </div>
+                <div id="unix-timestamp" class="unix-timestamp">Unix Timestamp: </div>
+            </div>
 
+            <div class="button-group">
+                <button type="button" class="cancel-btn" id="cancel-btn">Cancel</button>
+                <button type="submit" class="save-btn">Save Task</button>
+            </div>
+        </form>
     </script>
+        function updateUnixTimeStamp() {
+            const dateInput = document.getElementById('due-date');
+            const hourSelect = document.getElementById('hour-select');
+            const minuteSelect = document.getElementById('minute-select');
+            const periodSelect = document.getElementById('period-select');
+            
+            if (dateInput.value) {
+                let hour = parseInt(hourSelect.value);
+                const minute = minuteSelect.value;
+                const period = periodSelect.value;
+
+                if (period == "PM" && hour < 12) {
+                    hour += 12;
+                } else if (period === "AM" && hour === 12){
+                    hour = 0;
+                }
+                const formattedHour = hour.toString().padStart(2, '0');
+                const timeStr = `${formattedHour}:${minute}`;
+
+                const dateTimeStr = `${dateInput.value}T${timeStr}:00`;
+                const timestamp = Math.floor(new Date(dateTimeStr).getTime() / 1000)
+                document.getElementById('unix-timestamp').textContent = `Unix Timestamp: ${timestamp}`;
+            } 
+        }
 </body>
 </html>
