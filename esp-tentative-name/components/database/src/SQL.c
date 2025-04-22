@@ -9,6 +9,7 @@
 /// @return SQLITE error code
 int InitSQL(sqlite3 **db)
 {
+
     int rc = sqlite3_open("calendar.db", db);
     if (rc)
     {
@@ -16,11 +17,13 @@ int InitSQL(sqlite3 **db)
         return rc;
     }
 
+    // --- Task Table ---
+    LOG_INFO("SQL::InitSQL: Creating Task Table...");
     // Ensures tasks table exists
     char *sql = "CREATE TABLE IF NOT EXISTS tasks ("
-                "id INTEGER PRIMARY KEY AUTOINCREMENT,"	// TODO: Convert to BLOB for UUID key
+                "id INTEGER PRIMARY KEY AUTOINCREMENT," // TODO: Convert to STRING for UUID key
                 "name TEXT NOT NULL,"
-                "datetime INTEGER NOT NULL,"
+                "datetime INTEGER NOT NULL,"    // Non-universal method of keeping time
                 "priority INTEGER NOT NULL,"
                 "completed INTEGER NOT NULL,"
                 "description TEXT);";
@@ -35,6 +38,27 @@ int InitSQL(sqlite3 **db)
         sqlite3_free(zErrMsg);
         return rc;
     }
+
+    // --- Event Table ---
+    LOG_INFO("SQL::InitSQL: Creating Event Table...");
+
+    sql = "CREATE TABLE IF NOT EXISTS events ("
+           "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+           "name TEXT NOT NULL,"
+           "starttime INTEGER NOT NULL,"
+           "duration INTEGER NOT NULL,"
+           "description TEXT);";
+
+    rc = sqlite3_exec(*db, sql, 0, 0, &zErrMsg); // Run SQL command
+    // Error checking
+    if (rc != SQLITE_OK)
+    {
+        LOG_ERROR("SQL::InitSQL: SQL error: %s", zErrMsg);
+        sqlite3_free(zErrMsg);
+        return rc;
+    }
+
+    // --- TODO: Habit Table ---
 
     return SQLITE_OK;
 }
