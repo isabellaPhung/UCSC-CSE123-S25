@@ -60,16 +60,27 @@ void loadTile3(){
  * creates focus menu, takes in parent lv_obj
  */
 void focusMenu_create(lv_obj_t * parent){
+    //displays current task timer
+    //TODO: what does it display if theres no current task? does it default to task tile?
     lv_obj_t * timer = lv_label_create(parent);
     lv_label_set_text(timer, "23:24");
     lv_obj_center(timer);
     lv_obj_add_style(timer, &style_timer, 0);
 
+    //displays current task
+    //TODO: how does the logic for displaying current task work?? need to ask Mason
     lv_obj_t * task = lv_label_create(parent);
     lv_label_set_text(task, "current task");
     lv_obj_center(task);
     lv_obj_add_style(task, &style_title, 0);
     lv_obj_align(task, LV_ALIGN_CENTER, 0 , -75);
+    
+    //TODO: needs time from RTC
+    //adds time to focus tile
+    lv_obj_t * dateTime = lv_label_create(parent);
+    lv_label_set_text(dateTime, "4/11/2025 7:35 PM");
+    lv_obj_set_style_text_font(dateTime, &lv_font_montserrat_18, 0);
+    lv_obj_align(dateTime, LV_ALIGN_BOTTOM_LEFT, 5, -5);
 
     //arrow to indicate scroll down
     arrowDown = lv_label_create(parent);
@@ -83,16 +94,20 @@ void focusMenu_create(lv_obj_t * parent){
  */
 static lv_obj_t * create_task(lv_obj_t * parent, const char * name, const char * dueDate)
 {
+    //creates button for task using existing list button style
     lv_obj_t * cont = lv_obj_class_create_obj(&lv_list_button_class, parent);
     lv_obj_class_init_obj(cont);
-    lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_COLUMN);
-    
+    lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_COLUMN); //sets button to flex flow column form so it'll expand as needed
+   
+    //initalizes columns and rows of grid for the button so things are nicely aligned
     static int32_t grid_col_dsc[] = {LV_GRID_CONTENT, LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
     static int32_t grid_row_dsc[] = {LV_GRID_CONTENT, LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
-
+    
+    //initializes grid
     lv_obj_set_grid_dsc_array(cont, grid_col_dsc, grid_row_dsc);
-    lv_obj_set_style_pad_left(cont, 0, LV_PART_MAIN);
+    lv_obj_set_style_pad_left(cont, 0, LV_PART_MAIN); //removes unnecessary left margin
 
+    //label for task name
     lv_obj_t * label;
     label = lv_label_create(cont);
     lv_label_set_text_static(label, name);
@@ -100,6 +115,7 @@ static lv_obj_t * create_task(lv_obj_t * parent, const char * name, const char *
     lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP); 
     lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_END, 0, 1);
 
+    //label for due date
     label = lv_label_create(cont);
     lv_label_set_text_static(label, dueDate);
     lv_obj_add_style(label, &style_text_muted, 0);
@@ -114,6 +130,7 @@ static lv_obj_t * create_task(lv_obj_t * parent, const char * name, const char *
  */
 void taskEvent_create(lv_obj_t * parent){
     //TODO: needs time from RTC
+    //adds time to taskevent tile
     lv_obj_t * dateTime = lv_label_create(parent);
     lv_label_set_text(dateTime, "4/11/2025 7:35 PM");
     lv_obj_set_style_text_font(dateTime, &lv_font_montserrat_18, 0);
@@ -124,17 +141,20 @@ void taskEvent_create(lv_obj_t * parent){
     lv_label_set_text(arrowUp, LV_SYMBOL_UP);
     lv_obj_align(arrowUp, LV_ALIGN_TOP_RIGHT, -5, 5);
     
-    //create a title
+    //make tasklist 
+    //create a title for tasks
     lv_obj_t * taskTitle = lv_label_create(parent);
     lv_label_set_text(taskTitle, "Tasks");
     lv_obj_align(taskTitle, LV_ALIGN_TOP_LEFT, 3, 35);
 
-    //make tasklist 
+    //create lv list obj
     lv_obj_t * tasklist = lv_list_create(parent);
     lv_obj_set_size(tasklist, lv_pct(49), lv_pct(73));
     lv_obj_align(tasklist, LV_ALIGN_TOP_LEFT, 3, 50);
     lv_obj_set_style_pad_all(tasklist, 0, LV_PART_MAIN);
-    
+   
+    //dummy tasks
+    //TODO: make them iterate through the database to display
     create_task(tasklist, "Capstone Project", "3/25/2025");
     create_task(tasklist, "Figure out Prototype", "3/29/2025");
     create_task(tasklist, "Learn PCB Design", "3/30/2025");
@@ -145,16 +165,19 @@ void taskEvent_create(lv_obj_t * parent){
     create_task(tasklist, "Math homework", "4/8/2025");
     
     //create event list
-    //create a title
+    //create a title for events
     lv_obj_t * eventTitle = lv_label_create(parent);
     lv_label_set_text(eventTitle, "Events");
     lv_obj_align(eventTitle, LV_ALIGN_TOP_LEFT, (LCD_H_RES/2), 35);
 
+    //create lv list obj
     lv_obj_t * eventlist = lv_list_create(parent);
     lv_obj_set_size(eventlist, lv_pct(49), lv_pct(73));
     lv_obj_align(eventlist, LV_ALIGN_TOP_LEFT, (LCD_H_RES/2), 50);
     lv_obj_set_style_pad_all(eventlist, 0, LV_PART_MAIN);
-    
+   
+    //dummy events
+    //TODO: make them iterate through the database to display
     create_task(eventlist, "Capstone Meeting", "3/21/2025 3:00PM");
     create_task(eventlist, "ECE171 Class", "3/29/2025 2:00PM");
     create_task(eventlist, "CSE121 Class", "3/30/2025 5:00PM");
@@ -170,13 +193,15 @@ void taskEvent_create(lv_obj_t * parent){
  * takes in parent list and name of habit
  */
 void createHabit(lv_obj_t * parent, const char * name){
+    //creates habit title name
     lv_obj_t * habits = lv_label_create(parent);
     lv_label_set_text(habits, name);
     lv_obj_set_style_text_font(habits, &lv_font_montserrat_18, 0);
 
+    //initializes col and rows for horizontal grid for day of the week buttons
     static int32_t grid_col_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
     static int32_t grid_row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
-
+    //create a horizontal grid for days of the week
     lv_obj_t * week = lv_obj_create(parent);
     lv_obj_set_grid_dsc_array(week, grid_col_dsc, grid_row_dsc);
     lv_obj_set_size(week, LCD_H_RES-20, 55);
@@ -185,15 +210,19 @@ void createHabit(lv_obj_t * parent, const char * name){
     lv_obj_set_style_border_width(week, 0, LV_PART_MAIN);
     lv_obj_set_flex_align(week, LV_FLEX_ALIGN_CENTER, 0, 0);
 
+    //add 7 buttons to the grid, one for each day
     for(int i = 0; i < 7; i++) {
         lv_obj_t * obj = lv_button_create(week);
         lv_obj_set_size(obj, 50, 50);
         lv_obj_set_grid_cell(obj, LV_GRID_ALIGN_STRETCH, i, 1, LV_GRID_ALIGN_STRETCH, 0, 1);
-        lv_obj_add_flag(obj, LV_OBJ_FLAG_CHECKABLE);
+        lv_obj_add_flag(obj, LV_OBJ_FLAG_CHECKABLE); //makes buttons toggleable
+        
+        //swapped toggle colors so toggling is blue
         lv_obj_set_style_bg_color(obj, lv_palette_main(LV_PALETTE_RED), 0);
         lv_obj_set_style_bg_color(obj, lv_palette_main(LV_PALETTE_BLUE), LV_STATE_CHECKED);
         //lv_group_remove_obj(obj);   //Not needed, we use the gridnav instead
-
+        
+        //labels for each button
         lv_obj_t * label = lv_label_create(obj);
         lv_label_set_text_fmt(label, "%s", days[i]);
         lv_obj_center(label);
@@ -209,11 +238,13 @@ void habitMenu_create(lv_obj_t * parent){
     lv_label_set_text(arrowUp, LV_SYMBOL_UP);
     lv_obj_align(arrowUp, LV_ALIGN_TOP_RIGHT, -5, 5);
 
+    //creates a title for the habits tile
     lv_obj_t * habits = lv_label_create(parent);
     lv_label_set_text(habits, "Habit Progress");
     lv_obj_set_style_text_font(habits, &lv_font_montserrat_18, 0);
     lv_obj_align(habits, LV_ALIGN_TOP_LEFT, 5, 5);
-    
+   
+    //creates a flex list for habits
     lv_obj_t * habitList = lv_obj_create(parent);
     lv_obj_set_size(habitList, LCD_H_RES-20, LV_PCT(89));
     lv_obj_align(habitList, LV_ALIGN_CENTER, 0 , 17);
@@ -221,7 +252,9 @@ void habitMenu_create(lv_obj_t * parent){
     lv_obj_set_style_pad_all(habitList, 0, LV_PART_MAIN);
     lv_obj_set_style_bg_opa(habitList, LV_OPA_0, LV_PART_MAIN);
     lv_obj_set_style_border_width(habitList, 0, LV_PART_MAIN);
-    
+   
+    //dummy habits
+    //TODO: get habits from database
     createHabit(habitList, "Go to the Gym");
     createHabit(habitList, "Walk the dog");
     createHabit(habitList, "Journal");
