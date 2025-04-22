@@ -155,5 +155,28 @@
                 document.getElementById('unix-timestamp').textContent = `Unix Timestamp: ${timestamp}`;
             } 
         }
+
+        document.getElementById('due-date').addEventListener('change', updateUnixTimestamp);
+        document.getElementById('hour-select').addEventListener('change', updateUnixTimestamp);
+        document.getElementById('minute-select').addEventListener('change', updateUnixTimestamp);
+        document.getElementById('period-select').addEventListener('change', updateUnixTimestamp);
+
+        const today = New Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        document.getElementById('due-date').value = `${year}-${month}-${day}`;
+
+        const currentHour = today.getHours();
+        const current<inute = today.getMinutes();
+        let roundedMinute;
+        
+        if (currentMinute < 8) roundedMinute = "00";
+        else if (currentMinute < 23) roundedMinute = "15";
+        else if (currentMiute < 38) roundedMinute = "30";
+        else if (currentMinute < 53) roundedMinute = "45";
+        else roundedMinute = "00";
+
+
 </body>
 </html>
