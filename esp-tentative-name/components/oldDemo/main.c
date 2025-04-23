@@ -45,7 +45,7 @@ static const gpio_num_t TFT_RESET = GPIO_NUM_4;
 static const gpio_num_t TFT_DC = GPIO_NUM_5;
 static const gpio_num_t TFT_BACKLIGHT = GPIO_NUM_2;
 
-static const lcd_rgb_element_order_t TFT_COLOR_MODE = LCD_COLOR_SPACE_RGB; 
+static const lcd_rgb_element_order_t TFT_COLOR_MODE = ESP_LCD_COLOR_SPACE_RGB; 
 
 // Default to 25 lines of color data
 static const size_t LV_BUFFER_SIZE = DISPLAY_HORIZONTAL_PIXELS * 25;
