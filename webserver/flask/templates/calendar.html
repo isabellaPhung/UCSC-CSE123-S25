@@ -226,3 +226,53 @@
     </style>
 </head>
 <body>
+    <h1>Task Calendar</h1>
+
+    <div class="calendar-controls">
+        <div>
+            <a href="index.html" class="home-link">Back to Dashboard</a>
+            <button class="today-link" id="today-button">Today</button>
+        </div>
+
+        <div class="month-selector">
+            <button class="month-nav" id="prev-month">←</button>
+            <div class="month-year-selector">
+                <select id="month-select">
+                    <option value="0">January</option>
+                    <option value="1">February</option>
+                    <option value="2">March</option>
+                    <option value="3">April</option>
+                    <option value="4">May</option>
+                    <option value="5">June</option>
+                    <option value="6">July</option>
+                    <option value="7">August</option>
+                    <option value="8">September</option>
+                    <option value="9">October</option>
+                    <option value="10">November</option>
+                    <option value="11">December</option>
+                </select>
+                <select id="year-select"></select>
+            </div>
+            <button class="month-nav" id="next-month">→</button>
+        </div>
+    </div>
+
+    <table class="calendar" id="calendar-table">
+        <thead>
+            <tr>
+                <th>Sunday</th>
+                <th>Monday</th>
+                <th>Tuesday</th>
+                <th>Wednesday</th>
+                <th>Thursday</th>
+                <th>Friday</th>
+                <th>Saturday</th>
+            <tr>
+        </thead>
+        <tbody id="calendar-body">
+            <!-- Calendar will be dynamically generated here -->
+        </tbody>
+    </table>
+
+    <!-- Day View Model -->
+                    
