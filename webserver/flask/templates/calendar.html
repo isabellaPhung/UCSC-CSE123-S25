@@ -275,4 +275,22 @@
     </table>
 
     <!-- Day View Model -->
+    <div class="overlay" id="overlay"></div>
+    <div class="day-view" id="day-view">
+            <div class="day-view-header">
+                <div class="day-view-title" id="day-view-title">Tasks for Day</div>
+                <button class= "close-day-view" id="close-day-view">×</button>
+            </div>
+            <div class="day-tasks-list" id="day-tasks-list">
+                <!-- Day tasks will dynamically loaded here -->
+            </div>
+        </div>
+
+        <script>
+            // Global variables
+            let currentDate = new Date();
+            let currentMonth = currentDate.getMonth();
+            let currentYear = currentDate.getFullYear();
+            let selectedDate = null;
+
                     
