@@ -1,6 +1,8 @@
 #include "event.h"
 #include "Logger.h"
 
+#include <stddef.h>
+
 int AddEventDB(sqlite3 *db, Event *ent)
 {
 	const char *sql;
@@ -27,7 +29,7 @@ int AddEventDB(sqlite3 *db, Event *ent)
 	sqlite3_bind_int(stmt, index++, (int)ent->timeStart);
 	sqlite3_bind_int(stmt, index++, (int)ent->timeDur);
 
-	sqlite3_bind_text(stmt, index++, ent->description ? ent->description : " ", -1, SQLITE_STATIC);
+	sqlite3_bind_text(stmt, index++, ent->description, -1, SQLITE_STATIC);
 
 	// Execute the statement
 	rc = sqlite3_step(stmt);

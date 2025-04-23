@@ -71,5 +71,8 @@ int CloseSQL(sqlite3 **db)
     if (rc != SQLITE_OK)
     {
         LOG_ERROR("SQL::CloseSQL: Can't close database: $s", sqlite3_errmsg(*db) ? sqlite3_errmsg(*db) : "No error code avalible");
+        return rc;
     }
+
+    return SQLITE_OK;
 }
