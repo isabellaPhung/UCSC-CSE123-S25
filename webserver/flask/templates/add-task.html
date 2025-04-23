@@ -177,6 +177,69 @@
         else if (currentMinute < 53) roundedMinute = "45";
         else roundedMinute = "00";
 
+        let hour12 = currentHour % 12;
+        if (hour12 === 0) hour12 = 12; // 0 should be displayed as 12 in 12 hour format 
+        document.getElementById('hour-select').value = hour12;
 
+        document.getElementById('minute-select').value = roundedMinute;
+
+        document.getElementById('period-select').value = currentHour >= 12 ? "PM" : "AM";
+
+        // Update timestamp
+        updateUnixTimestamp();
+
+        document.getElementById('task-form').addEventListener('submit', function(e)){
+            e.preventDefault();
+
+            const taskName = document.getElementById('task-name').value;
+            const taskDescription = document.getElementById('task-description').value;
+            const dueDate = document.getElementById('due-date').value;
+
+            //get time values
+            let hour = parseInt(document.getElementById('hour-select').value);
+            const minute = document.getElementById('minute-select').value;
+            const period = document.getElementById('period-select').value;
+
+            // convert to 24 hour format for internal storage
+            if (period === "PM" && hour < 12) {
+                hour + 12;  
+            } else if (period === "AM" && hour < 12) {
+                hour = 0;
+            }
+        
+
+        const formattedHour = hour.toString().padStart(2, '0');
+        const timeStr = `${formattedHour}: ${minute}`;
+        const displayTime = `${document.getElementById('hour-select').value}:${minute} ${period}`;
+
+        //create date object and get timestamp
+        const dateTimeStr = `${dueDate}T${timeStr}:00`;
+        const timestamp = Math.floor(new Date(dateTimeStr).getTime() / 1000);
+
+        const task = {
+            name: taskName,
+            description: taskDescription,
+            dueDate: dueDate,
+            timeStr: timeStr,
+            displayTime: displayTime,
+            timestamp: timestamp,
+            dateCreated: new Date().toISOString()
+        };
+
+        // get existing tasks or create empty aria-randomly 
+        const taskk = JSON.parse(localStorage.getItem('tasksList')) || [];
+
+        tasks.push(task);
+
+        localStorage.setItem('tasksList', JSON.stringify(tasks));
+
+        window.location.href = 'index.html';
+        });
+        document.getElementById('cancel-btn').addEventListener('click', function(){
+            window.location.href = 'index.html';
+        });
+
+
+    </script>
 </body>
 </html>
