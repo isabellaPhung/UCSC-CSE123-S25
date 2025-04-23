@@ -10,6 +10,7 @@ static lv_obj_t * tile2;
 static lv_obj_t * tile3;
 static button_handle_t down_btn;
 static button_handle_t up_btn;
+static lv_group_t * g;
 
 #include "helper_menus.c"
 
@@ -60,13 +61,14 @@ void makeButtons(){
     //initButtons(GPIO_RIGHT_BUTTON);    
     //initButtons(GPIO_SELECT_BUTTON);    
     iot_button_register_cb(down_btn, BUTTON_SINGLE_CLICK, NULL, down_btn_cb, NULL);
-    iot_button_register_cb(down_btn, BUTTON_PRESS_REPEAT, NULL, down_btn_cb, NULL);
     iot_button_register_cb(up_btn, BUTTON_SINGLE_CLICK, NULL, up_btn_cb, NULL);
-    iot_button_register_cb(up_btn, BUTTON_PRESS_REPEAT, NULL, up_btn_cb, NULL);
 }
 
 void create_ui(){
     initFonts();
+    g = lv_group_create();
+    lv_group_set_default(g);
+
     loadTile1();
     makeButtons();
 }
