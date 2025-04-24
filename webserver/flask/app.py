@@ -1,13 +1,27 @@
 from flask import Flask, request, render_template
+from flask_jwt_extended import JWTManager, create_access_token, get_jwt_identity
 from aws_helper import AwsS3
 
 app = Flask(__name__)
 s3_conn = AwsS3()
 
+# TODO: add proper secret key config
+app.config["JWT_SECRET_KEY"] = "TODO"
+jwt = JWTManager(app)
+
+
+@app.route("/api/login")
+def login():
+    username = request.json.get("username")
+    password = request.json.get("password")
+
+    access_token = create_access_token(identity=username)
+    return {"access_token": access_token}, 200
+
 
 @app.route("/")
 def home():
-    return render_template("home.html")
+    return render_template("index.html")
 
 
 @app.route("/habits")
