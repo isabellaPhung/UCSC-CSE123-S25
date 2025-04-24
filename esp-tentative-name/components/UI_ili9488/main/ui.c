@@ -1,74 +1,87 @@
 //uses code from io_button repo's test code for GPIO buttons
 
 #include "lvgl__lvgl/lvgl.h"
-#include "iot_button.h"
-#include "button_gpio.h"
 
 //assorted graphic items used across functions
 static lv_obj_t * tile1;
 static lv_obj_t * tile2;
 static lv_obj_t * tile3;
-static button_handle_t down_btn;
-static button_handle_t up_btn;
 static lv_group_t * g;
+static lv_indev_t * keypad;
+static button_handle_t btns[5] = {NULL};
 
 #include "helper_menus.c"
+#include "iot_button.h"
+#include "button_adc.h"
 
 static const char *BUTTON = "button";
 
-//callback function for the down button
-static void down_btn_cb(void *arg,void *usr_data){
-    lv_obj_t * currentTile = lv_scr_act();
-    if(currentTile == tile1){
-        loadTile2();
-        lv_obj_del(tile1);
-    }else if(currentTile == tile2){
-        loadTile3();
-        lv_obj_del(tile2);
-    }
-}
-
-//callback function for the up button
-static void up_btn_cb(void *arg,void *usr_data){
-    lv_obj_t * currentTile = lv_scr_act();
-    if(currentTile == tile2){
-        loadTile1();
-        lv_obj_del(tile2);
-    }else if(currentTile == tile3){
-        loadTile2();
-        lv_obj_del(tile3);
-    }
-}
-
-void initButtons(int pin, button_handle_t * name){
-    // create gpio button
-    const button_config_t btn_cfg = {0};
-    const button_gpio_config_t gpio_btn_cfg = {
-        .gpio_num = pin,
-        .active_level = 0,
-    };
-
-    esp_err_t ret = iot_button_new_gpio_device(&btn_cfg, &gpio_btn_cfg, name);
-    if(ret != ESP_OK) {
-        ESP_LOGE(BUTTON, "Button create failed");
-    }
-}
-
 void makeButtons(){
-    initButtons(GPIO_DOWN_BUTTON, &down_btn);    
-    initButtons(GPIO_UP_BUTTON, &up_btn);    
-    //initButtons(GPIO_LEFT_BUTTON);    
-    //initButtons(GPIO_RIGHT_BUTTON);    
-    //initButtons(GPIO_SELECT_BUTTON);    
-    iot_button_register_cb(down_btn, BUTTON_SINGLE_CLICK, NULL, down_btn_cb, NULL);
-    iot_button_register_cb(up_btn, BUTTON_SINGLE_CLICK, NULL, up_btn_cb, NULL);
+    // create ADC button
+    const button_config_t btn_cfg = {0};
+    button_adc_config_t btn_adc_cfg = {
+        .adc_channel = 1,
+    };
+    size_t btnCount = 5;
+    const uint16_t vol[5] = {300, 595, 1055, 1650, 2268};
+    for(size_t i = 0; i < btnCount; i++){
+        btn_adc_cfg.button_index = i;
+         if (i == 0) {
+            btn_adc_cfg.min = (0 + vol[i]) / 2;
+        } else {
+            btn_adc_cfg.min = (vol[i - 1] + vol[i]) / 2;
+        }
+
+        if (i == btnCount-1) {
+            btn_adc_cfg.max = (vol[i] + 3000) / 2;
+        } else {
+            btn_adc_cfg.max = (vol[i] + vol[i + 1]) / 2;
+        }
+        esp_err_t ret = iot_button_new_adc_device(&btn_cfg, &btn_adc_cfg, &btns[i]);
+        if(ret != ESP_OK) {
+            ESP_LOGE(BUTTON, "Button create failed");
+        }
+    }
+}
+
+
+uint32_t last_key(){
+    if(iot_button_get_event(btns[4]) == BUTTON_PRESS_DOWN){ //if up pressed
+        return  LV_KEY_DOWN;
+    }else if(iot_button_get_event(btns[3]) == BUTTON_PRESS_DOWN){ //if down pressed
+        return  LV_KEY_UP;
+    }else if(iot_button_get_event(btns[2]) == BUTTON_PRESS_DOWN){ //if left pressed
+        return  LV_KEY_LEFT;
+    }else if(iot_button_get_event(btns[1]) == BUTTON_PRESS_DOWN){ //if right pressed
+        return  LV_KEY_RIGHT;
+    }else if(iot_button_get_event(btns[0]) == BUTTON_PRESS_DOWN){ //if select pressed
+        return  LV_KEY_ENTER;
+    }
+    return 0;
+}
+
+void keyboard_read(lv_indev_t * indev, lv_indev_data_t * data){
+    data->key = last_key();
+    if(data->key > 0){
+        data->state = LV_INDEV_STATE_PRESSED;
+    }else{
+        data->state = LV_INDEV_STATE_RELEASED;
+    }
+}
+
+void keypad_init(){
+    keypad = lv_indev_create();
+    lv_indev_set_read_cb(keypad, keyboard_read);
+    lv_indev_set_type(keypad, LV_INDEV_TYPE_KEYPAD);
 }
 
 void create_ui(){
+    makeButtons();
     initFonts();
+    keypad_init();
     g = lv_group_create();
     lv_group_set_default(g);
+    lv_indev_set_group(keypad, g);
 
     loadTile1();
-    makeButtons();
 }

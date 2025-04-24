@@ -39,6 +39,12 @@ void initFonts(){
  * creates focus menu, takes in parent lv_obj
  */
 void focusMenu_create(lv_obj_t * parent){
+    //adding gridnav and focus colors to the taskevent menu
+    lv_obj_set_style_bg_color(parent, lv_palette_lighten(LV_PALETTE_BLUE, 5), LV_STATE_FOCUSED);
+    lv_gridnav_add(parent, LV_GRIDNAV_CTRL_NONE);
+    lv_group_add_obj(lv_group_get_default(), parent);
+    lv_group_focus_obj(parent);
+
     //displays current task timer
     //TODO: what does it display if theres no current task? does it default to task tile?
     lv_obj_t * timer = lv_label_create(parent);
@@ -108,13 +114,12 @@ static lv_obj_t * create_task(lv_obj_t * parent, const char * name, const char *
  * takes in parent lv_obj
  */
 void taskEvent_create(lv_obj_t * parent){
-    /*
     //adding gridnav and focus colors to the taskevent menu
     lv_obj_set_style_bg_color(parent, lv_palette_lighten(LV_PALETTE_BLUE, 5), LV_STATE_FOCUSED);
     lv_gridnav_add(parent, LV_GRIDNAV_CTRL_NONE);
     lv_group_add_obj(lv_group_get_default(), parent);
-    */
-
+    lv_group_focus_obj(parent);
+    
     //TODO: needs time from RTC
     //adds time to taskevent tile
     lv_obj_t * dateTime = lv_label_create(parent);
@@ -223,12 +228,12 @@ void createHabit(lv_obj_t * parent, const char * name){
  * creates habit menu, takes in parent lv obj
  */
 void habitMenu_create(lv_obj_t * parent){
-    /* 
     //and color when focused and add gridnav 
     lv_obj_set_style_bg_color(parent, lv_palette_lighten(LV_PALETTE_BLUE, 5), LV_STATE_FOCUSED);
     lv_gridnav_add(parent, LV_GRIDNAV_CTRL_NONE);
     lv_group_add_obj(lv_group_get_default(), parent);
-    */
+    lv_group_focus_obj(parent);
+    //lv_obj_add_event_cb(parent, loadTile2, LV_EVENT, NULL);
 
     //arrow to indicate scroll up
     arrowUp = lv_label_create(parent);
