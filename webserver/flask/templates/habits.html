@@ -3,92 +3,172 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Habits</title>
+    <title>Habits Tracker</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 20px;
-        }
-
-        .container {
-            max-width: 800px;
+            max-width: 1000px;
             margin: 0 auto;
         }
-
-        .header {
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .back-link {
+            background-color: #2196F3;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .habits-container {
+            margin-bottom: 40px;
+        }
+        
+        .habit-header {
+            display: flex;
+            background-color: #f5f5f5;
+            border-bottom: 2px solid #ddd;
+            font-weight: bold;
+        }
+        
+        .habit-name-header {
+            flex: 1;
+            padding: 10px;
+            text-align: left;
+        }
+        
+        .day-header {
+            width: 70px;
+            text-align: center;
+            padding: 10px 5px;
+        }
+        
+        .habit-row {
+            display: flex;
+            border-bottom: 1px solid #eee;
+            align-items: center;
+        }
+        
+        .habit-name {
+            flex: 1;
+            padding: 15px 10px;
+            font-weight: bold;
+        }
+        
+        .day-cell {
+            width: 70px;
+            text-align: center;
+            padding: 10px 5px;
+        }
+        
+        .day-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .add-habit-section {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        
+        .add-habit-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
         }
-
-        h1{
-            margin:0;
-        }
-        .controls {
+        
+        .add-habit-form {
             display: flex;
-            gap: 5px;
+            gap: 10px;
+            margin-top: 15px;
         }
-        .control-btn {
-            width: 25px;
-            height: 25px;
-            border-radius: 50%;
+        
+        .habit-input {
+            flex: 1;
+            padding: 10px;
             border: 1px solid #ccc;
-            background: f5f5f5;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-weight: bold;    
+            border-radius: 4px;
+            font-size: 16px;
         }
-        .control-btn:hover {
-            background: #e0e0e0;
-        }
-        .habits-list {
-            list-style-type: none;
-            padding: 0;
-        }
-        .habit-item {
-            padding: 12px;
-            margin-bottom:10px;
-            background-color: #f9f9f9;
+        
+        .add-btn, .remove-btn {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
             border-radius: 4px;
             cursor: pointer;
+            font-size: 16px;
         }
-        .habit-item:hover {
-            background-color:#f0f0f0;
+        
+        .remove-btn {
+            background-color: #f44336;
         }
-        .back-link {
-            display: inline-block;
-            margin-top: 20px;
-            color: #0066cc;
-            text-decoration:none;
-        }  
-        .back-link:hover {
-            text-decoration: underline;
+        
+        .add-btn:hover {
+            background-color: #45a049;
         }
-        .editable-input {
-            border: 1px solid #ccc;
-            border-radius: 3px;
-            padding: 5px;
-            width: 90%;
-            font-family:inherit;
-            font-size:inherit;
+        
+        .remove-btn:hover {
+            background-color: #d32f2f;
         }
-    <style>
+        
+        .day-selection {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+        
+        .day-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .day-label {
+            margin-top: 5px;
+            font-size: 14px;
+        }
+        
+        .current-day {
+            background-color: #e6f7ff;
+        }
+        
+        .delete-habit {
+            color: #f44336;
+            cursor: pointer;
+            padding: 0 10px;
+            font-size: 18px;
+        }
+        
+        .delete-habit:hover {
+            color: #d32f2f;
+        }
+        
+        .habit-controls {
+            display: flex;
+            align-items: center;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Habits</h1>
-            <div class="controls">
-                <button class="control-btn add-habit">+</button>
-                <button class="control-btn remove-habit">-</button>
-            </div>
-        </div>
-
-        <div class= "habits-list" id="habits-list">
-            <div class
+    
