@@ -171,4 +171,156 @@
     </style>
 </head>
 <body>
+
+    <div class="page-header">
+        <h1>Habits Tracker</h1>
+        <a href="index.html" class="back-link">Back to Dashboard</a>
+    </div>
+    
+    <div class="habits-container" id="habits-container">
+        <div class="habit-header">
+            <div class="habit-name-header">Habit</div>
+            <div class="day-header">Mon</div>
+            <div class="day-header">Tue</div>
+            <div class="day-header">Wed</div>
+            <div class="day-header">Thu</div>
+            <div class="day-header">Fri</div>
+            <div class="day-header">Sat</div>
+            <div class="day-header">Sun</div>
+            <div class="day-header">Actions</div>
+        </div>
+        
+        <!-- Habits will be dynamically added here -->
+    </div>
+    
+    <div class="add-habit-section">
+        <div class="add-habit-header">
+            <h2>Add New Habit</h2>
+            <div>
+                <button class="add-btn" id="add-habit-btn">Add Habit</button>
+                <button class="remove-btn" id="remove-last-habit-btn">Remove Last Habit</button>
+            </div>
+        </div>
+        
+        <div class="add-habit-form">
+            <input type="text" id="habit-input" class="habit-input" placeholder="Enter habit name...">
+        </div>
+        
+        <div class="day-selection">
+            <div class="day-option">
+                <input type="checkbox" id="mon-select" class="day-checkbox">
+                <label for="mon-select" class="day-label">Mon</label>
+            </div>
+            <div class="day-option">
+                <input type="checkbox" id="tue-select" class="day-checkbox">
+                <label for="tue-select" class="day-label">Tue</label>
+            </div>
+            <div class="day-option">
+                <input type="checkbox" id="wed-select" class="day-checkbox">
+                <label for="wed-select" class="day-label">Wed</label>
+            </div>
+            <div class="day-option">
+                <input type="checkbox" id="thu-select" class="day-checkbox">
+                <label for="thu-select" class="day-label">Thu</label>
+            </div>
+            <div class="day-option">
+                <input type="checkbox" id="fri-select" class="day-checkbox">
+                <label for="fri-select" class="day-label">Fri</label>
+            </div>
+            <div class="day-option">
+                <input type="checkbox" id="sat-select" class="day-checkbox">
+                <label for="sat-select" class="day-label">Sat</label>
+            </div>
+            <div class="day-option">
+                <input type="checkbox" id="sun-select" class="day-checkbox">
+                <label for="sun-select" class="day-label">Sun</label>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Day mapping we use throughout the app:
+        // 0 = Monday, 1 = Tuesday, 2 = Wednesday, 3 = Thursday, 
+        // 4 = Friday, 5 = Saturday, 6 = Sunday
+        // This is different from JavaScript's Date.getDay() which uses 0 = Sunday, 1 = Monday, etc.
+        
+        // Determine the current day of the week (0 = Sunday, 1 = Monday, etc.)
+        const today = new Date();
+        const currentDayIndex = today.getDay(); // 0-6
+        // Adjust to our display order (0 = Monday, ... 6 = Sunday)
+        const adjustedDayIndex = currentDayIndex === 0 ? 6 : currentDayIndex - 1;
+        
+        // Load habits from localStorage or initialize if empty
+        function loadHabits() {
+            const habitsContainer = document.getElementById('habits-container');
+            const habits = JSON.parse(localStorage.getItem('habits')) || [];
+            
+            // Clear the container except for the header
+            while (habitsContainer.children.length > 1) {
+                habitsContainer.removeChild(habitsContainer.lastChild);
+            }
+            
+            // Add each habit to the container
+            habits.forEach((habit, index) => {
+                const habitRow = document.createElement('div');
+                habitRow.className = 'habit-row';
+                habitRow.dataset.index = index;
+                
+                const habitName = document.createElement('div');
+                habitName.className = 'habit-name';
+                habitName.textContent = habit.text;
+                habitRow.appendChild(habitName);
+                
+                // Add checkboxes for each day of the week
+                for (let i = 0; i < 7; i++) {
+                    const dayCell = document.createElement('div');
+                    dayCell.className = 'day-cell';
+                    if (i === adjustedDayIndex) {
+                        dayCell.classList.add('current-day');
+                    }
+                    
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.className = 'day-checkbox';
+                    
+                    // Use the days array if it exists, otherwise use today's completed status for the current day
+                    if (habit.days && habit.days[i] !== undefined) {
+                        checkbox.checked = habit.days[i];
+                    } else if (i === adjustedDayIndex) {
+                        // For the current day, if days array doesn't exist, use the main completed property
+                        checkbox.checked = habit.completed || false;
+                    } else {
+                        checkbox.checked = false;
+                    }
+                    
+                    checkbox.dataset.day = i;
+                    checkbox.dataset.habitIndex = index;
+                    
+                    // Handle checkbox change
+                    checkbox.addEventListener('change', function() {
+                        updateHabitDay(index, i, this.checked);
+                    });
+                    
+                    dayCell.appendChild(checkbox);
+                    habitRow.appendChild(dayCell);
+                }
+                
+                // Add delete button
+                const actionsCell = document.createElement('div');
+                actionsCell.className = 'day-cell habit-controls';
+                
+                const deleteButton = document.createElement('span');
+                deleteButton.className = 'delete-habit';
+                deleteButton.innerHTML = '&times;';
+                deleteButton.title = 'Delete Habit';
+                deleteButton.addEventListener('click', function() {
+                    deleteHabit(index);
+                });
+                
+                actionsCell.appendChild(deleteButton);
+                habitRow.appendChild(actionsCell);
+                
+                habitsContainer.appendChild(habitRow);
+            });
+        }
     
