@@ -461,5 +461,135 @@
             }
         }
 
+        function formatDateString(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function addTasksToCell(cell, tasks, year, month, day) {
+            // Create date string to compare with task dueDate
+            const dateStr = formatDateString(new Date(year, month, day));
+            
+            // Filter tasks for this date
+            const cellTasks = tasks.filter(task => task.dueDate === dateStr);
+            
+            // Sort tasks by time
+            cellTasks.sort((a, b) => a.timestamp - b.timestamp);
+            
+            // Add tasks to cell (limit to 3 for space)
+            const maxVisibleTasks = 3;
+            for (let i = 0; i < cellTasks.length && i < maxVisibleTasks; i++) {
+                const task = cellTasks[i];
+                
+                const taskDiv = document.createElement('div');
+                taskDiv.className = 'calendar-task';
+                
+                const taskContent = document.createElement('div');
+                taskContent.textContent = task.name;
+                
+                const taskTime = document.createElement('div');
+                taskTime.className = 'task-time';
+                taskTime.textContent = task.displayTime;
+                
+                taskDiv.appendChild(taskContent);
+                taskDiv.appendChild(taskTime);
+                cell.appendChild(taskDiv);
+            }
+            
+            // Add indicator if there are more tasks
+            if (cellTasks.length > maxVisibleTasks) {
+                const moreTasksDiv = document.createElement('div');
+                moreTasksDiv.className = 'calendar-task';
+                moreTasksDiv.textContent = `+ ${cellTasks.length - maxVisibleTasks} more...`;
+                cell.appendChild(moreTasksDiv);
+            }
+        }
+        
+        // Show day view for a specific date
+        function showDayView(dateStr) {
+            selectedDate = dateStr;
+            
+            // Set the title with formatted date
+            const dateObj = new Date(dateStr);
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('day-view-title').textContent = `Tasks for ${dateObj.toLocaleDateString(undefined, options)}`;
+            
+            // Get tasks for this date
+            const tasks = JSON.parse(localStorage.getItem('tasksList')) || [];
+            const dayTasks = tasks.filter(task => task.dueDate === dateStr);
+            
+            // Sort tasks by time
+            dayTasks.sort((a, b) => a.timestamp - b.timestamp);
+            
+            // Display tasks
+            const tasksList = document.getElementById('day-tasks-list');
+            tasksList.innerHTML = '';
+            
+            if (dayTasks.length === 0) {
+                const noTasksMsg = document.createElement('div');
+                noTasksMsg.className = 'no-tasks-message';
+                noTasksMsg.textContent = 'No tasks scheduled for this day.';
+                tasksList.appendChild(noTasksMsg);
+            } else {
+                dayTasks.forEach((task, index) => {
+                    // Create task item
+                    const taskItem = document.createElement('div');
+                    taskItem.className = 'day-task-item';
+                    
+                    const taskName = document.createElement('div');
+                    taskName.className = 'day-task-name';
+                    taskName.textContent = task.name;
+                    
+                    const taskTime = document.createElement('div');
+                    taskTime.className = 'day-task-time';
+                    taskTime.textContent = task.displayTime;
+                    
+                    taskItem.appendChild(taskName);
+                    taskItem.appendChild(taskTime);
+                    
+                    // Create task details
+                    const taskDetails = document.createElement('div');
+                    taskDetails.className = 'day-task-details';
+                    taskDetails.innerHTML = `
+                        <div class="task-description">${task.description || 'No description provided'}</div>
+                        <div class="task-due-date">Due: ${new Date(task.timestamp * 1000).toLocaleTimeString()}</div>
+                        <div class="task-timestamp">Unix Timestamp: ${task.timestamp}</div>
+                    `;
+                    
+                    // Toggle details on click
+                    taskItem.addEventListener('click', function() {
+                        if (taskDetails.style.display === 'block') {
+                            taskDetails.style.display = 'none';
+                        } else {
+                            taskDetails.style.display = 'block';
+                        }
+                    });
+                    
+                    tasksList.appendChild(taskItem);
+                    tasksList.appendChild(taskDetails);
+                });
+            }
+            
+            // Show the overlay and day view
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('day-view').style.display = 'block';
+        }
+        
+        // Close day view
+        function closeDayView() {
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('day-view').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
+        
+
+
+
+
+
 
                     
