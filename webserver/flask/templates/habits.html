@@ -323,4 +323,116 @@
                 habitsContainer.appendChild(habitRow);
             });
         }
+        function updateHabitDay(habitIndex, dayIndex, completed) {
+            const habits = JSON.parse(localStorage.getItem('habits')) || [];
+            
+            if (habits[habitIndex]) {
+                // Initialize days array if it doesn't exist
+                if (!habits[habitIndex].days) {
+                    habits[habitIndex].days = [false, false, false, false, false, false, false];
+                }
+                
+                // Update the day's completion status
+                habits[habitIndex].days[dayIndex] = completed;
+                
+                // If this is today's checkbox, update the main "completed" property
+                if (dayIndex === adjustedDayIndex) {
+                    habits[habitIndex].completed = completed;
+                }
+                
+                // Save back to localStorage
+                localStorage.setItem('habits', JSON.stringify(habits));
+            }
+        }
+
+        // Add a new habit
+        function addHabit() {
+            const habitInput = document.getElementById('habit-input');
+            const habitName = habitInput.value.trim();
+            
+            if (habitName) {
+                const habits = JSON.parse(localStorage.getItem('habits')) || [];
+                
+                // Create days array based on selected checkboxes
+                const days = [
+                    document.getElementById('mon-select').checked,
+                    document.getElementById('tue-select').checked,
+                    document.getElementById('wed-select').checked,
+                    document.getElementById('thu-select').checked,
+                    document.getElementById('fri-select').checked,
+                    document.getElementById('sat-select').checked,
+                    document.getElementById('sun-select').checked
+                ];
+                
+                // Check if today's day is selected and use that for the main completed property
+                const isCompletedToday = days[adjustedDayIndex] || false;
+                
+                // Add the new habit
+                habits.push({
+                    text: habitName,
+                    completed: isCompletedToday, // Set based on today's checkbox
+                    days: days
+                });
+                
+                // Save back to localStorage
+                localStorage.setItem('habits', JSON.stringify(habits));
+                
+                // Clear the input and reload the habits
+                habitInput.value = '';
+                clearDaySelection();
+                loadHabits();
+            }
+        }
+
+        function removeLastHabit() {
+            const habits = JSON.parse(localStorage.getItem('habits')) || [];
+            
+            if (habits.length > 0) {
+                habits.pop();
+                localStorage.setItem('habits', JSON.stringify(habits));
+                loadHabits();
+            }
+        }
+
+        function deleteHabit(index) {
+            const habits = JSON.parse(localStorage.getItem('habits')) || [];
+            
+            if (index >= 0 && index < habits.length) {
+                habits.splice(index, 1);
+                localStorage.setItem('habits', JSON.stringify(habits));
+                loadHabits();
+            }
+        }
+
+        function clearDaySelection() {
+            document.getElementById('mon-select').checked = false;
+            document.getElementById('tue-select').checked = false;
+            document.getElementById('wed-select').checked = false;
+            document.getElementById('thu-select').checked = false;
+            document.getElementById('fri-select').checked = false;
+            document.getElementById('sat-select').checked = false;
+            document.getElementById('sun-select').checked = false;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Highlight the current day in the header
+            const dayHeaders = document.querySelectorAll('.day-header');
+            if (dayHeaders.length > adjustedDayIndex) {
+                dayHeaders[adjustedDayIndex].classList.add('current-day');
+            }
+
+            loadHabits();
+
+            document.getElementById('add-habit-btn').addEventListener('click', addHabit);
+
+            document.getElementById('habit-input').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                addHabit();
+                }
+            });
+            document.getElementById('remove-last-habit-btn').addEventListener('click', removeLastHabit);
+        });
+    </script>
+</body>
+</html>
     
