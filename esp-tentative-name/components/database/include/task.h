@@ -4,14 +4,13 @@
 #include <sqlite3.h>
 #include <time.h>
 
-#define MAX_TASK_NAME_SIZE 128
-#define MAX_TASK_DESC_SIZE 1024
+#include "SQL.h"
 
 typedef enum
 {
-	INCOMPLETE = 0,
-	COMPLETE = 1,
-	MFD = 2 // Marked For Deletion
+    INCOMPLETE = 0,
+    COMPLETE = 1,
+    MFD = 2 // Marked For Deletion
 } CompletionStatus;
 
 /** Task Struct
@@ -22,12 +21,12 @@ typedef enum
  */
 typedef struct
 {
-	sqlite3_int64 id;					  // id of entry within SQL
-	char name[MAX_TASK_NAME_SIZE];		  // Title of entry
-	time_t time;						  // Unix time (UTC)
-	char priority;						  // Priority 0-9
-	CompletionStatus completion;		  // Completion status of the entry
-	char description[MAX_TASK_DESC_SIZE]; // Verbose description of entry
+    char id[UUID_SIZE];                   // id of entry within SQL
+    char name[MAX_TASK_NAME_SIZE];        // Title of entry
+    time_t time;                          // Unix time (UTC)
+    char priority;                        // Priority 0-9
+    CompletionStatus completion;          // Completion status of the entry
+    char description[MAX_TASK_DESC_SIZE]; // Verbose description of entry
 } Task;
 
 /// @brief Adds an entry to the tasks table
@@ -40,12 +39,12 @@ typedef struct
 /// @param description (optional) additional information about the task
 /// @return SQLite Error
 int AddTaskDB(sqlite3 *db,
-			 sqlite3_int64 *id,
-			 const char *name,
-			 time_t datetime,
-			 char priority,
-			 CompletionStatus completed,
-			 const char *description);
+              sqlite3_int64 *id,
+              const char *name,
+              time_t datetime,
+              char priority,
+              CompletionStatus completed,
+              const char *description);
 
 // --- Entry modification ---
 /// @brief Deletes entry
@@ -53,11 +52,11 @@ int AddTaskDB(sqlite3 *db,
 /// @param id entry id
 /// @return SQLite Error
 int RemoveTaskDB(sqlite3 *db,
-				sqlite3_int64 id);
+                 sqlite3_int64 id);
 
 // Toggles the completion status of an entry
 void CompleteTaskDB(sqlite3 *db,
-				   sqlite3_int64 id);
+                    sqlite3_int64 id);
 
 // --- Entry Recovery ---
 
@@ -70,8 +69,8 @@ int RetrieveTaskDB(sqlite3 *db, sqlite3_int64 id, Task *ent);
 /// @param count Maximum number of entries to be added. This should be set to the size of the buffer.
 /// @return Number of entries returned, negative on error
 int RetrieveTasksSortedDB(sqlite3 *db,
-						  Task *taskMemory, // TODO: Use a more dynamic buffer type like a Doubly Linked List
-						  int count);
+                          Task *taskMemory, // TODO: Use a more dynamic buffer type like a Doubly Linked List
+                          int count);
 
 // --- Utility ---
 
@@ -83,6 +82,6 @@ void PrintTask(Task ent);
 /// @param db
 /// @param id
 int PrintTaskDB(sqlite3 *db,
-			   sqlite3_int64 id);
+                sqlite3_int64 id);
 
 #endif

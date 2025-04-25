@@ -21,7 +21,7 @@ int InitSQL(sqlite3 **db)
     LOG_INFO("SQL::InitSQL: Creating Task Table...");
     // Ensures tasks table exists
     char *sql = "CREATE TABLE IF NOT EXISTS tasks ("
-                "id INTEGER PRIMARY KEY AUTOINCREMENT," // TODO: Convert to STRING for UUID key
+                "id STRING PRIMARY KEY," // TODO: Convert to STRING for UUID key
                 "name TEXT NOT NULL,"
                 "datetime INTEGER NOT NULL,"    // Non-universal method of keeping time
                 "priority INTEGER NOT NULL,"
@@ -43,7 +43,7 @@ int InitSQL(sqlite3 **db)
     LOG_INFO("SQL::InitSQL: Creating Event Table...");
 
     sql = "CREATE TABLE IF NOT EXISTS events ("
-           "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+           "id STRING PRIMARY KEY,"
            "name TEXT NOT NULL,"
            "starttime INTEGER NOT NULL,"
            "duration INTEGER NOT NULL,"

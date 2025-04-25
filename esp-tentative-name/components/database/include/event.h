@@ -4,8 +4,7 @@
 #include <sqlite3.h>
 #include <time.h>
 
-#define MAX_EVENT_NAME_SIZE 128
-#define MAX_EVENT_DESC_SIZE 1024
+#include "SQL.h"
 
 typedef struct
 {

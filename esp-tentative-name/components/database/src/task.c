@@ -1,10 +1,12 @@
-#include "Logger.h"
 #include "task.h"
 
+#include <esp_log.h>
 #include <stdio.h>
 #include <string.h>
 
-int AddTaskDB(sqlite3 *db, sqlite3_int64 *id, const char *name, time_t datetime, char priority, CompletionStatus completed, const char *description)
+static const char *TAG = "task";
+
+int AddTaskDB(sqlite3 *db, Task *ent)
 {
 	const char *sql;
 	sqlite3_stmt *stmt;
@@ -18,25 +20,25 @@ int AddTaskDB(sqlite3 *db, sqlite3_int64 *id, const char *name, time_t datetime,
 	rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
 	if (rc != SQLITE_OK)
 	{
-		LOG_ERROR("Cannot prepare statement: %s", sqlite3_errmsg(db));
+		ESP_LOGE(TAG, "Cannot prepare statement: %s", sqlite3_errmsg(db));
 		return rc;
 	}
 
 	// Bind the values to the placeholders
 	int index = 1;
-	sqlite3_bind_text(stmt, index++, name, -1, SQLITE_STATIC);
+	sqlite3_bind_text(stmt, index++, ent->name, -1, SQLITE_STATIC);
 
-	sqlite3_bind_int64(stmt, index++, (sqlite3_int64)datetime);
-	sqlite3_bind_int(stmt, index++, (int)priority);
-	sqlite3_bind_int(stmt, index++, (int)completed);
+	sqlite3_bind_int64(stmt, index++, (sqlite3_int64)ent->time);
+	sqlite3_bind_int(stmt, index++, (int)ent->priority);
+	sqlite3_bind_int(stmt, index++, (int)ent->completion);
 
-	sqlite3_bind_text(stmt, index++, description ? description : " ", -1, SQLITE_STATIC);
+	sqlite3_bind_text(stmt, index++, ent->description, -1, SQLITE_STATIC);
 
 	// Execute the statement
 	rc = sqlite3_step(stmt);
 	if (rc != SQLITE_DONE)
 	{
-		LOG_ERROR("Execution failed: %s", sqlite3_errmsg(db));
+		ESP_LOGE(TAG, "Execution failed: %s", sqlite3_errmsg(db));
 		sqlite3_finalize(stmt);
 		return rc;
 	}
@@ -45,15 +47,15 @@ int AddTaskDB(sqlite3 *db, sqlite3_int64 *id, const char *name, time_t datetime,
 	sqlite3_finalize(stmt);
 
 	// Get the ID of the newly inserted row
-	sqlite3_int64 ID = sqlite3_last_insert_rowid(db);
-	*id = ID;
+	//sqlite3_int64 ID = sqlite3_last_insert_rowid(db);
+	//*id = ID;
 
-	LOG_INFO("SQL::AddEntry: Added %s with ID %lld", name, *id);
+	ESP_LOGI(TAG, "SQL::AddEntry: Added %s", ent->name);
 
 	return SQLITE_OK;
 }
 
-int RetrieveTaskDB(sqlite3 *db, sqlite3_int64 id, Task *ent)
+int RetrieveTaskDB(sqlite3 *db, const char* id, Task *ent)
 {
 	sqlite3_stmt *stmt;
 
@@ -63,11 +65,11 @@ int RetrieveTaskDB(sqlite3 *db, sqlite3_int64 id, Task *ent)
 
 	if (rc != SQLITE_OK)
 	{
-		LOG_ERROR("SQL::RetrieveTaskDB: Failed to fetch data: %s", sqlite3_errmsg(db));
+		ESP_LOGE(TAG, "SQL::RetrieveTaskDB: Failed to fetch data: %s", sqlite3_errmsg(db));
 		return rc;
 	}
 
-	// LOG_INFO("SQL::RetrieveTaskDB: Retrieving tasks at id: %d", id);
+	// ESP_LOGI(TAG, "SQL::RetrieveTaskDB: Retrieving tasks at id: %d", id);
 
 	// Execute the statement and fetch rows
 	while (sqlite3_step(stmt) != SQLITE_DONE)
@@ -78,11 +80,11 @@ int RetrieveTaskDB(sqlite3 *db, sqlite3_int64 id, Task *ent)
 		CompletionStatus completed = (CompletionStatus)sqlite3_column_int(stmt, 4);
 		const char *description = (const char *)sqlite3_column_text(stmt, 5);
 
-		ent->id = id;
+		strncpy(ent->id, id, UUID_SIZE);
 
 		if (strlen(name) > MAX_TASK_NAME_SIZE)
 		{
-			LOG_WARNING("Task::RetrieveTaskDB: Task Name is oversized, string will be truncated!");
+			ESP_LOGW(TAG, "Task::RetrieveTaskDB: Task Name is oversized, string will be truncated!");
 		}
 		strncpy(ent->name, name, MAX_TASK_NAME_SIZE);
 		ent->time = time;
@@ -92,7 +94,7 @@ int RetrieveTaskDB(sqlite3 *db, sqlite3_int64 id, Task *ent)
 		{
 			if (strlen(name) > MAX_TASK_NAME_SIZE)
 			{
-				LOG_WARNING("Task::RetrieveTaskDB: Task Description is oversized, string will be truncated!");
+				ESP_LOGW(TAG, "Task::RetrieveTaskDB: Task Description is oversized, string will be truncated!");
 			}
 			strncpy(ent->description, description, MAX_TASK_DESC_SIZE);
 		}
@@ -113,10 +115,10 @@ void PrintTask(Task ent)
 	int rc = strftime(datetime, sizeof(datetime), "%Y-%m-%d %H:%M:%S", timeinfo);
 	if (rc == 0)
 	{
-		LOG_ERROR("Task::PrintEntry: strftime cannot process entry %lld!", ent.id);
+		ESP_LOGE(TAG, "Task::PrintEntry: strftime cannot process entry %lld!", ent.id);
 	}
 
-	LOG_INFO("ID: %lld | Name: %s | Due: %s (%ld) | Priority: %d | Completed: %d | Description: %s",
+	ESP_LOGI(TAG, "ID: %lld | Name: %s | Due: %s (%ld) | Priority: %d | Completed: %d | Description: %s",
 			 ent.id, ent.name, datetime, ent.time, ent.priority, ent.completion, ent.description);
 }
 
@@ -142,7 +144,7 @@ int RemoveTaskDB(sqlite3 *db, sqlite3_int64 id)
 	int rc = sqlite3_exec(db, sql, 0, 0, &zErrMsg);
 	if (rc != SQLITE_OK)
 	{
-		LOG_ERROR("SQL::RemoveEntry: SQL error: %s", zErrMsg);
+		ESP_LOGE(TAG, "SQL::RemoveEntry: SQL error: %s", zErrMsg);
 		sqlite3_free(zErrMsg);
 		return rc;
 	}
@@ -154,13 +156,13 @@ int RetrieveTasksSortedDB(sqlite3 *db, Task *taskMemory, int count)
 {
 	if (!taskMemory || !db)
 	{
-		LOG_ERROR("RetrieveEntriesSorted: Received NULL pointer");
+		ESP_LOGE(TAG, "RetrieveEntriesSorted: Received NULL pointer");
 		return -1;
 	}
 
 	if (count < 1)
 	{
-		LOG_WARNING("RetrieveEntriesSorted: Did you really want to retrieve 0 entries?");
+		ESP_LOGW(TAG, "RetrieveEntriesSorted: Did you really want to retrieve 0 entries?");
 		return 0; // Retrieve nothing
 	}
 
@@ -173,7 +175,7 @@ int RetrieveTasksSortedDB(sqlite3 *db, Task *taskMemory, int count)
 	int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
 	if (rc != SQLITE_OK)
 	{
-		LOG_ERROR("RetrieveEntriesSorted: Failed to prepare statement: %s", sqlite3_errmsg(db));
+		ESP_LOGE(TAG, "RetrieveEntriesSorted: Failed to prepare statement: %s", sqlite3_errmsg(db));
 		return -2;
 	}
 
@@ -186,7 +188,7 @@ int RetrieveTasksSortedDB(sqlite3 *db, Task *taskMemory, int count)
 	{
 		Task *task = taskMemory + i;
 
-		task->id = sqlite3_column_int64(stmt, 0);
+		strncpy(task->id,sqlite3_column_int64(stmt, 0), UUID_SIZE);
 
 		const unsigned char *nameText = sqlite3_column_text(stmt, 1);
 		strncpy(task->name, nameText ? (const char *)nameText : "", MAX_TASK_NAME_SIZE - 1);
@@ -207,7 +209,7 @@ int RetrieveTasksSortedDB(sqlite3 *db, Task *taskMemory, int count)
 
 	if (rc != SQLITE_DONE)
 	{
-		LOG_ERROR("RetrieveEntriesSorted: Error while reading rows: %s", sqlite3_errmsg(db));
+		ESP_LOGE(TAG, "RetrieveEntriesSorted: Error while reading rows: %s", sqlite3_errmsg(db));
 		sqlite3_finalize(stmt);
 		return -3;
 	}
@@ -233,7 +235,7 @@ void CompleteTaskDB(sqlite3 *db, sqlite3_int64 id)
 	rc = sqlite3_prepare_v2(db, sql, -1, &stmt, 0);
 	if (rc != SQLITE_OK)
 	{
-		LOG_ERROR("SQL::CompleteEntry: Failed to prepare statement: %s", sqlite3_errmsg(db));
+		ESP_LOGE(TAG, "SQL::CompleteEntry: Failed to prepare statement: %s", sqlite3_errmsg(db));
 		return;
 	}
 
@@ -245,7 +247,7 @@ void CompleteTaskDB(sqlite3 *db, sqlite3_int64 id)
 	}
 	else
 	{
-		LOG_ERROR("SQL::CompleteEntry: Failed to get current status for ID %lld", id);
+		ESP_LOGE(TAG, "SQL::CompleteEntry: Failed to get current status for ID %lld", id);
 		sqlite3_finalize(stmt);
 		return;
 	}
@@ -264,10 +266,10 @@ void CompleteTaskDB(sqlite3 *db, sqlite3_int64 id)
 	// Error checking
 	if (rc != SQLITE_OK)
 	{
-		LOG_ERROR("SQL::CompleteEntry: SQL error: %s", zErrMsg);
+		ESP_LOGE(TAG, "SQL::CompleteEntry: SQL error: %s", zErrMsg);
 		sqlite3_free(zErrMsg);
 		return;
 	}
 
-	LOG_INFO("SQL::CompleteEntry: Toggled completion status for ID %lld to %d", id, new_status);
+	ESP_LOGI(TAG, "SQL::CompleteEntry: Toggled completion status for ID %lld to %d", id, new_status);
 }

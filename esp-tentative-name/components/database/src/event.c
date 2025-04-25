@@ -1,7 +1,9 @@
 #include "event.h"
-#include "Logger.h"
 
+#include <esp_log.h>
 #include <stddef.h>
+
+static const char *TAG = "event";
 
 int AddEventDB(sqlite3 *db, Event *ent)
 {
@@ -17,7 +19,7 @@ int AddEventDB(sqlite3 *db, Event *ent)
 	rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
 	if (rc != SQLITE_OK)
 	{
-		LOG_ERROR("Cannot prepare statement: %s", sqlite3_errmsg(db));
+		ESP_LOGE(TAG, "Cannot prepare statement: %s", sqlite3_errmsg(db));
 		return rc;
 	}
 
@@ -35,7 +37,7 @@ int AddEventDB(sqlite3 *db, Event *ent)
 	rc = sqlite3_step(stmt);
 	if (rc != SQLITE_DONE)
 	{
-		LOG_ERROR("Execution failed: %s", sqlite3_errmsg(db));
+		ESP_LOGE(TAG, "Execution failed: %s", sqlite3_errmsg(db));
 		sqlite3_finalize(stmt);
 		return rc;
 	}
@@ -43,7 +45,7 @@ int AddEventDB(sqlite3 *db, Event *ent)
 	// Clean up
 	sqlite3_finalize(stmt);
 
-	LOG_INFO("SQL::AddEntry: Added Event: %s", ent->name);
+	ESP_LOGI(TAG, "SQL::AddEntry: Added Event: %s", ent->name);
 
 	return SQLITE_OK;
 }
