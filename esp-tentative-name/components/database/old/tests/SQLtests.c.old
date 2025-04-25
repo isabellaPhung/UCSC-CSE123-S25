@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <sqlite3.h>
-#include "../src/SQL.h"
-#include "../src/task.h"
+#include "../include/SQL.h"
+#include "../include/task.h"
 
 #define RESET "\033[0m"
 #define GREEN "\033[32m"

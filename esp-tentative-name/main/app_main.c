@@ -16,15 +16,45 @@
 #include "esp_log.h"
 
 void aws_iot_demo_main(void *pvParameters);
-void lcd_task(void *pvParameters);
 
-struct {
-  SemaphoreHandle_t buffer_sem;
-  char payload[512];
-  size_t payload_len;
+struct
+{
+    SemaphoreHandle_t buffer_sem;
+    char payload[512];
+    size_t payload_len;
 } task_params;
 
-static const char *TAG = "MQTT_EXAMPLE";
+static const char *TAG = "DATABASE_EXAMPLE";
+
+const char *json_data =
+    "{\n"
+    "  \"tasks\":[\n"
+    "    {\n"
+    "      \"id\":\"37a9b0d4-e523-43d5-b24a-38c5ce7f4bf5\",\n"
+    "      \"name\":\"Walk the dog\",\n"
+    "      \"description\":\"Walk the dog\",\n"
+    "      \"completion\":\"incomplete\",\n"
+    "      \"priority\":\"high\",\n"
+    "      \"duedate\":1744509600\n"
+    "    },\n"
+    "    {\n"
+    "      \"id\":\"43b968d4-1d1c-4902-844a-91b75936b87d\",\n"
+    "      \"name\":\"File taxes\",\n"
+    "      \"description\":\"\",\n"
+    "      \"completion\":\"incomplete\",\n"
+    "      \"priority\":\"high\",\n"
+    "      \"duedate\":1744700340\n"
+    "    },\n"
+    "    {\n"
+    "      \"id\":\"8dd144ea-ea15-4d5a-aa59-4223d4daa15d\",\n"
+    "      \"name\":\"Work on the project\",\n"
+    "      \"description\":\"See issues\",\n"
+    "      \"completion\":\"incomplete\",\n"
+    "      \"priority\":\"medium\",\n"
+    "      \"duedate\":1744743000\n"
+    "    }\n"
+    "  ]\n"
+    "}";
 
 /*
  * Prototypes for the demos that can be started from this project.  Note the
@@ -34,14 +64,15 @@ static const char *TAG = "MQTT_EXAMPLE";
 void app_main()
 {
     ESP_LOGI(TAG, "[APP] Startup..");
-    ESP_LOGI(TAG, "[APP] Free memory: %"PRIu32" bytes", esp_get_free_heap_size());
+    ESP_LOGI(TAG, "[APP] Free memory: %" PRIu32 " bytes", esp_get_free_heap_size());
     ESP_LOGI(TAG, "[APP] IDF version: %s", esp_get_idf_version());
 
     esp_log_level_set("*", ESP_LOG_INFO);
 
     /* Initialize NVS partition */
     esp_err_t ret = nvs_flash_init();
-    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
+    {
         /* NVS partition was truncated
          * and needs to be erased */
         ESP_ERROR_CHECK(nvs_flash_erase());
@@ -62,6 +93,6 @@ void app_main()
 
     vSemaphoreCreateBinary(task_params.buffer_sem);
 
-    xTaskCreate(aws_iot_demo_main, "AWS_DEMO", 4069, (void *)&task_params, 5, NULL);
-    xTaskCreate(lcd_task, "LCD_DEMO", 4069, (void *)&task_params, 5, NULL);
+    //xTaskCreate(aws_iot_demo_main, "AWS_DEMO", 4069, (void *)&task_params, 5, NULL);
+    // xTaskCreate(lcd_task, "LCD_DEMO", 4069, (void *)&task_params, 5, NULL);
 }
