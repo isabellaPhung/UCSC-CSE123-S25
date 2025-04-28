@@ -14,15 +14,31 @@ def ssl_alpn():
     ssl_context.set_alpn_protocols([IoT_protocol_name])
     ssl_context.load_verify_locations(cafile=ca)
     ssl_context.load_cert_chain(certfile=cert, keyfile=private)
-
     return  ssl_context
 
 def on_connect(mqttc, obj, flags, reason_code, properties):
     print("reason_code: " + str(reason_code))
 
+msg_len = 0
+cur_index = -1
 def on_message(mqttc, obj, msg):
-    print(topic + ":")
-    print(msg.payload)
+    #print(topic + ":")
+    #print(msg.payload)
+    global msg_len
+    global cur_index
+    json_msg = json.loads(msg.payload)
+    if json_msg["id"] == "server" and json_msg["action"] == "length":
+        msg_len = int(json_msg["length"])
+        cur_index = 0
+        print(f"Expectng {msg_len} tasks");
+    elif json_msg["id"] == "server" and json_msg["action"] == "response":
+        print(msg.payload)
+        cur_index += 1
+        if cur_index == msg_len:
+            mqttc.unsubscribe(topic)
+            time.sleep(1)
+            mqttc.disconnect()
+            mqttc.loop_stop()
 
 def on_subscribe(mqttc, obj, mid, reason_code_list, properties):
     print("Subscribed: " + str(mid) + " " + str(reason_code_list))
@@ -64,10 +80,11 @@ if __name__ == '__main__':
 
     time.sleep(3)
     mqttc.subscribe(topic)
-    mqttc.publish(topic, json_text)
-    time.sleep(10)
-    mqttc.unsubscribe(topic)
-    time.sleep(1)
+    while (cur_index != msg_len):
+        mqttc.publish(topic, json_text)
 
-    mqttc.disconnect()
-    mqttc.loop_stop()
+        time.sleep(5)
+        if msg_len == 0:
+            print("Did not get the first message, retying")
+        else:
+            break
