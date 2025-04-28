@@ -16,6 +16,7 @@
 #include "esp_log.h"
 
 void aws_iot_demo_main(void *pvParameters);
+void DB_task_demo(void *pvParameters);
 
 struct
 {
@@ -24,37 +25,7 @@ struct
     size_t payload_len;
 } task_params;
 
-static const char *TAG = "DATABASE_EXAMPLE";
-
-const char *json_data =
-    "{\n"
-    "  \"tasks\":[\n"
-    "    {\n"
-    "      \"id\":\"37a9b0d4-e523-43d5-b24a-38c5ce7f4bf5\",\n"
-    "      \"name\":\"Walk the dog\",\n"
-    "      \"description\":\"Walk the dog\",\n"
-    "      \"completion\":\"incomplete\",\n"
-    "      \"priority\":\"high\",\n"
-    "      \"duedate\":1744509600\n"
-    "    },\n"
-    "    {\n"
-    "      \"id\":\"43b968d4-1d1c-4902-844a-91b75936b87d\",\n"
-    "      \"name\":\"File taxes\",\n"
-    "      \"description\":\"\",\n"
-    "      \"completion\":\"incomplete\",\n"
-    "      \"priority\":\"high\",\n"
-    "      \"duedate\":1744700340\n"
-    "    },\n"
-    "    {\n"
-    "      \"id\":\"8dd144ea-ea15-4d5a-aa59-4223d4daa15d\",\n"
-    "      \"name\":\"Work on the project\",\n"
-    "      \"description\":\"See issues\",\n"
-    "      \"completion\":\"incomplete\",\n"
-    "      \"priority\":\"medium\",\n"
-    "      \"duedate\":1744743000\n"
-    "    }\n"
-    "  ]\n"
-    "}";
+static const char *TAG = "DEMO";
 
 /*
  * Prototypes for the demos that can be started from this project.  Note the
@@ -89,10 +60,9 @@ void app_main()
      * examples/protocols/README.md for more information about this function.
      */
     // TODO replace with a more complete wifi connection function that supports low power mode
-    ESP_ERROR_CHECK(example_connect());
+    // ESP_ERROR_CHECK(example_connect());
 
     vSemaphoreCreateBinary(task_params.buffer_sem);
 
-    //xTaskCreate(aws_iot_demo_main, "AWS_DEMO", 4069, (void *)&task_params, 5, NULL);
-    // xTaskCreate(lcd_task, "LCD_DEMO", 4069, (void *)&task_params, 5, NULL);
+    xTaskCreate(DB_task_demo, "DB_Task", 65536, NULL, 5, NULL);
 }
