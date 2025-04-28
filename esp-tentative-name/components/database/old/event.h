@@ -4,7 +4,8 @@
 #include <sqlite3.h>
 #include <time.h>
 
-#include "SQL.h"
+#define MAX_EVENT_NAME_SIZE 128
+#define MAX_EVENT_DESC_SIZE 1024
 
 typedef struct
 {
@@ -28,7 +29,7 @@ int AddEventDB(sqlite3 *db, Event *ent);
 /// @param id entry id
 /// @return SQLite Error
 int RemoveEventDB(sqlite3 *db,
-       sqlite3_int64 id);
+                  sqlite3_int64 id);
 
 // Retrieve task entries
 int RetrieveEventDB(sqlite3 *db, sqlite3_int64 id, Event *ent);
