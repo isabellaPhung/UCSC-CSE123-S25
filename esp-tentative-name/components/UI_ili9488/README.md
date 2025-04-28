@@ -20,10 +20,5 @@ For the ESP32C2 and ILI9488 screen pins are as follows:
 
 not 100% sure if TFT reset works since in the original code it was plugged into a weakly low strapping pin on the S3, but C3 does not have that function.
 
-Currently trying to figure out how to get the buttons working with LVGL
-pin out is as follows:
-| select | 7 |
-| down | 6 |
-| right | 9 |
-| left | 20 |
-| up | 21 |
+Buttons are all on pin 1.
+Voltage divider ladder is made based off of this [diagram](https://git.ucsc.edu/itphung/cse123-project/-/wikis/attachments/buttonDiagram.png).
