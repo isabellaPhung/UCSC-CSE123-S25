@@ -181,7 +181,8 @@ extern const char root_cert_auth_end[]   asm("_binary_root_cert_auth_crt_end");
  * The topic name starts with the client identifier to ensure that each demo
  * interacts with a unique topic name.
  */
-#define MQTT_EXAMPLE_TOPIC                  CLIENT_IDENTIFIER "/example/topic"
+//#define MQTT_EXAMPLE_TOPIC                  CLIENT_IDENTIFIER "/example/topic"
+#define MQTT_EXAMPLE_TOPIC                  "iotdevice/55/datas3"
 
 /**
  * @brief Length of client MQTT topic.
@@ -191,12 +192,12 @@ extern const char root_cert_auth_end[]   asm("_binary_root_cert_auth_crt_end");
 /**
  * @brief The MQTT message published in this example.
  */
-#define MQTT_EXAMPLE_MESSAGE                "Hello World!"
+//#define MQTT_EXAMPLE_MESSAGE                "Hello World!"
 
 /**
  * @brief The length of the MQTT message published in this example.
  */
-#define MQTT_EXAMPLE_MESSAGE_LENGTH         ( ( uint16_t ) ( sizeof( MQTT_EXAMPLE_MESSAGE ) - 1 ) )
+//#define MQTT_EXAMPLE_MESSAGE_LENGTH         ( ( uint16_t ) ( sizeof( MQTT_EXAMPLE_MESSAGE ) - 1 ) )
 
 /**
  * @brief Maximum number of outgoing publishes maintained in the application
@@ -230,11 +231,6 @@ extern const char root_cert_auth_end[]   asm("_binary_root_cert_auth_crt_end");
  * @brief Delay between MQTT publishes in seconds.
  */
 #define DELAY_BETWEEN_PUBLISHES_SECONDS     ( 1U )
-
-/**
- * @brief Number of PUBLISH messages sent per iteration.
- */
-#define MQTT_PUBLISH_COUNT_PER_LOOP         ( 5U )
 
 /**
  * @brief Delay in seconds between two iterations of subscribePublishLoop().
@@ -373,15 +369,6 @@ static StaticSemaphore_t xTlsContextSemaphoreBuffer;
 
 /*-----------------------------------------------------------*/
 
-struct main_param{
-  SemaphoreHandle_t buffer_sem;
-  char payload[512];
-  size_t payload_len;
-};
-static struct main_param *mp;
-
-void aws_iot_demo_main(void *pvParameters);
-
 /**
  * @brief The random number generator to use for exponential backoff with
  * jitter retry logic.
@@ -413,15 +400,14 @@ static int connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContext
 
 /**
  * @brief A function that uses the passed MQTT connection to
- * subscribe to a topic, publish to the same topic
- * MQTT_PUBLISH_COUNT_PER_LOOP number of times, and verify if it
- * receives the Publish message back.
+ * subscribe to a topic, publish to the same topic, 
+ * and verify if it receives the Publish message back.
  *
  * @param[in] pMqttContext MQTT context pointer.
  *
  * @return EXIT_FAILURE on failure; EXIT_SUCCESS on success.
  */
-static int subscribePublishLoop( MQTTContext_t * pMqttContext );
+static int subscribePublishLoop( MQTTContext_t * pMqttContext, const char *payload, size_t payload_length);
 
 /**
  * @brief The function to handle the incoming publishes.
@@ -514,7 +500,7 @@ static int unsubscribeFromTopic( MQTTContext_t * pMqttContext );
  * @return EXIT_SUCCESS if PUBLISH was successfully sent;
  * EXIT_FAILURE otherwise.
  */
-static int publishToTopic( MQTTContext_t * pMqttContext );
+static int publishToTopic( MQTTContext_t * pMqttContext, const char *payload, size_t payload_length);
 
 /**
  * @brief Function to get the free index at which an outgoing publish
@@ -931,6 +917,8 @@ static int handlePublishResend( MQTTContext_t * pMqttContext )
 
 /*-----------------------------------------------------------*/
 
+static int pubcnt = 0;
+
 static void handleIncomingPublish( MQTTPublishInfo_t * pPublishInfo,
                                    uint16_t packetIdentifier )
 {
@@ -953,8 +941,10 @@ static void handleIncomingPublish( MQTTPublishInfo_t * pPublishInfo,
                    packetIdentifier,
                    ( int ) pPublishInfo->payloadLength,
                    ( const char * ) pPublishInfo->pPayload ) );
+        pubcnt ++;
         // TODO make this a callback function set in the inital setup, where the function pointer is specific to the main program
         // ----- begin
+        /*
         if (xSemaphoreTake(mp->buffer_sem, portMAX_DELAY)){
            // copy just 511 bytes to leave space for 0 
             mp->payload_len = (pPublishInfo->payloadLength > 511) 
@@ -962,6 +952,7 @@ static void handleIncomingPublish( MQTTPublishInfo_t * pPublishInfo,
             memcpy(mp->payload, pPublishInfo->pPayload, mp->payload_len);
             xSemaphoreGive(mp->buffer_sem);
         }
+        */
         // ----- end
     }
     else
@@ -1354,14 +1345,14 @@ static int unsubscribeFromTopic( MQTTContext_t * pMqttContext )
 
 /*-----------------------------------------------------------*/
 
-static int publishToTopic( MQTTContext_t * pMqttContext )
+static int publishToTopic( MQTTContext_t * pMqttContext, const char *payload, size_t payload_length)
 {
     int returnStatus = EXIT_SUCCESS;
 
     // TODO the demo currently uses a set payload when sending any publishes.
     // Add a check for variable packets to be sent.
     // ideally done with xtasknotify
-    return returnStatus;
+    //return returnStatus;
 
     MQTTStatus_t mqttStatus = MQTTSuccess;
     uint8_t publishIndex = MAX_OUTGOING_PUBLISHES;
@@ -1384,8 +1375,8 @@ static int publishToTopic( MQTTContext_t * pMqttContext )
         outgoingPublishPackets[ publishIndex ].pubInfo.qos = MQTTQoS1;
         outgoingPublishPackets[ publishIndex ].pubInfo.pTopicName = MQTT_EXAMPLE_TOPIC;
         outgoingPublishPackets[ publishIndex ].pubInfo.topicNameLength = MQTT_EXAMPLE_TOPIC_LENGTH;
-        outgoingPublishPackets[ publishIndex ].pubInfo.pPayload = MQTT_EXAMPLE_MESSAGE;
-        outgoingPublishPackets[ publishIndex ].pubInfo.payloadLength = MQTT_EXAMPLE_MESSAGE_LENGTH;
+        outgoingPublishPackets[ publishIndex ].pubInfo.pPayload = payload;
+        outgoingPublishPackets[ publishIndex ].pubInfo.payloadLength = payload_length;
 
         /* Get a new packet id. */
         outgoingPublishPackets[ publishIndex ].packetId = MQTT_GetPacketId( pMqttContext );
@@ -1471,12 +1462,11 @@ static int initializeMqtt( MQTTContext_t * pMqttContext,
 
 /*-----------------------------------------------------------*/
 
-static int subscribePublishLoop( MQTTContext_t * pMqttContext )
+
+static int subscribePublishLoop( MQTTContext_t * pMqttContext, const char *payload, size_t payload_length)
 {
     int returnStatus = EXIT_SUCCESS;
     MQTTStatus_t mqttStatus = MQTTSuccess;
-    uint32_t publishCount = 0;
-    const uint32_t maxPublishCount = MQTT_PUBLISH_COUNT_PER_LOOP;
 
     assert( pMqttContext != NULL );
 
@@ -1525,36 +1515,34 @@ static int subscribePublishLoop( MQTTContext_t * pMqttContext )
     {
         /* Publish messages with QOS1, receive incoming messages and
          * send keep alive messages. */
-        for( publishCount = 0; publishCount < maxPublishCount; publishCount++ )
+
+        LogInfo( ( "Sending Publish to the MQTT topic %.*s.",
+                   MQTT_EXAMPLE_TOPIC_LENGTH,
+                   MQTT_EXAMPLE_TOPIC ) );
+        returnStatus = publishToTopic( pMqttContext , payload, payload_length);
+
+        /* Calling MQTT_ProcessLoop to process incoming publish echo, since
+         * application subscribed to the same topic the broker will send
+         * publish message back to the application. This function also
+         * sends ping request to broker if MQTT_KEEP_ALIVE_INTERVAL_SECONDS
+         * has expired since the last MQTT packet sent and receive
+         * ping responses. */
+        while (pubcnt != 2)
+          mqttStatus = processLoopWithTimeout( pMqttContext, MQTT_PROCESS_LOOP_TIMEOUT_MS );
+
+        /* For any error in #MQTT_ProcessLoop, exit the loop and disconnect
+         * from the broker. */
+        if( ( mqttStatus != MQTTSuccess ) && ( mqttStatus != MQTTNeedMoreBytes ) )
         {
-            LogInfo( ( "Sending Publish to the MQTT topic %.*s.",
-                       MQTT_EXAMPLE_TOPIC_LENGTH,
-                       MQTT_EXAMPLE_TOPIC ) );
-            returnStatus = publishToTopic( pMqttContext );
-
-            /* Calling MQTT_ProcessLoop to process incoming publish echo, since
-             * application subscribed to the same topic the broker will send
-             * publish message back to the application. This function also
-             * sends ping request to broker if MQTT_KEEP_ALIVE_INTERVAL_SECONDS
-             * has expired since the last MQTT packet sent and receive
-             * ping responses. */
-            mqttStatus = processLoopWithTimeout( pMqttContext, MQTT_PROCESS_LOOP_TIMEOUT_MS );
-
-            /* For any error in #MQTT_ProcessLoop, exit the loop and disconnect
-             * from the broker. */
-            if( ( mqttStatus != MQTTSuccess ) && ( mqttStatus != MQTTNeedMoreBytes ) )
-            {
-                LogError( ( "MQTT_ProcessLoop returned with status = %s.",
-                            MQTT_Status_strerror( mqttStatus ) ) );
-                returnStatus = EXIT_FAILURE;
-                break;
-            }
-
-            LogInfo( ( "Delay before continuing to next iteration.\n\n" ) );
-
-            /* Leave connection idle for some time. */
-            sleep( DELAY_BETWEEN_PUBLISHES_SECONDS );
+            LogError( ( "MQTT_ProcessLoop returned with status = %s.",
+                        MQTT_Status_strerror( mqttStatus ) ) );
+            returnStatus = EXIT_FAILURE;
         }
+
+        //LogInfo( ( "Delay before continuing to next iteration.\n\n" ) );
+
+        /* Leave connection idle for some time. */
+        //sleep( DELAY_BETWEEN_PUBLISHES_SECONDS );
     }
 
     if( returnStatus == EXIT_SUCCESS )
@@ -1688,27 +1676,93 @@ static MQTTStatus_t processLoopWithTimeout( MQTTContext_t * pMqttContext,
  * publishes are stored until a PUBACK is received.
  */
 
+static MQTTContext_t mqttContext;
+static NetworkContext_t xNetworkContext;
+
+int init_mqtt(void) {
+  int returnStatus = EXIT_SUCCESS;
+  struct timespec tp;
+
+  /* Seed pseudo random number generator (provided by ISO C standard library) for
+   * use by retry utils library when retrying failed network operations. */
+
+  /* Get current time to seed pseudo random number generator. */
+  ( void ) clock_gettime( CLOCK_REALTIME, &tp );
+  /* Seed pseudo random number generator with nanoseconds. */
+  srand( tp.tv_nsec );
+  returnStatus = initializeMqtt( &mqttContext, &xNetworkContext );
+
+  return returnStatus;
+}
+
+int publish_packet(const char *payload, size_t payload_length) {
+  int returnStatus = EXIT_SUCCESS;
+  bool clientSessionPresent = false, brokerSessionPresent = false;
+  returnStatus = connectToServerWithBackoffRetries
+    (&xNetworkContext, &mqttContext, &clientSessionPresent, &brokerSessionPresent);
+
+  if( returnStatus == EXIT_FAILURE ) {
+    LogError(("Failed to connect to MQTT broker %.*s.",
+      AWS_IOT_ENDPOINT_LENGTH,
+      AWS_IOT_ENDPOINT));
+  } else {
+    /* Update the flag to indicate that an MQTT client session is saved.
+    * Once this flag is set, MQTT connect in the following iterations of
+    * this demo will be attempted without requesting for a clean session. */
+    clientSessionPresent = true;
+
+    /* Check if session is present and if there are any outgoing publishes
+    * that need to resend. This is only valid if the broker is
+    * re-establishing a session which was already present. */
+    if(brokerSessionPresent == true) {
+      LogInfo(("An MQTT session with broker is re-established. "
+      "Resending unacked publishes."));
+
+      /* Handle all the resend of publish messages. */
+      returnStatus = handlePublishResend(&mqttContext);
+    } else {
+      LogInfo(("A clean MQTT connection is established."
+        " Cleaning up all the stored outgoing publishes.\n\n"));
+
+      /* Clean up the outgoing publishes waiting for ack as this new
+      * connection doesn't re-establish an existing session. */
+      cleanupOutgoingPublishes();
+    }
+
+    /* If TLS session is established, execute Subscribe/Publish loop. */
+    returnStatus = subscribePublishLoop( &mqttContext, payload, payload_length);
+
+    /* End TLS session, then close TCP connection. */
+    cleanupESPSecureMgrCerts( &xNetworkContext );
+    ( void ) xTlsDisconnect( &xNetworkContext );
+  }
+  return returnStatus;
+}
+
+
+
 void aws_iot_demo_main(void *pvParameters)
 {
     int returnStatus = EXIT_SUCCESS;
-    MQTTContext_t mqttContext = { 0 };
-    NetworkContext_t xNetworkContext = { 0 };
+    //MQTTContext_t mqttContext = { 0 };
+    //NetworkContext_t xNetworkContext = { 0 };
     bool clientSessionPresent = false, brokerSessionPresent = false;
-    struct timespec tp;
+    //struct timespec tp;
 
-    mp = (struct main_param *)pvParameters;
+    //mp = (struct main_param *)pvParameters;
 
     /* Seed pseudo random number generator (provided by ISO C standard library) for
      * use by retry utils library when retrying failed network operations. */
 
     /* Get current time to seed pseudo random number generator. */
-    ( void ) clock_gettime( CLOCK_REALTIME, &tp );
+    //( void ) clock_gettime( CLOCK_REALTIME, &tp );
     /* Seed pseudo random number generator with nanoseconds. */
-    srand( tp.tv_nsec );
+    //srand( tp.tv_nsec );
 
     /* Initialize MQTT library. Initialization of the MQTT library needs to be
      * done only once in this demo. */
-    returnStatus = initializeMqtt( &mqttContext, &xNetworkContext );
+    //returnStatus = initializeMqtt( &mqttContext, &xNetworkContext );
+    init_mqtt();
 
     if( returnStatus == EXIT_SUCCESS )
     {
@@ -1758,7 +1812,7 @@ void aws_iot_demo_main(void *pvParameters)
                 }
 
                 /* If TLS session is established, execute Subscribe/Publish loop. */
-                returnStatus = subscribePublishLoop( &mqttContext );
+                //returnStatus = subscribePublishLoop( &mqttContext );
 
                 /* End TLS session, then close TCP connection. */
                 cleanupESPSecureMgrCerts( &xNetworkContext );
@@ -1782,5 +1836,4 @@ void aws_iot_demo_main(void *pvParameters)
 
     //return returnStatus;
 }
-
 /*-----------------------------------------------------------*/

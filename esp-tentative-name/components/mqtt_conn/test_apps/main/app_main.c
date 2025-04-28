@@ -3,6 +3,8 @@
 #include <stddef.h>
 #include <string.h>
 
+#include "mqtt_conn.h"
+
 #include "esp_system.h"
 #include "nvs_flash.h"
 #include "esp_event.h"
@@ -14,15 +16,6 @@
 #include "freertos/semphr.h"
 
 #include "esp_log.h"
-
-void aws_iot_demo_main(void *pvParameters);
-void lcd_task(void *pvParameters);
-
-struct {
-  SemaphoreHandle_t buffer_sem;
-  char payload[512];
-  size_t payload_len;
-} task_params;
 
 static const char *TAG = "MQTT_EXAMPLE";
 
@@ -59,8 +52,16 @@ void app_main()
      */
     // TODO replace with a more complete wifi connection function that supports low power mode
     ESP_ERROR_CHECK(example_connect());
+  
+    char payload[] = "{\"id\":\"c72572d0-8c8c-4f37-8ff6-829cac2eabec\",\"action\":\"refresh\"}";
+    size_t payload_length = sizeof(payload) - 1;
 
-    vSemaphoreCreateBinary(task_params.buffer_sem);
-
-    xTaskCreate(aws_iot_demo_main, "AWS_DEMO", 4069, (void *)&task_params, 5, NULL);
+    int return_status;
+    return_status = init_mqtt();
+    if (return_status != EXIT_SUCCESS) {
+      ESP_LOGE(TAG, "Failed initializing mqtt");
+      return;
+    }
+    return_status = publish_packet(payload, payload_length);
+    ESP_LOGI(TAG, "Exit status %d", return_status);
 }
