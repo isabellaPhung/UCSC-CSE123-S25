@@ -3,6 +3,15 @@
  * Not intended to be used standalone, missing some library definitions and static variables. Intended to be imported as a .c file. Although maybe there's a way to do t
  */
 
+static lv_obj_t *label = NULL;
+static lv_style_t style_screen;
+
+static lv_obj_t * tile1;
+static lv_obj_t * tile2;
+static lv_obj_t * tile3;
+
+static lv_group_t * g;
+
 /* Text settings */
 static lv_style_t style_text_muted;
 static lv_style_t style_title;
@@ -15,6 +24,32 @@ static lv_obj_t * arrowUp;
 static lv_obj_t * arrowDown;
 const char * days[] = {"Su", "Mo", "Tu", "We", "Th", "Fr", "Sat"}; //for habits menu
 
+static void focus_cb(lv_event_t * e){
+    uint32_t k = lv_event_get_key(e);
+    if(k == LV_KEY_DOWN) {
+        loadTile2();
+        lv_obj_del(tile1);
+    }
+}
+
+static void taskevent_cb(lv_event_t * e){
+    uint32_t k = lv_event_get_key(e);
+    if(k == LV_KEY_DOWN) {
+        loadTile3();
+        lv_obj_del(tile2);
+    }else if(k == LV_KEY_UP) {
+        loadTile1();
+        lv_obj_del(tile2);
+    }
+}
+
+static void habit_cb(lv_event_t * e){
+    uint32_t k = lv_event_get_key(e);
+    if(k == LV_KEY_UP) {
+        loadTile2();
+        lv_obj_del(tile3);
+    }
+}
 /*
  * initializes necessary fonts
  * I would like this to be configurable
@@ -34,6 +69,10 @@ void initFonts(){
     lv_style_set_text_opa(&style_text_muted, LV_OPA_50);
 }
 
+void initGroup(){
+    g = lv_group_create();
+    lv_group_set_default(g);
+}
 
 /*
  * creates focus menu, takes in parent lv_obj
@@ -44,6 +83,7 @@ void focusMenu_create(lv_obj_t * parent){
     lv_gridnav_add(parent, LV_GRIDNAV_CTRL_NONE);
     lv_group_add_obj(lv_group_get_default(), parent);
     lv_group_focus_obj(parent);
+    lv_obj_add_event_cb(parent, focus_cb, LV_EVENT_KEY, NULL);
 
     //displays current task timer
     //TODO: what does it display if theres no current task? does it default to task tile?
@@ -119,6 +159,7 @@ void taskEvent_create(lv_obj_t * parent){
     lv_gridnav_add(parent, LV_GRIDNAV_CTRL_NONE);
     lv_group_add_obj(lv_group_get_default(), parent);
     lv_group_focus_obj(parent);
+    lv_obj_add_event_cb(parent, taskevent_cb, LV_EVENT_KEY, NULL);
     
     //TODO: needs time from RTC
     //adds time to taskevent tile
@@ -233,7 +274,7 @@ void habitMenu_create(lv_obj_t * parent){
     lv_gridnav_add(parent, LV_GRIDNAV_CTRL_NONE);
     lv_group_add_obj(lv_group_get_default(), parent);
     lv_group_focus_obj(parent);
-    //lv_obj_add_event_cb(parent, loadTile2, LV_EVENT, NULL);
+    lv_obj_add_event_cb(parent, habit_cb, LV_EVENT_KEY, NULL);
 
     //arrow to indicate scroll up
     arrowUp = lv_label_create(parent);
