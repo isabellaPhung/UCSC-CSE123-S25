@@ -4,6 +4,59 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Task Dashboard</title>
+    
+    <!-- LOGIN CHECK CODE -->
+    <script>
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Store the current user ID for use throughout the page
+            window.currentUserId = currentUser.id;
+            
+            // Add username display and logout button to the page
+            const leftSection = document.querySelector('.left-section');
+            
+            const userPanel = document.createElement('div');
+            userPanel.className = 'user-panel';
+            userPanel.style.marginBottom = '20px';
+            userPanel.style.display = 'flex';
+            userPanel.style.justifyContent = 'space-between';
+            userPanel.style.alignItems = 'center';
+            userPanel.style.backgroundColor = '#f5f5f5';
+            userPanel.style.padding = '10px';
+            userPanel.style.borderRadius = '4px';
+            
+            const usernameDisplay = document.createElement('div');
+            usernameDisplay.textContent = `Welcome, ${currentUser.username}`;
+            usernameDisplay.style.fontWeight = 'bold';
+            
+            const logoutButton = document.createElement('button');
+            logoutButton.textContent = 'Logout';
+            logoutButton.style.backgroundColor = '#f44336';
+            logoutButton.style.color = 'white';
+            logoutButton.style.border = 'none';
+            logoutButton.style.padding = '5px 10px';
+            logoutButton.style.borderRadius = '4px';
+            logoutButton.style.cursor = 'pointer';
+            
+            logoutButton.addEventListener('click', function() {
+                localStorage.removeItem('currentUser');
+                window.location.href = 'login.html';
+            });
+            
+            userPanel.appendChild(usernameDisplay);
+            userPanel.appendChild(logoutButton);
+            
+            // Insert user panel at the top of the left section
+            leftSection.insertBefore(userPanel, leftSection.firstChild);
+        });
+    </script>
+    
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -283,6 +336,26 @@
             display: inline-block;
             margin-right: 10px;
         }
+        
+        /* ADDED STYLES FOR EVENT DETAILS */
+        .event-details {
+            display: none;
+            padding: 10px;
+            margin-top: 5px;
+            background-color: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 5px;
+        }
+        
+        .event-details-visible {
+            display: block;
+        }
+        
+        .event-timestamp {
+            color: #888;
+            font-size: 0.8em;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -327,7 +400,7 @@
     <div class="right-section">
         <div class="event-section">
             <div class="header-with-controls">
-                <h2>Event</h2>
+                <h2><a href="events.html" class="habits-link">Event</a></h2>
                 <div class="controls">
                     <button class="control-btn add-event">+</button>
                     <button class="control-btn remove-event">-</button>
@@ -359,28 +432,25 @@
         setInterval(updateDateTime, 1000);
         updateDateTime(); // Initial call
         
-        // Default habits array (shared between pages)
-        const defaultHabits = [
-            { text: "Morning Exercise", completed: false },
-            { text: "Read 30 minutes", completed: false },
-            { text: "Drink 8 glasses of water", completed: true },
-            { text: "Plan next day", completed: false }
-        ];
-        
-        // Default events array
-        const defaultEvents = [
-            { name: "Team Meeting", time: "2:00 PM" },
-            { name: "Project Deadline", time: "5:00 PM" },
-            { name: "Doctor Appointment", time: "9:30 AM" }
-        ];
-        
-        // Load saved habits or use defaults
+        // Load saved habits from localStorage
         function loadHabits() {
-            let habits = JSON.parse(localStorage.getItem('habits')) || defaultHabits;
+            // Day mapping: 0 = Monday, 1 = Tuesday, 2 = Wednesday, 3 = Thursday, 
+            // 4 = Friday, 5 = Saturday, 6 = Sunday
+            
+            // Get current day of the week (0-6 where 0 is Sunday)
+            const today = new Date();
+            const currentDayIndex = today.getDay();
+            // Convert to our display order (0 = Monday, ... 6 = Sunday)
+            const adjustedDayIndex = currentDayIndex === 0 ? 6 : currentDayIndex - 1;
+            
+            // Get user-specific habits
+            const allUserHabits = JSON.parse(localStorage.getItem('userHabits')) || {};
+            let habits = allUserHabits[window.currentUserId] || [];
+            
             const habitsList = document.getElementById('main-habits-list');
             habitsList.innerHTML = '';
             
-            habits.forEach(habit => {
+            habits.forEach((habit, index) => {
                 const habitItem = document.createElement('div');
                 habitItem.className = 'habit-item';
                 
@@ -388,17 +458,16 @@
                 checkbox.type = 'checkbox';
                 checkbox.className = 'habit-checkbox';
                 checkbox.checked = habit.completed;
+                checkbox.dataset.habitIndex = index;
+                
+                // Add change listener to update both the completed status and the day status
                 checkbox.addEventListener('change', function() {
-                    habit.completed = this.checked;
-                    saveHabits(habits);
+                    updateHabitCompletion(index, this.checked);
                 });
                 
                 const habitText = document.createElement('div');
                 habitText.className = 'habit-text';
                 habitText.textContent = habit.text;
-                habitText.addEventListener('click', function() {
-                    makeEditableHabit(this, habits);
-                });
                 
                 habitItem.appendChild(checkbox);
                 habitItem.appendChild(habitText);
@@ -406,9 +475,51 @@
             });
         }
         
+        // Update a habit's completion status
+        function updateHabitCompletion(habitIndex, completed) {
+            // Get user-specific habits
+            const allUserHabits = JSON.parse(localStorage.getItem('userHabits')) || {};
+            const habits = allUserHabits[window.currentUserId] || [];
+            
+            if (habits[habitIndex]) {
+                // Get current day of the week (0-6 where 0 is Sunday)
+                const today = new Date();
+                const currentDayIndex = today.getDay();
+                // Convert to our display order (0 = Monday, ... 6 = Sunday)
+                const adjustedDayIndex = currentDayIndex === 0 ? 6 : currentDayIndex - 1;
+                
+                // Update the main completed property
+                habits[habitIndex].completed = completed;
+                
+                // Initialize days array if it doesn't exist
+                if (!habits[habitIndex].days) {
+                    habits[habitIndex].days = [false, false, false, false, false, false, false];
+                }
+                
+                // Update the current day's completion status
+                habits[habitIndex].days[adjustedDayIndex] = completed;
+                
+                // Update the user's habits
+                allUserHabits[window.currentUserId] = habits;
+                
+                // Save back to localStorage
+                localStorage.setItem('userHabits', JSON.stringify(allUserHabits));
+            }
+        }
+        
+        // We removed the makeEditableHabit function since habits are now managed on the habits page only
+        
+        // Save habits to localStorage
+        function saveHabits(habits) {
+            localStorage.setItem('habits', JSON.stringify(habits));
+        }
+        
         // Load today's tasks from localStorage
         function loadTodaysTasks() {
-            const tasks = JSON.parse(localStorage.getItem('tasksList')) || [];
+            // Get user-specific tasks
+            const allUserTasks = JSON.parse(localStorage.getItem('userTasks')) || {};
+            const tasks = allUserTasks[window.currentUserId] || [];
+            
             const tasksContainer = document.getElementById('today-tasks-container');
             tasksContainer.innerHTML = '';
             
@@ -486,11 +597,34 @@
             });
         }
         
-        // Load saved events or use defaults
+        // UPDATED FUNCTION FOR SHOWING EVENT TIMESTAMPS
+        // Load saved events with timestamp support
         function loadEvents() {
-            let events = JSON.parse(localStorage.getItem('events')) || defaultEvents;
+            // Format today's date as YYYY-MM-DD
+            const today = new Date();
+            const todayStr = formatDateString(today);
+            
+            // Get user-specific events
+            const allUserEvents = JSON.parse(localStorage.getItem('userEvents')) || {};
+            const userEvents = allUserEvents[window.currentUserId] || {};
+            
+            // Get today's events
+            const events = userEvents[todayStr] || [];
+            
             const eventsList = document.getElementById('events');
             eventsList.innerHTML = '';
+            
+            // Sort events by timestamp if available
+            if (events.length > 0) {
+                events.sort((a, b) => {
+                    if (a.timestamp && b.timestamp) {
+                        return a.timestamp - b.timestamp;
+                    } else {
+                        // Fallback for events without timestamp
+                        return a.time.localeCompare(b.time);
+                    }
+                });
+            }
             
             events.forEach(event => {
                 const eventContainer = document.createElement('div');
@@ -499,131 +633,51 @@
                 const eventName = document.createElement('div');
                 eventName.className = 'event-name';
                 eventName.textContent = event.name;
-                eventName.addEventListener('click', function() {
-                    makeEditableEvent(this, 'name', events);
-                });
                 
                 const eventTime = document.createElement('div');
                 eventTime.className = 'event-time';
                 eventTime.textContent = event.time;
-                eventTime.addEventListener('click', function() {
-                    makeEditableEvent(this, 'time', events);
-                });
                 
                 eventContainer.appendChild(eventName);
                 eventContainer.appendChild(eventTime);
-                eventsList.appendChild(eventContainer);
+                
+                // ADDED TIMESTAMP DISPLAY IF AVAILABLE
+                if (event.timestamp) {
+                    const details = document.createElement('div');
+                    details.className = 'event-details';
+                    
+                    const timestamp = document.createElement('div');
+                    timestamp.className = 'event-timestamp';
+                    timestamp.textContent = `Unix Timestamp: ${event.timestamp}`;
+                    details.appendChild(timestamp);
+                    
+                    // Toggle details on click
+                    eventContainer.addEventListener('click', function() {
+                        details.classList.toggle('event-details-visible');
+                    });
+                    
+                    // Add details after container
+                    eventsList.appendChild(eventContainer);
+                    eventsList.appendChild(details);
+                } else {
+                    eventsList.appendChild(eventContainer);
+                }
             });
         }
         
-        // Save habits to localStorage
-        function saveHabits(habits) {
-            localStorage.setItem('habits', JSON.stringify(habits));
+        // Format date as YYYY-MM-DD
+        function formatDateString(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
         }
+        
+        // We removed the makeEditableEvent function since events are now managed on the events page
         
         // Save events to localStorage
         function saveEvents(events) {
             localStorage.setItem('events', JSON.stringify(events));
-        }
-        
-        // Make habit text editable
-        function makeEditableHabit(element, habitsArray) {
-            const currentText = element.textContent;
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.value = currentText;
-            input.className = 'editable-input';
-            
-            // Replace the element with the input
-            element.textContent = '';
-            element.appendChild(input);
-            input.focus();
-            
-            // Save on enter or blur
-            function saveEdit() {
-                if (input.parentElement) {
-                    const newText = input.value.trim() || currentText;
-                    input.parentElement.textContent = newText;
-                    
-                    // Update the habits array
-                    const habitItem = input.parentElement.parentElement;
-                    const habitsList = habitItem.parentElement;
-                    const index = Array.from(habitsList.children).indexOf(habitItem);
-                    
-                    if (index !== -1 && habitsArray[index]) {
-                        habitsArray[index].text = newText;
-                        saveHabits(habitsArray);
-                    }
-                    
-                    input.parentElement.addEventListener('click', function() {
-                        makeEditableHabit(this, habitsArray);
-                    });
-                }
-            }
-            
-            input.addEventListener('blur', saveEdit);
-            input.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') {
-                    saveEdit();
-                }
-            });
-            
-            // Remove the click event during editing
-            element.removeEventListener('click', function() {
-                makeEditableHabit(element, habitsArray);
-            });
-        }
-        
-        // Make event field editable
-        function makeEditableEvent(element, field, eventsArray) {
-            const currentText = element.textContent;
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.value = currentText;
-            input.className = 'editable-input';
-            
-            if (field === 'time') {
-                input.style.width = '80px';
-            }
-            
-            // Replace the element with the input
-            element.textContent = '';
-            element.appendChild(input);
-            input.focus();
-            
-            // Save on enter or blur
-            function saveEdit() {
-                if (input.parentElement) {
-                    const newText = input.value.trim() || currentText;
-                    input.parentElement.textContent = newText;
-                    
-                    // Update the events array
-                    const eventContainer = input.parentElement.parentElement;
-                    const eventsList = eventContainer.parentElement;
-                    const index = Array.from(eventsList.children).indexOf(eventContainer);
-                    
-                    if (index !== -1 && eventsArray[index]) {
-                        eventsArray[index][field] = newText;
-                        saveEvents(eventsArray);
-                    }
-                    
-                    input.parentElement.addEventListener('click', function() {
-                        makeEditableEvent(this, field, eventsArray);
-                    });
-                }
-            }
-            
-            input.addEventListener('blur', saveEdit);
-            input.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') {
-                    saveEdit();
-                }
-            });
-            
-            // Remove the click event during editing
-            element.removeEventListener('click', function() {
-                makeEditableEvent(element, field, eventsArray);
-            });
         }
         
         // Initialize the page
@@ -636,12 +690,16 @@
         
         // Task management - Redirect to add task page
         document.getElementById('add-task-btn').addEventListener('click', function() {
+            // Store the current user ID in localStorage so add-task.html can access it
+            localStorage.setItem('taskUserId', window.currentUserId);
             window.location.href = 'add-task.html';
         });
         
         // Remove task functionality
         document.querySelector('.remove-task').addEventListener('click', function() {
-            const tasks = JSON.parse(localStorage.getItem('tasksList')) || [];
+            // Get user-specific tasks
+            const allUserTasks = JSON.parse(localStorage.getItem('userTasks')) || {};
+            const tasks = allUserTasks[window.currentUserId] || [];
             
             // Get today's date in YYYY-MM-DD format for filtering
             const today = new Date();
@@ -663,7 +721,11 @@
                 if (lastTaskIndex !== -1) {
                     // Remove the task
                     tasks.splice(lastTaskIndex, 1);
-                    localStorage.setItem('tasksList', JSON.stringify(tasks));
+                    
+                    // Update user tasks
+                    allUserTasks[window.currentUserId] = tasks;
+                    localStorage.setItem('userTasks', JSON.stringify(allUserTasks));
+                    
                     loadTodaysTasks(); // Refresh the display
                 }
             }
@@ -671,17 +733,34 @@
         
         // Event management
         document.querySelector('.add-event').addEventListener('click', function() {
-            const events = JSON.parse(localStorage.getItem('events')) || defaultEvents;
-            events.push({ name: `New Event ${events.length + 1}`, time: "12:00 PM" });
-            saveEvents(events);
-            loadEvents();
+            // Store the current user ID in localStorage so events.html can access it
+            localStorage.setItem('eventUserId', window.currentUserId);
+            window.location.href = 'events.html';
         });
         
+        // UPDATED TO HANDLE REMOVING EVENTS WITH TIMESTAMPS
         document.querySelector('.remove-event').addEventListener('click', function() {
-            const events = JSON.parse(localStorage.getItem('events')) || defaultEvents;
-            if (events.length > 0) {
-                events.pop();
-                saveEvents(events);
+            // Get user-specific events
+            const allUserEvents = JSON.parse(localStorage.getItem('userEvents')) || {};
+            const userEvents = allUserEvents[window.currentUserId] || {};
+            
+            // Get today's date
+            const today = new Date();
+            const todayStr = formatDateString(today);
+            
+            // Get today's events
+            const todayEvents = userEvents[todayStr] || [];
+            
+            if (todayEvents.length > 0) {
+                // Remove the last event
+                todayEvents.pop();
+                
+                // Update storage
+                userEvents[todayStr] = todayEvents;
+                allUserEvents[window.currentUserId] = userEvents;
+                localStorage.setItem('userEvents', JSON.stringify(allUserEvents));
+                
+                // Refresh display
                 loadEvents();
             }
         });
