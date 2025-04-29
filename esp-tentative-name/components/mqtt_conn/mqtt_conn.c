@@ -885,6 +885,7 @@ static int handlePublishResend( MQTTContext_t * pMqttContext )
 /*-----------------------------------------------------------*/
 
 static publish_cb_t publish_callback;
+static void *cb_data;
 
 static void handleIncomingPublish( MQTTPublishInfo_t * pPublishInfo,
                                    uint16_t packetIdentifier )
@@ -910,7 +911,8 @@ static void handleIncomingPublish( MQTTPublishInfo_t * pPublishInfo,
                    ( const char * ) pPublishInfo->pPayload ) );
         publish_callback(
             (const char *) pPublishInfo->pPayload,
-            (size_t) pPublishInfo->payloadLength);
+            (size_t) pPublishInfo->payloadLength, 
+            cb_data);
     }
     else
     {
@@ -1511,10 +1513,11 @@ static MQTTContext_t mqttContext;
 static NetworkContext_t xNetworkContext;
 static enum mqtt_status_e mqtt_status;
 
-int mqtt_init(publish_cb_t callback_func){
+int mqtt_init(publish_cb_t callback_func, void *callback_data){
   int returnStatus = EXIT_SUCCESS;
   struct timespec tp;
   publish_callback = callback_func;
+  cb_data = callback_data;
   assert(publish_callback != NULL);
   mqtt_status = MQTT_IDLE;
 

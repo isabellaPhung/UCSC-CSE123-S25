@@ -148,9 +148,9 @@
 #include "core_mqtt.h"
 #define MQTT_LIB    "core-mqtt@" MQTT_LIBRARY_VERSION
 
-typedef void (*publish_cb_t)(const char *, size_t);
+typedef void (*publish_cb_t)(const char *, size_t, void *);
 
-int mqtt_init(publish_cb_t);
+int mqtt_init(publish_cb_t, void *);
 
 int mqtt_connect(void);
 int mqtt_disconnect(void);
