@@ -3,8 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task Calendar</title>
+    <title>Task Dashboard - Calendar</title>
+    
+    <!-- ADDED LOGIN CHECK CODE -->
+    <script>
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get the current user from localStorage
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Store the current user ID for use throughout the page
+            window.currentUserId = currentUser.id;
+            
+            // Add username display to the page
+            const headerElement = document.querySelector('h1');
+            
+            const userPanel = document.createElement('div');
+            userPanel.style.display = 'flex';
+            userPanel.style.justifyContent = 'space-between';
+            userPanel.style.alignItems = 'center';
+            userPanel.style.marginBottom = '10px';
+            
+            const usernameDisplay = document.createElement('div');
+            usernameDisplay.textContent = `Logged in as: ${currentUser.username}`;
+            usernameDisplay.style.fontWeight = 'bold';
+            
+            userPanel.appendChild(usernameDisplay);
+            
+            // Insert user panel before the title
+            headerElement.parentNode.insertBefore(userPanel, headerElement);
+        });
+    </script>
+    <!-- END OF ADDED LOGIN CHECK CODE -->
+    
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+        }
+        
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -393,8 +438,10 @@
             // Get the current day for highlighting
             const today = new Date();
             
+            // UPDATED TO GET USER-SPECIFIC TASKS
             // Load tasks from localStorage
-            const tasks = JSON.parse(localStorage.getItem('tasksList')) || [];
+            const allUserTasks = JSON.parse(localStorage.getItem('userTasks')) || {};
+            const tasks = allUserTasks[window.currentUserId] || [];
             
             // Create calendar rows and cells
             let date = 1;
@@ -523,6 +570,7 @@
             }
         }
         
+        // UPDATED TO WORK WITH USER-SPECIFIC TASKS
         // Show day view for a specific date
         function showDayView(dateStr) {
             selectedDate = dateStr;
@@ -532,8 +580,11 @@
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             document.getElementById('day-view-title').textContent = `Tasks for ${dateObj.toLocaleDateString(undefined, options)}`;
             
+            // Get user-specific tasks
+            const allUserTasks = JSON.parse(localStorage.getItem('userTasks')) || {};
+            const tasks = allUserTasks[window.currentUserId] || [];
+            
             // Get tasks for this date
-            const tasks = JSON.parse(localStorage.getItem('tasksList')) || [];
             const dayTasks = tasks.filter(task => task.dueDate === dateStr);
             
             // Sort tasks by time
