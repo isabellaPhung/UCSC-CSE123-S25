@@ -24,10 +24,35 @@ def login():
     return render_template("login.html")
 
 
+@app.route("/signup")
+def signup():
+    return render_template("signup.html")
+
+
 @app.route("/")
 @jwt_required()
 def home():
     return render_template("index.html")
+
+
+@app.route("/add_task")
+def add_task():
+    return render_template("add-task.html")
+
+
+@app.route("/admin")
+def admin():
+    return render_template("admin.html")
+
+
+@app.route("/calendar")
+def calendar():
+    return render_template("calendar.html")
+
+
+@app.route("/events")
+def events():
+    return render_template("events.html")
 
 
 @app.route("/habits")
