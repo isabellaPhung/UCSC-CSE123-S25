@@ -6,56 +6,56 @@
     <title>Task Dashboard</title>
     
     <!-- LOGIN CHECK CODE -->
-    <script>
-        // Check if user is logged in
-        document.addEventListener('DOMContentLoaded', function() {
-            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-            if (!currentUser) {
-                window.location.href = 'login.html';
-                return;
-            }
-            
-            // Store the current user ID for use throughout the page
-            window.currentUserId = currentUser.id;
-            
-            // Add username display and logout button to the page
-            const leftSection = document.querySelector('.left-section');
-            
-            const userPanel = document.createElement('div');
-            userPanel.className = 'user-panel';
-            userPanel.style.marginBottom = '20px';
-            userPanel.style.display = 'flex';
-            userPanel.style.justifyContent = 'space-between';
-            userPanel.style.alignItems = 'center';
-            userPanel.style.backgroundColor = '#f5f5f5';
-            userPanel.style.padding = '10px';
-            userPanel.style.borderRadius = '4px';
-            
-            const usernameDisplay = document.createElement('div');
-            usernameDisplay.textContent = `Welcome, ${currentUser.username}`;
-            usernameDisplay.style.fontWeight = 'bold';
-            
-            const logoutButton = document.createElement('button');
-            logoutButton.textContent = 'Logout';
-            logoutButton.style.backgroundColor = '#f44336';
-            logoutButton.style.color = 'white';
-            logoutButton.style.border = 'none';
-            logoutButton.style.padding = '5px 10px';
-            logoutButton.style.borderRadius = '4px';
-            logoutButton.style.cursor = 'pointer';
-            
-            logoutButton.addEventListener('click', function() {
-                localStorage.removeItem('currentUser');
-                window.location.href = 'login.html';
-            });
-            
-            userPanel.appendChild(usernameDisplay);
-            userPanel.appendChild(logoutButton);
-            
-            // Insert user panel at the top of the left section
-            leftSection.insertBefore(userPanel, leftSection.firstChild);
-        });
-    </script>
+<!--    <script>-->
+<!--        // Check if user is logged in-->
+<!--        document.addEventListener('DOMContentLoaded', function() {-->
+<!--            const currentUser = JSON.parse(localStorage.getItem('currentUser'));-->
+<!--            if (!currentUser) {-->
+<!--                window.location.href = 'login.html';-->
+<!--                return;-->
+<!--            }-->
+<!--            -->
+<!--            // Store the current user ID for use throughout the page-->
+<!--            window.currentUserId = currentUser.id;-->
+<!--            -->
+<!--            // Add username display and logout button to the page-->
+<!--            const leftSection = document.querySelector('.left-section');-->
+<!--            -->
+<!--            const userPanel = document.createElement('div');-->
+<!--            userPanel.className = 'user-panel';-->
+<!--            userPanel.style.marginBottom = '20px';-->
+<!--            userPanel.style.display = 'flex';-->
+<!--            userPanel.style.justifyContent = 'space-between';-->
+<!--            userPanel.style.alignItems = 'center';-->
+<!--            userPanel.style.backgroundColor = '#f5f5f5';-->
+<!--            userPanel.style.padding = '10px';-->
+<!--            userPanel.style.borderRadius = '4px';-->
+<!--            -->
+<!--            const usernameDisplay = document.createElement('div');-->
+<!--            usernameDisplay.textContent = `Welcome, ${currentUser.username}`;-->
+<!--            usernameDisplay.style.fontWeight = 'bold';-->
+<!--            -->
+<!--            const logoutButton = document.createElement('button');-->
+<!--            logoutButton.textContent = 'Logout';-->
+<!--            logoutButton.style.backgroundColor = '#f44336';-->
+<!--            logoutButton.style.color = 'white';-->
+<!--            logoutButton.style.border = 'none';-->
+<!--            logoutButton.style.padding = '5px 10px';-->
+<!--            logoutButton.style.borderRadius = '4px';-->
+<!--            logoutButton.style.cursor = 'pointer';-->
+<!--            -->
+<!--            logoutButton.addEventListener('click', function() {-->
+<!--                localStorage.removeItem('currentUser');-->
+<!--                window.location.href = 'login.html';-->
+<!--            });-->
+<!--            -->
+<!--            userPanel.appendChild(usernameDisplay);-->
+<!--            userPanel.appendChild(logoutButton);-->
+<!--            -->
+<!--            // Insert user panel at the top of the left section-->
+<!--            leftSection.insertBefore(userPanel, leftSection.firstChild);-->
+<!--        });-->
+<!--    </script>-->
     
     <style>
         body {
