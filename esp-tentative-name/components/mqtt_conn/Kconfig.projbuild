@@ -18,7 +18,7 @@
 
 # original from https://github.com/espressif/esp-aws-iot/blob/master/examples/mqtt/tls_mutual_auth/main/Kconfig.projbuild
 
-menu "Example Configuration"
+menu "MQTT Configuration"
 
     config MQTT_CLIENT_IDENTIFIER
         string "The MQTT client identifier used in this example"

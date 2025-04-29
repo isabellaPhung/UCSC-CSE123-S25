@@ -17,7 +17,7 @@
 
 #include "esp_log.h"
 
-static const char *TAG = "MQTT_EXAMPLE";
+static const char *TAG = "TEST_APP";
 
 void demo_callback(const char *payload, size_t payload_length) {
   (void) payload;
@@ -27,10 +27,6 @@ void demo_callback(const char *payload, size_t payload_length) {
 }
 
 void app_main() {
-  ESP_LOGI(TAG, "[APP] Startup..");
-  ESP_LOGI(TAG, "[APP] Free memory: %"PRIu32" bytes", esp_get_free_heap_size());
-  ESP_LOGI(TAG, "[APP] IDF version: %s", esp_get_idf_version());
-
   esp_log_level_set("*", ESP_LOG_INFO);
 
   esp_err_t ret = nvs_flash_init();
@@ -49,13 +45,16 @@ void app_main() {
   size_t payload_length = sizeof(payload) - 1;
 
   int return_status;
-  return_status = init_mqtt(&demo_callback);
-  if (return_status != EXIT_SUCCESS) {
-    ESP_LOGE(TAG, "Failed initializing mqtt");
-    return;
-  }
-  do {
-    return_status = publish_packet(payload, payload_length);
-  } while (return_status != EXIT_SUCCESS);
+  return_status = mqtt_init(&demo_callback);
+
+  mqtt_connect();
+  mqtt_subscribe();
+
+  mqtt_publish(payload, payload_length);
+  mqtt_loop(5000);
+
+  mqtt_unsubscribe();
+  mqtt_disconnect();
+
   ESP_LOGI(TAG, "Exit status %d", return_status);
 }

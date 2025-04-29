@@ -38,7 +38,7 @@
 
 /* Logging configuration for the Demo. */
 #ifndef LIBRARY_LOG_NAME
-    #define LIBRARY_LOG_NAME     "MQTT_DEMO"
+    #define LIBRARY_LOG_NAME     "MQTT_CONN"
 #endif
 #ifndef LIBRARY_LOG_LEVEL
     #define LIBRARY_LOG_LEVEL    LOG_INFO
@@ -149,7 +149,16 @@
 #define MQTT_LIB    "core-mqtt@" MQTT_LIBRARY_VERSION
 
 typedef void (*publish_cb_t)(const char *, size_t);
-int init_mqtt(publish_cb_t);
-int publish_packet(const char *payload, size_t payload_length);
+
+int mqtt_init(publish_cb_t);
+
+int mqtt_connect(void);
+int mqtt_disconnect(void);
+
+int mqtt_subscribe(void);
+int mqtt_unsubscribe(void);
+
+int mqtt_publish(const char *, size_t);
+int mqtt_loop(unsigned int);
 
 #endif /* ifndef DEMO_CONFIG_H_ */
