@@ -1,7 +1,603 @@
-<!DOCTYPE html> html>
+<!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name ="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Add New Task</title>
-        <style>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Calendar</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .calendar-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .month-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .month-nav {
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 8px 15px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .month-nav:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .current-month {
+            font-size: 1.2em;
+            font-weight: bold;
+            min-width: 200px;
+            text-align: center;
+        }
+        
+        .calendar {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+        
+        .calendar th {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+            background-color: #f5f5f5;
+        }
+        
+        .calendar td {
+            border: 1px solid #ddd;
+            height: 120px;
+            vertical-align: top;
+            padding: 5px;
+        }
+        
+        .calendar-day {
+            font-weight: bold;
+            text-align: right;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+        
+        .current-day {
+            background-color: #e6f7ff;
+        }
+        
+        .other-month {
+            background-color: #f9f9f9;
+            color: #aaa;
+        }
+        
+        .calendar-task {
+            font-size: 0.8em;
+            padding: 2px 4px;
+            margin-bottom: 3px;
+            background-color: #e1f5fe;
+            border-radius: 3px;
+            cursor: pointer;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .calendar-task:hover {
+            background-color: #b3e5fc;
+        }
+        
+        .task-time {
+            font-size: 0.9em;
+            color: #555;
+        }
+        
+        .today-link {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 16px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .home-link {
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 16px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        
+        .month-year-selector {
+            display: flex;
+            gap: 10px;
+        }
+        
+        select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        
+        /* Day view styles */
+        .day-view {
+            display: none;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+        }
+        
+        .day-view-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .day-view-title {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        
+        .close-day-view {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #555;
+        }
+        
+        .day-tasks-list {
+            margin-top: 20px;
+        }
+        
+        .day-task-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .day-task-name {
+            font-weight: bold;
+        }
+        
+        .day-task-time {
+            color: #555;
+        }
+        
+        .day-task-details {
+            background-color: #f9f9f9;
+            padding: 10px;
+            margin-top: 5px;
+            border-radius: 4px;
+            display: none;
+        }
+        
+        .no-tasks-message {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 900;
+        }
+    </style>
+</head>
+<body>
+    <h1>Task Calendar</h1>
+    
+    <div class="calendar-controls">
+        <div>
+            <a href="index.html" class="home-link">Back to Dashboard</a>
+            <button class="today-link" id="today-button">Today</button>
+        </div>
+        
+        <div class="month-selector">
+            <button class="month-nav" id="prev-month">←</button>
+            <div class="month-year-selector">
+                <select id="month-select">
+                    <option value="0">January</option>
+                    <option value="1">February</option>
+                    <option value="2">March</option>
+                    <option value="3">April</option>
+                    <option value="4">May</option>
+                    <option value="5">June</option>
+                    <option value="6">July</option>
+                    <option value="7">August</option>
+                    <option value="8">September</option>
+                    <option value="9">October</option>
+                    <option value="10">November</option>
+                    <option value="11">December</option>
+                </select>
+                <select id="year-select"></select>
+            </div>
+            <button class="month-nav" id="next-month">→</button>
+        </div>
+    </div>
+    
+    <table class="calendar" id="calendar-table">
+        <thead>
+            <tr>
+                <th>Sunday</th>
+                <th>Monday</th>
+                <th>Tuesday</th>
+                <th>Wednesday</th>
+                <th>Thursday</th>
+                <th>Friday</th>
+                <th>Saturday</th>
+            </tr>
+        </thead>
+        <tbody id="calendar-body">
+            <!-- Calendar will be dynamically generated here -->
+        </tbody>
+    </table>
+    
+    <!-- Day View Modal -->
+    <div class="overlay" id="overlay"></div>
+    <div class="day-view" id="day-view">
+        <div class="day-view-header">
+            <div class="day-view-title" id="day-view-title">Tasks for Day</div>
+            <button class="close-day-view" id="close-day-view">×</button>
+        </div>
+        <div class="day-tasks-list" id="day-tasks-list">
+            <!-- Day tasks will be dynamically loaded here -->
+        </div>
+    </div>
+    
+    <script>
+        // Global variables
+        let currentDate = new Date();
+        let currentMonth = currentDate.getMonth();
+        let currentYear = currentDate.getFullYear();
+        let selectedDate = null;
+        
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            initYearDropdown();
+            updateCalendar();
+            setupEventListeners();
+        });
+        
+        // Initialize year dropdown with a reasonable range
+        function initYearDropdown() {
+            const yearSelect = document.getElementById('year-select');
+            const currentYear = new Date().getFullYear();
+            
+            // Add years from current year - 5 to current year + 5
+            for (let year = currentYear - 5; year <= currentYear + 5; year++) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearSelect.appendChild(option);
+            }
+            
+            yearSelect.value = currentYear;
+        }
+        
+        // Set up event listeners
+        function setupEventListeners() {
+            // Month navigation
+            document.getElementById('prev-month').addEventListener('click', function() {
+                navigateMonth(-1);
+            });
+            
+            document.getElementById('next-month').addEventListener('click', function() {
+                navigateMonth(1);
+            });
+            
+            // Month and year selectors
+            document.getElementById('month-select').addEventListener('change', function() {
+                currentMonth = parseInt(this.value);
+                updateCalendar();
+            });
+            
+            document.getElementById('year-select').addEventListener('change', function() {
+                currentYear = parseInt(this.value);
+                updateCalendar();
+            });
+            
+            // Today button
+            document.getElementById('today-button').addEventListener('click', function() {
+                const today = new Date();
+                currentMonth = today.getMonth();
+                currentYear = today.getFullYear();
+                document.getElementById('month-select').value = currentMonth;
+                document.getElementById('year-select').value = currentYear;
+                updateCalendar();
+            });
+            
+            // Close day view
+            document.getElementById('close-day-view').addEventListener('click', closeDayView);
+            document.getElementById('overlay').addEventListener('click', closeDayView);
+        }
+        
+        // Navigate to previous or next month
+        function navigateMonth(direction) {
+            currentMonth += direction;
+            
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            } else if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            
+            document.getElementById('month-select').value = currentMonth;
+            document.getElementById('year-select').value = currentYear;
+            updateCalendar();
+        }
+        
+        // Update calendar with the current month and year
+        function updateCalendar() {
+            const calendarBody = document.getElementById('calendar-body');
+            calendarBody.innerHTML = '';
+            
+            // Set the month and year in dropdown selectors
+            document.getElementById('month-select').value = currentMonth;
+            document.getElementById('year-select').value = currentYear;
+            
+            // Get the first day of the month
+            const firstDay = new Date(currentYear, currentMonth, 1);
+            const startingDay = firstDay.getDay(); // Day of the week (0-6)
+            
+            // Get the number of days in the month
+            const lastDay = new Date(currentYear, currentMonth + 1, 0);
+            const totalDays = lastDay.getDate();
+            
+            // Get the previous month's last day
+            const prevMonthLastDay = new Date(currentYear, currentMonth, 0).getDate();
+            
+            // Get the current day for highlighting
+            const today = new Date();
+            
+            // Load tasks from localStorage
+            const tasks = JSON.parse(localStorage.getItem('tasksList')) || [];
+            
+            // Create calendar rows and cells
+            let date = 1;
+            let nextMonthDate = 1;
+            
+            // Create 6 rows to ensure we have enough space for months that start late in the week
+            for (let i = 0; i < 6; i++) {
+                // Create a row
+                const row = document.createElement('tr');
+                
+                // Create 7 cells for each day of the week
+                for (let j = 0; j < 7; j++) {
+                    const cell = document.createElement('td');
+                    
+                    // Fill in previous month's days
+                    if (i === 0 && j < startingDay) {
+                        const prevMonthDay = prevMonthLastDay - startingDay + j + 1;
+                        const dayDiv = document.createElement('div');
+                        dayDiv.className = 'calendar-day';
+                        dayDiv.textContent = prevMonthDay;
+                        cell.appendChild(dayDiv);
+                        cell.className = 'other-month';
+                        
+                        // Add the previous month's date for data attribute
+                        const prevMonthDate = new Date(currentYear, currentMonth - 1, prevMonthDay);
+                        cell.dataset.date = formatDateString(prevMonthDate);
+                    } 
+                    // Fill in current month's days
+                    else if (date <= totalDays) {
+                        const dayDiv = document.createElement('div');
+                        dayDiv.className = 'calendar-day';
+                        dayDiv.textContent = date;
+                        cell.appendChild(dayDiv);
+                        
+                        // Add the current date for data attribute
+                        const currentMonthDate = new Date(currentYear, currentMonth, date);
+                        cell.dataset.date = formatDateString(currentMonthDate);
+                        
+                        // Highlight current day
+                        if (date === today.getDate() && 
+                            currentMonth === today.getMonth() && 
+                            currentYear === today.getFullYear()) {
+                            cell.className = 'current-day';
+                        }
+                        
+                        // Add tasks for this day
+                        addTasksToCell(cell, tasks, currentYear, currentMonth, date);
+                        
+                        // Add click event to show day view
+                        cell.addEventListener('click', function() {
+                            showDayView(this.dataset.date);
+                        });
+                        
+                        date++;
+                    } 
+                    // Fill in next month's days
+                    else {
+                        const dayDiv = document.createElement('div');
+                        dayDiv.className = 'calendar-day';
+                        dayDiv.textContent = nextMonthDate;
+                        cell.appendChild(dayDiv);
+                        cell.className = 'other-month';
+                        
+                        // Add the next month's date for data attribute
+                        const nextMonthDateObj = new Date(currentYear, currentMonth + 1, nextMonthDate);
+                        cell.dataset.date = formatDateString(nextMonthDateObj);
+                        
+                        nextMonthDate++;
+                    }
+                    
+                    row.appendChild(cell);
+                }
+                
+                calendarBody.appendChild(row);
+                
+                // Stop creating rows if we've displayed all days of the current month
+                if (date > totalDays && i >= 4) break;
+            }
+        }
+        
+        // Format date as YYYY-MM-DD string
+        function formatDateString(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        
+        // Add tasks to a calendar cell
+        function addTasksToCell(cell, tasks, year, month, day) {
+            // Create date string to compare with task dueDate
+            const dateStr = formatDateString(new Date(year, month, day));
+            
+            // Filter tasks for this date
+            const cellTasks = tasks.filter(task => task.dueDate === dateStr);
+            
+            // Sort tasks by time
+            cellTasks.sort((a, b) => a.timestamp - b.timestamp);
+            
+            // Add tasks to cell (limit to 3 for space)
+            const maxVisibleTasks = 3;
+            for (let i = 0; i < cellTasks.length && i < maxVisibleTasks; i++) {
+                const task = cellTasks[i];
+                
+                const taskDiv = document.createElement('div');
+                taskDiv.className = 'calendar-task';
+                
+                const taskContent = document.createElement('div');
+                taskContent.textContent = task.name;
+                
+                const taskTime = document.createElement('div');
+                taskTime.className = 'task-time';
+                taskTime.textContent = task.displayTime;
+                
+                taskDiv.appendChild(taskContent);
+                taskDiv.appendChild(taskTime);
+                cell.appendChild(taskDiv);
+            }
+            
+            // Add indicator if there are more tasks
+            if (cellTasks.length > maxVisibleTasks) {
+                const moreTasksDiv = document.createElement('div');
+                moreTasksDiv.className = 'calendar-task';
+                moreTasksDiv.textContent = `+ ${cellTasks.length - maxVisibleTasks} more...`;
+                cell.appendChild(moreTasksDiv);
+            }
+        }
+        
+        // Show day view for a specific date
+        function showDayView(dateStr) {
+            selectedDate = dateStr;
+            
+            // Set the title with formatted date
+            const dateObj = new Date(dateStr);
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('day-view-title').textContent = `Tasks for ${dateObj.toLocaleDateString(undefined, options)}`;
+            
+            // Get tasks for this date
+            const tasks = JSON.parse(localStorage.getItem('tasksList')) || [];
+            const dayTasks = tasks.filter(task => task.dueDate === dateStr);
+            
+            // Sort tasks by time
+            dayTasks.sort((a, b) => a.timestamp - b.timestamp);
+            
+            // Display tasks
+            const tasksList = document.getElementById('day-tasks-list');
+            tasksList.innerHTML = '';
+            
+            if (dayTasks.length === 0) {
+                const noTasksMsg = document.createElement('div');
+                noTasksMsg.className = 'no-tasks-message';
+                noTasksMsg.textContent = 'No tasks scheduled for this day.';
+                tasksList.appendChild(noTasksMsg);
+            } else {
+                dayTasks.forEach((task, index) => {
+                    // Create task item
+                    const taskItem = document.createElement('div');
+                    taskItem.className = 'day-task-item';
+                    
+                    const taskName = document.createElement('div');
+                    taskName.className = 'day-task-name';
+                    taskName.textContent = task.name;
+                    
+                    const taskTime = document.createElement('div');
+                    taskTime.className = 'day-task-time';
+                    taskTime.textContent = task.displayTime;
+                    
+                    taskItem.appendChild(taskName);
+                    taskItem.appendChild(taskTime);
+                    
+                    // Create task details
+                    const taskDetails = document.createElement('div');
+                    taskDetails.className = 'day-task-details';
+                    taskDetails.innerHTML = `
+                        <div class="task-description">${task.description || 'No description provided'}</div>
+                        <div class="task-due-date">Due: ${new Date(task.timestamp * 1000).toLocaleTimeString()}</div>
+                        <div class="task-timestamp">Unix Timestamp: ${task.timestamp}</div>
+                    `;
+                    
+                    // Toggle details on click
+                    taskItem.addEventListener('click', function() {
+                        if (taskDetails.style.display === 'block') {
+                            taskDetails.style.display = 'none';
+                        } else {
+                            taskDetails.style.display = 'block';
+                        }
+                    });
+                    
+                    tasksList.appendChild(taskItem);
+                    tasksList.appendChild(taskDetails);
+                });
+            }
+            
+            // Show the overlay and day view
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('day-view').style.display = 'block';
+        }
+        
+        // Close day view
+        function closeDayView() {
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('day-view').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

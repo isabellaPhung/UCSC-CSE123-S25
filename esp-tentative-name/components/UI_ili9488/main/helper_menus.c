@@ -1,3 +1,17 @@
+/*
+ * This file is created to be used in tandem with the LVGL sim, this way you can import the menus quickly and keep a separate main file with simulation specific functions.
+ * Not intended to be used standalone, missing some library definitions and static variables. Intended to be imported as a .c file. Although maybe there's a way to do t
+ */
+
+static lv_obj_t *label = NULL;
+static lv_style_t style_screen;
+
+static lv_obj_t * tile1;
+static lv_obj_t * tile2;
+static lv_obj_t * tile3;
+
+static lv_group_t * g;
+
 /* Text settings */
 static lv_style_t style_text_muted;
 static lv_style_t style_title;
@@ -10,6 +24,32 @@ static lv_obj_t * arrowUp;
 static lv_obj_t * arrowDown;
 const char * days[] = {"Su", "Mo", "Tu", "We", "Th", "Fr", "Sat"}; //for habits menu
 
+static void focus_cb(lv_event_t * e){
+    uint32_t k = lv_event_get_key(e);
+    if(k == LV_KEY_DOWN) {
+        loadTile2();
+        lv_obj_del(tile1);
+    }
+}
+
+static void taskevent_cb(lv_event_t * e){
+    uint32_t k = lv_event_get_key(e);
+    if(k == LV_KEY_DOWN) {
+        loadTile3();
+        lv_obj_del(tile2);
+    }else if(k == LV_KEY_UP) {
+        loadTile1();
+        lv_obj_del(tile2);
+    }
+}
+
+static void habit_cb(lv_event_t * e){
+    uint32_t k = lv_event_get_key(e);
+    if(k == LV_KEY_UP) {
+        loadTile2();
+        lv_obj_del(tile3);
+    }
+}
 /*
  * initializes necessary fonts
  * I would like this to be configurable
@@ -29,37 +69,22 @@ void initFonts(){
     lv_style_set_text_opa(&style_text_muted, LV_OPA_50);
 }
 
-/*
- * loads 1st tile, Focus
- */
-void loadTile1(){
-    tile1 = lv_obj_create(NULL);
-    lv_scr_load(tile1); 
-    focusMenu_create(tile1);
-}
-
-/*
- * loads 2nd tile, Task Tile
- */
-void loadTile2(){
-    tile2 = lv_obj_create(NULL);
-    lv_scr_load(tile2); 
-    taskEvent_create(tile2);
-}
-
-/*
- * loads 3rd tile, Habits Tile
- */
-void loadTile3(){
-    tile3 = lv_obj_create(NULL);
-    lv_scr_load(tile3); 
-    habitMenu_create(tile3);
+void initGroup(){
+    g = lv_group_create();
+    lv_group_set_default(g);
 }
 
 /*
  * creates focus menu, takes in parent lv_obj
  */
 void focusMenu_create(lv_obj_t * parent){
+    //adding gridnav and focus colors to the taskevent menu
+    lv_obj_set_style_bg_color(parent, lv_palette_lighten(LV_PALETTE_BLUE, 5), LV_STATE_FOCUSED);
+    lv_gridnav_add(parent, LV_GRIDNAV_CTRL_NONE);
+    lv_group_add_obj(lv_group_get_default(), parent);
+    lv_group_focus_obj(parent);
+    lv_obj_add_event_cb(parent, focus_cb, LV_EVENT_KEY, NULL);
+
     //displays current task timer
     //TODO: what does it display if theres no current task? does it default to task tile?
     lv_obj_t * timer = lv_label_create(parent);
@@ -92,10 +117,10 @@ void focusMenu_create(lv_obj_t * parent){
  * takes parent obj(usually an lv list), name of task, and due date of task
  * returns an lv_obj pointer to task list entry
  */
-static lv_obj_t * create_task(lv_obj_t * parent, const char * name, const char * dueDate)
-{
+static lv_obj_t * create_task(lv_obj_t * parent, const char * name, const char * dueDate){
     //creates button for task using existing list button style
     lv_obj_t * cont = lv_obj_class_create_obj(&lv_list_button_class, parent);
+    lv_group_remove_obj(cont);   //Not needed, we use the gridnav instead
     lv_obj_class_init_obj(cont);
     lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_COLUMN); //sets button to flex flow column form so it'll expand as needed
    
@@ -129,6 +154,13 @@ static lv_obj_t * create_task(lv_obj_t * parent, const char * name, const char *
  * takes in parent lv_obj
  */
 void taskEvent_create(lv_obj_t * parent){
+    //adding gridnav and focus colors to the taskevent menu
+    lv_obj_set_style_bg_color(parent, lv_palette_lighten(LV_PALETTE_BLUE, 5), LV_STATE_FOCUSED);
+    lv_gridnav_add(parent, LV_GRIDNAV_CTRL_NONE);
+    lv_group_add_obj(lv_group_get_default(), parent);
+    lv_group_focus_obj(parent);
+    lv_obj_add_event_cb(parent, taskevent_cb, LV_EVENT_KEY, NULL);
+    
     //TODO: needs time from RTC
     //adds time to taskevent tile
     lv_obj_t * dateTime = lv_label_create(parent);
@@ -149,9 +181,11 @@ void taskEvent_create(lv_obj_t * parent){
 
     //create lv list obj
     lv_obj_t * tasklist = lv_list_create(parent);
+    lv_gridnav_add(tasklist, LV_GRIDNAV_CTRL_ROLLOVER);
     lv_obj_set_size(tasklist, lv_pct(49), lv_pct(73));
     lv_obj_align(tasklist, LV_ALIGN_TOP_LEFT, 3, 50);
     lv_obj_set_style_pad_all(tasklist, 0, LV_PART_MAIN);
+    lv_group_add_obj(lv_group_get_default(), tasklist);
    
     //dummy tasks
     //TODO: make them iterate through the database to display
@@ -172,9 +206,11 @@ void taskEvent_create(lv_obj_t * parent){
 
     //create lv list obj
     lv_obj_t * eventlist = lv_list_create(parent);
+    lv_gridnav_add(eventlist, LV_GRIDNAV_CTRL_ROLLOVER);
     lv_obj_set_size(eventlist, lv_pct(49), lv_pct(73));
     lv_obj_align(eventlist, LV_ALIGN_TOP_LEFT, (LCD_H_RES/2), 50);
     lv_obj_set_style_pad_all(eventlist, 0, LV_PART_MAIN);
+    lv_group_add_obj(lv_group_get_default(), eventlist);
    
     //dummy events
     //TODO: make them iterate through the database to display
@@ -233,6 +269,13 @@ void createHabit(lv_obj_t * parent, const char * name){
  * creates habit menu, takes in parent lv obj
  */
 void habitMenu_create(lv_obj_t * parent){
+    //and color when focused and add gridnav 
+    lv_obj_set_style_bg_color(parent, lv_palette_lighten(LV_PALETTE_BLUE, 5), LV_STATE_FOCUSED);
+    lv_gridnav_add(parent, LV_GRIDNAV_CTRL_NONE);
+    lv_group_add_obj(lv_group_get_default(), parent);
+    lv_group_focus_obj(parent);
+    lv_obj_add_event_cb(parent, habit_cb, LV_EVENT_KEY, NULL);
+
     //arrow to indicate scroll up
     arrowUp = lv_label_create(parent);
     lv_label_set_text(arrowUp, LV_SYMBOL_UP);
@@ -261,4 +304,30 @@ void habitMenu_create(lv_obj_t * parent){
     createHabit(habitList, "Get to Work on Time");
 }
 
+/*
+ * loads 1st tile, Focus
+ */
+void loadTile1(){
+    tile1 = lv_obj_create(NULL);
+    lv_scr_load(tile1); 
+    focusMenu_create(tile1);
+}
+
+/*
+ * loads 2nd tile, Task Tile
+ */
+void loadTile2(){
+    tile2 = lv_obj_create(NULL);
+    lv_scr_load(tile2); 
+    taskEvent_create(tile2);
+}
+
+/*
+ * loads 3rd tile, Habits Tile
+ */
+void loadTile3(){
+    tile3 = lv_obj_create(NULL);
+    lv_scr_load(tile3); 
+    habitMenu_create(tile3);
+}
 

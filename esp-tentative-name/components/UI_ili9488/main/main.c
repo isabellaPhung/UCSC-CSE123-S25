@@ -188,7 +188,8 @@ void app_main(void)
     /* Show LVGL objects */
     app_main_display();
     while(1){
-        vTaskDelay(1);
+        vTaskDelay(pdMS_TO_TICKS(10));
         lv_timer_handler(); //update screen
+        vTaskDelay(pdMS_TO_TICKS(5000)); //delay
     }
 }
