@@ -12,7 +12,7 @@
             // Get the current user from localStorage
             const currentUser = JSON.parse(localStorage.getItem('currentUser'));
             if (!currentUser) {
-                window.location.href = 'login.html';
+                window.location.href = 'login';
                 return;
             }
             
@@ -275,7 +275,7 @@
     
     <div class="calendar-controls">
         <div>
-            <a href="index.html" class="home-link">Back to Dashboard</a>
+            <a href="{{ url_for('index') }}" class="home-link">Back to Dashboard</a>
             <button class="today-link" id="today-button">Today</button>
         </div>
         

@@ -141,7 +141,7 @@
             // Check if already logged in
             const currentUser = localStorage.getItem('currentUser');
             if (currentUser) {
-                window.location.href = 'index.html';
+                window.location.href = 'index';
                 return;
             }
             
@@ -152,7 +152,7 @@
             
             // Sign up button click handler
             document.getElementById('signup-btn').addEventListener('click', function() {
-                window.location.href = 'signup.html';
+                window.location.href = 'signup';
             });
             
             // Admin link click handler
@@ -161,7 +161,7 @@
                 const adminPassword = prompt('Enter admin password:');
                 if (adminPassword === 'admin123') {
                     localStorage.setItem('isAdmin', 'true');
-                    window.location.href = 'admin.html';
+                    window.location.href = 'admin';
                 } else {
                     alert('Invalid admin password');
                 }
@@ -193,7 +193,7 @@
                     }));
                     
                     // Redirect to dashboard
-                    window.location.href = 'index.html';
+                    window.location.href = 'index';
                 } else {
                     // Show error message
                     document.getElementById('error-message').style.display = 'block';

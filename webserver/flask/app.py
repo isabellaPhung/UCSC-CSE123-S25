@@ -30,8 +30,9 @@ def signup():
 
 
 @app.route("/")
-@jwt_required()
-def home():
+@app.route("/index")
+# @jwt_required()
+def index():
     return render_template("index.html")
 
 
@@ -57,20 +58,12 @@ def events():
 
 @app.route("/habits")
 def habits():
-    # TODO: modify home.html to properly link to habits.html
-    # TODO: have different HTTP request methods?
     return render_template("habits.html")
 
 
 @jwt.unauthorized_loader
 def no_jwt_token(_err):
     return redirect(url_for("login"))
-
-
-@app.route("/tasks")
-def test_tasks():
-    # NOTE: this is a test endpoint
-    return render_template("test_tasks.html", db_data=s3_conn.get_tasks())
 
 
 if __name__ == "__main__":

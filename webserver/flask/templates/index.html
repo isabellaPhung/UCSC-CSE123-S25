@@ -6,56 +6,56 @@
     <title>Task Dashboard</title>
     
     <!-- LOGIN CHECK CODE -->
-<!--    <script>-->
-<!--        // Check if user is logged in-->
-<!--        document.addEventListener('DOMContentLoaded', function() {-->
-<!--            const currentUser = JSON.parse(localStorage.getItem('currentUser'));-->
-<!--            if (!currentUser) {-->
-<!--                window.location.href = 'login.html';-->
-<!--                return;-->
-<!--            }-->
-<!--            -->
-<!--            // Store the current user ID for use throughout the page-->
-<!--            window.currentUserId = currentUser.id;-->
-<!--            -->
-<!--            // Add username display and logout button to the page-->
-<!--            const leftSection = document.querySelector('.left-section');-->
-<!--            -->
-<!--            const userPanel = document.createElement('div');-->
-<!--            userPanel.className = 'user-panel';-->
-<!--            userPanel.style.marginBottom = '20px';-->
-<!--            userPanel.style.display = 'flex';-->
-<!--            userPanel.style.justifyContent = 'space-between';-->
-<!--            userPanel.style.alignItems = 'center';-->
-<!--            userPanel.style.backgroundColor = '#f5f5f5';-->
-<!--            userPanel.style.padding = '10px';-->
-<!--            userPanel.style.borderRadius = '4px';-->
-<!--            -->
-<!--            const usernameDisplay = document.createElement('div');-->
-<!--            usernameDisplay.textContent = `Welcome, ${currentUser.username}`;-->
-<!--            usernameDisplay.style.fontWeight = 'bold';-->
-<!--            -->
-<!--            const logoutButton = document.createElement('button');-->
-<!--            logoutButton.textContent = 'Logout';-->
-<!--            logoutButton.style.backgroundColor = '#f44336';-->
-<!--            logoutButton.style.color = 'white';-->
-<!--            logoutButton.style.border = 'none';-->
-<!--            logoutButton.style.padding = '5px 10px';-->
-<!--            logoutButton.style.borderRadius = '4px';-->
-<!--            logoutButton.style.cursor = 'pointer';-->
-<!--            -->
-<!--            logoutButton.addEventListener('click', function() {-->
-<!--                localStorage.removeItem('currentUser');-->
-<!--                window.location.href = 'login.html';-->
-<!--            });-->
-<!--            -->
-<!--            userPanel.appendChild(usernameDisplay);-->
-<!--            userPanel.appendChild(logoutButton);-->
-<!--            -->
-<!--            // Insert user panel at the top of the left section-->
-<!--            leftSection.insertBefore(userPanel, leftSection.firstChild);-->
-<!--        });-->
-<!--    </script>-->
+    <script>
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser) {
+                window.location.href = 'login';
+                return;
+            }
+
+            // Store the current user ID for use throughout the page
+            window.currentUserId = currentUser.id;
+
+            // Add username display and logout button to the page
+            const leftSection = document.querySelector('.left-section');
+
+            const userPanel = document.createElement('div');
+            userPanel.className = 'user-panel';
+            userPanel.style.marginBottom = '20px';
+            userPanel.style.display = 'flex';
+            userPanel.style.justifyContent = 'space-between';
+            userPanel.style.alignItems = 'center';
+            userPanel.style.backgroundColor = '#f5f5f5';
+            userPanel.style.padding = '10px';
+            userPanel.style.borderRadius = '4px';
+
+            const usernameDisplay = document.createElement('div');
+            usernameDisplay.textContent = `Welcome, ${currentUser.username}`;
+            usernameDisplay.style.fontWeight = 'bold';
+
+            const logoutButton = document.createElement('button');
+            logoutButton.textContent = 'Logout';
+            logoutButton.style.backgroundColor = '#f44336';
+            logoutButton.style.color = 'white';
+            logoutButton.style.border = 'none';
+            logoutButton.style.padding = '5px 10px';
+            logoutButton.style.borderRadius = '4px';
+            logoutButton.style.cursor = 'pointer';
+
+            logoutButton.addEventListener('click', function() {
+                localStorage.removeItem('currentUser');
+                window.location.href = 'login';
+            });
+
+            userPanel.appendChild(usernameDisplay);
+            userPanel.appendChild(logoutButton);
+
+            // Insert user panel at the top of the left section
+            leftSection.insertBefore(userPanel, leftSection.firstChild);
+        });
+    </script>
     
     <style>
         body {
@@ -367,7 +367,7 @@
         </div>
         
         <div class="habits">
-            <h2><a href="habits.html" class="habits-link">Habits</a></h2>
+            <h2><a href="{{ url_for('habits') }}" class="habits-link">Habits</a></h2>
             <div class="habit-list" id="main-habits-list">
                 <!-- Habits will be dynamically loaded here -->
             </div>
@@ -381,7 +381,7 @@
                 <div class="section-title">
                     <h1>Today's Tasks</h1>
                     <div class="controls">
-                        <a href="calendar.html" class="calendar-link">Calendar</a>
+                        <a href="{{ url_for('calendar') }}" class="calendar-link">Calendar</a>
                         <button class="control-btn add-task" id="add-task-btn" title="Add Task">+</button>
                         <button class="control-btn remove-task" title="Remove Task">-</button>
                     </div>
@@ -400,7 +400,7 @@
     <div class="right-section">
         <div class="event-section">
             <div class="header-with-controls">
-                <h2><a href="events.html" class="habits-link">Event</a></h2>
+                <h2><a href="{{ url_for('events') }}" class="events-link">Event</a></h2>
                 <div class="controls">
                     <button class="control-btn add-event">+</button>
                     <button class="control-btn remove-event">-</button>
@@ -692,7 +692,7 @@
         document.getElementById('add-task-btn').addEventListener('click', function() {
             // Store the current user ID in localStorage so add-task.html can access it
             localStorage.setItem('taskUserId', window.currentUserId);
-            window.location.href = 'add-task.html';
+            window.location.href = 'add_task';
         });
         
         // Remove task functionality
@@ -735,7 +735,7 @@
         document.querySelector('.add-event').addEventListener('click', function() {
             // Store the current user ID in localStorage so events.html can access it
             localStorage.setItem('eventUserId', window.currentUserId);
-            window.location.href = 'events.html';
+            window.location.href = 'events';
         });
         
         // UPDATED TO HANDLE REMOVING EVENTS WITH TIMESTAMPS

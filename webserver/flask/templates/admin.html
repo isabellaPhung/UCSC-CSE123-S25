@@ -218,7 +218,7 @@
     <div class="admin-container">
         <div class="admin-header">
             <h1>Admin Dashboard</h1>
-            <a href="login.html" class="logout-link" id="logout-link">Logout</a>
+            <a href="{{ url_for('login') }}" class="logout-link" id="logout-link">Logout</a>
         </div>
         
         <div class="users-panel">
@@ -287,7 +287,7 @@
             // Check if admin is logged in
             const isAdmin = localStorage.getItem('isAdmin');
             if (isAdmin !== 'true') {
-                window.location.href = 'login.html';
+                window.location.href = 'login';
                 return;
             }
             
@@ -299,7 +299,7 @@
                 e.preventDefault();
                 localStorage.removeItem('isAdmin');
                 localStorage.removeItem('currentUser');
-                window.location.href = 'login.html';
+                window.location.href = 'login';
             });
             
             // Add user button click handler

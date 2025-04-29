@@ -12,14 +12,14 @@
             // Get the current user from localStorage
             const currentUser = JSON.parse(localStorage.getItem('currentUser'));
             if (!currentUser) {
-                window.location.href = 'login.html';
+                window.location.href = 'login';
                 return;
             }
             
             // Get the user ID for event creation (set by index.html)
             const eventUserId = localStorage.getItem('eventUserId');
             if (!eventUserId) {
-                window.location.href = 'index.html';
+                window.location.href = 'index';
                 return;
             }
             
@@ -237,7 +237,7 @@
 <body>
     <div class="page-header">
         <h1>Daily Events</h1>
-        <a href="index.html" class="back-link">Back to Dashboard</a>
+        <a href="{{ url_for('index') }}" class="back-link">Back to Dashboard</a>
     </div>
     
     <div class="current-date" id="current-date"></div>
