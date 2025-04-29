@@ -4,6 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add New Task</title>
+    
+    <!-- ADDED LOGIN CHECK CODE -->
+    <script>
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get the current user from localStorage
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Get the user ID for task creation (set by index.html)
+            const taskUserId = localStorage.getItem('taskUserId');
+            if (!taskUserId) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Store user ID for use in form submission
+            window.currentUserId = taskUserId;
+            
+            // Add username display and back button to the page
+            const titleElement = document.querySelector('h1');
+            
+            const userPanel = document.createElement('div');
+            userPanel.style.display = 'flex';
+            userPanel.style.justifyContent = 'space-between';
+            userPanel.style.alignItems = 'center';
+            userPanel.style.marginBottom = '20px';
+            
+            const usernameDisplay = document.createElement('div');
+            usernameDisplay.textContent = `Logged in as: ${currentUser.username}`;
+            usernameDisplay.style.fontWeight = 'bold';
+            
+            userPanel.appendChild(usernameDisplay);
+            
+            // Insert user panel before the title
+            titleElement.parentNode.insertBefore(userPanel, titleElement);
+        });
+    </script>
+    <!-- END OF ADDED LOGIN CHECK CODE -->
+    
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -84,6 +127,7 @@
 </head>
 <body>
     <h1>Add New Task</h1>
+    
     <form id="task-form">
         <div class="form-group">
             <label for="task-name">Task Name:</label>
@@ -210,6 +254,7 @@
         // Update timestamp on page load
         updateUnixTimestamp();
         
+        // UPDATED FORM SUBMISSION TO SAVE TO USER-SPECIFIC TASKS
         // Handle form submission
         document.getElementById('task-form').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -252,13 +297,17 @@
             };
             
             // Get existing tasks or create empty array
-            const tasks = JSON.parse(localStorage.getItem('tasksList')) || [];
+            const allUserTasks = JSON.parse(localStorage.getItem('userTasks')) || {};
+            const userTasks = allUserTasks[window.currentUserId] || [];
             
             // Add new task
-            tasks.push(task);
+            userTasks.push(task);
+            
+            // Update user tasks
+            allUserTasks[window.currentUserId] = userTasks;
             
             // Save to localStorage
-            localStorage.setItem('tasksList', JSON.stringify(tasks));
+            localStorage.setItem('userTasks', JSON.stringify(allUserTasks));
             
             // Redirect back to main page
             window.location.href = 'index.html';
