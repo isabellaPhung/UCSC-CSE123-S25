@@ -4,6 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daily Events</title>
+    
+    <!-- LOGIN CHECK CODE -->
+    <script>
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get the current user from localStorage
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Get the user ID for event creation (set by index.html)
+            const eventUserId = localStorage.getItem('eventUserId');
+            if (!eventUserId) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Store user ID for use in form submission
+            window.currentUserId = eventUserId;
+            
+            // Add username display to the page
+            const headerElement = document.querySelector('.page-header');
+            
+            const usernameDisplay = document.createElement('div');
+            usernameDisplay.textContent = `Logged in as: ${currentUser.username}`;
+            usernameDisplay.style.fontWeight = 'bold';
+            
+            headerElement.appendChild(usernameDisplay);
+        });
+    </script>
+    
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -173,6 +206,32 @@
             margin-bottom: 20px;
             font-size: 1.2em;
         }
+        
+        /* ADDED STYLES FOR UNIX TIMESTAMP DISPLAY */
+        .unix-timestamp {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        
+        .event-details {
+            display: none;
+            padding: 10px;
+            margin-top: 5px;
+            background-color: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 5px;
+        }
+        
+        .event-details-visible {
+            display: block;
+        }
+        
+        .event-timestamp {
+            color: #888;
+            font-size: 0.8em;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -223,6 +282,9 @@
             </div>
         </div>
         
+        <!-- ADDED UNIX TIMESTAMP DISPLAY -->
+        <div class="unix-timestamp" id="unix-timestamp">Unix Timestamp: </div>
+        
         <div class="button-container">
             <button class="clear-btn" id="clear-btn">Clear</button>
             <button class="add-btn" id="add-btn">Add Event</button>
@@ -242,7 +304,7 @@
             <!-- Events will be dynamically loaded here -->
         </div>
     </div>
-
+    
     <script>
         // Get current date
         const today = new Date();
@@ -259,6 +321,9 @@
             // Set current time as default
             setCurrentTimeAsDefault();
             
+            // ADDED TIMESTAMP UPDATE CALL ON LOAD
+            updateUnixTimestamp();
+            
             // Event listeners
             document.getElementById('add-btn').addEventListener('click', addEvent);
             document.getElementById('clear-btn').addEventListener('click', clearForm);
@@ -269,15 +334,54 @@
                     addEvent();
                 }
             });
+            
+            // ADDED EVENT LISTENERS FOR TIMESTAMP UPDATES
+            document.getElementById('hour-select').addEventListener('change', updateUnixTimestamp);
+            document.getElementById('minute-select').addEventListener('change', updateUnixTimestamp);
+            document.getElementById('period-select').addEventListener('change', updateUnixTimestamp);
         });
-
+        
+        // Format date as YYYY-MM-DD
         function formatDateString(date) {
             const year = date.getFullYear();
             const month = String(date.getMonth() + 1).padStart(2, '0');
             const day = String(date.getDate()).padStart(2, '0');
             return `${year}-${month}-${day}`;
         }
-
+        
+        // ADDED UNIX TIMESTAMP UPDATE FUNCTION
+        function updateUnixTimestamp() {
+            // Get current date (today)
+            const dateStr = todayStr;
+            
+            // Get time values
+            let hour = parseInt(document.getElementById('hour-select').value);
+            const minute = document.getElementById('minute-select').value;
+            const period = document.getElementById('period-select').value;
+            
+            // Convert to 24-hour format
+            if (period === "PM" && hour < 12) {
+                hour += 12;
+            } else if (period === "AM" && hour === 12) {
+                hour = 0;
+            }
+            
+            // Format time as HH:MM
+            const formattedHour = hour.toString().padStart(2, '0');
+            const timeStr = `${formattedHour}:${minute}`;
+            
+            // Create date object and get timestamp
+            const dateTimeStr = `${dateStr}T${timeStr}:00`;
+            const timestamp = Math.floor(new Date(dateTimeStr).getTime() / 1000);
+            
+            // Update display
+            document.getElementById('unix-timestamp').textContent = `Unix Timestamp: ${timestamp}`;
+            
+            // Return the timestamp (for use in other functions)
+            return timestamp;
+        }
+        
+        // Set current time as default in the form
         function setCurrentTimeAsDefault() {
             const now = new Date();
             
@@ -302,12 +406,15 @@
             document.getElementById('minute-select').value = minutes;
             document.getElementById('period-select').value = period;
         }
+        
+        // Load events from localStorage
         function loadEvents() {
-            // Get events from localStorage
-            let allEvents = JSON.parse(localStorage.getItem('dailyEvents')) || {};
+            // Get user-specific events
+            const allUserEvents = JSON.parse(localStorage.getItem('userEvents')) || {};
+            const userEvents = allUserEvents[window.currentUserId] || {};
             
             // Get today's events or initialize empty array
-            const todayEvents = allEvents[todayStr] || [];
+            const todayEvents = userEvents[todayStr] || [];
             
             // Get events container
             const eventsContainer = document.getElementById('events-list');
@@ -324,10 +431,15 @@
             
             // Sort events by time
             todayEvents.sort((a, b) => {
-                // Convert to 24-hour format for comparison
-                const timeA = convertTo24Hour(a.time);
-                const timeB = convertTo24Hour(b.time);
-                return timeA.localeCompare(timeB);
+                // UPDATED TO USE TIMESTAMP FOR SORTING IF AVAILABLE
+                if (a.timestamp && b.timestamp) {
+                    return a.timestamp - b.timestamp;
+                } else {
+                    // Fallback to string comparison
+                    const timeA = convertTo24Hour(a.time);
+                    const timeB = convertTo24Hour(b.time);
+                    return timeA.localeCompare(timeB);
+                }
             });
             
             // Add each event to the container
@@ -338,7 +450,7 @@
                 const eventName = document.createElement('div');
                 eventName.className = 'event-name';
                 eventName.textContent = event.name;
-
+                
                 const eventTime = document.createElement('div');
                 eventTime.className = 'event-time';
                 eventTime.textContent = event.time;
@@ -360,10 +472,32 @@
                 eventRow.appendChild(eventTime);
                 eventRow.appendChild(eventAction);
                 
+                // ADDED EVENT DETAILS WITH TIMESTAMP
+                const eventDetails = document.createElement('div');
+                eventDetails.className = 'event-details';
+                
+                // Add timestamp if available
+                if (event.timestamp) {
+                    const timestamp = document.createElement('div');
+                    timestamp.className = 'event-timestamp';
+                    timestamp.textContent = `Unix Timestamp: ${event.timestamp}`;
+                    eventDetails.appendChild(timestamp);
+                    
+                    // Toggle details visibility on click
+                    eventRow.addEventListener('click', function(e) {
+                        // Only toggle if not clicking delete button
+                        if (!e.target.classList.contains('delete-btn')) {
+                            eventDetails.classList.toggle('event-details-visible');
+                        }
+                    });
+                }
+                
                 eventsContainer.appendChild(eventRow);
+                eventsContainer.appendChild(eventDetails);
             });
         }
-
+        
+        // Convert 12-hour time to 24-hour format for sorting
         function convertTo24Hour(time12h) {
             const [time, period] = time12h.split(' ');
             let [hours, minutes] = time.split(':');
@@ -378,7 +512,9 @@
             
             return `${hours.toString().padStart(2, '0')}:${minutes}`;
         }
-
+        
+        // UPDATED TO INCLUDE TIMESTAMP
+        // Add a new event
         function addEvent() {
             const eventNameInput = document.getElementById('event-name');
             const eventName = eventNameInput.value.trim();
@@ -394,73 +530,70 @@
             const minute = document.getElementById('minute-select').value;
             const period = document.getElementById('period-select').value;
             
-            // Format time
+            // Format time for display
             const time = `${hour}:${minute} ${period}`;
             
-            // Get events from localStorage
-            let allEvents = JSON.parse(localStorage.getItem('dailyEvents')) || {};
+            // Get timestamp
+            const timestamp = updateUnixTimestamp();
+            
+            // Get user-specific events
+            const allUserEvents = JSON.parse(localStorage.getItem('userEvents')) || {};
+            const userEvents = allUserEvents[window.currentUserId] || {};
             
             // Initialize today's events array if it doesn't exist
-            if (!allEvents[todayStr]) {
-                allEvents[todayStr] = [];
+            if (!userEvents[todayStr]) {
+                userEvents[todayStr] = [];
             }
             
-            // Add new event
-            allEvents[todayStr].push({
+            // Add new event with timestamp
+            userEvents[todayStr].push({
                 name: eventName,
                 time: time,
-                date: todayStr
+                date: todayStr,
+                timestamp: timestamp
             });
             
-            // Save to localStorage
-            localStorage.setItem('dailyEvents', JSON.stringify(allEvents));
+            // Update user events
+            allUserEvents[window.currentUserId] = userEvents;
             
-            // Update events for the main page
-            updateMainPageEvents(allEvents[todayStr]);
+            // Save to localStorage
+            localStorage.setItem('userEvents', JSON.stringify(allUserEvents));
             
             // Clear form and reload events
             clearForm();
             loadEvents();
         }
-
+        
+        // Clear the add event form
         function clearForm() {
             document.getElementById('event-name').value = '';
             setCurrentTimeAsDefault();
+            // Update timestamp after clearing
+            updateUnixTimestamp();
         }
-
+        
+        // Delete an event
         function deleteEvent(index) {
-            // Get events from localStorage
-            let allEvents = JSON.parse(localStorage.getItem('dailyEvents')) || {};
+            // Get user-specific events
+            const allUserEvents = JSON.parse(localStorage.getItem('userEvents')) || {};
+            const userEvents = allUserEvents[window.currentUserId] || {};
             
             // Get today's events
-            const todayEvents = allEvents[todayStr] || [];
+            const todayEvents = userEvents[todayStr] || [];
             
             // Remove the event
             if (index >= 0 && index < todayEvents.length) {
                 todayEvents.splice(index, 1);
                 
                 // Update localStorage
-                allEvents[todayStr] = todayEvents;
-                localStorage.setItem('dailyEvents', JSON.stringify(allEvents));
-                
-                // Update events for the main page
-                updateMainPageEvents(todayEvents);
+                userEvents[todayStr] = todayEvents;
+                allUserEvents[window.currentUserId] = userEvents;
+                localStorage.setItem('userEvents', JSON.stringify(allUserEvents));
                 
                 // Reload events
                 loadEvents();
             }
         }
-
-        function updateMainPageEvents(todayEvents) {
-            localStorage.setItem('events', JSON.stringify(todayEvents));
-        }
     </script>
 </body>
 </html>
-        
-
-
-
-                
-
-
