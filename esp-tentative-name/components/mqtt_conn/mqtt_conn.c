@@ -1349,11 +1349,6 @@ static int publishToTopic( MQTTContext_t * pMqttContext, const char *payload, si
 {
     int returnStatus = EXIT_SUCCESS;
 
-    // TODO the demo currently uses a set payload when sending any publishes.
-    // Add a check for variable packets to be sent.
-    // ideally done with xtasknotify
-    //return returnStatus;
-
     MQTTStatus_t mqttStatus = MQTTSuccess;
     uint8_t publishIndex = MAX_OUTGOING_PUBLISHES;
 
@@ -1737,103 +1732,5 @@ int publish_packet(const char *payload, size_t payload_length) {
     ( void ) xTlsDisconnect( &xNetworkContext );
   }
   return returnStatus;
-}
-
-
-
-void aws_iot_demo_main(void *pvParameters)
-{
-    int returnStatus = EXIT_SUCCESS;
-    //MQTTContext_t mqttContext = { 0 };
-    //NetworkContext_t xNetworkContext = { 0 };
-    bool clientSessionPresent = false, brokerSessionPresent = false;
-    //struct timespec tp;
-
-    //mp = (struct main_param *)pvParameters;
-
-    /* Seed pseudo random number generator (provided by ISO C standard library) for
-     * use by retry utils library when retrying failed network operations. */
-
-    /* Get current time to seed pseudo random number generator. */
-    //( void ) clock_gettime( CLOCK_REALTIME, &tp );
-    /* Seed pseudo random number generator with nanoseconds. */
-    //srand( tp.tv_nsec );
-
-    /* Initialize MQTT library. Initialization of the MQTT library needs to be
-     * done only once in this demo. */
-    //returnStatus = initializeMqtt( &mqttContext, &xNetworkContext );
-    init_mqtt();
-
-    if( returnStatus == EXIT_SUCCESS )
-    {
-        for( ; ; )
-        {
-            /* Attempt to connect to the MQTT broker. If connection fails, retry after
-             * a timeout. Timeout value will be exponentially increased till the maximum
-             * attempts are reached or maximum timeout value is reached. The function
-             * returns EXIT_FAILURE if the TCP connection cannot be established to
-             * broker after configured number of attempts. */
-            returnStatus = connectToServerWithBackoffRetries( &xNetworkContext, &mqttContext, &clientSessionPresent, &brokerSessionPresent );
-
-            if( returnStatus == EXIT_FAILURE )
-            {
-                /* Log error to indicate connection failure after all
-                 * reconnect attempts are over. */
-                LogError( ( "Failed to connect to MQTT broker %.*s.",
-                            AWS_IOT_ENDPOINT_LENGTH,
-                            AWS_IOT_ENDPOINT ) );
-            }
-            else
-            {
-                /* Update the flag to indicate that an MQTT client session is saved.
-                 * Once this flag is set, MQTT connect in the following iterations of
-                 * this demo will be attempted without requesting for a clean session. */
-                clientSessionPresent = true;
-
-                /* Check if session is present and if there are any outgoing publishes
-                 * that need to resend. This is only valid if the broker is
-                 * re-establishing a session which was already present. */
-                if( brokerSessionPresent == true )
-                {
-                    LogInfo( ( "An MQTT session with broker is re-established. "
-                               "Resending unacked publishes." ) );
-
-                    /* Handle all the resend of publish messages. */
-                    returnStatus = handlePublishResend( &mqttContext );
-                }
-                else
-                {
-                    LogInfo( ( "A clean MQTT connection is established."
-                               " Cleaning up all the stored outgoing publishes.\n\n" ) );
-
-                    /* Clean up the outgoing publishes waiting for ack as this new
-                     * connection doesn't re-establish an existing session. */
-                    cleanupOutgoingPublishes();
-                }
-
-                /* If TLS session is established, execute Subscribe/Publish loop. */
-                //returnStatus = subscribePublishLoop( &mqttContext );
-
-                /* End TLS session, then close TCP connection. */
-                cleanupESPSecureMgrCerts( &xNetworkContext );
-                ( void ) xTlsDisconnect( &xNetworkContext );
-            }
-
-            /*
-            if( returnStatus == EXIT_SUCCESS )
-            {
-            */
-                /* Log message indicating an iteration completed successfully. */
-            /*
-                LogInfo( ( "Demo completed successfully." ) );
-            }
-            */
-
-            LogInfo( ( "Short delay (60 s) before starting the next iteration....\n" ) );
-            sleep( MQTT_SUBPUB_LOOP_DELAY_SECONDS );
-        }
-    }
-
-    //return returnStatus;
 }
 /*-----------------------------------------------------------*/
