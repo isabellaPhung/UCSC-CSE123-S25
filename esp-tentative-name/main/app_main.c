@@ -16,15 +16,16 @@
 #include "esp_log.h"
 
 void aws_iot_demo_main(void *pvParameters);
-void lcd_task(void *pvParameters);
+void DB_task_demo(void *pvParameters);
 
-struct {
-  SemaphoreHandle_t buffer_sem;
-  char payload[512];
-  size_t payload_len;
+struct
+{
+    SemaphoreHandle_t buffer_sem;
+    char payload[512];
+    size_t payload_len;
 } task_params;
 
-static const char *TAG = "MQTT_EXAMPLE";
+static const char *TAG = "DEMO";
 
 /*
  * Prototypes for the demos that can be started from this project.  Note the
@@ -34,14 +35,15 @@ static const char *TAG = "MQTT_EXAMPLE";
 void app_main()
 {
     ESP_LOGI(TAG, "[APP] Startup..");
-    ESP_LOGI(TAG, "[APP] Free memory: %"PRIu32" bytes", esp_get_free_heap_size());
+    ESP_LOGI(TAG, "[APP] Free memory: %" PRIu32 " bytes", esp_get_free_heap_size());
     ESP_LOGI(TAG, "[APP] IDF version: %s", esp_get_idf_version());
 
     esp_log_level_set("*", ESP_LOG_INFO);
 
     /* Initialize NVS partition */
     esp_err_t ret = nvs_flash_init();
-    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
+    {
         /* NVS partition was truncated
          * and needs to be erased */
         ESP_ERROR_CHECK(nvs_flash_erase());
@@ -58,10 +60,9 @@ void app_main()
      * examples/protocols/README.md for more information about this function.
      */
     // TODO replace with a more complete wifi connection function that supports low power mode
-    ESP_ERROR_CHECK(example_connect());
+    // ESP_ERROR_CHECK(example_connect());
 
     vSemaphoreCreateBinary(task_params.buffer_sem);
 
-    xTaskCreate(aws_iot_demo_main, "AWS_DEMO", 4069, (void *)&task_params, 5, NULL);
-    xTaskCreate(lcd_task, "LCD_DEMO", 4069, (void *)&task_params, 5, NULL);
+    xTaskCreate(DB_task_demo, "DB_Task", 65536, NULL, 5, NULL);
 }
