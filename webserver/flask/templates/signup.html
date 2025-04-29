@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Dashboard - Sign Up</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        
+        .signup-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 350px;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #2196F3;
+        }
+        
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+        }
+        
+        .login-link {
+            background-color: #2196F3;
+        }
+        
+        .login-link:hover {
+            background-color: #0b7dda;
+        }
+        
+        .error-message {
+            color: #f44336;
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+        }
+        
+        .password-strength {
+            margin-top: 5px;
+            font-size: 12px;
+            color: #777;
+        }
+        
+        .strength-meter {
+            height: 5px;
+            width: 100%;
+            background-color: #eee;
+            border-radius: 3px;
+            margin-top: 5px;
+        }
+        
+        .strength-meter div {
+            height: 100%;
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .weak {
+            background-color: #f44336;
+        }
+        
+        .medium {
+            background-color: #ff9800;
+        }
+        
+        .strong {
+            background-color: #4CAF50;
+        }
+    </style>
+</head>
+<body>
+    <div class="signup-container">
+        <h1>Create Account</h1>
+        
+        <div class="form-group">
+            <label for="fullname">Full Name</label>
+            <input type="text" id="fullname" name="fullname" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+            <div class="password-strength">
+                <span id="password-strength-text">Password strength</span>
+                <div class="strength-meter">
+                    <div id="strength-meter-bar"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="confirm-password">Confirm Password</label>
+            <input type="password" id="confirm-password" name="confirm-password" required>
+        </div>
+        
+        <div class="button-container">
+            <button type="button" class="login-link" id="back-btn">Back to Login</button>
+            <button type="button" id="signup-btn">Sign Up</button>
+        </div>
+        
+        <div class="error-message" id="error-message"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Back button click handler
+            document.getElementById('back-btn').addEventListener('click', function() {
+                window.location.href = 'login.html';
+            });
+            
+            // Sign up button click handler
+            document.getElementById('signup-btn').addEventListener('click', function() {
+                signUp();
+            });
+            
+            // Handle Enter key press
+            document.getElementById('confirm-password').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    signUp();
+                }
+            });
+            
+            // Password strength meter
+            document.getElementById('password').addEventListener('input', function() {
+                checkPasswordStrength(this.value);
+            });
+            
+            // Sign up function
+            function signUp() {
+                const fullname = document.getElementById('fullname').value;
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirm-password').value;
+                
+                // Validate inputs
+                if (!fullname || !username || !password || !confirmPassword) {
+                    showError('Please fill in all fields');
+                    return;
+                }
+                
+                if (password !== confirmPassword) {
+                    showError('Passwords do not match');
+                    return;
+                }
+                
+                if (password.length < 6) {
+                    showError('Password must be at least 6 characters long');
+                    return;
+                }
+                
+                // Get existing users
+                const users = JSON.parse(localStorage.getItem('users')) || [];
+                
+                // Check if username already exists
+                if (users.some(user => user.username === username)) {
+                    showError('Username already exists');
+                    return;
+                }
+                
+                // Create new user
+                const newUser = {
+                    id: generateUserId(),
+                    fullname,
+                    username,
+                    password,
+                    createdAt: new Date().toISOString()
+                };
+                
+                // Add user to array
+                users.push(newUser);
+                
+                // Save to localStorage
+                localStorage.setItem('users', JSON.stringify(users));
+                
+                // Initialize user data storage
+                initializeUserData(newUser.id);
+                
+                // Redirect to login
+                alert('Account created successfully! Please log in.');
+                window.location.href = 'login.html';
+            }
+            
+            // Show error message
+            function showError(message) {
+                const errorMessage = document.getElementById('error-message');
+                errorMessage.textContent = message;
+                errorMessage.style.display = 'block';
+            }
+            
+            // Generate random user ID
+            function generateUserId() {
+                return Math.random().toString(36).substr(2, 9);
+            }
+            
+            // Check password strength
+            function checkPasswordStrength(password) {
+                const strengthMeter = document.getElementById('strength-meter-bar');
+                const strengthText = document.getElementById('password-strength-text');
+                
+                // Remove previous classes
+                strengthMeter.classList.remove('weak', 'medium', 'strong');
+                
+                if (password.length === 0) {
+                    strengthMeter.style.width = '0%';
+                    strengthText.textContent = 'Password strength';
+                    return;
+                }
+                
+                let strength = 0;
+                
+                // Check length
+                if (password.length >= 6) strength += 1;
+                if (password.length >= 10) strength += 1;
+                
+                // Check for numbers
+                if (/\d/.test(password)) strength += 1;
+                
+                // Check for special characters
+                if (/[!@#$%^&*]/.test(password)) strength += 1;
+                
+                // Check for uppercase and lowercase
+                if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength += 1;
+                
+                // Set meter width and text based on strength
+                if (strength <= 2) {
+                    strengthMeter.style.width = '33%';
+                    strengthMeter.className = 'weak';
+                    strengthText.textContent = 'Weak';
+                } else if (strength <= 4) {
+                    strengthMeter.style.width = '66%';
+                    strengthMeter.className = 'medium';
+                    strengthText.textContent = 'Medium';
+                } else {
+                    strengthMeter.style.width = '100%';
+                    strengthMeter.className = 'strong';
+                    strengthText.textContent = 'Strong';
+                }
+            }
+            
+            // Initialize user data storage
+            function initializeUserData(userId) {
+                // Initialize habits
+                const userHabits = {};
+                userHabits[userId] = [];
+                
+                // Initialize tasks
+                const userTasks = {};
+                userTasks[userId] = [];
+                
+                // Initialize events
+                const userEvents = {};
+                userEvents[userId] = {};
+                
+                // Check if data already exists
+                const habits = JSON.parse(localStorage.getItem('userHabits')) || {};
+                const tasks = JSON.parse(localStorage.getItem('userTasks')) || {};
+                const events = JSON.parse(localStorage.getItem('userEvents')) || {};
+                
+                // Merge new user data
+                Object.assign(habits, userHabits);
+                Object.assign(tasks, userTasks);
+                Object.assign(events, userEvents);
+                
+                // Save to localStorage
+                localStorage.setItem('userHabits', JSON.stringify(habits));
+                localStorage.setItem('userTasks', JSON.stringify(tasks));
+                localStorage.setItem('userEvents', JSON.stringify(events));
+            }
+        });
+    </script>
+</body>
+</html>
