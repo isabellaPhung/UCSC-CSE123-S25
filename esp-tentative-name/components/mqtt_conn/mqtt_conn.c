@@ -917,7 +917,7 @@ static int handlePublishResend( MQTTContext_t * pMqttContext )
 
 /*-----------------------------------------------------------*/
 
-static int pubcnt = 0;
+static publish_cb_t publish_callback;
 
 static void handleIncomingPublish( MQTTPublishInfo_t * pPublishInfo,
                                    uint16_t packetIdentifier )
@@ -941,19 +941,9 @@ static void handleIncomingPublish( MQTTPublishInfo_t * pPublishInfo,
                    packetIdentifier,
                    ( int ) pPublishInfo->payloadLength,
                    ( const char * ) pPublishInfo->pPayload ) );
-        pubcnt ++;
-        // TODO make this a callback function set in the inital setup, where the function pointer is specific to the main program
-        // ----- begin
-        /*
-        if (xSemaphoreTake(mp->buffer_sem, portMAX_DELAY)){
-           // copy just 511 bytes to leave space for 0 
-            mp->payload_len = (pPublishInfo->payloadLength > 511) 
-              ? 511 : pPublishInfo->payloadLength;
-            memcpy(mp->payload, pPublishInfo->pPayload, mp->payload_len);
-            xSemaphoreGive(mp->buffer_sem);
-        }
-        */
-        // ----- end
+        publish_callback(
+            (const char *) pPublishInfo->pPayload,
+            (size_t) pPublishInfo->payloadLength);
     }
     else
     {
@@ -1522,8 +1512,7 @@ static int subscribePublishLoop( MQTTContext_t * pMqttContext, const char *paylo
          * sends ping request to broker if MQTT_KEEP_ALIVE_INTERVAL_SECONDS
          * has expired since the last MQTT packet sent and receive
          * ping responses. */
-        while (pubcnt != 2)
-          mqttStatus = processLoopWithTimeout( pMqttContext, MQTT_PROCESS_LOOP_TIMEOUT_MS );
+        mqttStatus = processLoopWithTimeout( pMqttContext, MQTT_PROCESS_LOOP_TIMEOUT_MS );
 
         /* For any error in #MQTT_ProcessLoop, exit the loop and disconnect
          * from the broker. */
@@ -1674,9 +1663,11 @@ static MQTTStatus_t processLoopWithTimeout( MQTTContext_t * pMqttContext,
 static MQTTContext_t mqttContext;
 static NetworkContext_t xNetworkContext;
 
-int init_mqtt(void) {
+int init_mqtt(publish_cb_t callback_func){
   int returnStatus = EXIT_SUCCESS;
   struct timespec tp;
+  publish_callback = callback_func;
+  assert(publish_callback != NULL);
 
   /* Seed pseudo random number generator (provided by ISO C standard library) for
    * use by retry utils library when retrying failed network operations. */

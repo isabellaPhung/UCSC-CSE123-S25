@@ -19,6 +19,13 @@
 
 static const char *TAG = "MQTT_EXAMPLE";
 
+void demo_callback(const char *payload, size_t payload_length) {
+  (void) payload;
+  (void) payload_length;
+  ESP_LOGI(TAG, "Callback function called\n");
+  return;
+}
+
 void app_main() {
   ESP_LOGI(TAG, "[APP] Startup..");
   ESP_LOGI(TAG, "[APP] Free memory: %"PRIu32" bytes", esp_get_free_heap_size());
@@ -42,11 +49,13 @@ void app_main() {
   size_t payload_length = sizeof(payload) - 1;
 
   int return_status;
-  return_status = init_mqtt();
+  return_status = init_mqtt(&demo_callback);
   if (return_status != EXIT_SUCCESS) {
     ESP_LOGE(TAG, "Failed initializing mqtt");
     return;
   }
-  return_status = publish_packet(payload, payload_length);
+  do {
+    return_status = publish_packet(payload, payload_length);
+  } while (return_status != EXIT_SUCCESS);
   ESP_LOGI(TAG, "Exit status %d", return_status);
 }

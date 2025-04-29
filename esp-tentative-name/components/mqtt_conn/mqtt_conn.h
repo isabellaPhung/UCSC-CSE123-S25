@@ -148,7 +148,8 @@
 #include "core_mqtt.h"
 #define MQTT_LIB    "core-mqtt@" MQTT_LIBRARY_VERSION
 
-int init_mqtt(void);
+typedef void (*publish_cb_t)(const char *, size_t);
+int init_mqtt(publish_cb_t);
 int publish_packet(const char *payload, size_t payload_length);
 
 #endif /* ifndef DEMO_CONFIG_H_ */
