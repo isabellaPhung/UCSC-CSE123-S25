@@ -10,7 +10,8 @@ static lv_obj_t * tile1;
 static lv_obj_t * tile2;
 static lv_obj_t * tile3;
 
-static lv_group_t * g;
+static lv_group_t * g1;
+static lv_group_t * g2;
 
 /* Text settings */
 static lv_style_t style_text_muted;
@@ -70,8 +71,9 @@ void initFonts(){
 }
 
 void initGroup(){
-    g = lv_group_create();
-    lv_group_set_default(g);
+    g1 = lv_group_create();
+    g2 = lv_group_create();
+    lv_group_set_default(g1);
 }
 
 /*
@@ -80,8 +82,8 @@ void initGroup(){
 void focusMenu_create(lv_obj_t * parent){
     //adding gridnav and focus colors to the taskevent menu
     lv_obj_set_style_bg_color(parent, lv_palette_lighten(LV_PALETTE_BLUE, 5), LV_STATE_FOCUSED);
-    lv_gridnav_add(parent, LV_GRIDNAV_CTRL_NONE);
-    lv_group_add_obj(lv_group_get_default(), parent);
+    lv_gridnav_add(parent, LV_GRIDNAV_CTRL_VERTICAL_MOVE_ONLY);
+    lv_group_add_obj(g1, parent);
     lv_group_focus_obj(parent);
     lv_obj_add_event_cb(parent, focus_cb, LV_EVENT_KEY, NULL);
 
@@ -120,9 +122,9 @@ void focusMenu_create(lv_obj_t * parent){
 static lv_obj_t * create_task(lv_obj_t * parent, const char * name, const char * dueDate){
     //creates button for task using existing list button style
     lv_obj_t * cont = lv_obj_class_create_obj(&lv_list_button_class, parent);
-    lv_group_remove_obj(cont);   //Not needed, we use the gridnav instead
     lv_obj_class_init_obj(cont);
     lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_COLUMN); //sets button to flex flow column form so it'll expand as needed
+    lv_group_remove_obj(cont);   //Not needed, we use the gridnav instead
    
     //initalizes columns and rows of grid for the button so things are nicely aligned
     static int32_t grid_col_dsc[] = {LV_GRID_CONTENT, LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
@@ -153,11 +155,26 @@ static lv_obj_t * create_task(lv_obj_t * parent, const char * name, const char *
  * creates menu and lists for tasklist and event list
  * takes in parent lv_obj
  */
+bool isFocused = false;
+static void cont_sub_event_cb(lv_event_t * e)
+{
+    uint32_t k = lv_event_get_key(e);
+    lv_obj_t * obj = lv_event_get_target(e);
+    if(k == LV_KEY_ENTER && !isFocused) {
+        lv_group_focus_obj(obj);
+        isFocused = true;
+    }
+    else if(k == LV_KEY_ENTER && isFocused) {
+        lv_group_focus_next(lv_obj_get_group(obj));
+        isFocused = false;
+    }
+}
+
 void taskEvent_create(lv_obj_t * parent){
     //adding gridnav and focus colors to the taskevent menu
     lv_obj_set_style_bg_color(parent, lv_palette_lighten(LV_PALETTE_BLUE, 5), LV_STATE_FOCUSED);
-    lv_gridnav_add(parent, LV_GRIDNAV_CTRL_NONE);
-    lv_group_add_obj(lv_group_get_default(), parent);
+    lv_gridnav_add(parent, LV_GRIDNAV_CTRL_VERTICAL_MOVE_ONLY);
+    lv_group_add_obj(g1, parent);
     lv_group_focus_obj(parent);
     lv_obj_add_event_cb(parent, taskevent_cb, LV_EVENT_KEY, NULL);
     
@@ -185,7 +202,7 @@ void taskEvent_create(lv_obj_t * parent){
     lv_obj_set_size(tasklist, lv_pct(49), lv_pct(73));
     lv_obj_align(tasklist, LV_ALIGN_TOP_LEFT, 3, 50);
     lv_obj_set_style_pad_all(tasklist, 0, LV_PART_MAIN);
-    lv_group_add_obj(lv_group_get_default(), tasklist);
+    lv_group_add_obj(g2, tasklist);
    
     //dummy tasks
     //TODO: make them iterate through the database to display
@@ -210,7 +227,7 @@ void taskEvent_create(lv_obj_t * parent){
     lv_obj_set_size(eventlist, lv_pct(49), lv_pct(73));
     lv_obj_align(eventlist, LV_ALIGN_TOP_LEFT, (LCD_H_RES/2), 50);
     lv_obj_set_style_pad_all(eventlist, 0, LV_PART_MAIN);
-    lv_group_add_obj(lv_group_get_default(), eventlist);
+    lv_group_add_obj(g2, eventlist);
    
     //dummy events
     //TODO: make them iterate through the database to display
@@ -256,7 +273,7 @@ void createHabit(lv_obj_t * parent, const char * name){
         //swapped toggle colors so toggling is blue
         lv_obj_set_style_bg_color(obj, lv_palette_main(LV_PALETTE_RED), 0);
         lv_obj_set_style_bg_color(obj, lv_palette_main(LV_PALETTE_BLUE), LV_STATE_CHECKED);
-        //lv_group_remove_obj(obj);   //Not needed, we use the gridnav instead
+        lv_group_remove_obj(obj);   //Not needed, we use the gridnav instead
         
         //labels for each button
         lv_obj_t * label = lv_label_create(obj);
@@ -271,10 +288,11 @@ void createHabit(lv_obj_t * parent, const char * name){
 void habitMenu_create(lv_obj_t * parent){
     //and color when focused and add gridnav 
     lv_obj_set_style_bg_color(parent, lv_palette_lighten(LV_PALETTE_BLUE, 5), LV_STATE_FOCUSED);
-    lv_gridnav_add(parent, LV_GRIDNAV_CTRL_NONE);
-    lv_group_add_obj(lv_group_get_default(), parent);
+    lv_gridnav_add(parent, LV_GRIDNAV_CTRL_VERTICAL_MOVE_ONLY);
+    lv_group_add_obj(g1, parent);
     lv_group_focus_obj(parent);
     lv_obj_add_event_cb(parent, habit_cb, LV_EVENT_KEY, NULL);
+    lv_group_focus_freeze(g2, true);
 
     //arrow to indicate scroll up
     arrowUp = lv_label_create(parent);
