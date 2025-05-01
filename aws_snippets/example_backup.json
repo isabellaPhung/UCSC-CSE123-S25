@@ -3,26 +3,34 @@
     {
       "id":"37a9b0d4-e523-43d5-b24a-38c5ce7f4bf5",
       "name":"Walk the dog",
-      "description":"Walk the dog",
-      "completion":"incomplete",
-      "priority":"high",
+      "description":"What da dog doin",
+      "completion":2,
+      "priority":3,
       "duedate":1744509600
     },
     {
       "id":"43b968d4-1d1c-4902-844a-91b75936b87d",
       "name":"File taxes",
       "description":"",
-      "completion":"incomplete",
-      "priority":"high",
+      "completion":2,
+      "priority":3,
       "duedate":1744700340
     },
     {
       "id":"8dd144ea-ea15-4d5a-aa59-4223d4daa15d",
       "name":"Work on the project",
       "description":"See issues",
-      "completion":"incomplete",
-      "priority":"medium",
+      "completion":1,
+      "priority":2,
       "duedate":1744743000
+    },
+    {
+      "id":"a6485816-1c5c-406a-926d-eddf65f3388f",
+      "name":"Sample task",
+      "description":"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris nec mauris ac nisi mattis ornare. Suspendisse eu ipsum magna. Nullam sed massa facilisis, consectetur tortor accumsan, vestibulum sapien. Nullam sagittis, purus at accumsan venenatis, metus nunc bibendum dui, eu ornare turpis ligula in mauris. Duis in massa diam. Pellentesque vitae finibus turpis. Integer vitae rhoncus massa, pellentesque pellentesque augue. Duis sollicitudin dui a est hendrerit varius. Pellentesque eleifend molestie lacinia. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae;",
+      "completion":0,
+      "priority":1,
+      "duedate":1750118400
     }
   ]
 }
