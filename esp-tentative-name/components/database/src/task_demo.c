@@ -40,7 +40,7 @@ const char *json_data =
 
 int rc; // Return code
 
-void DB_task_demo(void *pvParameters)
+int DB_task_demo()
 {
     static const char *TAG = "SQL_DEMO";
 
@@ -54,7 +54,7 @@ void DB_task_demo(void *pvParameters)
     if (InitSQL(&db) != SQLITE_OK)
     {
         ESP_LOGE(TAG, "Failed to initialize database!");
-        vTaskDelete(NULL);
+        return 1;
     }
     ESP_LOGI(TAG, "Database initialized!\n");
 
@@ -75,7 +75,7 @@ void DB_task_demo(void *pvParameters)
     if (rc != SQLITE_OK)
     {
         ESP_LOGE(TAG, "Failed to add task!");
-        vTaskDelete(NULL);
+        return 1;
     }
     ESP_LOGI(TAG, "Created Task!\n");
 
@@ -108,5 +108,5 @@ void DB_task_demo(void *pvParameters)
     // Close the database
     CloseSQL(&db);
 
-    vTaskDelete(NULL); // Delete the task when it's finished
+    return 0;
 }
