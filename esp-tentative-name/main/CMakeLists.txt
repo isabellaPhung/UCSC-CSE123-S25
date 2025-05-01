@@ -8,5 +8,6 @@ idf_component_register(
     "esp_event"
     "esp_netif"
     "protocol_examples_common"
+    "json"
   INCLUDE_DIRS "."
 )
