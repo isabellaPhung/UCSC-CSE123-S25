@@ -12,8 +12,10 @@
 #include "protocol_examples_common.h"
 
 #include "freertos/FreeRTOS.h"
-#include "freertos/database.h"
+#include "freertos/task.h"
 #include "freertos/semphr.h"
+
+#include "database.h"
 
 #include "cJSON.h"
 
