@@ -12,7 +12,7 @@
 #include "protocol_examples_common.h"
 
 #include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
+#include "freertos/database.h"
 #include "freertos/semphr.h"
 
 #include "cJSON.h"
@@ -93,16 +93,6 @@ int request_backup(struct callback_data_t *cb_data){
 
 // TODO
 #if 0
-struct task_t {
-  // task data
-  // probably already defined in db header
-};
-
-struct db_t {
-  // db as a struct
-  // also probably defined in db header
-};
-
 #define TASK_LIST_SIZE 7
 
 struct packed_t {
@@ -132,18 +122,14 @@ void app_main() {
   struct callback_data_t cb_data;
   cb_data.expected = 0;
   cb_data.cur_index = -1;
-  // TODO
-  // struct db_t database;
-  // cb_data.db_ptr = &database;
-  // struct packed_t ui_data;
 
   int return_status;
   return_status = mqtt_init(&demo_callback, (void *) &cb_data);
   assert (return_status == EXIT_SUCCESS);
 
-  // TODO
-  // initDB(&database);
-  // init_ui(&ui_data);
+  // Create new database object
+  sqlite3 *db;
+  InitSQL(&db);
   
   // TODO refill on_screen with the 0th page of tasks
   // retrievetaskssorted(&database, &(ui_data.on_screen), TASK_LIST_SIZE);
@@ -186,4 +172,7 @@ void app_main() {
     }
   }
 #endif
+
+  // Close database
+  CloseSQL(&db);
 }
