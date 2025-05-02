@@ -50,57 +50,68 @@ int ParseTasksJSON(sqlite3 *db, const char *json)
         return -1;
     }
 
-    cJSON *tasks = cJSON_GetObjectItem(root, "tasks");
-    if (!cJSON_IsArray(tasks))
+    cJSON *taskItem = cJSON_GetObjectItem(root, "task");
+    if (!cJSON_IsObject(taskItem))
     {
-        ESP_LOGE(TAG, "Invalid JSON: 'tasks' should be an array");
+        ESP_LOGE(TAG, "Invalid JSON: 'task' should be a JSON object");
         cJSON_Delete(root);
         return -2;
     }
 
-    cJSON *item = NULL;
-    cJSON_ArrayForEach(item, tasks)
+    Task task = {0};
+
+    const cJSON *id = cJSON_GetObjectItem(taskItem, "id");
+    const cJSON *name = cJSON_GetObjectItem(taskItem, "name");
+    const cJSON *description = cJSON_GetObjectItem(taskItem, "description");
+    const cJSON *completion = cJSON_GetObjectItem(taskItem, "completion"); // TODO: Convert to integer input
+    const cJSON *priority = cJSON_GetObjectItem(taskItem, "priority");
+    const cJSON *duedate = cJSON_GetObjectItem(taskItem, "duedate");
+
+    if (!cJSON_IsString(id) || !cJSON_IsString(name) || !cJSON_IsString(priority) || !cJSON_IsNumber(duedate))
     {
-        Task task;
-        memset(&task, 0, sizeof(Task)); // Clear struct
+        ESP_LOGE(TAG, "Missing or invalid task fields");
+        return -3;
+    }
 
-        const cJSON *id = cJSON_GetObjectItem(item, "id");
-        const cJSON *name = cJSON_GetObjectItem(item, "name");
-        const cJSON *description = cJSON_GetObjectItem(item, "description");
-        const cJSON *completion = cJSON_GetObjectItem(item, "completion");      // TODO: Convert to integer input
-        const cJSON *priority = cJSON_GetObjectItem(item, "priority");
-        const cJSON *duedate = cJSON_GetObjectItem(item, "duedate");
+    strncpy(task.uuid, id->valuestring, UUID_LENGTH - 1);
+    strncpy(task.name, name->valuestring, MAX_TASK_NAME_SIZE - 1);
+    task.time = (time_t)duedate->valueint;
 
-        if (!cJSON_IsString(id) || !cJSON_IsString(name) || !cJSON_IsNumber(priority) || !cJSON_IsNumber(duedate))
-        {
-            ESP_LOGE(TAG, "Missing or invalid task fields");
-            continue;
-        }
+    // Parse priority enum
+    char priorityVal;
+    if (!strcmp(priority->valuestring, "high"))
+    {
+        priorityVal = 3;
+    }
+    else if (!strcmp(priority->valuestring, "medium"))
+    {
+        priorityVal = 2;
+    }
+    else
+    {
+        priorityVal = 1;
+    }
 
-        strncpy(task.uuid, id->valuestring, UUID_LENGTH - 1);
-        strncpy(task.name, name->valuestring, MAX_TASK_NAME_SIZE - 1);
-        task.time = (time_t)duedate->valueint;
-        task.priority = priority->valueint;
+    task.priority = priorityVal;
 
-        if (cJSON_IsString(completion) && strcmp(completion->valuestring, "complete") == 0)
-        {
-            task.completion = COMPLETE;
-        }
-        else
-        {
-            task.completion = INCOMPLETE;
-        }
+    if (cJSON_IsString(completion) && strcmp(completion->valuestring, "complete") == 0)
+    {
+        task.completion = COMPLETE;
+    }
+    else
+    {
+        task.completion = INCOMPLETE;
+    }
 
-        if (cJSON_IsString(description))
-        {
-            strncpy(task.description, description->valuestring, MAX_TASK_DESC_SIZE - 1);
-        }
+    if (cJSON_IsString(description))
+    {
+        strncpy(task.description, description->valuestring, MAX_TASK_DESC_SIZE - 1);
+    }
 
-        int rc = AddTaskDB(db, &task);
-        if (rc != SQLITE_OK)
-        {
-            ESP_LOGI(TAG, "Failed to insert task %s: %s", task.uuid, sqlite3_errmsg(db));
-        }
+    int rc = AddTaskDB(db, &task);
+    if (rc != SQLITE_OK)
+    {
+        ESP_LOGI(TAG, "Failed to insert task %s: %s", task.uuid, sqlite3_errmsg(db));
     }
 
     cJSON_Delete(root);
