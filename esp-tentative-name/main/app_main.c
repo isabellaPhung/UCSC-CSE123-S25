@@ -2,7 +2,6 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
-#include <stdlib.h>
 
 #include "mqtt_conn.h"
 
@@ -14,158 +13,177 @@
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "freertos/semphr.h"
 
 #include "cJSON.h"
+
 #include "esp_log.h"
 
-#include "SQL.h"
-#include "task.h" // Your task DB header
-#include "sqlite3.h"
+static const char *TAG = "MAIN";
 
-static const char *TAG = "MQTT_TASK_APP";
-
-struct callback_data
-{
-    int expected;
-    int cur_index;
-    sqlite3 *db;
+struct callback_data_t {
+  int expected;
+  int cur_index;
+  // TODO
+  // struct database_t *db_ptr;
 };
 
-void demo_callback(const char *payload, size_t payload_length, void *cb_data)
-{
-    struct callback_data *data = (struct callback_data *)cb_data;
-
-    // Copy payload into a null-terminated buffer
-    char *json_buf = calloc(payload_length + 1, sizeof(char));
-    if (!json_buf)
-    {
-        ESP_LOGE(TAG, "Failed to allocate buffer for JSON");
-        return;
+void demo_callback(const char *payload, size_t payload_length, void *cb_data) {
+  struct callback_data_t *data = (struct callback_data_t *) cb_data;
+  cJSON *root = cJSON_ParseWithLength(payload, payload_length);
+  cJSON *item;
+  item = cJSON_GetObjectItem(root, "id");
+  if (item && (strcmp(item->valuestring, "server") == 0)){
+    item = cJSON_GetObjectItem(root, "action"); 
+    if (item && (strcmp(item->valuestring, "length") == 0)) {
+      item = cJSON_GetObjectItem(root, "length");
+      if (item && cJSON_IsNumber(item)) {
+        data->expected = item->valueint;
+        data->cur_index = 0;
+        ESP_LOGI(TAG, "Expecting %d tasks", data->expected);
+      }
     }
-    memcpy(json_buf, payload, payload_length);
-
-    // If it's task data, parse into database
-    if (strstr(json_buf, "\"task\"") != NULL)
-    {
-        ESP_LOGI(TAG, "Received task JSON from MQTT");
-        if (ParseTasksJSON(data->db, json_buf) != 0)
-        {
-            ESP_LOGE(TAG, "Failed to parse task JSON");
-        }
-        else
-        {
-            ESP_LOGI(TAG, "Successfully added tasks from JSON");
-        }
+    else if (item && (strcmp(item->valuestring, "response") == 0)){
+      ESP_LOGI(TAG, "Server response index %d", data->cur_index);
+      // TODO 
+      // parsetaskjson(data->db_ptr, payload, payload_size);
+      data->cur_index ++;
     }
-
-    // Parse control messages from server
-    cJSON *root = cJSON_Parse(json_buf);
-    if (root)
-    {
-        cJSON *item = cJSON_GetObjectItem(root, "id");
-        if (item && strcmp(item->valuestring, "server") == 0)
-        {
-            ESP_LOGI(TAG, "Payload comes from server");
-            item = cJSON_GetObjectItem(root, "action");
-            if (item && strcmp(item->valuestring, "length") == 0)
-            {
-                item = cJSON_GetObjectItem(root, "length");
-                if (item && cJSON_IsNumber(item))
-                {
-                    data->expected = item->valueint;
-                    data->cur_index = 0;
-                    ESP_LOGI(TAG, "Expecting %d tasks", data->expected);
-                }
-            }
-            else if (item && strcmp(item->valuestring, "response") == 0)
-            {
-                ESP_LOGI(TAG, "Server response index %d", data->cur_index);
-                data->cur_index++;
-            }
-        }
-        cJSON_Delete(root);
-    }
-
-    free(json_buf);
-    ESP_LOGI(TAG, "MQTT callback done");
+  }
+  cJSON_Delete(root);
+  ESP_LOGI(TAG, "Callback function called\n");
 }
 
-void app_main(void)
-{
-    esp_log_level_set("*", ESP_LOG_INFO);
+#define BACKUP_PAYLOAD "{\"id\":\"c72572d0-8c8c-4f37-8ff6-829cac2eabec\",\"action\":\"refresh\"}"
+#define BACKUP_PAYLOAD_LENGTH ((size_t) (sizeof(BACKUP_PAYLOAD) - 1))
+#define RETRY_DELAY_MS 5000U
 
-    // Initialize NVS
-    esp_err_t ret = nvs_flash_init();
-    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
-    {
-        ESP_ERROR_CHECK(nvs_flash_erase());
-        ESP_ERROR_CHECK(nvs_flash_init());
+int request_backup(struct callback_data_t *cb_data){
+  int return_status = EXIT_SUCCESS;
+  size_t retries = 4;
+  mqtt_connect();
+  mqtt_subscribe();
+
+  mqtt_publish(BACKUP_PAYLOAD, BACKUP_PAYLOAD_LENGTH);
+  while (1) {
+    mqtt_loop(5000);
+    retries--;
+    if (retries == 0){
+      return_status = EXIT_FAILURE;
+      ESP_LOGW(TAG, "Three failures of backup request, trying again later");
+      break;
+    }
+    if (cb_data->expected == 0) {
+      ESP_LOGI(TAG, "Did not get back a length message from the server, re-publishing after a delay");
+      vTaskDelay(RETRY_DELAY_MS / portTICK_PERIOD_MS);
+      mqtt_publish(BACKUP_PAYLOAD, BACKUP_PAYLOAD_LENGTH);
+    }
+    else if (cb_data->expected != cb_data->cur_index) {
+      ESP_LOGI(TAG, "Did not get the expected amount, listening for some more time");
+    }
+    else {
+      break;
+    }
+  }
+
+  mqtt_unsubscribe();
+  mqtt_disconnect();
+  return return_status;
+}
+
+// TODO
+#if 0
+struct task_t {
+  // task data
+  // probably already defined in db header
+};
+
+struct db_t {
+  // db as a struct
+  // also probably defined in db header
+};
+
+#define TASK_LIST_SIZE 7
+
+struct packed_t {
+  struct task_t on_screen[TASK_LIST_SIZE],
+  bool req_db_updates,
+  bool push_new_completions_local,
+  bool push_new_completions_mqtt
+};
+#endif
+
+void app_main() {
+  esp_log_level_set("*", ESP_LOG_INFO);
+
+  esp_err_t ret = nvs_flash_init();
+  if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+      ESP_ERROR_CHECK(nvs_flash_erase());
+
+    ESP_ERROR_CHECK(nvs_flash_init());
+  }
+
+  ESP_ERROR_CHECK(esp_netif_init());
+  ESP_ERROR_CHECK(esp_event_loop_create_default());
+
+  ESP_ERROR_CHECK(example_connect());
+
+  
+  struct callback_data_t cb_data;
+  cb_data.expected = 0;
+  cb_data.cur_index = -1;
+  // TODO
+  // struct db_t database;
+  // cb_data.db_ptr = &database;
+  // struct packed_t ui_data;
+
+  int return_status;
+  return_status = mqtt_init(&demo_callback, (void *) &cb_data);
+  assert (return_status == EXIT_SUCCESS);
+
+  // TODO
+  // initDB(&database);
+  // init_ui(&ui_data);
+  
+  // TODO refill on_screen with the 0th page of tasks
+  // retrievetaskssorted(&database, &(ui_data.on_screen), TASK_LIST_SIZE);
+
+  request_backup(&cb_data);
+
+#if 0
+  long frame_timer = 0;
+  while (1){
+    // update the screen
+    frame_timer++;
+
+    // if there has been inputs where the user needs new tasks 
+    // on the screen, modify the req_db_updates variables inside 
+    // of the ui library
+    if (req_db_updates) {
+      // refill the on_screen array
+      retrievetaskssorted(&db, &on_screen, TASK_LIST_SIZE);
+      req_db_updates = false;
     }
 
-    ESP_ERROR_CHECK(esp_netif_init());
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
-    ESP_ERROR_CHECK(example_connect());
-
-    // Initialize SQLite3 database
-    sqlite3 *db = NULL;
-    if (InitSQL(&db) != SQLITE_OK)
-    {
-        ESP_LOGE(TAG, "Failed to initialize SQLite database");
-        return;
+    // if tasks have been marked as completed this frame, modify
+    // the push_new_completions variable inside the ui library
+    if (push_new_completions_local) {
+      // push changes to local db
+      // push changes to disk
+      push_new_completions_local = false;
+      push_new_completions_mqtt = true;
+      // possibly mark how many and/or which ones need to be pushed to the server
     }
 
-    // Initialize callback data
-    struct callback_data cb_data = {
-        .expected = 0,
-        .cur_index = -1,
-        .db = db};
-
-    // Setup MQTT and publish initial request
-    int return_status = mqtt_init(&demo_callback, (void *)&cb_data);
-    mqtt_connect();
-    mqtt_subscribe();
-
-    // Request task list from server
-    const char *payload = "{\"id\":\"c72572d0-8c8c-4f37-8ff6-829cac2eabec\",\"action\":\"refresh\"}";
-    mqtt_publish(payload, strlen(payload));
-
-    // Wait for expected task responses
-    while (1)
-    {
-        mqtt_loop(5000);
-
-        if (cb_data.expected == 0)
-        {
-            ESP_LOGI(TAG, "No length message yet. Re-requesting after delay...");
-            vTaskDelay(5000 / portTICK_PERIOD_MS);
-            mqtt_publish(payload, strlen(payload));
+    if (frame_timer >= 900 seconds) {
+        if (push_new_completions_mqtt){
+          // publish the "these tasks have been updates" payload
+          push_new_completions_mqtt = false;
         }
-        else if (cb_data.expected != cb_data.cur_index)
-        {
-            ESP_LOGI(TAG, "Still waiting for remaining tasks (%d/%d)...", cb_data.cur_index, cb_data.expected);
-        }
-        else
-        {
-            ESP_LOGI(TAG, "All expected tasks received!");
-            break;
-        }
+        // publish the "need new tasks" payload
+        request_backup(&cb_data);
+        frame_timer = 0;
     }
-
-    mqtt_unsubscribe();
-    mqtt_disconnect();
-
-    Task tasks[3] = {0};
-    RetrieveTasksSortedDB(db, tasks, 3);
-    for (size_t i = 0; i < 3; i++)
-    {
-        PrintTask(tasks[i]);
-    }
-
-    ESP_LOGI(TAG, "Demo finished. Return status: %d", return_status);
-
-    // Optional: close DB (up to you when to persist or flush it)
-    if (db)
-    {
-        CloseSQL(&db);
-    }
+  }
+#endif
 }
