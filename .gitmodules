@@ -4,7 +4,7 @@
 [submodule "third_party/gitlab-gantt-maker"]
 	path = third_party/gitlab-gantt-maker
 	url = https://github.com/eub-sweden/gitlab-gantt-maker/
-  ignore = dirty
+	ignore = dirty
 [submodule "esp-tentative-name/components/esp-aws-iot"]
 	path = esp-tentative-name/components/esp-aws-iot
 	url = https://github.com/espressif/esp-aws-iot
@@ -12,3 +12,4 @@
 [submodule "esp-tentative-name/components/sqlite3"]
 	path = esp-tentative-name/components/sqlite3
 	url = https://github.com/nopnop2002/esp32-idf-sqlite3
+	ignore = dirty

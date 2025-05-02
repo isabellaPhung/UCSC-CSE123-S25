@@ -33,9 +33,20 @@ static void focus_cb(lv_event_t * e){
     }
 }
 
+bool isFocused;
 static void taskevent_cb(lv_event_t * e){
     uint32_t k = lv_event_get_key(e);
-    if(k == LV_KEY_DOWN) {
+    /*
+    lv_obj_t * obj = lv_event_get_target(e);
+    if(k == LV_KEY_ENTER && !isFocused) {
+        lv_group_focus_obj(obj);
+        isFocused = true;
+    }
+    else if(k == LV_KEY_ENTER && isFocused) {
+        lv_group_focus_next(lv_obj_get_group(obj));
+        isFocused = false;
+    }
+    else*/ if(k == LV_KEY_DOWN) {
         loadTile3();
         lv_obj_del(tile2);
     }else if(k == LV_KEY_UP) {
@@ -46,10 +57,27 @@ static void taskevent_cb(lv_event_t * e){
 
 static void habit_cb(lv_event_t * e){
     uint32_t k = lv_event_get_key(e);
-    if(k == LV_KEY_UP) {
+    /*
+    lv_obj_t * obj = lv_event_get_target(e);
+    if(k == LV_KEY_ENTER && !isFocused) {
+        lv_group_focus_obj(obj);
+        isFocused = true;
+    }
+    else if(k == LV_KEY_ENTER && isFocused) {
+        lv_group_focus_next(lv_obj_get_group(obj));
+        isFocused = false;
+    }
+    else */if(k == LV_KEY_UP) {
         loadTile2();
         lv_obj_del(tile3);
+    }else if(k == LV_KEY_LEFT){
+        lv_obj_t * child = lv_obj_get_child(lv_event_get_target(e), NULL);
+        lv_group_focus_obj(child);
+    }else if(k == LV_KEY_RIGHT){
+        lv_obj_t * child = lv_obj_get_child(lv_event_get_target(e), NULL);
+        lv_group_focus_obj(child);
     }
+
 }
 /*
  * initializes necessary fonts
@@ -74,6 +102,7 @@ void initGroup(){
     g1 = lv_group_create();
     g2 = lv_group_create();
     lv_group_set_default(g1);
+    isFocused = false;
 }
 
 /*
@@ -81,7 +110,7 @@ void initGroup(){
  */
 void focusMenu_create(lv_obj_t * parent){
     //adding gridnav and focus colors to the taskevent menu
-    lv_obj_set_style_bg_color(parent, lv_palette_lighten(LV_PALETTE_BLUE, 5), LV_STATE_FOCUSED);
+    lv_obj_set_style_bg_color(parent, lv_palette_lighten(LV_PALETTE_BLUE, 4), LV_STATE_FOCUSED);
     lv_gridnav_add(parent, LV_GRIDNAV_CTRL_VERTICAL_MOVE_ONLY);
     lv_group_add_obj(g1, parent);
     lv_group_focus_obj(parent);
@@ -155,24 +184,11 @@ static lv_obj_t * create_task(lv_obj_t * parent, const char * name, const char *
  * creates menu and lists for tasklist and event list
  * takes in parent lv_obj
  */
-bool isFocused = false;
-static void cont_sub_event_cb(lv_event_t * e)
-{
-    uint32_t k = lv_event_get_key(e);
-    lv_obj_t * obj = lv_event_get_target(e);
-    if(k == LV_KEY_ENTER && !isFocused) {
-        lv_group_focus_obj(obj);
-        isFocused = true;
-    }
-    else if(k == LV_KEY_ENTER && isFocused) {
-        lv_group_focus_next(lv_obj_get_group(obj));
-        isFocused = false;
-    }
-}
+
 
 void taskEvent_create(lv_obj_t * parent){
     //adding gridnav and focus colors to the taskevent menu
-    lv_obj_set_style_bg_color(parent, lv_palette_lighten(LV_PALETTE_BLUE, 5), LV_STATE_FOCUSED);
+    lv_obj_set_style_bg_color(parent, lv_palette_lighten(LV_PALETTE_BLUE, 4), LV_STATE_FOCUSED);
     lv_gridnav_add(parent, LV_GRIDNAV_CTRL_VERTICAL_MOVE_ONLY);
     lv_group_add_obj(g1, parent);
     lv_group_focus_obj(parent);
@@ -198,11 +214,12 @@ void taskEvent_create(lv_obj_t * parent){
 
     //create lv list obj
     lv_obj_t * tasklist = lv_list_create(parent);
-    lv_gridnav_add(tasklist, LV_GRIDNAV_CTRL_ROLLOVER);
+    lv_group_add_obj(g1, tasklist);
+    lv_gridnav_add(tasklist, LV_GRIDNAV_CTRL_NONE);
     lv_obj_set_size(tasklist, lv_pct(49), lv_pct(73));
     lv_obj_align(tasklist, LV_ALIGN_TOP_LEFT, 3, 50);
     lv_obj_set_style_pad_all(tasklist, 0, LV_PART_MAIN);
-    lv_group_add_obj(g2, tasklist);
+    lv_group_add_obj(g1, tasklist);
    
     //dummy tasks
     //TODO: make them iterate through the database to display
@@ -223,11 +240,12 @@ void taskEvent_create(lv_obj_t * parent){
 
     //create lv list obj
     lv_obj_t * eventlist = lv_list_create(parent);
-    lv_gridnav_add(eventlist, LV_GRIDNAV_CTRL_ROLLOVER);
+    lv_group_add_obj(g1, eventlist);
+    lv_gridnav_add(eventlist, LV_GRIDNAV_CTRL_NONE);
     lv_obj_set_size(eventlist, lv_pct(49), lv_pct(73));
     lv_obj_align(eventlist, LV_ALIGN_TOP_LEFT, (LCD_H_RES/2), 50);
     lv_obj_set_style_pad_all(eventlist, 0, LV_PART_MAIN);
-    lv_group_add_obj(g2, eventlist);
+    lv_group_add_obj(g1, eventlist);
    
     //dummy events
     //TODO: make them iterate through the database to display
@@ -245,35 +263,25 @@ void taskEvent_create(lv_obj_t * parent){
  * creates habit entry for habit list
  * takes in parent list and name of habit
  */
-void createHabit(lv_obj_t * parent, const char * name){
+void createHabit(lv_obj_t * parent, const char * name, uint8_t row){
+    
     //creates habit title name
-    lv_obj_t * habits = lv_label_create(parent);
+    lv_obj_t * habits = lv_label_create(lv_obj_get_parent(parent));
     lv_label_set_text(habits, name);
     lv_obj_set_style_text_font(habits, &lv_font_montserrat_18, 0);
-
-    //initializes col and rows for horizontal grid for day of the week buttons
-    static int32_t grid_col_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
-    static int32_t grid_row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
-    //create a horizontal grid for days of the week
-    lv_obj_t * week = lv_obj_create(parent);
-    lv_obj_set_grid_dsc_array(week, grid_col_dsc, grid_row_dsc);
-    lv_obj_set_size(week, LCD_H_RES-20, 55);
-    lv_obj_set_style_pad_all(week, 0, LV_PART_MAIN);
-    lv_obj_set_style_bg_opa(week, LV_OPA_0, LV_PART_MAIN);
-    lv_obj_set_style_border_width(week, 0, LV_PART_MAIN);
-    lv_obj_set_flex_align(week, LV_FLEX_ALIGN_CENTER, 0, 0);
-
+    lv_obj_set_pos(habits, 15, 25+(row*90));
+    
     //add 7 buttons to the grid, one for each day
     for(int i = 0; i < 7; i++) {
-        lv_obj_t * obj = lv_button_create(week);
+        lv_obj_t * obj = lv_button_create(parent);
         lv_obj_set_size(obj, 50, 50);
-        lv_obj_set_grid_cell(obj, LV_GRID_ALIGN_STRETCH, i, 1, LV_GRID_ALIGN_STRETCH, 0, 1);
+        lv_obj_set_grid_cell(obj, LV_GRID_ALIGN_STRETCH, i, 1, LV_GRID_ALIGN_STRETCH, row, 1);
         lv_obj_add_flag(obj, LV_OBJ_FLAG_CHECKABLE); //makes buttons toggleable
+        lv_obj_add_flag(obj, LV_OBJ_FLAG_CLICK_FOCUSABLE); //makes buttons focusable
         
         //swapped toggle colors so toggling is blue
         lv_obj_set_style_bg_color(obj, lv_palette_main(LV_PALETTE_RED), 0);
         lv_obj_set_style_bg_color(obj, lv_palette_main(LV_PALETTE_BLUE), LV_STATE_CHECKED);
-        lv_group_remove_obj(obj);   //Not needed, we use the gridnav instead
         
         //labels for each button
         lv_obj_t * label = lv_label_create(obj);
@@ -282,17 +290,18 @@ void createHabit(lv_obj_t * parent, const char * name){
     }
 }
 
+static const char * btnm_map[] = {"Su", "Mo", "Tu", "We", "Th", "Fr", "Sa", ""};
+
 /*
  * creates habit menu, takes in parent lv obj
  */
 void habitMenu_create(lv_obj_t * parent){
     //and color when focused and add gridnav 
-    lv_obj_set_style_bg_color(parent, lv_palette_lighten(LV_PALETTE_BLUE, 5), LV_STATE_FOCUSED);
+    lv_obj_set_style_bg_color(parent, lv_palette_lighten(LV_PALETTE_BLUE, 4), LV_STATE_FOCUSED);
     lv_gridnav_add(parent, LV_GRIDNAV_CTRL_VERTICAL_MOVE_ONLY);
     lv_group_add_obj(g1, parent);
     lv_group_focus_obj(parent);
     lv_obj_add_event_cb(parent, habit_cb, LV_EVENT_KEY, NULL);
-    lv_group_focus_freeze(g2, true);
 
     //arrow to indicate scroll up
     arrowUp = lv_label_create(parent);
@@ -304,22 +313,38 @@ void habitMenu_create(lv_obj_t * parent){
     lv_label_set_text(habits, "Habit Progress");
     lv_obj_set_style_text_font(habits, &lv_font_montserrat_18, 0);
     lv_obj_align(habits, LV_ALIGN_TOP_LEFT, 5, 5);
-   
-    //creates a flex list for habits
+
+    //trying out button matrix
+    lv_obj_t * buttons = lv_btnmatrix_create(parent);
+    lv_btnmatrix_set_map(buttons, btnm_map);
+    lv_obj_align(buttons, LV_ALIGN_CENTER, 0, 0);
+    for(uint8_t i = 0; i < 7; i++){
+        lv_btnmatrix_set_btn_ctrl(buttons, i, LV_BTNMATRIX_CTRL_CHECKABLE);
+    }
+    lv_obj_t * buttons2 = lv_btnmatrix_create(parent);
+    lv_btnmatrix_set_map(buttons2, btnm_map); 
+    lv_obj_align(buttons2, LV_ALIGN_CENTER, 0, 50);
+    for(uint8_t i = 0; i < 7; i++){
+        lv_btnmatrix_set_btn_ctrl(buttons2, i, LV_BTNMATRIX_CTRL_CHECKABLE);
+    }
+    /*
     lv_obj_t * habitList = lv_obj_create(parent);
     lv_obj_set_size(habitList, LCD_H_RES-20, LV_PCT(89));
     lv_obj_align(habitList, LV_ALIGN_CENTER, 0 , 17);
-    lv_obj_set_flex_flow(habitList, LV_FLEX_FLOW_COLUMN);
-    lv_obj_set_style_pad_all(habitList, 0, LV_PART_MAIN);
     lv_obj_set_style_bg_opa(habitList, LV_OPA_0, LV_PART_MAIN);
     lv_obj_set_style_border_width(habitList, 0, LV_PART_MAIN);
-   
+    static int32_t grid_col_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
+    static int32_t grid_row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
+    lv_group_add_obj(g1, habitList);
+    lv_obj_set_grid_dsc_array(habitList, grid_col_dsc, grid_row_dsc);
+    lv_obj_set_style_pad_row(habitList, 40 ,0);
+      
     //dummy habits
     //TODO: get habits from database
-    createHabit(habitList, "Go to the Gym");
-    createHabit(habitList, "Walk the dog");
-    createHabit(habitList, "Journal");
-    createHabit(habitList, "Get to Work on Time");
+    createHabit(habitList, "Go to the Gym", 0);
+    createHabit(habitList, "Walk the dog", 1);
+    createHabit(habitList, "Journal", 2);
+    */
 }
 
 /*

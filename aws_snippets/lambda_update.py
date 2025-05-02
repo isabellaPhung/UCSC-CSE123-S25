@@ -7,11 +7,13 @@ def lambda_handler(event, context):
     data = json.loads(obj.get()["Body"].read().decode('utf-8'))
 
     for task in event["tasks"]:
-        if task["completion"] == "incomplete":
-            continue
+        # if you don't want to not allow the device to un-complete an event
+        #if task["completion"] == 1:
+        #    continue
         uuid = task["id"]
         for task_db in data["tasks"]:
-            if task_db["id"] == uuid:
+            # do not allow modifying a deleted task
+            if task_db["id"] == uuid and task_db["completion"] != 0:
                 task_db["completion"] = task["completion"]
 
     obj.put(
