@@ -9,5 +9,7 @@ idf_component_register(
     "esp_netif"
     "protocol_examples_common"
     "json"
+    "pcf8523"
+    "driver"
   INCLUDE_DIRS "."
 )
