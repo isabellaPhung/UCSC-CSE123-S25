@@ -3,6 +3,9 @@
 
 #include <sqlite3.h>
 
+// Database tables
+#include "task.h"
+
 // Initializes the database and ensures the tasks table exists
 int InitSQL(sqlite3 **db);
 

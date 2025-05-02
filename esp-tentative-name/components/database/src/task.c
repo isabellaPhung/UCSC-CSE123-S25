@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 
-int AddTaskDB(sqlite3 *db, Task *ent)
+int AddTaskDB(sqlite3 *db, task_t *ent)
 {
     static const char *TAG = "task::AddTaskDB";
 
@@ -58,7 +58,7 @@ int ParseTasksJSON(sqlite3 *db, const char *json)
         return -2;
     }
 
-    Task task = {0};
+    task_t task = {0};
 
     const cJSON *id = cJSON_GetObjectItem(taskItem, "id");
     const cJSON *name = cJSON_GetObjectItem(taskItem, "name");
@@ -118,7 +118,7 @@ int ParseTasksJSON(sqlite3 *db, const char *json)
     return 0;
 }
 
-int RetrieveTaskDB(sqlite3 *db, const char *uuid, Task *ent)
+int RetrieveTaskDB(sqlite3 *db, const char *uuid, task_t *ent)
 {
     static const char *TAG = "task::RetrieveTaskDB";
 
@@ -153,7 +153,7 @@ int RetrieveTaskDB(sqlite3 *db, const char *uuid, Task *ent)
     return SQLITE_OK;
 }
 
-void PrintTask(Task ent)
+void PrintTask(task_t ent)
 {
     static const char *TAG = "task::PrintTask";
 
@@ -168,7 +168,7 @@ int PrintTaskDB(sqlite3 *db, const char *uuid)
 {
     static const char *TAG = "task::PrintTaskDB";
 
-    Task ent;
+    task_t ent;
     int rc = RetrieveTaskDB(db, uuid, &ent);
     if (rc != SQLITE_OK)
         return rc;
@@ -193,7 +193,7 @@ int RemoveTaskDB(sqlite3 *db, const char *uuid)
     return SQLITE_OK;
 }
 
-int RetrieveTasksSortedDB(sqlite3 *db, Task *taskMemory, int count)
+int RetrieveTasksSortedDB(sqlite3 *db, task_t *taskMemory, int count)
 {
     static const char *TAG = "task::RetrieveTasksSortedDB";
 
@@ -210,7 +210,7 @@ int RetrieveTasksSortedDB(sqlite3 *db, Task *taskMemory, int count)
     int i = 0;
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW && i < count)
     {
-        Task *task = taskMemory + i;
+        task_t *task = taskMemory + i;
         strncpy(task->uuid, (const char *)sqlite3_column_text(stmt, 0), UUID_LENGTH);
         strncpy(task->name, (const char *)sqlite3_column_text(stmt, 1), MAX_TASK_NAME_SIZE);
         task->time = (time_t)sqlite3_column_int64(stmt, 2);

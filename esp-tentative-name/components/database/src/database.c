@@ -1,4 +1,4 @@
-#include "SQL.h"
+#include "database.h"
 
 #include <sqlite3.h>
 
@@ -30,7 +30,7 @@ static bool sdcard_mounted = false;
 
 void DeleteDatabaseIfExists(char *database_path)
 {
-    static const char *TAG = "SQL::DeleteDatabase";
+    static const char *TAG = "database::DeleteDatabase";
 
     ESP_LOGW(TAG, "CLEAN_DATABASE Field is ON, DELETING DATABASE!");
 
@@ -55,7 +55,7 @@ void DeleteDatabaseIfExists(char *database_path)
 
 esp_err_t TestSDCard()
 {
-    static const char *TAG = "SQL::TestSDCard";
+    static const char *TAG = "database::TestSDCard";
 
     ESP_LOGI(TAG, "Testing file system...");
 
@@ -87,7 +87,7 @@ esp_err_t TestSDCard()
 /// @return ESP_OK on success, ESP_FAIL otherwise
 static esp_err_t MountSDCard()
 {
-    static const char *TAG = "SQL::MountSDCard";
+    static const char *TAG = "database::MountSDCard";
 
     if (sdcard_mounted)
         return ESP_OK;
@@ -143,7 +143,7 @@ static esp_err_t MountSDCard()
 /// @return SQLITE error code
 int InitSQL(sqlite3 **db)
 {
-    static const char *TAG = "SQL::InitSQL";
+    static const char *TAG = "database::InitSQL";
 
     if (MountSDCard() != ESP_OK)
     {
@@ -175,12 +175,12 @@ int InitSQL(sqlite3 **db)
 
     if (rc)
     {
-        ESP_LOGE(TAG, "SQL::InitSQL: Can't open database: %s", sqlite3_errmsg(*db) ? sqlite3_errmsg(*db) : "No error code available");
+        ESP_LOGE(TAG, "database::InitSQL: Can't open database: %s", sqlite3_errmsg(*db) ? sqlite3_errmsg(*db) : "No error code available");
         return rc;
     }
 
     // --- Task Table ---
-    ESP_LOGI(TAG, "SQL::InitSQL: Creating Task Table...");
+    ESP_LOGI(TAG, "database::InitSQL: Creating Task Table...");
     char *sql = "CREATE TABLE IF NOT EXISTS tasks ("
                 "id TEXT PRIMARY KEY,"
                 "name TEXT NOT NULL,"
@@ -193,13 +193,13 @@ int InitSQL(sqlite3 **db)
     rc = sqlite3_exec(*db, sql, 0, 0, &zErrMsg);
     if (rc != SQLITE_OK)
     {
-        ESP_LOGE(TAG, "SQL::InitSQL: SQL error: %s", zErrMsg);
+        ESP_LOGE(TAG, "database::InitSQL: SQL error: %s", zErrMsg);
         sqlite3_free(zErrMsg);
         return rc;
     }
 
     // --- Event Table ---
-    ESP_LOGI(TAG, "SQL::InitSQL: Creating Event Table...");
+    ESP_LOGI(TAG, "database::InitSQL: Creating Event Table...");
     sql = "CREATE TABLE IF NOT EXISTS events ("
           "id INTEGER PRIMARY KEY AUTOINCREMENT,"
           "name TEXT NOT NULL,"
@@ -210,7 +210,7 @@ int InitSQL(sqlite3 **db)
     rc = sqlite3_exec(*db, sql, 0, 0, &zErrMsg);
     if (rc != SQLITE_OK)
     {
-        ESP_LOGE(TAG, "SQL::InitSQL: SQL error: %s", zErrMsg);
+        ESP_LOGE(TAG, "database::InitSQL: SQL error: %s", zErrMsg);
         sqlite3_free(zErrMsg);
         return rc;
     }
@@ -220,14 +220,14 @@ int InitSQL(sqlite3 **db)
 
 int CloseSQL(sqlite3 **db)
 {
-    static const char *TAG = "SQL::CloseSQL";
+    static const char *TAG = "database::CloseSQL";
 
     ESP_LOGI(TAG, "Closing database");
     int rc = sqlite3_close(*db);
 
     if (rc != SQLITE_OK)
     {
-        ESP_LOGE(TAG, "SQL::CloseSQL: Can't close database: %s", sqlite3_errmsg(*db) ? sqlite3_errmsg(*db) : "No error code available");
+        ESP_LOGE(TAG, "database::CloseSQL: Can't close database: %s", sqlite3_errmsg(*db) ? sqlite3_errmsg(*db) : "No error code available");
         return rc;
     }
 

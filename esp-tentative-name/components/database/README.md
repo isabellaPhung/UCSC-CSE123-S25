@@ -2,9 +2,9 @@
 
 The database component holds onto task and event entires, as well as habit lists.
 
-## `SQL.h`
+## `database.h`
 
-SQL.h library is an initializer script for the database.
+database.h library is an initializer script for the database.
 - Initilaizes SQLite3 struct
 - It should write empty databases to storage if not found
 
@@ -60,6 +60,8 @@ This library will automatically move formatted JSON strings to the local SQL dat
 ```
 
 ```c
+#include "database.h"
+
 // Create new database object
 sqlite3 *db;
 InitSQL(&db);

@@ -61,7 +61,7 @@ int DB_task_demo()
     // ----------------------------------- Create Task ------------------------------------
     ESP_LOGI(TAG, "Adding a Task...");
     // Define a task
-    Task newTask = {
+    task_t newTask = {
         .time = time(NULL),
         .priority = 5,
         .completion = INCOMPLETE,
@@ -81,7 +81,7 @@ int DB_task_demo()
 
     // ------------------------------------ Retrieve Task ------------------------------------
     ESP_LOGI(TAG, "Retrieving Tasks...");
-    Task tasks[3];
+    task_t tasks[3];
     RetrieveTasksSortedDB(db, tasks, 3);
     PrintTask(tasks[0]);
     ESP_LOGI(TAG, "Got Task (%s): %s\n", tasks[0].uuid, tasks[0].name);

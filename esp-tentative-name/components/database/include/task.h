@@ -26,9 +26,9 @@ typedef struct
     char priority;                        // Priority 0-9
     CompletionStatus completion;          // Completion status of the entry
     char description[MAX_TASK_DESC_SIZE]; // Verbose description of entry
-} Task;
+} task_t;
 
-int AddTaskDB(sqlite3 *db, Task *ent);
+int AddTaskDB(sqlite3 *db, task_t *ent);
 int ParseTasksJSON(sqlite3 *db, const char *json);
 
 // --- Entry modification ---
@@ -36,11 +36,11 @@ int RemoveTaskDB(sqlite3 *db, const char *id);
 void CompleteTaskDB(sqlite3 *db, const char *id);
 
 // --- Entry Recovery ---
-int RetrieveTaskDB(sqlite3 *db, const char *id, Task *ent);
-int RetrieveTasksSortedDB(sqlite3 *db, Task *taskMemory, int count);
+int RetrieveTaskDB(sqlite3 *db, const char *id, task_t *ent);
+int RetrieveTasksSortedDB(sqlite3 *db, task_t *taskMemory, int count);
 
 // --- Utility ---
-void PrintTask(Task ent);
+void PrintTask(task_t ent);
 int PrintTaskDB(sqlite3 *db, const char *id);
 
 #endif
