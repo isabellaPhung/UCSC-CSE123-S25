@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Task</title>
+    
+    <!-- ADDED LOGIN CHECK CODE -->
+    <script>
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get the current user from localStorage
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Get the user ID for task creation (set by index.html)
+            const taskUserId = localStorage.getItem('taskUserId');
+            if (!taskUserId) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Store user ID for use in form submission
+            window.currentUserId = taskUserId;
+            
+            // Add username display and back button to the page
+            const titleElement = document.querySelector('h1');
+            
+            const userPanel = document.createElement('div');
+            userPanel.style.display = 'flex';
+            userPanel.style.justifyContent = 'space-between';
+            userPanel.style.alignItems = 'center';
+            userPanel.style.marginBottom = '20px';
+            
+            const usernameDisplay = document.createElement('div');
+            usernameDisplay.textContent = `Logged in as: ${currentUser.username}`;
+            usernameDisplay.style.fontWeight = 'bold';
+            
+            userPanel.appendChild(usernameDisplay);
+            
+            // Insert user panel before the title
+            titleElement.parentNode.insertBefore(userPanel, titleElement);
+        });
+    </script>
+    <!-- END OF ADDED LOGIN CHECK CODE -->
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: inherit;
+        }
+        
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .save-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .cancel-btn {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        .unix-timestamp {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        
+        .time-selection {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .time-selection select {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <h1>Add New Task</h1>
+    
+    <form id="task-form">
+        <div class="form-group">
+            <label for="task-name">Task Name:</label>
+            <input type="text" id="task-name" name="task-name" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="task-description">Description:</label>
+            <textarea id="task-description" name="task-description"></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label for="due-date">Due Date:</label>
+            <input type="date" id="due-date" name="due-date" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="assigned-time">Assigned Time:</label>
+            <div class="time-selection">
+                <select id="hour-select">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9" selected>9</option>
+                    <option value="10">10</option>
+                    <option value="11">11</option>
+                    <option value="12">12</option>
+                </select>
+                
+                <select id="minute-select">
+                    <option value="00" selected>00</option>
+                    <option value="15">15</option>
+                    <option value="30">30</option>
+                    <option value="45">45</option>
+                </select>
+                
+                <select id="period-select">
+                    <option value="AM" selected>AM</option>
+                    <option value="PM">PM</option>
+                </select>
+            </div>
+            <div id="unix-timestamp" class="unix-timestamp">Unix Timestamp: </div>
+        </div>
+        
+        <div class="button-group">
+            <button type="button" class="cancel-btn" id="cancel-btn">Cancel</button>
+            <button type="submit" class="save-btn">Save Task</button>
+        </div>
+    </form>
+
+    <script>
+        // Update Unix timestamp when inputs change
+        function updateUnixTimestamp() {
+            const dateInput = document.getElementById('due-date');
+            const hourSelect = document.getElementById('hour-select');
+            const minuteSelect = document.getElementById('minute-select');
+            const periodSelect = document.getElementById('period-select');
+            
+            if (dateInput.value) {
+                // Create time string in 24-hour format
+                let hour = parseInt(hourSelect.value);
+                const minute = minuteSelect.value;
+                const period = periodSelect.value;
+                
+                // Convert to 24-hour format
+                if (period === "PM" && hour < 12) {
+                    hour += 12;
+                } else if (period === "AM" && hour === 12) {
+                    hour = 0;
+                }
+                
+                // Format time as HH:MM
+                const formattedHour = hour.toString().padStart(2, '0');
+                const timeStr = `${formattedHour}:${minute}`;
+                
+                // Create date object and get timestamp
+                const dateTimeStr = `${dateInput.value}T${timeStr}:00`;
+                const timestamp = Math.floor(new Date(dateTimeStr).getTime() / 1000);
+                document.getElementById('unix-timestamp').textContent = `Unix Timestamp: ${timestamp}`;
+            }
+        }
+        
+        // Add event listeners to all inputs that affect the timestamp
+        document.getElementById('due-date').addEventListener('change', updateUnixTimestamp);
+        document.getElementById('hour-select').addEventListener('change', updateUnixTimestamp);
+        document.getElementById('minute-select').addEventListener('change', updateUnixTimestamp);
+        document.getElementById('period-select').addEventListener('change', updateUnixTimestamp);
+        
+        // Set today's date as default
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        document.getElementById('due-date').value = `${year}-${month}-${day}`;
+        
+        // Set current time as default (rounded to nearest 15 min)
+        const currentHour = today.getHours();
+        const currentMinute = today.getMinutes();
+        
+        // Round minutes to nearest 15
+        let roundedMinute;
+        if (currentMinute < 8) roundedMinute = "00";
+        else if (currentMinute < 23) roundedMinute = "15";
+        else if (currentMinute < 38) roundedMinute = "30";
+        else if (currentMinute < 53) roundedMinute = "45";
+        else roundedMinute = "00"; // Next hour
+
+        // Set hour select
+        let hour12 = currentHour % 12;
+        if (hour12 === 0) hour12 = 12; // 0 should be displayed as 12 in 12-hour format
+        document.getElementById('hour-select').value = hour12;
+        
+        // Set minute select
+        document.getElementById('minute-select').value = roundedMinute;
+        
+        // Set AM/PM
+        document.getElementById('period-select').value = currentHour >= 12 ? "PM" : "AM";
+        
+        // Update timestamp on page load
+        updateUnixTimestamp();
+        
+        // UPDATED FORM SUBMISSION TO SAVE TO USER-SPECIFIC TASKS
+        // Handle form submission
+        document.getElementById('task-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get task details
+            const taskName = document.getElementById('task-name').value;
+            const taskDescription = document.getElementById('task-description').value;
+            const dueDate = document.getElementById('due-date').value;
+            
+            // Get time values
+            let hour = parseInt(document.getElementById('hour-select').value);
+            const minute = document.getElementById('minute-select').value;
+            const period = document.getElementById('period-select').value;
+            
+            // Convert to 24-hour format for internal storage
+            if (period === "PM" && hour < 12) {
+                hour += 12;
+            } else if (period === "AM" && hour === 12) {
+                hour = 0;
+            }
+            
+            // Format time strings
+            const formattedHour = hour.toString().padStart(2, '0');
+            const timeStr = `${formattedHour}:${minute}`;
+            const displayTime = `${document.getElementById('hour-select').value}:${minute} ${period}`;
+            
+            // Create date object and get timestamp
+            const dateTimeStr = `${dueDate}T${timeStr}:00`;
+            const timestamp = Math.floor(new Date(dateTimeStr).getTime() / 1000);
+            
+            // Create task object
+            const task = {
+                name: taskName,
+                description: taskDescription,
+                dueDate: dueDate,
+                timeStr: timeStr,
+                displayTime: displayTime,
+                timestamp: timestamp,
+                dateCreated: new Date().toISOString()
+            };
+            
+            // Get existing tasks or create empty array
+            const allUserTasks = JSON.parse(localStorage.getItem('userTasks')) || {};
+            const userTasks = allUserTasks[window.currentUserId] || [];
+            
+            // Add new task
+            userTasks.push(task);
+            
+            // Update user tasks
+            allUserTasks[window.currentUserId] = userTasks;
+            
+            // Save to localStorage
+            localStorage.setItem('userTasks', JSON.stringify(allUserTasks));
+            
+            // Redirect back to main page
+            window.location.href = 'index.html';
+        });
+        
+        // Handle cancel button
+        document.getElementById('cancel-btn').addEventListener('click', function() {
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>
