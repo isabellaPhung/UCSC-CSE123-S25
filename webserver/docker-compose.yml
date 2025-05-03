@@ -7,24 +7,28 @@ services:
             dockerfile: Dockerfile
         env_file: flask/.env
         container_name: app
-        ports:
-            - 8081:8081
         networks:
             - app-network
 
-
-    nginx:
+    caddy:
         build:
-            context: nginx
+            context: caddy
             dockerfile: Dockerfile
-        container_name: nginx
+        container_name: caddy
         ports:
             - 80:80
             - 443:443
         networks:
             - app-network
+        volumes:
+            - caddy_data:/data
+            - caddy_config:/config
         depends_on:
             - app
 
 networks:
     app-network:
+
+volumes:
+    caddy_data:
+    caddy_config:
