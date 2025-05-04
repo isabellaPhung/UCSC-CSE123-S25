@@ -203,7 +203,7 @@ esp_err_t RebootRTC()
     uint8_t ctrl1;
     if (rtc_read_register(0x00, &ctrl1) == ESP_OK)
     {
-        ESP_LOGI("TEST", "CTRL1: 0x%02X", ctrl1);
+        ESP_LOGI(TAG, "CTRL1: 0x%02X", ctrl1);
     }
 
     ret = rtc_write_register(0x01, CTRL2);
@@ -298,7 +298,7 @@ esp_err_t pcf8523_read_time(time_t *out_time)
 
 // ----------------------------- Get Current Time -------------------------------
 
-esp_err_t GetTime()
+esp_err_t SetTime()
 {
     static const char *TAG = "PCF8523::GetTime";
 

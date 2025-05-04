@@ -139,7 +139,7 @@ int RetrieveTaskDB(sqlite3 *db, const char *uuid, task_t *ent)
         const char *name = (const char *)sqlite3_column_text(stmt, 1);
         time_t time = (time_t)sqlite3_column_int64(stmt, 2);
         char priority = (char)sqlite3_column_int(stmt, 3);
-        CompletionStatus completed = (CompletionStatus)sqlite3_column_int(stmt, 4);
+        TASK_STATUS completed = (TASK_STATUS)sqlite3_column_int(stmt, 4);
         const char *description = (const char *)sqlite3_column_text(stmt, 5);
 
         strncpy(ent->name, name, MAX_TASK_NAME_SIZE);
@@ -215,7 +215,7 @@ int RetrieveTasksSortedDB(sqlite3 *db, task_t *taskMemory, int count)
         strncpy(task->name, (const char *)sqlite3_column_text(stmt, 1), MAX_TASK_NAME_SIZE);
         task->time = (time_t)sqlite3_column_int64(stmt, 2);
         task->priority = (char)sqlite3_column_int(stmt, 3);
-        task->completion = (CompletionStatus)sqlite3_column_int(stmt, 4);
+        task->completion = (TASK_STATUS)sqlite3_column_int(stmt, 4);
         strncpy(task->description, (const char *)sqlite3_column_text(stmt, 5), MAX_TASK_DESC_SIZE);
         i++;
     }

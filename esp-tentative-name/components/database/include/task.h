@@ -6,6 +6,7 @@
 
 #define MAX_TASK_NAME_SIZE 128
 #define MAX_TASK_DESC_SIZE 1024
+
 #define UUID_LENGTH 37 // 36 characters + null terminator
 
 typedef enum
@@ -13,7 +14,7 @@ typedef enum
     INCOMPLETE = 0,
     COMPLETE = 1,
     MFD = 2 // Marked For Deletion
-} CompletionStatus;
+} TASK_STATUS;
 
 /** Task Struct
  * UUID string used for id to match with JSON format.
@@ -24,7 +25,7 @@ typedef struct
     char name[MAX_TASK_NAME_SIZE];        // Title of entry
     time_t time;                          // Unix time (UTC)
     char priority;                        // Priority 0-9
-    CompletionStatus completion;          // Completion status of the entry
+    TASK_STATUS completion;               // Completion status of the entry
     char description[MAX_TASK_DESC_SIZE]; // Verbose description of entry
 } task_t;
 

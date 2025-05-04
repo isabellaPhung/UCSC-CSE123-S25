@@ -17,6 +17,6 @@ esp_err_t RebootRTC();
 esp_err_t pcf8523_read_time(time_t *out_time);
 
 // Use SNTP to set the device's time
-esp_err_t GetTime();
+esp_err_t SetTime();
 
 #endif
