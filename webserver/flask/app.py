@@ -14,12 +14,12 @@ app.config['JWT_TOKEN_LOCATION'] = ['cookies']
 # app.config['JWT_COOKIE_SECURE'] = True
 # app.config['JWT_COOKIE_CSRF_PROTECT'] = True
 # app.config['JWT_ACCESS_COOKIE_PATH'] = '/api/'
-# app.config['JWT_REFRESH_COOKIE_PATH'] = '/token/refresh'
+app.config['JWT_REFRESH_COOKIE_PATH'] = '/token/refresh'
 
 jwt = JWTManager(app)
 
 
-@app.route("/api/login", methods=["POST"])
+@app.route("/token/login", methods=["POST"])
 def login_authenticate():
     username = request.json.get("username")
     password = request.json.get("password")
@@ -33,11 +33,17 @@ def login_authenticate():
     return resp, 200
 
 
-@app.route("/test")
-@jwt_required()
-def test():
-    username = get_jwt_identity()
-    return jsonify({"hello": username}), 200
+@app.route("/token/refresh", methods=["POST"])
+@jwt_required(refresh=True)
+def refresh():
+    current_user = get_jwt_identity()
+    access_token = create_access_token(identity=current_user)
+
+    resp = jsonify({"refresh": True})
+    set_access_cookies(resp, access_token)
+    return resp, 200
+
+# TODO: add logic for removing token on logout
 
 
 @app.route("/login")
