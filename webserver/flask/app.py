@@ -1,12 +1,21 @@
-from flask import Flask, request, render_template, redirect, url_for
-from flask_jwt_extended import JWTManager, create_access_token, get_jwt_identity, jwt_required
+from flask import Flask, request, render_template, redirect, url_for, jsonify
+from flask_jwt_extended import (
+    JWTManager, create_access_token, create_refresh_token,
+    set_access_cookies, set_refresh_cookies, get_jwt_identity, jwt_required
+)
 from aws_helper import AwsS3
 
 app = Flask(__name__)
 s3_conn = AwsS3()
 
-# TODO: add proper secret key config
+# TODO: add proper config
 app.config["JWT_SECRET_KEY"] = "TODO"
+app.config['JWT_TOKEN_LOCATION'] = ['cookies']
+# app.config['JWT_COOKIE_SECURE'] = True
+# app.config['JWT_COOKIE_CSRF_PROTECT'] = True
+# app.config['JWT_ACCESS_COOKIE_PATH'] = '/api/'
+# app.config['JWT_REFRESH_COOKIE_PATH'] = '/token/refresh'
+
 jwt = JWTManager(app)
 
 
@@ -15,8 +24,20 @@ def login_authenticate():
     username = request.json.get("username")
     password = request.json.get("password")
 
+    resp = jsonify({"login": True})
     access_token = create_access_token(identity=username)
-    return {"access_token": access_token}, 200
+    refresh_token = create_refresh_token(identity=username)
+
+    set_access_cookies(resp, access_token)
+    set_refresh_cookies(resp, refresh_token)
+    return resp, 200
+
+
+@app.route("/test")
+@jwt_required()
+def test():
+    username = get_jwt_identity()
+    return jsonify({"hello": username}), 200
 
 
 @app.route("/login")

@@ -198,9 +198,7 @@
                           'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({username: usernameVal, password: passwordVal})
-                    })
-                        .then(response => response.json())
-                        .then(data => localStorage.setItem('access_token', data.access_token));
+                    });
                     
                     // Redirect to dashboard
                     window.location.href = 'index';
