@@ -15,7 +15,9 @@
 #include "freertos/task.h"
 #include "freertos/semphr.h"
 
-#include "database.h"
+#include "pcf8523.h"
+
+#include "sender.h"
 
 #include "cJSON.h"
 
@@ -124,6 +126,15 @@ void app_main() {
   struct callback_data_t cb_data;
   cb_data.expected = 0;
   cb_data.cur_index = -1;
+
+  // --- Configure Clock (PCF8523) ---
+  if (!i2c_scan())
+  {
+      return;
+  }
+  ESP_ERROR_CHECK(InitRTC());
+  ESP_ERROR_CHECK(RebootRTC());
+  ESP_ERROR_CHECK(SetTime());
 
   int return_status;
   return_status = mqtt_init(&demo_callback, (void *) &cb_data);
