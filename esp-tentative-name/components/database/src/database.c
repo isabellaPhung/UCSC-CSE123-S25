@@ -15,8 +15,6 @@
 #include <errno.h>  // For errno
 #include <string.h> // For strerror()
 
-#define MOUNT_POINT "/sdcard"
-
 // Pin assignments
 #define PIN_NUM_MISO CONFIG_SD_PIN_MISO
 #define PIN_NUM_MOSI CONFIG_SD_PIN_MOSI

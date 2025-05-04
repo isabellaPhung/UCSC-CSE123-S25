@@ -6,9 +6,11 @@
 // Database tables
 #include "task.h"
 
+#define MOUNT_POINT "/sdcard"
+
 // Initializes the database and ensures the tasks table exists
 int InitSQL(sqlite3 **db);
 
 int CloseSQL(sqlite3 **db);
 
-#endif  // SQL_H
+#endif // SQL_H
