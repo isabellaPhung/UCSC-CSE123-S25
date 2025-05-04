@@ -11,10 +11,6 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Get the current user from localStorage
             const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-            if (!currentUser) {
-                window.location.href = 'login';
-                return;
-            }
             
             // Store the current user ID for use throughout the page
             window.currentUserId = currentUser.id;

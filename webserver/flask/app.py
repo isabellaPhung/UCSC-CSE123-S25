@@ -52,11 +52,13 @@ def signup():
 
 @app.route("/")
 @app.route("/index")
+@jwt_required()
 def index():
     return render_template("index.html")
 
 
 @app.route("/add_task")
+@jwt_required()
 def add_task():
     return render_template("add-task.html")
 
@@ -67,16 +69,19 @@ def admin():
 
 
 @app.route("/calendar")
+@jwt_required()
 def calendar():
     return render_template("calendar.html")
 
 
 @app.route("/events")
+@jwt_required()
 def events():
     return render_template("events.html")
 
 
 @app.route("/habits")
+@jwt_required()
 def habits():
     return render_template("habits.html")
 
