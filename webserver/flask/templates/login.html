@@ -189,7 +189,7 @@
                     // Store current user in localStorage
                     localStorage.setItem('currentUser', JSON.stringify({
                         id: user.id,
-                        username: user.usernameVal
+                        username: user.username
                     }));
 
                     fetch('https://localhost/api/login', {
