@@ -176,21 +176,31 @@
             
             // Login function
             function login() {
-                const username = document.getElementById('username').value;
-                const password = document.getElementById('password').value;
+                const usernameVal = document.getElementById('username').value;
+                const passwordVal = document.getElementById('password').value;
                 
                 // Get users from localStorage
                 const users = JSON.parse(localStorage.getItem('users')) || [];
                 
                 // Find the user
-                const user = users.find(u => u.username === username && u.password === password);
+                const user = users.find(u => u.username === usernameVal && u.password === passwordVal);
                 
                 if (user) {
                     // Store current user in localStorage
                     localStorage.setItem('currentUser', JSON.stringify({
                         id: user.id,
-                        username: user.username
+                        username: user.usernameVal
                     }));
+
+                    fetch('https://localhost/api/login', {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({username: usernameVal, password: passwordVal})
+                    })
+                        .then(response => response.json())
+                        .then(data => localStorage.setItem('access_token', data.access_token));
                     
                     // Redirect to dashboard
                     window.location.href = 'index';

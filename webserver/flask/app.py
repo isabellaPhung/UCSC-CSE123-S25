@@ -10,7 +10,7 @@ app.config["JWT_SECRET_KEY"] = "TODO"
 jwt = JWTManager(app)
 
 
-@app.route("/api/login")
+@app.route("/api/login", methods=["POST"])
 def login_authenticate():
     username = request.json.get("username")
     password = request.json.get("password")
@@ -31,7 +31,6 @@ def signup():
 
 @app.route("/")
 @app.route("/index")
-# @jwt_required()
 def index():
     return render_template("index.html")
 
