@@ -5,38 +5,8 @@
 #include <stdio.h>
 #include <string.h>
 
-int AddTaskDB(sqlite3 *db, task_t *ent)
-{
-    static const char *TAG = "task::AddTaskDB";
-
-    const char *sql = "INSERT INTO tasks (id, name, datetime, priority, completed, description) VALUES (?, ?, ?, ?, ?, ?);";
-    sqlite3_stmt *stmt;
-    int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
-    if (rc != SQLITE_OK)
-    {
-        ESP_LOGE(TAG, "Cannot prepare statement: %s", sqlite3_errmsg(db));
-        return rc;
-    }
-
-    sqlite3_bind_text(stmt, 1, ent->uuid, -1, SQLITE_STATIC);
-    sqlite3_bind_text(stmt, 2, ent->name, -1, SQLITE_STATIC);
-    sqlite3_bind_int64(stmt, 3, (sqlite3_int64)ent->time);
-    sqlite3_bind_int(stmt, 4, (int)ent->priority);
-    sqlite3_bind_int(stmt, 5, (int)ent->completion);
-    sqlite3_bind_text(stmt, 6, ent->description, -1, SQLITE_STATIC);
-
-    rc = sqlite3_step(stmt);
-    if (rc != SQLITE_DONE)
-    {
-        ESP_LOGE(TAG, "Execution failed: %s", sqlite3_errmsg(db));
-        sqlite3_finalize(stmt);
-        return rc;
-    }
-
-    sqlite3_finalize(stmt);
-    ESP_LOGI(TAG, "Added <%s> with UUID <%s>", ent->name, ent->uuid);
-    return SQLITE_OK;
-}
+int AddTaskDB(sqlite3 *db, task_t *ent);
+esp_err_t RemoveTaskDB(sqlite3 *db, const char *uuid);
 
 // Adds JSON entries to database
 int ParseTasksJSON(sqlite3 *db, const char *json)
@@ -74,7 +44,7 @@ int ParseTasksJSON(sqlite3 *db, const char *json)
     }
 
     strncpy(task.uuid, id->valuestring, UUID_LENGTH - 1);
-    strncpy(task.name, name->valuestring, MAX_TASK_NAME_SIZE - 1);
+    strncpy(task.name, name->valuestring, MAX_NAME_SIZE - 1);
     task.time = (time_t)duedate->valueint;
 
     // Parse priority enum
@@ -105,7 +75,7 @@ int ParseTasksJSON(sqlite3 *db, const char *json)
 
     if (cJSON_IsString(description))
     {
-        strncpy(task.description, description->valuestring, MAX_TASK_DESC_SIZE - 1);
+        strncpy(task.description, description->valuestring, MAX_DESC_SIZE - 1);
     }
 
     int rc = AddTaskDB(db, &task);
@@ -118,38 +88,172 @@ int ParseTasksJSON(sqlite3 *db, const char *json)
     return 0;
 }
 
-int RetrieveTaskDB(sqlite3 *db, const char *uuid, task_t *ent)
+int RetrieveTasksSortedDB(sqlite3 *db, task_t *taskBuffer, int count, int offset)
 {
-    static const char *TAG = "task::RetrieveTaskDB";
+    static const char *TAG = "task::RetrieveTasksSortedDB";
 
-    const char *sql = "SELECT * FROM tasks WHERE id = ?;";
-    sqlite3_stmt *stmt;
-    int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
-    sqlite3_bind_text(stmt, 1, uuid, -1, SQLITE_STATIC);
-
-    if (rc != SQLITE_OK)
+    if (!taskBuffer || count <= 0)
     {
-        ESP_LOGE(TAG, "Failed to fetch data: %s", sqlite3_errmsg(db));
-        return rc;
+        ESP_LOGE(TAG, "Invalid buffer or count");
+        return -1;
     }
 
-    while (sqlite3_step(stmt) != SQLITE_DONE)
+    // Currently sorts by just TIME
+    const char *sql = "SELECT id, name, datetime, priority, completed, description "
+                      "FROM tasks "
+                      "ORDER BY (datetime - (priority * " PRIORITY_MULTIPLIER ")) ASC "
+                      "LIMIT ? OFFSET ?;";
+    sqlite3_stmt *stmt;
+    int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+    if (rc != SQLITE_OK)
     {
-        strncpy(ent->uuid, uuid, UUID_LENGTH);
-        const char *name = (const char *)sqlite3_column_text(stmt, 1);
-        time_t time = (time_t)sqlite3_column_int64(stmt, 2);
-        char priority = (char)sqlite3_column_int(stmt, 3);
-        TASK_STATUS completed = (TASK_STATUS)sqlite3_column_int(stmt, 4);
-        const char *description = (const char *)sqlite3_column_text(stmt, 5);
+        ESP_LOGE(TAG, "Failed to prepare SELECT statement: %s", sqlite3_errmsg(db));
+        return -1;
+    }
 
-        strncpy(ent->name, name, MAX_TASK_NAME_SIZE);
-        ent->time = time;
-        ent->priority = priority;
-        ent->completion = completed;
-        strncpy(ent->description, description ? description : "", MAX_TASK_DESC_SIZE);
+    sqlite3_bind_int(stmt, 1, count);
+    sqlite3_bind_int(stmt, 2, offset);
+
+    int i = 0;
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW && i < count)
+    {
+        const unsigned char *id = sqlite3_column_text(stmt, 0);
+        const unsigned char *name = sqlite3_column_text(stmt, 1);
+        sqlite3_int64 datetime = sqlite3_column_int64(stmt, 2);
+        int priority = sqlite3_column_int(stmt, 3);
+        int completed = sqlite3_column_int(stmt, 4);
+        const unsigned char *desc = sqlite3_column_text(stmt, 5);
+
+        strncpy(taskBuffer[i].uuid, (const char *)id, UUID_LENGTH - 1);
+        taskBuffer[i].uuid[UUID_LENGTH - 1] = '\0';
+
+        strncpy(taskBuffer[i].name, (const char *)name, MAX_NAME_SIZE - 1);
+        taskBuffer[i].name[MAX_NAME_SIZE - 1] = '\0';
+
+        taskBuffer[i].time = (time_t)datetime;
+        taskBuffer[i].priority = (char)priority;
+        taskBuffer[i].completion = (completed == 1) ? COMPLETE : INCOMPLETE;
+
+        if (desc)
+        {
+            strncpy(taskBuffer[i].description, (const char *)desc, MAX_DESC_SIZE - 1);
+            taskBuffer[i].description[MAX_DESC_SIZE - 1] = '\0';
+        }
+        else
+        {
+            taskBuffer[i].description[0] = '\0';
+        }
+
+        i++;
+    }
+
+    if (rc != SQLITE_DONE)
+    {
+        ESP_LOGE(TAG, "Error retrieving tasks: %s", sqlite3_errmsg(db));
+        sqlite3_finalize(stmt);
+        return -1;
     }
 
     sqlite3_finalize(stmt);
+    ESP_LOGI(TAG, "Retrieved %d task(s) starting at offset %d", i, offset);
+    return i;
+}
+
+// --------------------------------------- Modify tasks -------------------------------------------
+
+esp_err_t UpdateTaskStatusDB(sqlite3 *db, const char *uuid, TASK_STATUS new_status)
+{
+    static const char *TAG = "task::UpdateTaskStatusDB";
+
+    if (new_status == MFD)
+    {
+        return RemoveTaskDB(db, uuid);
+    }
+
+    const char *sql = "UPDATE tasks SET completed = ? WHERE id = ?;";
+    sqlite3_stmt *stmt;
+    int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+    if (rc != SQLITE_OK)
+    {
+        ESP_LOGE(TAG, "Failed to prepare UPDATE statement: %s", sqlite3_errmsg(db));
+        return ESP_FAIL;
+    }
+
+    sqlite3_bind_int(stmt, 1, (int)new_status);
+    sqlite3_bind_text(stmt, 2, uuid, -1, SQLITE_STATIC);
+
+    rc = sqlite3_step(stmt);
+    if (rc != SQLITE_DONE)
+    {
+        ESP_LOGE(TAG, "Failed to execute UPDATE statement: %s", sqlite3_errmsg(db));
+        sqlite3_finalize(stmt);
+        return ESP_FAIL;
+    }
+
+    sqlite3_finalize(stmt);
+    ESP_LOGI(TAG, "Updated task ID %s to status %d", uuid, new_status);
+    return ESP_OK;
+}
+
+esp_err_t RemoveTaskDB(sqlite3 *db, const char *uuid)
+{
+    static const char *TAG = "task::CompleteTaskDB";
+
+    const char *sql = "DELETE FROM tasks WHERE id = ?;";
+    sqlite3_stmt *stmt;
+    int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+    if (rc != SQLITE_OK)
+    {
+        ESP_LOGE(TAG, "Failed to prepare DELETE statement: %s", sqlite3_errmsg(db));
+        return ESP_FAIL;
+    }
+
+    sqlite3_bind_text(stmt, 1, uuid, -1, SQLITE_STATIC);
+
+    rc = sqlite3_step(stmt);
+    if (rc != SQLITE_DONE)
+    {
+        ESP_LOGE(TAG, "Failed to execute DELETE statement: %s", sqlite3_errmsg(db));
+        sqlite3_finalize(stmt);
+        return ESP_FAIL;
+    }
+
+    sqlite3_finalize(stmt);
+    ESP_LOGI(TAG, "Deleted task with ID: %s", uuid);
+    return ESP_OK;
+}
+// -------------------------------------- Helper Functions ----------------------------------------
+
+int AddTaskDB(sqlite3 *db, task_t *ent)
+{
+    static const char *TAG = "task::AddTaskDB";
+
+    const char *sql = "INSERT INTO tasks (id, name, datetime, priority, completed, description) VALUES (?, ?, ?, ?, ?, ?);";
+    sqlite3_stmt *stmt;
+    int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+    if (rc != SQLITE_OK)
+    {
+        ESP_LOGE(TAG, "Cannot prepare statement: %s", sqlite3_errmsg(db));
+        return rc;
+    }
+
+    sqlite3_bind_text(stmt, 1, ent->uuid, -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 2, ent->name, -1, SQLITE_STATIC);
+    sqlite3_bind_int64(stmt, 3, (sqlite3_int64)ent->time);
+    sqlite3_bind_int(stmt, 4, (int)ent->priority);
+    sqlite3_bind_int(stmt, 5, (int)ent->completion);
+    sqlite3_bind_text(stmt, 6, ent->description, -1, SQLITE_STATIC);
+
+    rc = sqlite3_step(stmt);
+    if (rc != SQLITE_DONE)
+    {
+        ESP_LOGE(TAG, "Execution failed: %s", sqlite3_errmsg(db));
+        sqlite3_finalize(stmt);
+        return rc;
+    }
+
+    sqlite3_finalize(stmt);
+    ESP_LOGI(TAG, "Added <%s> with UUID <%s>", ent->name, ent->uuid);
     return SQLITE_OK;
 }
 
@@ -162,95 +266,4 @@ void PrintTask(task_t ent)
     strftime(datetime, sizeof(datetime), "%Y-%m-%d %H:%M:%S", timeinfo);
     ESP_LOGI(TAG, "UUID: %s | Name: %s | Due: %s (%lld) | Priority: %d | Completed: %d | Description: %s",
              ent.uuid, ent.name, datetime, ent.time, ent.priority, ent.completion, ent.description);
-}
-
-int PrintTaskDB(sqlite3 *db, const char *uuid)
-{
-    static const char *TAG = "task::PrintTaskDB";
-
-    task_t ent;
-    int rc = RetrieveTaskDB(db, uuid, &ent);
-    if (rc != SQLITE_OK)
-        return rc;
-    PrintTask(ent);
-    return SQLITE_OK;
-}
-
-int RemoveTaskDB(sqlite3 *db, const char *uuid)
-{
-    static const char *TAG = "task::RemoveTaskDB";
-
-    char sql[256];
-    snprintf(sql, sizeof(sql), "DELETE FROM tasks WHERE id = '%s';", uuid);
-    char *zErrMsg = NULL;
-    int rc = sqlite3_exec(db, sql, NULL, NULL, &zErrMsg);
-    if (rc != SQLITE_OK)
-    {
-        ESP_LOGE(TAG, "SQL error: %s", zErrMsg);
-        sqlite3_free(zErrMsg);
-        return rc;
-    }
-    return SQLITE_OK;
-}
-
-int RetrieveTasksSortedDB(sqlite3 *db, task_t *taskMemory, int count)
-{
-    static const char *TAG = "task::RetrieveTasksSortedDB";
-
-    if (!taskMemory || !db || count < 1)
-        return -1;
-
-    const char *sql = "SELECT id, name, datetime, priority, completed, description FROM tasks ORDER BY datetime ASC, priority DESC LIMIT ?;";
-    sqlite3_stmt *stmt;
-    int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
-    if (rc != SQLITE_OK)
-        return -2;
-
-    sqlite3_bind_int(stmt, 1, count);
-    int i = 0;
-    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW && i < count)
-    {
-        task_t *task = taskMemory + i;
-        strncpy(task->uuid, (const char *)sqlite3_column_text(stmt, 0), UUID_LENGTH);
-        strncpy(task->name, (const char *)sqlite3_column_text(stmt, 1), MAX_TASK_NAME_SIZE);
-        task->time = (time_t)sqlite3_column_int64(stmt, 2);
-        task->priority = (char)sqlite3_column_int(stmt, 3);
-        task->completion = (TASK_STATUS)sqlite3_column_int(stmt, 4);
-        strncpy(task->description, (const char *)sqlite3_column_text(stmt, 5), MAX_TASK_DESC_SIZE);
-        i++;
-    }
-
-    sqlite3_finalize(stmt);
-    return i;
-}
-
-void CompleteTaskDB(sqlite3 *db, const char *uuid)
-{
-    static const char *TAG = "task::CompleteTaskDB";
-
-    char sql[256];
-    sqlite3_stmt *stmt;
-    int rc;
-    int current_status = 0;
-
-    snprintf(sql, sizeof(sql), "SELECT completed FROM tasks WHERE id = '%s';", uuid);
-    rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
-    if (rc != SQLITE_OK)
-        return;
-    if ((rc = sqlite3_step(stmt)) == SQLITE_ROW)
-    {
-        current_status = sqlite3_column_int(stmt, 0);
-    }
-    sqlite3_finalize(stmt);
-
-    int new_status = !current_status;
-    snprintf(sql, sizeof(sql), "UPDATE tasks SET completed = %d WHERE id = '%s';", new_status, uuid);
-    char *zErrMsg = NULL;
-    rc = sqlite3_exec(db, sql, NULL, NULL, &zErrMsg);
-    if (rc != SQLITE_OK)
-    {
-        ESP_LOGE(TAG, "SQL error: %s", zErrMsg);
-        sqlite3_free(zErrMsg);
-    }
-    ESP_LOGI(TAG, "Toggled completion status for UUID %s to %d", uuid, new_status);
 }
