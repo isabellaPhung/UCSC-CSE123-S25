@@ -7,8 +7,6 @@
 #include "esp_err.h"
 #include "database.h"
 
-#define MAX_SEND_LENGTH 128 + UUID_LENGTH // Maximum length of JSON information that can be sent to the server at once
-
 /// @brief Sends message to the server with a task's new status. Used for task completion or deletion
 /// @param uuid Task ID
 /// @param status The status the task has been changed to.

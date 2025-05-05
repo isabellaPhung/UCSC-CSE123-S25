@@ -160,7 +160,7 @@ void app_main() {
     // of the ui library
     if (req_db_updates) {
       // refill the on_screen array
-      retrievetaskssorted(&db, &on_screen, TASK_LIST_SIZE);
+      retrievetaskssorted(&db, &on_screen, TASK_LIST_SIZE, 0);
       req_db_updates = false;
     }
 

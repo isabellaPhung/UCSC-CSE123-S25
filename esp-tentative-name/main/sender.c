@@ -1,63 +1,76 @@
 #include "sender.h"
+#include "freertos/FreeRTOS.h"
 #include "mqtt_conn.h"
 
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
 
+#define MAX_RETRIES 5
+#define MQTT_LOOP_TIMEOUT_MS 5000
+
+#define MAX_SEND_LENGTH 128 + UUID_LENGTH // Maximum length of JSON information that can be sent to the server at once
+
+typedef struct
+{
+    int expected;
+    int cur_index;
+} callback_data_t;
+
+static callback_data_t cb_data;
+
+// Callback for received publish messages (if needed)
+void mqtt_publish_callback(const char *payload, size_t len, void *user_data)
+{
+    callback_data_t *data = (callback_data_t *)user_data;
+
+    // Dummy parse logic
+    data->expected = 1;
+    data->cur_index = 1;
+
+    ESP_LOGI("Sender::MQTT_CB", "Received callback message: %.*s", (int)len, payload);
+}
+
 esp_err_t SendTaskStatus(const char *uuid, TASK_STATUS status)
 {
     static const char *TAG = "Sender::SendTaskStatus";
 
-    // ----------------------------- Construct Message ----------------------------------
+    // --------------------- Construct JSON Payload ---------------------
     char msg[MAX_SEND_LENGTH];
-    char status_msg[32];
-    switch (status)
-    {
-    case INCOMPLETE:
-        strcpy(status_msg, "incomplete");
-        break;
-    case COMPLETE:
-        strcpy(status_msg, "complete");
-        break;
-    case MFD:
-        strcpy(status_msg, "delete");
-        break;
-    default:
-        strcpy(status_msg, "NULL");
-        break;
-    }
 
     snprintf(msg, MAX_SEND_LENGTH,
              "{\n"
              "  \"tasks\":[\n"
              "    {\n"
              "      \"id\":\"%s\",\n"
-             "      \"status\":\"%s\",\n"
+             "      \"completion\": %d,\n"
              "    }\n"
              "  ]\n"
              "}",
-             uuid, status_msg);
+             uuid, (int)status);
 
-    // ------------------------------ Publish Message -----------------------------------
+    // ----------------------------- Initialize MQTT ------------------------------------
+    mqtt_init(mqtt_publish_callback, &cb_data);
+    if (mqtt_connect() != 0)
+    {
+        ESP_LOGE(TAG, "Failed to connect to MQTT broker");
+        return ESP_FAIL;
+    }
 
-    // TODO: Impletment MQTT publish function
-    /*
-    mqtt_init(...); // Something here
-    mqtt_connect();
     mqtt_subscribe();
 
+    // ------------------------------ Publish Message -----------------------------------
     mqtt_publish(msg, strlen(msg));
 
     size_t i = 0;
-    do
+    for (; i < MAX_RETRIES; i++)
     {
-        mqtt_loop(5000);
+        mqtt_loop(MQTT_LOOP_TIMEOUT_MS);
         if (cb_data.expected == 0)
         {
             ESP_LOGI(TAG, "Did not get back a length message from the server, re-publishing after a delay");
             vTaskDelay(5000 / portTICK_PERIOD_MS);
-            mqtt_publish(payload, payload_length);
+            mqtt_publish(msg, strlen(msg));
         }
         else if (cb_data.expected != cb_data.cur_index)
         {
@@ -65,17 +78,19 @@ esp_err_t SendTaskStatus(const char *uuid, TASK_STATUS status)
         }
         else
         {
+            ESP_LOGI(TAG, "Message acknowledged by server");
             break;
         }
         i++;
-    } while (i < 5);
+    }
 
     mqtt_unsubscribe();
     mqtt_disconnect();
 
     if (i < 5)
-        return ESP_OK;   // Success!
-    */
+    {
+        return ESP_OK; // Success!
+    }
 
     // ------------------------------ Buffer on Failure -----------------------------------
     ESP_LOGW(TAG, "Failed to connect to server! Caching request...");
