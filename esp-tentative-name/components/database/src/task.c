@@ -37,7 +37,7 @@ esp_err_t ParseTasksJSON(sqlite3 *db, const char *json)
     const cJSON *priority = cJSON_GetObjectItem(taskItem, "priority");
     const cJSON *duedate = cJSON_GetObjectItem(taskItem, "duedate");
 
-    if (!cJSON_IsString(id) || !cJSON_IsString(name) || !cJSON_IsString(priority) || !cJSON_IsNumber(duedate))
+    if (!cJSON_IsString(id) || !cJSON_IsString(name) || !cJSON_IsNumber(priority) || !cJSON_IsNumber(duedate) || !cJSON_IsNumber(completion))
     {
         ESP_LOGE(TAG, "Missing or invalid task fields");
         return ESP_ERR_INVALID_ARG;
@@ -48,30 +48,15 @@ esp_err_t ParseTasksJSON(sqlite3 *db, const char *json)
     task.time = (time_t)duedate->valueint;
 
     // Parse priority enum
-    char priorityVal;
-    if (!strcmp(priority->valuestring, "high"))
-    {
-        priorityVal = 3;
-    }
-    else if (!strcmp(priority->valuestring, "medium"))
-    {
-        priorityVal = 2;
-    }
-    else
-    {
-        priorityVal = 1;
-    }
+    task.priority = (char)priority->valueint;
 
-    task.priority = priorityVal;
-
-    if (cJSON_IsString(completion) && strcmp(completion->valuestring, "complete") == 0)
+    if ((TASK_STATUS)completion->valueint == MFD)
     {
-        task.completion = COMPLETE;
+        ESP_LOGE(TAG, "Cannot add an entry that has been marked for deletion!");
+        cJSON_Delete(root);
+        return ESP_ERR_INVALID_ARG;
     }
-    else
-    {
-        task.completion = INCOMPLETE;
-    }
+    task.completion = (TASK_STATUS)completion->valueint;
 
     if (cJSON_IsString(description))
     {
