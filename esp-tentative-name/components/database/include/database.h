@@ -3,10 +3,12 @@
 
 #include <sqlite3.h>
 
-// Database tables
-#include "task.h"
+// Library definitions
+#include "../src/defs.h"
 
-#define MOUNT_POINT "/sdcard"
+// Database tables
+#include "../src/task.h"
+#include "../src/event.h"
 
 // Initializes the database and ensures the tasks table exists
 int InitSQL(sqlite3 **db);
