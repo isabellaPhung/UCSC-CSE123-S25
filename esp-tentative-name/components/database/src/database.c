@@ -199,7 +199,7 @@ int InitSQL(sqlite3 **db)
     // --- Event Table ---
     ESP_LOGI(TAG, "database::InitSQL: Creating Event Table...");
     sql = "CREATE TABLE IF NOT EXISTS events ("
-          "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+          "id TEXT PRIMARY KEY,"
           "name TEXT NOT NULL,"
           "starttime INTEGER NOT NULL,"
           "duration INTEGER NOT NULL,"
