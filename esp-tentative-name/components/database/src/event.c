@@ -3,14 +3,14 @@
 
 #include "esp_log.h"
 
-esp_err_t RetrieveEventsSortedDB(sqlite3 *db, event_t *eventBuffer, int count, int offset)
+int RetrieveEventsSortedDB(sqlite3 *db, event_t *eventBuffer, int count, int offset)
 {
     static const char *TAG = "event::RemoveEventDB";
 
     if (!eventBuffer || count <= 0)
     {
         ESP_LOGE(TAG, "Invalid buffer or count");
-        return ESP_ERR_INVALID_ARG;
+        return -1;
     }
 
     const char *sql = "SELECT id, name, starttime, duration, description "
@@ -20,7 +20,7 @@ esp_err_t RetrieveEventsSortedDB(sqlite3 *db, event_t *eventBuffer, int count, i
     if (rc != SQLITE_OK)
     {
         ESP_LOGE(TAG, "Failed to prepare SELECT statement: %s", sqlite3_errmsg(db));
-        return ESP_FAIL;
+        return -1;
     }
 
     sqlite3_bind_int(stmt, 1, count);
@@ -59,12 +59,12 @@ esp_err_t RetrieveEventsSortedDB(sqlite3 *db, event_t *eventBuffer, int count, i
     {
         ESP_LOGE(TAG, "Error retrieving events: %s", sqlite3_errmsg(db));
         sqlite3_finalize(stmt);
-        return ESP_FAIL;
+        return -1;
     }
 
     sqlite3_finalize(stmt);
     ESP_LOGI(TAG, "Retrieved %d event(s) starting at offset %d", i, offset);
-    return ESP_OK;
+    return i;
 }
 
 // -------------------------------------- Helper Scripts ------------------------------------------
