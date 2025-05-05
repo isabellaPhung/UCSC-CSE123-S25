@@ -309,9 +309,9 @@ esp_err_t SetTime()
     }
 
     // --- Get UTC Time ---
-    sntp_setoperatingmode(SNTP_OPMODE_POLL);
-    sntp_setservername(0, "pool.ntp.org");
-    sntp_init();
+    esp_sntp_setoperatingmode(SNTP_OPMODE_POLL);
+    esp_sntp_setservername(0, "pool.ntp.org");
+    esp_sntp_init();
 
     time_t now;
     struct tm timeinfo;
