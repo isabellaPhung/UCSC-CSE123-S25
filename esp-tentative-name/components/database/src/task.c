@@ -5,11 +5,11 @@
 #include <stdio.h>
 #include <string.h>
 
-int AddTaskDB(sqlite3 *db, task_t *ent);
+esp_err_t AddTaskDB(sqlite3 *db, task_t *ent);
 esp_err_t RemoveTaskDB(sqlite3 *db, const char *uuid);
 
 // Adds JSON entries to database
-int ParseTasksJSON(sqlite3 *db, const char *json)
+esp_err_t ParseTasksJSON(sqlite3 *db, const char *json)
 {
     static const char *TAG = "task::ParseTasksJSON";
 
@@ -17,7 +17,7 @@ int ParseTasksJSON(sqlite3 *db, const char *json)
     if (!root)
     {
         ESP_LOGE(TAG, "Error parsing JSON");
-        return -1;
+        return ESP_ERR_INVALID_ARG;
     }
 
     cJSON *taskItem = cJSON_GetObjectItem(root, "task");
@@ -25,7 +25,7 @@ int ParseTasksJSON(sqlite3 *db, const char *json)
     {
         ESP_LOGE(TAG, "Invalid JSON: 'task' should be a JSON object");
         cJSON_Delete(root);
-        return -2;
+        return ESP_ERR_INVALID_ARG;
     }
 
     task_t task = {0};
@@ -40,7 +40,7 @@ int ParseTasksJSON(sqlite3 *db, const char *json)
     if (!cJSON_IsString(id) || !cJSON_IsString(name) || !cJSON_IsString(priority) || !cJSON_IsNumber(duedate))
     {
         ESP_LOGE(TAG, "Missing or invalid task fields");
-        return -3;
+        return ESP_ERR_INVALID_ARG;
     }
 
     strncpy(task.uuid, id->valuestring, UUID_LENGTH - 1);
@@ -79,12 +79,14 @@ int ParseTasksJSON(sqlite3 *db, const char *json)
     }
 
     int rc = AddTaskDB(db, &task);
+    cJSON_Delete(root);
+
     if (rc != SQLITE_OK)
     {
         ESP_LOGI(TAG, "Failed to insert task %s: %s", task.uuid, sqlite3_errmsg(db));
+        return ESP_FAIL;
     }
 
-    cJSON_Delete(root);
     return 0;
 }
 
@@ -224,7 +226,7 @@ esp_err_t RemoveTaskDB(sqlite3 *db, const char *uuid)
 }
 // -------------------------------------- Helper Functions ----------------------------------------
 
-int AddTaskDB(sqlite3 *db, task_t *ent)
+esp_err_t AddTaskDB(sqlite3 *db, task_t *ent)
 {
     static const char *TAG = "task::AddTaskDB";
 
@@ -234,7 +236,7 @@ int AddTaskDB(sqlite3 *db, task_t *ent)
     if (rc != SQLITE_OK)
     {
         ESP_LOGE(TAG, "Cannot prepare statement: %s", sqlite3_errmsg(db));
-        return rc;
+        return ESP_FAIL;
     }
 
     sqlite3_bind_text(stmt, 1, ent->uuid, -1, SQLITE_STATIC);
@@ -249,12 +251,12 @@ int AddTaskDB(sqlite3 *db, task_t *ent)
     {
         ESP_LOGE(TAG, "Execution failed: %s", sqlite3_errmsg(db));
         sqlite3_finalize(stmt);
-        return rc;
+        return ESP_FAIL;
     }
 
     sqlite3_finalize(stmt);
     ESP_LOGI(TAG, "Added <%s> with UUID <%s>", ent->name, ent->uuid);
-    return SQLITE_OK;
+    return ESP_OK;
 }
 
 void PrintTask(task_t ent)
