@@ -177,7 +177,7 @@ int InitSQL(sqlite3 **db)
         return rc;
     }
 
-    // --- Task Table ---
+    // -------------------------------------- Task Table ------------------------------------------
     ESP_LOGI(TAG, "database::InitSQL: Creating Task Table...");
     char *sql = "CREATE TABLE IF NOT EXISTS tasks ("
                 "id TEXT PRIMARY KEY,"
@@ -196,7 +196,7 @@ int InitSQL(sqlite3 **db)
         return rc;
     }
 
-    // --- Event Table ---
+    // -------------------------------------- Event Table -----------------------------------------
     ESP_LOGI(TAG, "database::InitSQL: Creating Event Table...");
     sql = "CREATE TABLE IF NOT EXISTS events ("
           "id TEXT PRIMARY KEY,"
@@ -211,6 +211,27 @@ int InitSQL(sqlite3 **db)
         ESP_LOGE(TAG, "database::InitSQL: SQL error: %s", zErrMsg);
         sqlite3_free(zErrMsg);
         return rc;
+    }
+
+    // ------------------------------------- Habit Tables -----------------------------------------
+    const char *sql_habits =
+        "CREATE TABLE IF NOT EXISTS habits ("
+        "id TEXT PRIMARY KEY, "
+        "name TEXT UNIQUE NOT NULL);";
+
+    const char *sql_entries =
+        "CREATE TABLE IF NOT EXISTS habit_entries ("
+        "habit_id TEXT NOT NULL, "
+        "date TEXT NOT NULL, "
+        "PRIMARY KEY (habit_id, date), "
+        "FOREIGN KEY (habit_id) REFERENCES habits(id) ON DELETE CASCADE);";
+
+    char *err_msg = NULL;
+    if (sqlite3_exec(*db, sql_habits, 0, 0, &err_msg) != SQLITE_OK ||
+        sqlite3_exec(*db, sql_entries, 0, 0, &err_msg) != SQLITE_OK) {
+        ESP_LOGE(TAG, "SQL error: %s", err_msg);
+        sqlite3_free(err_msg);
+        return ESP_FAIL;
     }
 
     return SQLITE_OK;

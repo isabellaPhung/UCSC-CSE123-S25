@@ -9,6 +9,7 @@
 // Database tables
 #include "../src/task.h"
 #include "../src/event.h"
+#include "../src/habit.h"
 
 // Initializes the database and ensures the tasks table exists
 int InitSQL(sqlite3 **db);
