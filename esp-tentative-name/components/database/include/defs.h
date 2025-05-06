@@ -14,4 +14,13 @@
 
 #define MOUNT_POINT "/sdcard"
 
+// Habit Flags
+#define SATURDAY_FLAG 0x01
+#define FRIDAY_FLAG 0x02
+#define THURSDAY_FLAG 0x04
+#define WEDNESDAY_FLAG 0x08
+#define TUESDAY_FLAG 0x10
+#define MONDAY_FLAG 0x20
+#define SUNDAY_FLAG 0x40
+
 #endif
