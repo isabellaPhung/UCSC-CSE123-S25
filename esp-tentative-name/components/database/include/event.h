@@ -21,4 +21,7 @@ esp_err_t RetrieveEventsSortedDB(sqlite3 *db, event_t *eventBuffer, int count, i
 
 esp_err_t ParseEventsJSON(sqlite3 *db, const char *json);
 
+// DEBUG FUNCTION
+esp_err_t TestEventFunctions(sqlite3 *db);
+
 #endif

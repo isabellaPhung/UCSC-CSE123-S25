@@ -144,7 +144,7 @@ void app_main()
     InitSQL(&db);
     cb_data.db_ptr = db;
 
-    // --- Configure Clock (PCF8523) ---
+    // -------------------------------- Configure Clock (PCF8523) ---------------------------------
     /*if (!i2c_scan())
     {
         return;
@@ -153,6 +153,10 @@ void app_main()
     ESP_ERROR_CHECK(RebootRTC());
     ESP_ERROR_CHECK(SetTime());
 
+    // -------------------------------------- TEST SCRIPTS ----------------------------------------
+    TestEventFunctions(db);
+
+    // ------------------------------- Initialize Server Connection -------------------------------
     int return_status;
     return_status = mqtt_init(&demo_callback, (void *)&cb_data);
     assert(return_status == EXIT_SUCCESS);

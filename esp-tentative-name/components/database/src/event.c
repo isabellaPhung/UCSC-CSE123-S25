@@ -128,3 +128,63 @@ esp_err_t RemoveEventDB(sqlite3 *db, const char *uuid)
     sqlite3_finalize(stmt);
     return ESP_OK;
 }
+
+// ----------------------------------------- TEST SCRIPT ------------------------------------------
+esp_err_t TestEventFunctions(sqlite3 *db)
+{
+    static const char *TAG = "event::TestEventFunctions";
+
+    ESP_LOGI(TAG, "=== Starting Event DB Function Test ===");
+
+    // Step 1: Create a dummy event
+    event_t test_event = {
+        .uuid = "test-event-uuid-1234",
+        .name = "Test Event",
+        .start_time = time(NULL) + 3600, // 1 hour from now
+        .duration = 1800,                // 30 minutes
+        .description = "This is a test event."};
+
+    esp_err_t err = AddEventDB(db, &test_event);
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "AddEventToDB failed");
+        return ESP_FAIL;
+    }
+
+    // Step 2: Retrieve event using sort
+    event_t buffer[5];
+    int num_found = RetrieveEventsSortedDB(db, buffer, 5, 0);
+    if (num_found < 0)
+    {
+        ESP_LOGE(TAG, "RetrieveEventsSortedDB failed");
+        return ESP_FAIL;
+    }
+
+    int found = 0;
+    for (int i = 0; i < num_found; i++)
+    {
+        if (strcmp(buffer[i].uuid, test_event.uuid) == 0)
+        {
+            ESP_LOGI(TAG, "Test event retrieved successfully.");
+            found = 1;
+            break;
+        }
+    }
+
+    if (!found)
+    {
+        ESP_LOGE(TAG, "Test event not found in retrieval.");
+        return ESP_FAIL;
+    }
+
+    // Step 3: Delete test event
+    err = RemoveEventDB(db, test_event.uuid);
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "DeleteEventFromDB failed");
+        return ESP_FAIL;
+    }
+
+    ESP_LOGI(TAG, "=== Event DB Function Test Completed Successfully ===");
+    return ESP_OK;
+}
