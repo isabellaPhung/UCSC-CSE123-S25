@@ -179,33 +179,35 @@
                 const usernameVal = document.getElementById('username').value;
                 const passwordVal = document.getElementById('password').value;
                 
-                // Get users from localStorage
-                const users = JSON.parse(localStorage.getItem('users')) || [];
-                
-                // Find the user
-                const user = users.find(u => u.username === usernameVal && u.password === passwordVal);
-                
-                if (user) {
-                    // Store current user in localStorage
-                    localStorage.setItem('currentUser', JSON.stringify({
-                        id: user.id,
-                        username: user.username
-                    }));
+<!--                // Get users from localStorage-->
+<!--                const users = JSON.parse(localStorage.getItem('users')) || [];-->
+<!--                -->
+<!--                // Find the user-->
+<!--                const user = users.find(u => u.username === usernameVal && u.password === passwordVal);-->
 
-                    fetch('https://localhost/token/login', {
-                        method: 'POST',
-                        headers: {
-                          'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({username: usernameVal, password: passwordVal})
-                    });
-                    
-                    // Redirect to dashboard
-                    window.location.href = 'index';
-                } else {
-                    // Show error message
-                    document.getElementById('error-message').style.display = 'block';
-                }
+                fetch('https://localhost/token/login', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({username: usernameVal, password: passwordVal})
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        // Show error message
+                        document.getElementById('error-message').style.display = 'block';
+                    }
+                    else {
+                        // Store current user in localStorage
+                        localStorage.setItem('currentUser', JSON.stringify({
+                            id: Math.random().toString(36).substr(2, 9),
+                            username: usernameVal
+                        }));
+
+                        // Redirect to dashboard
+                        window.location.href = 'index';
+                    }
+                });
             }
         });
     </script>

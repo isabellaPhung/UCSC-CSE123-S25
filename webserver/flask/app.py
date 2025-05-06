@@ -1,6 +1,6 @@
 from flask import Flask, request, render_template, redirect, url_for, jsonify
 from flask_jwt_extended import (
-    JWTManager, create_access_token, create_refresh_token,
+    JWTManager, create_access_token, create_refresh_token, unset_jwt_cookies,
     set_access_cookies, set_refresh_cookies, get_jwt_identity, jwt_required
 )
 from aws_helper import AwsS3
@@ -10,19 +10,28 @@ s3_conn = AwsS3()
 
 # TODO: add proper config
 app.config["JWT_SECRET_KEY"] = "TODO"
-app.config['JWT_TOKEN_LOCATION'] = ['cookies']
+app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
 # app.config['JWT_COOKIE_SECURE'] = True
 # app.config['JWT_COOKIE_CSRF_PROTECT'] = True
 # app.config['JWT_ACCESS_COOKIE_PATH'] = '/api/'
-app.config['JWT_REFRESH_COOKIE_PATH'] = '/token/refresh'
+app.config["JWT_REFRESH_COOKIE_PATH"] = "/token/refresh"
 
 jwt = JWTManager(app)
+
+
+@app.route("/test")
+def test():
+    resp = {"tasks": s3_conn.get_tasks()}
+    return jsonify(resp), 200
 
 
 @app.route("/token/login", methods=["POST"])
 def login_authenticate():
     username = request.json.get("username")
     password = request.json.get("password")
+
+    if not s3_conn.check_login(username, password):
+        return {"login": False}, 400
 
     resp = jsonify({"login": True})
     access_token = create_access_token(identity=username)
@@ -43,7 +52,12 @@ def refresh():
     set_access_cookies(resp, access_token)
     return resp, 200
 
-# TODO: add logic for removing token on logout
+
+@app.route("/token/remove", methods=["POST"])
+def logout():
+    resp = jsonify({"logout": True})
+    unset_jwt_cookies(resp)
+    return resp, 200
 
 
 @app.route("/login")
