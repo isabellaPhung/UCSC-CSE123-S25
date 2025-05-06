@@ -1,9 +1,10 @@
 /*
  * This file is created to be used in tandem with the LVGL sim, this way you can import the menus quickly and keep a separate main file with simulation specific functions.
- * Not intended to be used standalone, missing some library definitions and static variables. Intended to be imported as a .c file. Although maybe there's a way to do t
+ * Not intended to be used standalone, missing some library definitions and static variables. needs database.h
  */
+#include "helper_menus.h"
 
-static lv_obj_t *label = NULL;
+static lv_obj_t * label;
 static lv_style_t style_screen;
 
 static lv_obj_t * tile1;
@@ -32,7 +33,6 @@ static lv_obj_t * obj;
 static lv_obj_t * msgbox;
 static lv_event_code_t code;
 static uint32_t k;
-const char * days[] = {"Su", "Mo", "Tu", "We", "Th", "Fr", "Sat"}; //for habits menu
 
 /*
  * callback function for focus menu for menu navigation
@@ -114,7 +114,7 @@ void focusMenu_create(lv_obj_t * parent){
     //adding gridnav and focus colors to the taskevent menu
     lv_obj_set_style_bg_color(parent, lv_palette_lighten(LV_PALETTE_BLUE, 4), LV_STATE_FOCUSED);
     lv_gridnav_add(parent, LV_GRIDNAV_CTRL_VERTICAL_MOVE_ONLY);
-    lv_group_add_obj(g1, parent);
+    lv_group_add_obj(lv_group_get_default(), parent);
     lv_group_focus_obj(parent);
     lv_obj_add_event_cb(parent, focus_cb, LV_EVENT_KEY, NULL);
 
@@ -146,11 +146,25 @@ void focusMenu_create(lv_obj_t * parent){
     lv_obj_align(arrowDown, LV_ALIGN_BOTTOM_RIGHT, -5, -5);
 }
 
+static void complete_cb(lv_event_t * e){
+    msgbox = lv_event_get_user_data(e);
+    //TODO: completion implementation
+    lv_msgbox_close(msgbox);
+    lv_group_focus_freeze(lv_group_get_default(), false);
+}
+
+static void focus_task_cb(lv_event_t * e){
+    msgbox = lv_event_get_user_data(e);
+    //TODO: focus implementation
+    lv_msgbox_close(msgbox);
+    lv_group_focus_freeze(lv_group_get_default(), false);
+}
+
 static void msgbox_cb(lv_event_t * e){
     msgbox = lv_event_get_user_data(e);
 
     lv_msgbox_close(msgbox);
-    lv_group_focus_freeze(g1, false);
+    lv_group_focus_freeze(lv_group_get_default(), false);
 }
 
 //after the msg box is closed it always returns to the events list for some reason
@@ -165,7 +179,13 @@ static void task_desc_cb(lv_event_t * e){
     button = lv_msgbox_add_footer_button(msgbox, "Exit");
     lv_obj_add_event_cb(button, msgbox_cb, LV_EVENT_CLICKED, msgbox);
     lv_group_focus_obj(button);
-    lv_group_focus_freeze(g1, true);
+    lv_group_focus_freeze(lv_group_get_default(), true);
+    
+    button = lv_msgbox_add_footer_button(msgbox, "Complete");
+    lv_obj_add_event_cb(button, complete_cb, LV_EVENT_CLICKED, msgbox);
+    
+    button = lv_msgbox_add_footer_button(msgbox, "Focus");
+    lv_obj_add_event_cb(button, focus_task_cb, LV_EVENT_CLICKED, msgbox);
 
     lv_obj_align(msgbox, LV_ALIGN_CENTER, 0, 0);
 
@@ -210,6 +230,8 @@ static lv_obj_t * create_task(lv_obj_t * parent, const char * name, const char *
 
     return cont;
 }
+
+
 
 void loadPrevTasks(){
     //TODO: load prev 4 tasks
@@ -273,7 +295,7 @@ void taskEvent_create(lv_obj_t * parent){
     //adding gridnav and focus colors to the taskevent menu
     lv_obj_set_style_bg_color(parent, lv_palette_lighten(LV_PALETTE_BLUE, 4), LV_STATE_FOCUSED);
     lv_gridnav_add(parent, LV_GRIDNAV_CTRL_NONE);
-    lv_group_add_obj(g1, parent);
+    lv_group_add_obj(lv_group_get_default(), parent);
     lv_group_focus_obj(parent);
     lv_obj_add_event_cb(parent, taskevent_cb, LV_EVENT_KEY, NULL);
     
@@ -293,7 +315,7 @@ void taskEvent_create(lv_obj_t * parent){
         
     //left task list arrows
     button = lv_btn_create(parent);
-    //lv_group_add_obj(g1, button);
+    //lv_group_add_obj(lv_group_get_default(), button);
     lv_group_remove_obj(button);
     lv_obj_align(button, LV_ALIGN_TOP_LEFT, (LCD_H_RES/4)-25, 35);
     lv_obj_set_size(button, 25, 25);
@@ -305,7 +327,7 @@ void taskEvent_create(lv_obj_t * parent){
     
     //right task list arrows
     button = lv_btn_create(parent);
-    //lv_group_add_obj(g1, button);
+    //lv_group_add_obj(lv_group_get_default(), button);
     lv_group_remove_obj(button);
     lv_obj_align(button, LV_ALIGN_TOP_LEFT, (LCD_H_RES/4)+25, 35);
     lv_obj_set_size(button, 25, 25);
@@ -317,7 +339,7 @@ void taskEvent_create(lv_obj_t * parent){
 
     //left event list arrows
     button = lv_btn_create(parent);
-    //lv_group_add_obj(g1, button);
+    //lv_group_add_obj(lv_group_get_default(), button);
     lv_group_remove_obj(button);
     lv_obj_align(button, LV_ALIGN_TOP_RIGHT, -((LCD_H_RES/4)+25), 35);
     lv_obj_add_event_cb(button, events_left_cb, LV_EVENT_ALL, NULL);//probably need to be updated for each button?
@@ -329,7 +351,7 @@ void taskEvent_create(lv_obj_t * parent){
     
     //right event list arrows
     button = lv_btn_create(parent);
-    //lv_group_add_obj(g1, button);
+    //lv_group_add_obj(lv_group_get_default(), button);
     lv_group_remove_obj(button);
     lv_obj_align(button, LV_ALIGN_TOP_RIGHT, -((LCD_H_RES/4)-25), 35);
     //lv_obj_add_event_cb(button, events_right_cb, LV_EVENT_ALL, NULL);
@@ -341,7 +363,7 @@ void taskEvent_create(lv_obj_t * parent){
 
     //create lv list obj
     lv_obj_t * tasklist = lv_list_create(parent);
-    lv_group_add_obj(g1, tasklist);
+    lv_group_add_obj(lv_group_get_default(), tasklist);
     lv_gridnav_add(tasklist, LV_GRIDNAV_CTRL_NONE);
     lv_obj_set_size(tasklist, lv_pct(49), lv_pct(73));
     lv_obj_align(tasklist, LV_ALIGN_TOP_LEFT, 3, 60);
@@ -362,7 +384,7 @@ void taskEvent_create(lv_obj_t * parent){
     //create event list
     //create lv list obj
     lv_obj_t * eventlist = lv_list_create(parent);
-    lv_group_add_obj(g1, eventlist);
+    lv_group_add_obj(lv_group_get_default(), eventlist);
     lv_gridnav_add(eventlist, LV_GRIDNAV_CTRL_NONE);
     lv_obj_set_size(eventlist, lv_pct(49), lv_pct(73));
     lv_obj_align(eventlist, LV_ALIGN_TOP_LEFT, (LCD_H_RES/2), 60);
@@ -420,7 +442,7 @@ void createHabit(lv_obj_t * parent, const char * name, uint8_t row){
     lv_obj_add_event_cb(buttons, buttonmatrix_cb, LV_EVENT_KEY, NULL);//probably need to be updated for each button?
     lv_obj_set_style_bg_color(parent, lv_palette_lighten(LV_PALETTE_BLUE, 4), LV_STATE_FOCUSED);
     lv_obj_set_style_pad_all(buttons, 5, LV_PART_MAIN);
-    lv_group_add_obj(g1, buttons);
+    lv_group_add_obj(lv_group_get_default(), buttons);
     lv_btnmatrix_set_map(buttons, btnm_map);
     lv_obj_set_pos(buttons, 15, 50+(row*100));
     lv_obj_set_size(buttons, LCD_H_RES-50, LCD_V_RES/5.5);
@@ -436,7 +458,7 @@ void habitMenu_create(lv_obj_t * parent){
     //and color when focused and add gridnav 
     lv_obj_set_style_bg_color(parent, lv_palette_lighten(LV_PALETTE_BLUE, 4), LV_STATE_FOCUSED);
     lv_gridnav_add(parent, LV_GRIDNAV_CTRL_NONE);
-    lv_group_add_obj(g1, parent);
+    lv_group_add_obj(lv_group_get_default(), parent);
     lv_group_focus_obj(parent);
     lv_obj_add_event_cb(parent, habit_cb, LV_EVENT_KEY, NULL);
 
