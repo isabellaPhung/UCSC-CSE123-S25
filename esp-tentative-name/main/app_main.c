@@ -25,13 +25,6 @@
 
 static const char *TAG = "MAIN";
 
-struct callback_data_t
-{
-    int expected;
-    int cur_index;
-    sqlite3 *db_ptr;
-};
-
 void demo_callback(const char *payload, size_t payload_length, void *cb_data)
 {
     struct callback_data_t *data = (struct callback_data_t *)cb_data;
@@ -57,6 +50,11 @@ void demo_callback(const char *payload, size_t payload_length, void *cb_data)
             // Add task information to database
             ParseTasksJSON(data->db_ptr, payload);
             data->cur_index++;
+        }
+        else if (item && (strcmp(item->valuestring, "acknowledge") == 0))
+        {
+            ESP_LOGI(TAG, "Server acknowledged update!");
+            data->update_ack = 1;
         }
     }
     cJSON_Delete(root);

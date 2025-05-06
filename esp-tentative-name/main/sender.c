@@ -11,36 +11,18 @@
 
 #define MAX_SEND_LENGTH 128 + UUID_LENGTH // Maximum length of JSON information that can be sent to the server at once
 
-typedef struct
-{
-    int expected;
-    int cur_index;
-} callback_data_t;
-
-static callback_data_t cb_data;
-
-// Callback for received publish messages (if needed)
-void mqtt_publish_callback(const char *payload, size_t len, void *user_data)
-{
-    callback_data_t *data = (callback_data_t *)user_data;
-
-    // Dummy parse logic
-    data->expected = 1;
-    data->cur_index = 1;
-
-    ESP_LOGI("Sender::MQTT_CB", "Received callback message: %.*s", (int)len, payload);
-}
-
-esp_err_t SendTaskStatus(const char *uuid, TASK_STATUS status)
+esp_err_t SendTaskStatus(const char *uuid, TASK_STATUS status, struct callback_data_t *cb_data)
 {
     static const char *TAG = "Sender::SendTaskStatus";
 
-    // --------------------- Construct JSON Payload ---------------------
+    // ----------------- Construct JSON Payload from directory ---------------------
     char msg[MAX_SEND_LENGTH];
 
+    // TODO: Replace this with a read from disk to cJSON
     snprintf(msg, MAX_SEND_LENGTH,
              "{\n"
-             "  \"tasks\":[\n"
+             "\"action\": update,"
+             "\"tasks\":[\n"
              "    {\n"
              "      \"id\":\"%s\",\n"
              "      \"completion\": %d,\n"
@@ -49,8 +31,9 @@ esp_err_t SendTaskStatus(const char *uuid, TASK_STATUS status)
              "}",
              uuid, (int)status);
 
+    cb_data->update_ack = 0;
+
     // ----------------------------- Initialize MQTT ------------------------------------
-    mqtt_init(mqtt_publish_callback, &cb_data);
     if (mqtt_connect() != 0)
     {
         ESP_LOGE(TAG, "Failed to connect to MQTT broker");
@@ -66,15 +49,11 @@ esp_err_t SendTaskStatus(const char *uuid, TASK_STATUS status)
     for (; i < MAX_RETRIES; i++)
     {
         mqtt_loop(MQTT_LOOP_TIMEOUT_MS);
-        if (cb_data.expected == 0)
+        if (cb_data->update_ack == 0)
         {
             ESP_LOGI(TAG, "Did not get back a length message from the server, re-publishing after a delay");
             vTaskDelay(5000 / portTICK_PERIOD_MS);
             mqtt_publish(msg, strlen(msg));
-        }
-        else if (cb_data.expected != cb_data.cur_index)
-        {
-            ESP_LOGI(TAG, "Did not get the expected amount, listening for some more time");
         }
         else
         {
