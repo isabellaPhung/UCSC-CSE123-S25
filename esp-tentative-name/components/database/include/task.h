@@ -56,6 +56,7 @@ esp_err_t UpdateTaskStatusDB(sqlite3 *db, const char *uuid, TASK_STATUS new_stat
 int RetrieveTasksSortedDB(sqlite3 *db, task_t *taskBuffer, int count, int offset);
 
 // --- Utility ---
+esp_err_t AddTaskDB(sqlite3 *db, task_t *ent);
 void PrintTask(task_t ent);
 int PrintTaskDB(sqlite3 *db, const char *id);
 
