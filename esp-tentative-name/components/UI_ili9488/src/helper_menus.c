@@ -199,7 +199,7 @@ static void task_desc_cb(lv_event_t * e){
  * returns an lv_obj pointer to task list entry
  * probably needs to be fixed to be generic for tasks
  */
-static void create_task(const char * name, const char * dueDate){
+void create_task(const char * name, const char * dueDate){
     //creates button for task using existing list button style
     lv_obj_t * cont = lv_obj_class_create_obj(&lv_list_button_class, tasklist);
     lv_obj_class_init_obj(cont);
