@@ -25,74 +25,85 @@
 
 static const char *TAG = "MAIN";
 
-struct callback_data_t {
-  int expected;
-  int cur_index;
-  // TODO
-  // struct database_t *db_ptr;
+struct callback_data_t
+{
+    int expected;
+    int cur_index;
+    sqlite3 *db_ptr;
 };
 
-void demo_callback(const char *payload, size_t payload_length, void *cb_data) {
-  struct callback_data_t *data = (struct callback_data_t *) cb_data;
-  cJSON *root = cJSON_ParseWithLength(payload, payload_length);
-  cJSON *item;
-  item = cJSON_GetObjectItem(root, "id");
-  if (item && (strcmp(item->valuestring, "server") == 0)){
-    item = cJSON_GetObjectItem(root, "action"); 
-    if (item && (strcmp(item->valuestring, "length") == 0)) {
-      item = cJSON_GetObjectItem(root, "length");
-      if (item && cJSON_IsNumber(item)) {
-        data->expected = item->valueint;
-        data->cur_index = 0;
-        ESP_LOGI(TAG, "Expecting %d tasks", data->expected);
-      }
+void demo_callback(const char *payload, size_t payload_length, void *cb_data)
+{
+    struct callback_data_t *data = (struct callback_data_t *)cb_data;
+    cJSON *root = cJSON_ParseWithLength(payload, payload_length);
+    cJSON *item;
+    item = cJSON_GetObjectItem(root, "id");
+    if (item && (strcmp(item->valuestring, "server") == 0))
+    {
+        item = cJSON_GetObjectItem(root, "action");
+        if (item && (strcmp(item->valuestring, "length") == 0))
+        {
+            item = cJSON_GetObjectItem(root, "length");
+            if (item && cJSON_IsNumber(item))
+            {
+                data->expected = item->valueint;
+                data->cur_index = 0;
+                ESP_LOGI(TAG, "Expecting %d tasks", data->expected);
+            }
+        }
+        else if (item && (strcmp(item->valuestring, "response") == 0))
+        {
+            ESP_LOGI(TAG, "Server response index %d", data->cur_index);
+            // Add task information to database
+            ParseTasksJSON(data->db_ptr, payload);
+            data->cur_index++;
+        }
     }
-    else if (item && (strcmp(item->valuestring, "response") == 0)){
-      ESP_LOGI(TAG, "Server response index %d", data->cur_index);
-      // TODO 
-      // parsetaskjson(data->db_ptr, payload, payload_size);
-      data->cur_index ++;
-    }
-  }
-  cJSON_Delete(root);
-  ESP_LOGI(TAG, "Callback function called\n");
+    cJSON_Delete(root);
+    ESP_LOGI(TAG, "Callback function called\n");
 }
 
 #define BACKUP_PAYLOAD "{\"id\":\"c72572d0-8c8c-4f37-8ff6-829cac2eabec\",\"action\":\"refresh\"}"
-#define BACKUP_PAYLOAD_LENGTH ((size_t) (sizeof(BACKUP_PAYLOAD) - 1))
+#define BACKUP_PAYLOAD_LENGTH ((size_t)(sizeof(BACKUP_PAYLOAD) - 1))
 #define RETRY_DELAY_MS 5000U
 
-int request_backup(struct callback_data_t *cb_data){
-  int return_status = EXIT_SUCCESS;
-  size_t retries = 4;
-  mqtt_connect();
-  mqtt_subscribe();
+int request_backup(struct callback_data_t *cb_data)
+{
+    int return_status = EXIT_SUCCESS;
+    size_t retries = 4;
+    mqtt_connect();
+    mqtt_subscribe();
 
-  mqtt_publish(BACKUP_PAYLOAD, BACKUP_PAYLOAD_LENGTH);
-  while (1) {
-    mqtt_loop(5000);
-    retries--;
-    if (retries == 0){
-      return_status = EXIT_FAILURE;
-      ESP_LOGW(TAG, "Three failures of backup request, trying again later");
-      break;
+    mqtt_publish(BACKUP_PAYLOAD, BACKUP_PAYLOAD_LENGTH);
+    while (1)
+    {
+        mqtt_loop(5000);
+        retries--;
+        if (retries == 0)
+        {
+            return_status = EXIT_FAILURE;
+            ESP_LOGW(TAG, "Three failures of backup request, trying again later");
+            break;
+        }
+        if (cb_data->expected == 0)
+        {
+            ESP_LOGI(TAG, "Did not get back a length message from the server, re-publishing after a delay");
+            vTaskDelay(RETRY_DELAY_MS / portTICK_PERIOD_MS);
+            mqtt_publish(BACKUP_PAYLOAD, BACKUP_PAYLOAD_LENGTH);
+        }
+        else if (cb_data->expected != cb_data->cur_index)
+        {
+            ESP_LOGI(TAG, "Did not get the expected amount, listening for some more time");
+        }
+        else
+        {
+            break;
+        }
     }
-    if (cb_data->expected == 0) {
-      ESP_LOGI(TAG, "Did not get back a length message from the server, re-publishing after a delay");
-      vTaskDelay(RETRY_DELAY_MS / portTICK_PERIOD_MS);
-      mqtt_publish(BACKUP_PAYLOAD, BACKUP_PAYLOAD_LENGTH);
-    }
-    else if (cb_data->expected != cb_data->cur_index) {
-      ESP_LOGI(TAG, "Did not get the expected amount, listening for some more time");
-    }
-    else {
-      break;
-    }
-  }
 
-  mqtt_unsubscribe();
-  mqtt_disconnect();
-  return return_status;
+    mqtt_unsubscribe();
+    mqtt_disconnect();
+    return return_status;
 }
 
 // TODO
@@ -107,47 +118,49 @@ struct packed_t {
 };
 #endif
 
-void app_main() {
-  esp_log_level_set("*", ESP_LOG_INFO);
+void app_main()
+{
+    esp_log_level_set("*", ESP_LOG_INFO);
 
-  esp_err_t ret = nvs_flash_init();
-  if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-      ESP_ERROR_CHECK(nvs_flash_erase());
+    esp_err_t ret = nvs_flash_init();
+    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
+    {
+        ESP_ERROR_CHECK(nvs_flash_erase());
 
-    ESP_ERROR_CHECK(nvs_flash_init());
-  }
+        ESP_ERROR_CHECK(nvs_flash_init());
+    }
 
-  ESP_ERROR_CHECK(esp_netif_init());
-  ESP_ERROR_CHECK(esp_event_loop_create_default());
+    ESP_ERROR_CHECK(esp_netif_init());
+    ESP_ERROR_CHECK(esp_event_loop_create_default());
 
-  ESP_ERROR_CHECK(example_connect());
+    ESP_ERROR_CHECK(example_connect());
 
-  
-  struct callback_data_t cb_data;
-  cb_data.expected = 0;
-  cb_data.cur_index = -1;
+    struct callback_data_t cb_data;
+    cb_data.expected = 0;
+    cb_data.cur_index = -1;
 
-  // --- Configure Clock (PCF8523) ---
-  if (!i2c_scan())
-  {
-      return;
-  }
-  ESP_ERROR_CHECK(InitRTC());
-  ESP_ERROR_CHECK(RebootRTC());
-  ESP_ERROR_CHECK(SetTime());
+    // Create new database object
+    sqlite3 *db;
+    InitSQL(&db);
+    cb_data.db_ptr = db;
 
-  int return_status;
-  return_status = mqtt_init(&demo_callback, (void *) &cb_data);
-  assert (return_status == EXIT_SUCCESS);
+    // --- Configure Clock (PCF8523) ---
+    /*if (!i2c_scan())
+    {
+        return;
+    }*/
+    ESP_ERROR_CHECK(InitRTC());
+    ESP_ERROR_CHECK(RebootRTC());
+    ESP_ERROR_CHECK(SetTime());
 
-  // Create new database object
-  sqlite3 *db;
-  InitSQL(&db);
-  
-  // TODO refill on_screen with the 0th page of tasks
-  // retrievetaskssorted(&database, &(ui_data.on_screen), TASK_LIST_SIZE);
+    int return_status;
+    return_status = mqtt_init(&demo_callback, (void *)&cb_data);
+    assert(return_status == EXIT_SUCCESS);
 
-  request_backup(&cb_data);
+    // TODO refill on_screen with the 0th page of tasks
+    // retrievetaskssorted(&database, &(ui_data.on_screen), TASK_LIST_SIZE);
+
+    request_backup(&cb_data);
 
 #if 0
   long frame_timer = 0;
@@ -186,6 +199,6 @@ void app_main() {
   }
 #endif
 
-  // Close database
-  CloseSQL(&db);
+    // Close database
+    CloseSQL(&db);
 }
