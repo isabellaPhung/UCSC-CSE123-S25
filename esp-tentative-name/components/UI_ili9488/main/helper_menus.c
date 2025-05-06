@@ -10,7 +10,8 @@ static lv_style_t style_screen;
 static lv_obj_t * tile1;
 static lv_obj_t * tile2;
 static lv_obj_t * tile3;
-
+static lv_obj_t * tasklist;
+static lv_obj_t * eventlist;
 static lv_group_t * g1;
 
 /* Text settings */
@@ -198,9 +199,9 @@ static void task_desc_cb(lv_event_t * e){
  * returns an lv_obj pointer to task list entry
  * probably needs to be fixed to be generic for tasks
  */
-static lv_obj_t * create_task(lv_obj_t * parent, const char * name, const char * dueDate){
+static void create_task(const char * name, const char * dueDate){
     //creates button for task using existing list button style
-    lv_obj_t * cont = lv_obj_class_create_obj(&lv_list_button_class, parent);
+    lv_obj_t * cont = lv_obj_class_create_obj(&lv_list_button_class, tasklist);
     lv_obj_class_init_obj(cont);
     lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_COLUMN); //sets button to flex flow column form so it'll expand as needed
     lv_group_remove_obj(cont);   //Not needed, we use the gridnav instead
@@ -227,8 +228,6 @@ static lv_obj_t * create_task(lv_obj_t * parent, const char * name, const char *
     lv_label_set_text_static(label, dueDate);
     lv_obj_add_style(label, &style_text_muted, 0);
     lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 1, 1);
-
-    return cont;
 }
 
 
@@ -362,20 +361,21 @@ void taskEvent_create(lv_obj_t * parent){
     lv_obj_center(label);
 
     //create lv list obj
-    lv_obj_t * tasklist = lv_list_create(parent);
+    tasklist = lv_list_create(parent);
     lv_group_add_obj(lv_group_get_default(), tasklist);
     lv_gridnav_add(tasklist, LV_GRIDNAV_CTRL_NONE);
     lv_obj_set_size(tasklist, lv_pct(49), lv_pct(73));
     lv_obj_align(tasklist, LV_ALIGN_TOP_LEFT, 3, 60);
     lv_obj_set_style_pad_all(tasklist, 0, LV_PART_MAIN);
-   
+  
+    /*
     //dummy tasks
-    //loadNextTasks();
     create_task(tasklist, "Capstone Project", "3/25/2025");
     create_task(tasklist, "Figure out Prototype", "3/29/2025");
     create_task(tasklist, "Learn PCB Design", "3/30/2025");
     create_task(tasklist, "Learn Computer Aided Design", "4/1/2025");
-    
+    */ 
+
     //create a title for tasks
     lv_obj_t * taskTitle = lv_label_create(parent);
     lv_label_set_text(taskTitle, "Tasks");
@@ -383,20 +383,22 @@ void taskEvent_create(lv_obj_t * parent){
     
     //create event list
     //create lv list obj
-    lv_obj_t * eventlist = lv_list_create(parent);
+    eventlist = lv_list_create(parent);
     lv_group_add_obj(lv_group_get_default(), eventlist);
     lv_gridnav_add(eventlist, LV_GRIDNAV_CTRL_NONE);
     lv_obj_set_size(eventlist, lv_pct(49), lv_pct(73));
     lv_obj_align(eventlist, LV_ALIGN_TOP_LEFT, (LCD_H_RES/2), 60);
     lv_obj_set_style_pad_all(eventlist, 0, LV_PART_MAIN);
-   
+  
+    /*
     //dummy events
     //TODO: make them iterate through the database to display
     //loadNextEvents();
     create_task(eventlist, "Capstone Meeting", "3/21/2025 3:00PM");
     create_task(eventlist, "ECE171 Class", "3/29/2025 2:00PM");
     create_task(eventlist, "CSE121 Class", "3/30/2025 5:00PM");
-    
+    */
+
      //create a title for events
     lv_obj_t * eventTitle = lv_label_create(parent);
     lv_label_set_text(eventTitle, "Events");

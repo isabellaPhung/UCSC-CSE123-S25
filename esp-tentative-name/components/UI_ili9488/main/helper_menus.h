@@ -12,7 +12,7 @@ void initGroup();
 void focusMenu_create(lv_obj_t * parent);
 static void msgbox_cb(lv_event_t * e);
 static void task_desc_cb(lv_event_t * e);
-static lv_obj_t * create_task(lv_obj_t * parent, const char * name, const char * dueDate);
+static void create_task(const char * name, const char * dueDate);
 void loadPrevTasks();
 void loadNextTasks();
 void loadPrevEvents();
