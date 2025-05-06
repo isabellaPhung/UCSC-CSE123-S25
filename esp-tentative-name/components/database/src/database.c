@@ -217,7 +217,8 @@ int InitSQL(sqlite3 **db)
     const char *sql_habits =
         "CREATE TABLE IF NOT EXISTS habits ("
         "id TEXT PRIMARY KEY, "
-        "name TEXT UNIQUE NOT NULL);";
+        "name TEXT UNIQUE NOT NULL,"
+        "day_goals INT NOT NULL);";
 
     const char *sql_entries =
         "CREATE TABLE IF NOT EXISTS habit_entries ("
@@ -228,7 +229,8 @@ int InitSQL(sqlite3 **db)
 
     char *err_msg = NULL;
     if (sqlite3_exec(*db, sql_habits, 0, 0, &err_msg) != SQLITE_OK ||
-        sqlite3_exec(*db, sql_entries, 0, 0, &err_msg) != SQLITE_OK) {
+        sqlite3_exec(*db, sql_entries, 0, 0, &err_msg) != SQLITE_OK)
+    {
         ESP_LOGE(TAG, "SQL error: %s", err_msg);
         sqlite3_free(err_msg);
         return ESP_FAIL;
