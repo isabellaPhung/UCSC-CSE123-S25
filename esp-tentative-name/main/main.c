@@ -6,6 +6,8 @@
 #include "database.h" //for database purposes
 #include "display_init.h"  //initalizes LVGL and display hardware
 #include <time.h>
+//#include "helper_menus.h"
+
 /*
 create_task(tasklist, "Capstone Project", "3/25/2025");
 create_task(tasklist, "Figure out Prototype", "3/29/2025");
@@ -38,7 +40,7 @@ void initDatabase(){
     time_t t = time(NULL);
     
     task_t newTask = {
-        .uuid = "0",
+        .uuid = "abcdefg",
         .name = "Capstone Project",
         .description = "Complete Capstone Project",
         .completion = INCOMPLETE,
@@ -58,7 +60,7 @@ void initDatabase(){
     struct tm* ptr;
     ptr = localtime(&(newTask.time));
 
-    create_task(newTask.name, asctime(ptr));
+    //create_task(newTask.name, asctime(ptr)); //needs to be on screen 2
 }
 
 void adjustDatabase(){
@@ -66,10 +68,18 @@ void adjustDatabase(){
 }
 
 void app_main(void){
-    /* All the GUI stuff */
+    
+    /* LCD HW initialization */
+    ESP_ERROR_CHECK(app_lcd_init());
+
+    /* LVGL initialization */
+    ESP_ERROR_CHECK(app_lvgl_init());
+
+    /* All the GUI drawing */
     app_main_display();
+
     initDatabase();
-    adjustDatabase();
+    //adjustDatabase();
     while(1){
         vTaskDelay(pdMS_TO_TICKS(10)); //I can't remember why I put this delay here
         lv_timer_handler(); //update screen
