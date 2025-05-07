@@ -9,5 +9,4 @@ idf_component_register(
         "espressif__esp_lvgl_port"
         "atanisoft__esp_lcd_ili9488"
         "espressif__button"
-        "database"
 )

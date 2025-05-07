@@ -11,7 +11,7 @@ static esp_lcd_panel_handle_t lcd_panel = NULL;
 static lv_display_t *lvgl_disp = NULL;
 
 //initializes LCD
-static esp_err_t app_lcd_init(void){
+esp_err_t app_lcd_init(void){
     esp_err_t ret = ESP_OK;
 
     /* SPI initialization */
@@ -71,7 +71,7 @@ err:
 }
 
 //initalizes LVGL
-static esp_err_t app_lvgl_init(void)
+esp_err_t app_lvgl_init(void)
 {
     /* Initialize LVGL */
     const lvgl_port_cfg_t lvgl_cfg = {
@@ -120,11 +120,6 @@ static esp_err_t app_lvgl_init(void)
 
 void app_main_display(void)
 {
-    /* LCD HW initialization */
-    ESP_ERROR_CHECK(app_lcd_init());
-
-    /* LVGL initialization */
-    ESP_ERROR_CHECK(app_lvgl_init());
 
     /* Task lock */
     lvgl_port_lock(0);

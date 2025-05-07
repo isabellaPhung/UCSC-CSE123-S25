@@ -10,7 +10,6 @@ I haven't figured out how to get it to use a default font if it can't find the r
 For the ESP32C2 and ILI9488 screen pins are as follows:
 | pin | usage |
 | --- | ----- |
-| SPI MISO | 0 |
 | SPI MOSI | 10 |
 | SPI CLK | 8 |
 | TFT CS | 3 |

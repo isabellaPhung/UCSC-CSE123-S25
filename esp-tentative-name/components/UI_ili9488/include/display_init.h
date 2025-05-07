@@ -15,5 +15,11 @@
 #include <esp_lcd_ili9488.h> //screen driver
 #include "ui.h"
 
-//initializes LCD, LVGL and draws UI
+//initializes LCD
+esp_err_t app_lcd_init(void);
+
+//initializes LVGL
+esp_err_t app_lvgl_init(void);
+
+//draws UI
 void app_main_display();
