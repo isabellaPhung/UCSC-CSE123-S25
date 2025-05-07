@@ -10,12 +10,20 @@ I haven't figured out how to get it to use a default font if it can't find the r
 For the ESP32C2 and ILI9488 screen pins are as follows:
 | pin | usage |
 | --- | ----- |
-| SPI MOSI | 10 |
-| SPI CLK | 8 |
-| TFT CS | 3 |
-| TFT Reset | 4 |
+| TOUCH_IRQ | unused |
+| TOUCH_DO | unused |
+| TOUCH_DIN | unused |
+| TOUCH_CS | unused |
+| TOUCH_CLK | unused |
+| SPI MISO | unused |
+| TFT LED Backlight | 2 |
+| SPI CLK  (shared w/ sd card) | 7 |
+| SPI MOSI (shared w/ sd card) | 20 |
 | TFT DC | 5 |
-| TFT Backlight | 2 |
+| TFT Reset | 4 |
+| TFT CS | 3 |
+| GND | GND |
+| VCC | 5V |
 
 not 100% sure if TFT reset works since in the original code it was plugged into a weakly low strapping pin on the S3, but C3 does not have that function.
 
