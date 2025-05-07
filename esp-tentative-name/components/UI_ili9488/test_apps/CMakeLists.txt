@@ -1,10 +1,15 @@
-# For more information about build system see
-# https://docs.espressif.com/projects/esp-idf/en/latest/api-guides/build-system.html
-# The following five lines of boilerplate have to be in your project's
-# CMakeLists in this exact order for cmake to work correctly
-cmake_minimum_required(VERSION 3.16)
+#
+# SPDX-FileCopyrightText: 2022 atanisoft (github.com/atanisoft)
+#
+# SPDX-License-Identifier: MIT
+#
 
-set(COMPONENTS main)
-
+# The following lines of boilerplate have to be in your project's CMakeLists
+# in this exact order for cmake to work correctly
+cmake_minimum_required(VERSION 3.20)
+set(EXTRA_COMPONENT_DIRS
+    # ui
+  "${CMAKE_CURRENT_LIST_DIR}/.."
+  )    
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
-project(UI)
+project(UI-test)
