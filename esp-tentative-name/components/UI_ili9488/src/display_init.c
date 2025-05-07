@@ -1,4 +1,5 @@
 #include "display_init.h"
+#include "database.h"   // For spi bus intialization
 
 static const char *UI = "UI";
 
@@ -13,24 +14,19 @@ static lv_display_t *lvgl_disp = NULL;
 static esp_err_t app_lcd_init(void){
     esp_err_t ret = ESP_OK;
 
+    /* SPI initialization */
+    ret = init_shared_spi_bus();
+    if (ret != ESP_OK) {
+        ESP_LOGE(UI, "SPI bus init failed");
+        return ret;
+    }
+
     /* LCD backlight */
     gpio_config_t bk_gpio_config = {
         .mode = GPIO_MODE_OUTPUT,
         .pin_bit_mask = 1ULL << LCD_GPIO_BL
     };
     ESP_ERROR_CHECK(gpio_config(&bk_gpio_config));
-
-    /* LCD initialization */
-    ESP_LOGD(UI, "Initialize SPI bus");
-    const spi_bus_config_t buscfg = {
-        .sclk_io_num = LCD_GPIO_SCLK,
-        .mosi_io_num = LCD_GPIO_MOSI,
-        .miso_io_num = GPIO_NUM_NC,
-        .quadwp_io_num = GPIO_NUM_NC,
-        .quadhd_io_num = GPIO_NUM_NC,
-        .max_transfer_sz = LCD_H_RES * LCD_DRAW_BUFF_HEIGHT * sizeof(uint16_t),
-    };
-    ESP_RETURN_ON_ERROR(spi_bus_initialize(LCD_SPI_NUM, &buscfg, SPI_DMA_CH_AUTO), UI, "SPI init failed");
 
     ESP_LOGD(UI, "Install panel IO");
     const esp_lcd_panel_io_spi_config_t io_config = {
@@ -42,7 +38,7 @@ static esp_err_t app_lcd_init(void){
         .spi_mode = 0,
         .trans_queue_depth = 10,
     };
-    ESP_GOTO_ON_ERROR(esp_lcd_new_panel_io_spi((esp_lcd_spi_bus_handle_t)LCD_SPI_NUM, &io_config, &lcd_io), err, UI, "New panel IO failed");
+    ESP_GOTO_ON_ERROR(esp_lcd_new_panel_io_spi((esp_lcd_spi_bus_handle_t)SPI_HOST, &io_config, &lcd_io), err, UI, "New panel IO failed");
 
     ESP_LOGD(UI, "Install LCD driver");
     const esp_lcd_panel_dev_config_t panel_config = {
@@ -70,7 +66,7 @@ err:
     if (lcd_io) {
         esp_lcd_panel_io_del(lcd_io);
     }
-    spi_bus_free(LCD_SPI_NUM);
+    spi_bus_free(SPI_HOST);
     return ret;
 }
 
@@ -85,7 +81,12 @@ static esp_err_t app_lvgl_init(void)
         .task_max_sleep_ms = 500,   /* Maximum sleep in LVGL task */
         .timer_period_ms = 5        /* LVGL timer tick period in ms */
     };
-    ESP_RETURN_ON_ERROR(lvgl_port_init(&lvgl_cfg), UI, "LVGL port initialization failed");
+
+    esp_err_t ret = lvgl_port_init(&lvgl_cfg);
+    if (ret != ESP_OK) {
+        ESP_LOGE(UI, "LVGL port initialization failed");
+        return ret;
+    }
 
     /* Add LCD screen */
     ESP_LOGD(UI, "Add LCD screen");

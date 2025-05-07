@@ -1,12 +1,15 @@
 #ifndef DEFS_H
 #define DEFS_H
 
+// SPI Initialization
+#define SPI_HOST SPI2_HOST
+
 #define MAX_NAME_SIZE 128
 #define MAX_DESC_SIZE 1024
 
 /// Priority is an offset parameter, this value decides how many seconds difference each point
 /// of priority is worth.
-/// Set to a quarter of a day, such that a task with a priority of 4 would be seen as having a due 
+/// Set to a quarter of a day, such that a task with a priority of 4 would be seen as having a due
 /// date of 1 day sooner by the sorting algorithm.
 #define PRIORITY_MULTIPLIER "21600"
 

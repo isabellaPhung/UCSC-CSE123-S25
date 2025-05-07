@@ -26,64 +26,34 @@
 
 static bool sdcard_mounted = false;
 
-void DeleteDatabaseIfExists(char *database_path)
+/* Testing Scripts */
+void DeleteDatabaseIfExists(char *database_path);
+esp_err_t TestSDCard();
+
+// Initialize SPI Protocol
+esp_err_t init_shared_spi_bus()
 {
-    static const char *TAG = "database::DeleteDatabase";
+    static bool spi_initialized = false;
+    if (spi_initialized)
+        return ESP_OK;
 
-    ESP_LOGW(TAG, "CLEAN_DATABASE Field is ON, DELETING DATABASE!");
-
-    // Check if the file exists
-    if (access(database_path, F_OK) == 0)
-    {
-        ESP_LOGI(TAG, "Database file exists. Attempting to delete...");
-        if (unlink(database_path) == 0)
-        {
-            ESP_LOGI(TAG, "Database deleted successfully.");
-        }
-        else
-        {
-            ESP_LOGE(TAG, "Failed to delete database: errno=%d (%s)", errno, strerror(errno));
-        }
-    }
-    else
-    {
-        ESP_LOGW(TAG, "Database file does not exist. No need to delete. (errno=%d: %s)", errno, strerror(errno));
-    }
-}
-
-esp_err_t TestSDCard()
-{
-    static const char *TAG = "database::TestSDCard";
-
-    ESP_LOGI(TAG, "Testing file system...");
-
-    // Perform a simple test: open a file, write data, then close it
-    FILE *f = fopen(MOUNT_POINT "/test.txt", "w");
-    if (f == NULL)
-    {
-        ESP_LOGE(TAG, "Failed to open test file for writing");
-        return ESP_FAIL;
-    }
-
-    ESP_LOGI(TAG, "Test file opened successfully, writing data...");
-    fprintf(f, "SD card write successful!\n");
-
-    // Move file pointer to the start and read to verify the contents
-    fseek(f, 0, SEEK_SET);
-    char line[128]; // Buffer to read lines
-    while (fgets(line, sizeof(line), f))
-    {
-        ESP_LOGI(TAG, "Read line: %s", line); // Print each line to the console
-    }
-
-    fclose(f);
-    ESP_LOGI(TAG, "Test file written successfully!");
-    return ESP_OK;
+    spi_bus_config_t buscfg = {
+        .mosi_io_num = PIN_NUM_MOSI,
+        .miso_io_num = PIN_NUM_MISO,
+        .sclk_io_num = PIN_NUM_CLK,
+        .quadwp_io_num = -1,
+        .quadhd_io_num = -1,
+        .max_transfer_sz = 4096, // Big enough for both SD and LCD, adjust if needed
+    };
+    esp_err_t ret = spi_bus_initialize(SPI_HOST, &buscfg, SPI_DMA_CH_AUTO);
+    if (ret == ESP_OK)
+        spi_initialized = true;
+    return ret;
 }
 
 /// @brief Mounts the SD Card if not already mounted
 /// @return ESP_OK on success, ESP_FAIL otherwise
-static esp_err_t MountSDCard()
+esp_err_t MountSDCard()
 {
     static const char *TAG = "database::MountSDCard";
 
@@ -93,28 +63,22 @@ static esp_err_t MountSDCard()
     esp_err_t ret;
     sdmmc_card_t *card;
 
-    esp_vfs_fat_sdmmc_mount_config_t mount_config = {
-        .format_if_mount_failed = true,
-        .max_files = 5,
-        .allocation_unit_size = 16 * 1024};
-
-    ESP_LOGI(TAG, "Initializing SD card");
-
-    sdmmc_host_t host = SDSPI_HOST_DEFAULT();
-    spi_bus_config_t bus_cfg = {
-        .mosi_io_num = PIN_NUM_MOSI,
-        .miso_io_num = PIN_NUM_MISO,
-        .sclk_io_num = PIN_NUM_CLK,
-        .quadwp_io_num = -1,
-        .quadhd_io_num = -1,
-        .max_transfer_sz = 4000,
-    };
-    ret = spi_bus_initialize(host.slot, &bus_cfg, SDSPI_DEFAULT_DMA);
+    /* SPI initialization */
+    ret = init_shared_spi_bus();
     if (ret != ESP_OK)
     {
-        ESP_LOGE(TAG, "Failed to initialize SPI bus: %s", esp_err_to_name(ret));
+        ESP_LOGE(TAG, "SPI bus init failed");
         return ret;
     }
+
+    esp_vfs_fat_sdmmc_mount_config_t mount_config = {
+        .max_files = 5, // Maximum number of files that can be open at the same time
+        .format_if_mount_failed = true,
+        .allocation_unit_size = 16 * 1024,
+    };
+
+    sdmmc_host_t host = SDSPI_HOST_DEFAULT();
+    host.slot = SPI_HOST; // Mak sure this matches shared bus
 
     sdspi_device_config_t slot_config = SDSPI_DEVICE_CONFIG_DEFAULT();
     slot_config.gpio_cs = PIN_NUM_CS;
@@ -129,8 +93,6 @@ static esp_err_t MountSDCard()
     }
 
     sdcard_mounted = true;
-    ESP_LOGI(TAG, "Filesystem mounted successfully");
-    // Log the card information
     sdmmc_card_print_info(stdout, card);
 
     return ESP_OK;
@@ -253,4 +215,59 @@ int CloseSQL(sqlite3 **db)
     }
 
     return SQLITE_OK;
+}
+
+void DeleteDatabaseIfExists(char *database_path)
+{
+    static const char *TAG = "database::DeleteDatabase";
+
+    ESP_LOGW(TAG, "CLEAN_DATABASE Field is ON, DELETING DATABASE!");
+
+    // Check if the file exists
+    if (access(database_path, F_OK) == 0)
+    {
+        ESP_LOGI(TAG, "Database file exists. Attempting to delete...");
+        if (unlink(database_path) == 0)
+        {
+            ESP_LOGI(TAG, "Database deleted successfully.");
+        }
+        else
+        {
+            ESP_LOGE(TAG, "Failed to delete database: errno=%d (%s)", errno, strerror(errno));
+        }
+    }
+    else
+    {
+        ESP_LOGW(TAG, "Database file does not exist. No need to delete. (errno=%d: %s)", errno, strerror(errno));
+    }
+}
+
+esp_err_t TestSDCard()
+{
+    static const char *TAG = "database::TestSDCard";
+
+    ESP_LOGI(TAG, "Testing file system...");
+
+    // Perform a simple test: open a file, write data, then close it
+    FILE *f = fopen(MOUNT_POINT "/test.txt", "w");
+    if (f == NULL)
+    {
+        ESP_LOGE(TAG, "Failed to open test file for writing");
+        return ESP_FAIL;
+    }
+
+    ESP_LOGI(TAG, "Test file opened successfully, writing data...");
+    fprintf(f, "SD card write successful!\n");
+
+    // Move file pointer to the start and read to verify the contents
+    fseek(f, 0, SEEK_SET);
+    char line[128]; // Buffer to read lines
+    while (fgets(line, sizeof(line), f))
+    {
+        ESP_LOGI(TAG, "Read line: %s", line); // Print each line to the console
+    }
+
+    fclose(f);
+    ESP_LOGI(TAG, "Test file written successfully!");
+    return ESP_OK;
 }
