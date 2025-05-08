@@ -19,3 +19,15 @@ Demonstrate the different types of task modification possible on the web interfa
 ### Part 2: Setup procedure {-}
 
 Describe the procedure of setting up a new device after purchase.
+
+
+
+Actual Demonstrations:
+demo lcd display of interface 
+demo functionailty/algorithim on screen
+discuss design choices  
+
+Address Theoritcal of the Final Product:
+New set up process
+Broken Product replacement 
+Daily Use
