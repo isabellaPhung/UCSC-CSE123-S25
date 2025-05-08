@@ -61,7 +61,7 @@ def logout():
 
 
 @app.route("/api/signup", methods=["POST"])
-def add_account():
+def api_signup():
     fullname = request.json.get("fullname")
     username = request.json.get("username")
     password = request.json.get("password")
@@ -69,6 +69,17 @@ def add_account():
     if not s3_conn.add_user(fullname, username, password):
         return {"signup": False}, 400
     return {"signup": True}, 200
+
+
+@app.route("/api/add_task", methods=["POST"])
+def api_add_task():
+    name = request.json.get("name")
+    description = request.json.get("description")
+    timestamp = request.json.get("timestamp")
+
+    if not s3_conn.add_task(name, description, timestamp):
+        return {"add_task": False}, 400
+    return {"add_task": True}, 200
 
 
 @app.route("/login")
