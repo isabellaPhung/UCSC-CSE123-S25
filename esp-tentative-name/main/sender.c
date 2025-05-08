@@ -46,7 +46,7 @@ esp_err_t UpdateTaskStatus(sqlite3 *db, const char *uuid, TASK_STATUS new_status
     return ESP_OK;
 }
 
-esp_err_t SyncTaskRequests(struct callback_data_t *cb_data)
+esp_err_t SyncTaskRequests(struct callback_data_t *cb_data, const char *device_id)
 {
     static const char *TAG = "sender::UpdateTaskStatus";
 
@@ -60,7 +60,12 @@ esp_err_t SyncTaskRequests(struct callback_data_t *cb_data)
     struct dirent *entry;
     char filepaths[MAX_ENTRIES][PATH_LENGTH];
     int count = 0;
-    cJSON *json_array = cJSON_CreateArray();
+
+    // Prepare root object and "tasks" array
+    cJSON *root = cJSON_CreateObject();
+    cJSON_AddStringToObject(root, "id", device_id);
+    cJSON_AddStringToObject(root, "action", "update");
+    cJSON *tasks = cJSON_CreateArray();
 
     // Read request files
     while ((entry = readdir(dir)) && count < MAX_ENTRIES)
@@ -78,8 +83,8 @@ esp_err_t SyncTaskRequests(struct callback_data_t *cb_data)
             continue;
         }
 
-        int new_status;
-        if (fscanf(file, "%d", &new_status) != 1)
+        int status;
+        if (fscanf(file, "%d", &status) != 1)
         {
             ESP_LOGW(TAG, "Invalid status in file: %s", path);
             fclose(file);
@@ -94,10 +99,10 @@ esp_err_t SyncTaskRequests(struct callback_data_t *cb_data)
         if (ext)
             *ext = '\0';
 
-        cJSON *item = cJSON_CreateObject();
-        cJSON_AddStringToObject(item, "uuid", uuid);
-        cJSON_AddNumberToObject(item, "new_status", new_status);
-        cJSON_AddItemToArray(json_array, item);
+        cJSON *task = cJSON_CreateObject();
+        cJSON_AddStringToObject(task, "id", uuid);
+        cJSON_AddNumberToObject(task, "completion", status);
+        cJSON_AddItemToArray(tasks, task);
 
         strncpy(filepaths[count], path, sizeof(filepaths[count]));
         count++;
@@ -107,14 +112,14 @@ esp_err_t SyncTaskRequests(struct callback_data_t *cb_data)
 
     if (count == 0)
     {
-        cJSON_Delete(json_array);
+        cJSON_Delete(root);
         ESP_LOGI(TAG, "No request files to sync.");
         return ESP_OK;
     }
 
     // Publish to server
-    char *msg = cJSON_PrintUnformatted(json_array);
-    cJSON_Delete(json_array);
+    char *msg = cJSON_PrintUnformatted(root);
+    cJSON_Delete(root);
 
     mqtt_publish(msg, strlen(msg));
     size_t i = 0;

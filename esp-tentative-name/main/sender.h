@@ -32,6 +32,6 @@ esp_err_t UpdateTaskStatus(sqlite3 *db, const char *uuid, TASK_STATUS new_status
 
 /// @brief Sends cached data to the server
 /// @return ESP_OK if server acknowledged the request, clearing the cache
-esp_err_t SyncTaskRequests(struct callback_data_t *cb_data);
+esp_err_t SyncTaskRequests(struct callback_data_t *cb_data, const char* device_id);
 
 #endif
