@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Habits Tracker</title>
+    
+    <!-- ADDED LOGIN CHECK CODE -->
+    <script>
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            
+            // Store the current user ID for use throughout the page
+            window.currentUserId = currentUser.id;
+            
+            // Add username display to the page
+            const headerElement = document.querySelector('.page-header');
+            
+            const usernameDisplay = document.createElement('div');
+            usernameDisplay.textContent = `Logged in as: ${currentUser.username}`;
+            usernameDisplay.style.fontWeight = 'bold';
+            
+            headerElement.appendChild(usernameDisplay);
+        });
+    </script>
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .back-link {
+            background-color: #2196F3;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .habits-container {
+            margin-bottom: 40px;
+        }
+        
+        .habit-header {
+            display: flex;
+            background-color: #f5f5f5;
+            border-bottom: 2px solid #ddd;
+            font-weight: bold;
+        }
+        
+        .habit-name-header {
+            flex: 1;
+            padding: 10px;
+            text-align: left;
+        }
+        
+        .day-header {
+            width: 70px;
+            text-align: center;
+            padding: 10px 5px;
+        }
+        
+        .habit-row {
+            display: flex;
+            border-bottom: 1px solid #eee;
+            align-items: center;
+        }
+        
+        .habit-name {
+            flex: 1;
+            padding: 15px 10px;
+            font-weight: bold;
+        }
+        
+        .day-cell {
+            width: 70px;
+            text-align: center;
+            padding: 10px 5px;
+        }
+        
+        /* UPDATED STYLES FOR SCHEDULED/COMPLETED STATES */
+        .habit-checkbox-container {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .day-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            margin: 0;
+            /* Make the checkbox visible above the highlight */
+            position: relative;
+            z-index: 2;
+        }
+        
+        .day-scheduled {
+            background-color: #e6f7ff;
+            border-radius: 4px;
+            padding: 3px;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .day-not-scheduled {
+            background-color: transparent;
+            border-radius: 4px;
+            padding: 3px;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .add-habit-section {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        
+        .add-habit-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .add-habit-form {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .habit-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .add-btn, .remove-btn {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .remove-btn {
+            background-color: #f44336;
+        }
+        
+        .add-btn:hover {
+            background-color: #45a049;
+        }
+        
+        .remove-btn:hover {
+            background-color: #d32f2f;
+        }
+        
+        /* UPDATED DAY SELECTION STYLES */
+        .day-selection {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 4px;
+            background-color: #fff;
+        }
+        
+        .day-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .selection-label {
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: left;
+            width: 100%;
+        }
+        
+        .day-label {
+            margin-top: 5px;
+            font-size: 14px;
+        }
+        
+        /* LEGEND */
+        .habit-legend {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 15px;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+        
+        .legend-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
+            border: 1px solid #ccc;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .legend-scheduled {
+            background-color: #e6f7ff;
+            position: relative;
+        }
+        
+        .legend-completed {
+            position: relative;
+        }
+        
+        .legend-completed::after {
+            content: "✓";
+            font-weight: bold;
+            color: #000;
+            position: absolute;
+            left: 3px;
+            top: -2px;
+        }
+        
+        .legend-scheduled-completed {
+            background-color: #e6f7ff;
+            position: relative;
+        }
+        
+        .legend-scheduled-completed::after {
+            content: "✓";
+            font-weight: bold;
+            color: #000;
+            position: absolute;
+            left: 3px;
+            top: -2px;
+        }
+        
+        .current-day {
+            background-color: rgba(33, 150, 243, 0.2); /* Lighter blue for current day */
+        }
+        
+        .delete-habit {
+            color: #f44336;
+            cursor: pointer;
+            padding: 0 10px;
+            font-size: 18px;
+        }
+        
+        .delete-habit:hover {
+            color: #d32f2f;
+        }
+        
+        .habit-controls {
+            display: flex;
+            align-items: center;
+        }
+        
+        /* CHECKBOX STYLING FOR SCHEDULED DAYS */
+        .scheduled-day-checkbox {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background-color: #e6f7ff;
+            border: 1px solid #a0d7ff;
+            border-radius: 3px;
+            cursor: pointer;
+            position: relative;
+            margin-right: 5px;
+        }
+        
+        .scheduled-day-checkbox.checked::after {
+            content: "✓";
+            position: absolute;
+            font-size: 16px;
+            left: 3px;
+            top: -2px;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-header">
+        <h1>Habits Tracker</h1>
+        <a href="{{ url_for('index') }}" class="back-link">Back to Dashboard</a>
+    </div>
+    
+    <div class="habits-container" id="habits-container">
+        <div class="habit-header">
+            <div class="habit-name-header">Habit</div>
+            <div class="day-header">Mon</div>
+            <div class="day-header">Tue</div>
+            <div class="day-header">Wed</div>
+            <div class="day-header">Thu</div>
+            <div class="day-header">Fri</div>
+            <div class="day-header">Sat</div>
+            <div class="day-header">Sun</div>
+            <div class="day-header">Actions</div>
+        </div>
+        
+        <!-- Habits will be dynamically added here -->
+    </div>
+    
+    <!-- Legend explanation -->
+    <div class="habit-legend">
+        <div class="legend-item">
+            <div class="legend-icon"></div>
+            <span>Not Scheduled</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-icon legend-scheduled"></div>
+            <span>Scheduled</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-icon legend-completed"></div>
+            <span>Completed</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-icon legend-scheduled-completed"></div>
+            <span>Scheduled & Completed</span>
+        </div>
+    </div>
+    
+    <div class="add-habit-section">
+        <div class="add-habit-header">
+            <h2>Add New Habit</h2>
+            <div>
+                <button class="add-btn" id="add-habit-btn">Add Habit</button>
+                <button class="remove-btn" id="remove-last-habit-btn">Remove Last Habit</button>
+            </div>
+        </div>
+        
+        <div class="add-habit-form">
+            <input type="text" id="habit-input" class="habit-input" placeholder="Enter habit name...">
+        </div>
+        
+        <div class="day-selection">
+            <div class="selection-label">Schedule this habit on the following days:</div>
+            <div class="day-option">
+                <input type="checkbox" id="mon-select" class="day-checkbox">
+                <label for="mon-select" class="day-label">Mon</label>
+            </div>
+            <div class="day-option">
+                <input type="checkbox" id="tue-select" class="day-checkbox">
+                <label for="tue-select" class="day-label">Tue</label>
+            </div>
+            <div class="day-option">
+                <input type="checkbox" id="wed-select" class="day-checkbox">
+                <label for="wed-select" class="day-label">Wed</label>
+            </div>
+            <div class="day-option">
+                <input type="checkbox" id="thu-select" class="day-checkbox">
+                <label for="thu-select" class="day-label">Thu</label>
+            </div>
+            <div class="day-option">
+                <input type="checkbox" id="fri-select" class="day-checkbox">
+                <label for="fri-select" class="day-label">Fri</label>
+            </div>
+            <div class="day-option">
+                <input type="checkbox" id="sat-select" class="day-checkbox">
+                <label for="sat-select" class="day-label">Sat</label>
+            </div>
+            <div class="day-option">
+                <input type="checkbox" id="sun-select" class="day-checkbox">
+                <label for="sun-select" class="day-label">Sun</label>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Define habit day flags
+        const SATURDAY_FLAG = 0x01;
+        const FRIDAY_FLAG = 0x02;
+        const THURSDAY_FLAG = 0x04;
+        const WEDNESDAY_FLAG = 0x08;
+        const TUESDAY_FLAG = 0x10;
+        const MONDAY_FLAG = 0x20;
+        const SUNDAY_FLAG = 0x40;
+        
+        // Array of day flags in order for iteration (Monday to Sunday)
+        const DAY_FLAGS = [
+            MONDAY_FLAG,
+            TUESDAY_FLAG, 
+            WEDNESDAY_FLAG, 
+            THURSDAY_FLAG, 
+            FRIDAY_FLAG, 
+            SATURDAY_FLAG, 
+            SUNDAY_FLAG
+        ];
+        
+        // Day mapping we use throughout the app:
+        // 0 = Monday, 1 = Tuesday, 2 = Wednesday, 3 = Thursday, 
+        // 4 = Friday, 5 = Saturday, 6 = Sunday
+        // This is different from JavaScript's Date.getDay() which uses 0 = Sunday, 1 = Monday, etc.
+        
+        // Determine the current day of the week (0 = Sunday, 1 = Monday, etc.)
+        const today = new Date();
+        const currentDayIndex = today.getDay(); // 0-6
+        // Adjust to our display order (0 = Monday, ... 6 = Sunday)
+        const adjustedDayIndex = currentDayIndex === 0 ? 6 : currentDayIndex - 1;
+        
+        // Function to check if a day is scheduled in the habit using bitwise operation
+        function isDayScheduled(habitFlags, dayFlag) {
+            return (habitFlags & dayFlag) !== 0;
+        }
+        
+        // Function to check if a specific day index (0=Monday, 6=Sunday) is scheduled
+        function isDayIndexScheduled(habitFlags, dayIndex) {
+            return isDayScheduled(habitFlags, DAY_FLAGS[dayIndex]);
+        }
+        
+        // Load habits with bitwise flags
+        function loadHabits() {
+            const habitsContainer = document.getElementById('habits-container');
+            
+            // Get user-specific habits
+            const allUserHabits = JSON.parse(localStorage.getItem('userHabits')) || {};
+            const habits = allUserHabits[window.currentUserId] || [];
+            
+            // Clear the container except for the header
+            while (habitsContainer.children.length > 1) {
+                habitsContainer.removeChild(habitsContainer.lastChild);
+            }
+            
+            // Add each habit to the container
+            habits.forEach((habit, index) => {
+                const habitRow = document.createElement('div');
+                habitRow.className = 'habit-row';
+                habitRow.dataset.index = index;
+                
+                const habitName = document.createElement('div');
+                habitName.className = 'habit-name';
+                habitName.textContent = habit.text;
+                habitRow.appendChild(habitName);
+                
+                // Add checkboxes for each day of the week
+                for (let i = 0; i < 7; i++) {
+                    const dayCell = document.createElement('div');
+                    dayCell.className = 'day-cell';
+                    if (i === adjustedDayIndex) {
+                        dayCell.classList.add('current-day');
+                    }
+                    
+                    // Create a container for the checkbox to allow styling
+                    const checkboxContainer = document.createElement('div');
+                    
+                    // Determine if this day is scheduled using bitwise operations
+                    const isScheduled = habit.scheduledDays ? 
+                        isDayIndexScheduled(habit.scheduledDays, i) : false;
+                    
+                    // Add scheduled class to the container if day is scheduled
+                    checkboxContainer.className = isScheduled ? 'day-scheduled' : 'day-not-scheduled';
+                    
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.className = 'day-checkbox';
+                    
+                    // Initialize completion status array if it doesn't exist
+                    if (!habit.days) {
+                        habit.days = [false, false, false, false, false, false, false];
+                    }
+                    checkbox.checked = habit.days[i];
+                    
+                    checkbox.dataset.day = i;
+                    checkbox.dataset.habitIndex = index;
+                    
+                    // Handle checkbox change for completion status
+                    checkbox.addEventListener('change', function() {
+                        updateHabitDay(index, i, this.checked);
+                    });
+                    
+                    checkboxContainer.appendChild(checkbox);
+                    dayCell.appendChild(checkboxContainer);
+                    habitRow.appendChild(dayCell);
+                }
+                
+                // Add delete button
+                const actionsCell = document.createElement('div');
+                actionsCell.className = 'day-cell habit-controls';
+                
+                const deleteButton = document.createElement('span');
+                deleteButton.className = 'delete-habit';
+                deleteButton.innerHTML = '&times;';
+                deleteButton.title = 'Delete Habit';
+                deleteButton.addEventListener('click', function() {
+                    deleteHabit(index);
+                });
+                
+                actionsCell.appendChild(deleteButton);
+                habitRow.appendChild(actionsCell);
+                
+                habitsContainer.appendChild(habitRow);
+            });
+        }
+        
+        // Update a habit's completion status for a specific day
+        function updateHabitDay(habitIndex, dayIndex, completed) {
+            // Get user-specific habits
+            const allUserHabits = JSON.parse(localStorage.getItem('userHabits')) || {};
+            const habits = allUserHabits[window.currentUserId] || [];
+            
+            if (habits[habitIndex]) {
+                // Initialize days array if it doesn't exist (for completion status)
+                if (!habits[habitIndex].days) {
+                    habits[habitIndex].days = [false, false, false, false, false, false, false];
+                }
+                
+                // Update the day's completion status
+                habits[habitIndex].days[dayIndex] = completed;
+                
+                // If this is today's checkbox, update the main "completed" property
+                if (dayIndex === adjustedDayIndex) {
+                    habits[habitIndex].completed = completed;
+                }
+                
+                // Update user habits
+                allUserHabits[window.currentUserId] = habits;
+                
+                // Save back to localStorage
+                localStorage.setItem('userHabits', JSON.stringify(allUserHabits));
+                
+                // Refresh the display to show the updated state
+                loadHabits();
+            }
+        }
+        
+        // Function to get flags from day selection checkboxes
+        function getFlagsFromDaySelections() {
+            let flags = 0;
+            
+            if (document.getElementById('mon-select').checked) {
+                flags |= MONDAY_FLAG;
+            }
+            if (document.getElementById('tue-select').checked) {
+                flags |= TUESDAY_FLAG;
+            }
+            if (document.getElementById('wed-select').checked) {
+                flags |= WEDNESDAY_FLAG;
+            }
+            if (document.getElementById('thu-select').checked) {
+                flags |= THURSDAY_FLAG;
+            }
+            if (document.getElementById('fri-select').checked) {
+                flags |= FRIDAY_FLAG;
+            }
+            if (document.getElementById('sat-select').checked) {
+                flags |= SATURDAY_FLAG;
+            }
+            if (document.getElementById('sun-select').checked) {
+                flags |= SUNDAY_FLAG;
+            }
+            
+            return flags;
+        }
+        
+        // Add a new habit with bitwise flags
+        function addHabit() {
+            const habitInput = document.getElementById('habit-input');
+            const habitName = habitInput.value.trim();
+            
+            if (habitName) {
+                // Get user-specific habits
+                const allUserHabits = JSON.parse(localStorage.getItem('userHabits')) || {};
+                const habits = allUserHabits[window.currentUserId] || [];
+                
+                // Get scheduled days as bitwise flags
+                const scheduledDays = getFlagsFromDaySelections();
+                
+                // Initialize completion status as all false
+                const completionDays = [false, false, false, false, false, false, false];
+                
+                // Check if today is scheduled using bitwise operations
+                const isTodayScheduled = isDayIndexScheduled(scheduledDays, adjustedDayIndex);
+                
+                // Add the new habit with bitwise flags for scheduled days
+                habits.push({
+                    text: habitName,
+                    completed: false, // Initially not completed for today
+                    days: completionDays, // Completion status for each day
+                    scheduledDays: scheduledDays // Bitwise flags for scheduled days
+                });
+                
+                // Update user habits
+                allUserHabits[window.currentUserId] = habits;
+                
+                // Save back to localStorage
+                localStorage.setItem('userHabits', JSON.stringify(allUserHabits));
+                
+                // Clear the input and reload the habits
+                habitInput.value = '';
+                clearDaySelection();
+                loadHabits();
+            }
+        }
+        
+        // Remove the last habit
+        function removeLastHabit() {
+            // Get user-specific habits
+            const allUserHabits = JSON.parse(localStorage.getItem('userHabits')) || {};
+            const habits = allUserHabits[window.currentUserId] || [];
+            
+            if (habits.length > 0) {
+                habits.pop();
+                
+                // Update user habits
+                allUserHabits[window.currentUserId] = habits;
+                localStorage.setItem('userHabits', JSON.stringify(allUserHabits));
+                
+                loadHabits();
+            }
+        }
+        
+        // Delete a specific habit
+        function deleteHabit(index) {
+            // Get user-specific habits
+            const allUserHabits = JSON.parse(localStorage.getItem('userHabits')) || {};
+            const habits = allUserHabits[window.currentUserId] || [];
+            
+            if (index >= 0 && index < habits.length) {
+                habits.splice(index, 1);
+                
+                // Update user habits
+                allUserHabits[window.currentUserId] = habits;
+                localStorage.setItem('userHabits', JSON.stringify(allUserHabits));
+                
+                loadHabits();
+            }
+        }
+        
+        // Clear day selection checkboxes
+        function clearDaySelection() {
+            document.getElementById('mon-select').checked = false;
+            document.getElementById('tue-select').checked = false;
+            document.getElementById('wed-select').checked = false;
+            document.getElementById('thu-select').checked = false;
+            document.getElementById('fri-select').checked = false;
+            document.getElementById('sat-select').checked = false;
+            document.getElementById('sun-select').checked = false;
+        }
+        
+        // Set up event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Highlight the current day in the header
+            const dayHeaders = document.querySelectorAll('.day-header');
+            if (dayHeaders.length > adjustedDayIndex) {
+                dayHeaders[adjustedDayIndex].classList.add('current-day');
+            }
+            
+            // Load habits
+            loadHabits();
+            
+            // Add habit button
+            document.getElementById('add-habit-btn').addEventListener('click', addHabit);
+            
+            // Handle Enter key in the input field
+            document.getElementById('habit-input').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    addHabit();
+                }
+            });
+            
+            // Remove last habit button
+            document.getElementById('remove-last-habit-btn').addEventListener('click', removeLastHabit);
+        });
+    </script>
+</body>
+</html>
