@@ -102,6 +102,25 @@
             font-size: 16px;
         }
         
+        /* NEW DURATION SELECTION STYLES */
+        .duration-selection {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .duration-selection select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .duration-label {
+            font-size: 16px;
+            color: #555;
+        }
+        
         .button-container {
             display: flex;
             justify-content: flex-end;
@@ -148,6 +167,12 @@
             text-align: center;
         }
         
+        /* NEW DURATION HEADER STYLE */
+        .event-duration-header {
+            width: 100px;
+            text-align: center;
+        }
+        
         .event-action-header {
             width: 80px;
             text-align: center;
@@ -172,6 +197,13 @@
         .event-time {
             width: 100px;
             text-align: center;
+        }
+        
+        /* NEW DURATION DISPLAY STYLE */
+        .event-duration {
+            width: 100px;
+            text-align: center;
+            color: #555;
         }
         
         .event-action {
@@ -203,7 +235,6 @@
             font-size: 1.2em;
         }
         
-        /* ADDED STYLES FOR UNIX TIMESTAMP DISPLAY */
         .unix-timestamp {
             color: #666;
             font-size: 0.9em;
@@ -226,6 +257,13 @@
         .event-timestamp {
             color: #888;
             font-size: 0.8em;
+            margin-top: 5px;
+        }
+        
+        /* NEW STYLE FOR END TIME */
+        .event-end-time {
+            color: #888;
+            font-size: 0.9em;
             margin-top: 5px;
         }
     </style>
@@ -278,7 +316,40 @@
             </div>
         </div>
         
-        <!-- ADDED UNIX TIMESTAMP DISPLAY -->
+        <!-- NEW DURATION SELECTION -->
+        <div class="form-row">
+            <div class="form-label">Duration:</div>
+            <div class="duration-selection">
+                <select id="duration-hours">
+                    <option value="0">0</option>
+                    <option value="1" selected>1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                </select>
+                <span class="duration-label">hours</span>
+                
+                <select id="duration-minutes">
+                    <option value="0" selected>0</option>
+                    <option value="15">15</option>
+                    <option value="30">30</option>
+                    <option value="45">45</option>
+                </select>
+                <span class="duration-label">minutes</span>
+            </div>
+        </div>
+        
+        <!-- Calculated End Time Display -->
+        <div class="form-row">
+            <div class="form-label">End Time:</div>
+            <div id="end-time-display" style="color: #555;">Loading...</div>
+        </div>
+        
+        <!-- UNIX TIMESTAMP DISPLAY -->
         <div class="unix-timestamp" id="unix-timestamp">Unix Timestamp: </div>
         
         <div class="button-container">
@@ -292,7 +363,8 @@
         
         <div class="events-header">
             <div class="event-name-header">Event Name</div>
-            <div class="event-time-header">Time</div>
+            <div class="event-time-header">Start Time</div>
+            <div class="event-duration-header">Duration</div>
             <div class="event-action-header">Action</div>
         </div>
         
@@ -317,8 +389,9 @@
             // Set current time as default
             setCurrentTimeAsDefault();
             
-            // ADDED TIMESTAMP UPDATE CALL ON LOAD
+            // Update timestamp and end time on load
             updateUnixTimestamp();
+            updateEndTime();
             
             // Event listeners
             document.getElementById('add-btn').addEventListener('click', addEvent);
@@ -331,10 +404,23 @@
                 }
             });
             
-            // ADDED EVENT LISTENERS FOR TIMESTAMP UPDATES
-            document.getElementById('hour-select').addEventListener('change', updateUnixTimestamp);
-            document.getElementById('minute-select').addEventListener('change', updateUnixTimestamp);
-            document.getElementById('period-select').addEventListener('change', updateUnixTimestamp);
+            // Event listeners for timestamp updates
+            document.getElementById('hour-select').addEventListener('change', function() {
+                updateUnixTimestamp();
+                updateEndTime();
+            });
+            document.getElementById('minute-select').addEventListener('change', function() {
+                updateUnixTimestamp();
+                updateEndTime();
+            });
+            document.getElementById('period-select').addEventListener('change', function() {
+                updateUnixTimestamp();
+                updateEndTime();
+            });
+            
+            // NEW EVENT LISTENERS FOR DURATION
+            document.getElementById('duration-hours').addEventListener('change', updateEndTime);
+            document.getElementById('duration-minutes').addEventListener('change', updateEndTime);
         });
         
         // Format date as YYYY-MM-DD
@@ -345,7 +431,7 @@
             return `${year}-${month}-${day}`;
         }
         
-        // ADDED UNIX TIMESTAMP UPDATE FUNCTION
+        // Update Unix timestamp
         function updateUnixTimestamp() {
             // Get current date (today)
             const dateStr = todayStr;
@@ -375,6 +461,56 @@
             
             // Return the timestamp (for use in other functions)
             return timestamp;
+        }
+        
+        // NEW FUNCTION TO UPDATE END TIME BASED ON START TIME AND DURATION
+        function updateEndTime() {
+            // Get start time
+            let startHour = parseInt(document.getElementById('hour-select').value);
+            const startMinute = parseInt(document.getElementById('minute-select').value);
+            const period = document.getElementById('period-select').value;
+            
+            // Convert to 24-hour format
+            if (period === "PM" && startHour < 12) {
+                startHour += 12;
+            } else if (period === "AM" && startHour === 12) {
+                startHour = 0;
+            }
+            
+            // Get duration
+            const durationHours = parseInt(document.getElementById('duration-hours').value);
+            const durationMinutes = parseInt(document.getElementById('duration-minutes').value);
+            
+            // Calculate end time
+            let endHour = startHour + durationHours;
+            let endMinute = startMinute + durationMinutes;
+            
+            // Adjust for minute overflow
+            if (endMinute >= 60) {
+                endHour += 1;
+                endMinute -= 60;
+            }
+            
+            // Adjust for 24-hour clock
+            endHour = endHour % 24;
+            
+            // Convert back to 12-hour format
+            let endPeriod = "AM";
+            if (endHour >= 12) {
+                endPeriod = "PM";
+                if (endHour > 12) {
+                    endHour -= 12;
+                }
+            }
+            if (endHour === 0) {
+                endHour = 12;
+            }
+            
+            // Format end time for display
+            const formattedEndTime = `${endHour}:${endMinute.toString().padStart(2, '0')} ${endPeriod}`;
+            document.getElementById('end-time-display').textContent = formattedEndTime;
+            
+            return formattedEndTime;
         }
         
         // Set current time as default in the form
@@ -427,7 +563,7 @@
             
             // Sort events by time
             todayEvents.sort((a, b) => {
-                // UPDATED TO USE TIMESTAMP FOR SORTING IF AVAILABLE
+                // Use timestamp for sorting if available
                 if (a.timestamp && b.timestamp) {
                     return a.timestamp - b.timestamp;
                 } else {
@@ -451,6 +587,15 @@
                 eventTime.className = 'event-time';
                 eventTime.textContent = event.time;
                 
+                // NEW DURATION DISPLAY
+                const eventDuration = document.createElement('div');
+                eventDuration.className = 'event-duration';
+                if (event.duration) {
+                    eventDuration.textContent = formatDuration(event.duration);
+                } else {
+                    eventDuration.textContent = 'N/A';
+                }
+                
                 const eventAction = document.createElement('div');
                 eventAction.className = 'event-action';
                 
@@ -466,9 +611,10 @@
                 
                 eventRow.appendChild(eventName);
                 eventRow.appendChild(eventTime);
+                eventRow.appendChild(eventDuration);
                 eventRow.appendChild(eventAction);
                 
-                // ADDED EVENT DETAILS WITH TIMESTAMP
+                // Event details with timestamp
                 const eventDetails = document.createElement('div');
                 eventDetails.className = 'event-details';
                 
@@ -478,19 +624,41 @@
                     timestamp.className = 'event-timestamp';
                     timestamp.textContent = `Unix Timestamp: ${event.timestamp}`;
                     eventDetails.appendChild(timestamp);
-                    
-                    // Toggle details visibility on click
-                    eventRow.addEventListener('click', function(e) {
-                        // Only toggle if not clicking delete button
-                        if (!e.target.classList.contains('delete-btn')) {
-                            eventDetails.classList.toggle('event-details-visible');
-                        }
-                    });
                 }
+                
+                // NEW END TIME DISPLAY
+                if (event.endTime) {
+                    const endTime = document.createElement('div');
+                    endTime.className = 'event-end-time';
+                    endTime.textContent = `End Time: ${event.endTime}`;
+                    eventDetails.appendChild(endTime);
+                }
+                
+                // Toggle details visibility on click
+                eventRow.addEventListener('click', function(e) {
+                    // Only toggle if not clicking delete button
+                    if (!e.target.classList.contains('delete-btn')) {
+                        eventDetails.classList.toggle('event-details-visible');
+                    }
+                });
                 
                 eventsContainer.appendChild(eventRow);
                 eventsContainer.appendChild(eventDetails);
             });
+        }
+        
+        // Helper function to format duration
+        function formatDuration(duration) {
+            const hours = duration.hours;
+            const minutes = duration.minutes;
+            
+            if (hours === 0) {
+                return `${minutes} min`;
+            } else if (minutes === 0) {
+                return `${hours} hr${hours > 1 ? 's' : ''}`;
+            } else {
+                return `${hours} hr${hours > 1 ? 's' : ''} ${minutes} min`;
+            }
         }
         
         // Convert 12-hour time to 24-hour format for sorting
@@ -509,7 +677,6 @@
             return `${hours.toString().padStart(2, '0')}:${minutes}`;
         }
         
-        // UPDATED TO INCLUDE TIMESTAMP
         // Add a new event
         function addEvent() {
             const eventNameInput = document.getElementById('event-name');
@@ -532,6 +699,17 @@
             // Get timestamp
             const timestamp = updateUnixTimestamp();
             
+            // NEW: Get duration values
+            const durationHours = parseInt(document.getElementById('duration-hours').value);
+            const durationMinutes = parseInt(document.getElementById('duration-minutes').value);
+            const duration = {
+                hours: durationHours,
+                minutes: durationMinutes
+            };
+            
+            // Calculate end time
+            const endTime = updateEndTime();
+            
             // Get user-specific events
             const allUserEvents = JSON.parse(localStorage.getItem('userEvents')) || {};
             const userEvents = allUserEvents[window.currentUserId] || {};
@@ -541,12 +719,14 @@
                 userEvents[todayStr] = [];
             }
             
-            // Add new event with timestamp
+            // Add new event with timestamp and duration
             userEvents[todayStr].push({
                 name: eventName,
                 time: time,
                 date: todayStr,
-                timestamp: timestamp
+                timestamp: timestamp,
+                duration: duration,
+                endTime: endTime
             });
             
             // Update user events
@@ -564,8 +744,11 @@
         function clearForm() {
             document.getElementById('event-name').value = '';
             setCurrentTimeAsDefault();
-            // Update timestamp after clearing
+            document.getElementById('duration-hours').value = '1';
+            document.getElementById('duration-minutes').value = '0';
+            // Update timestamp and end time after clearing
             updateUnixTimestamp();
+            updateEndTime();
         }
         
         // Delete an event
