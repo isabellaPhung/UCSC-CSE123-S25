@@ -60,6 +60,17 @@ def logout():
     return resp, 200
 
 
+@app.route("/api/signup", methods=["POST"])
+def add_account():
+    fullname = request.json.get("fullname")
+    username = request.json.get("username")
+    password = request.json.get("password")
+
+    if not s3_conn.add_user(fullname, username, password):
+        return {"signup": False}, 400
+    return {"signup": True}, 200
+
+
 @app.route("/login")
 def login():
     return render_template("login.html")

@@ -189,57 +189,46 @@
             
             // Sign up function
             function signUp() {
-                const fullname = document.getElementById('fullname').value;
-                const username = document.getElementById('username').value;
-                const password = document.getElementById('password').value;
-                const confirmPassword = document.getElementById('confirm-password').value;
+                const fullnameVal = document.getElementById('fullname').value;
+                const usernameVal = document.getElementById('username').value;
+                const passwordVal = document.getElementById('password').value;
+                const confirmPasswordVal = document.getElementById('confirm-password').value;
                 
                 // Validate inputs
-                if (!fullname || !username || !password || !confirmPassword) {
+                if (!fullnameVal || !usernameVal || !passwordVal || !confirmPasswordVal) {
                     showError('Please fill in all fields');
                     return;
                 }
                 
-                if (password !== confirmPassword) {
+                if (passwordVal !== confirmPasswordVal) {
                     showError('Passwords do not match');
                     return;
                 }
                 
-                if (password.length < 6) {
+                if (passwordVal.length < 6) {
                     showError('Password must be at least 6 characters long');
                     return;
                 }
-                
-                // Get existing users
-                const users = JSON.parse(localStorage.getItem('users')) || [];
-                
-                // Check if username already exists
-                if (users.some(user => user.username === username)) {
-                    showError('Username already exists');
-                    return;
-                }
-                
-                // Create new user
-                const newUser = {
-                    id: generateUserId(),
-                    fullname,
-                    username,
-                    password,
-                    createdAt: new Date().toISOString()
-                };
-                
-                // Add user to array
-                users.push(newUser);
-                
-                // Save to localStorage
-                localStorage.setItem('users', JSON.stringify(users));
-                
-                // Initialize user data storage
-                initializeUserData(newUser.id);
-                
-                // Redirect to login
-                alert('Account created successfully! Please log in.');
-                window.location.href = 'login';
+
+                fetch('https://localhost/api/signup', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({fullname: fullnameVal, username: usernameVal, password: passwordVal})
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        // Show error message
+                        showError('Username already exists');
+                        return;
+                    }
+                    else {
+                        // Redirect to login
+                        alert('Account created successfully! Please log in.');
+                        window.location.href = 'login';
+                    }
+                });
             }
             
             // Show error message
