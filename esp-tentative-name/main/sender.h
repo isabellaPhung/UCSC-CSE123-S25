@@ -15,13 +15,23 @@ struct callback_data_t
     sqlite3 *db_ptr;
 };
 
-/// @brief Sends message to the server with a task's new status. Used for task completion or deletion
-/// @param uuid Task ID
-/// @param status The status the task has been changed to.
-/// @return 0 on success, -1 on server failure
-esp_err_t SendTaskStatus(const char *uuid, TASK_STATUS status, struct callback_data_t *cb_dat);
+// Max amount of entries sent to the server on publish
+#define MAX_ENTRIES 16
 
-// TODO: Send content of responses to the server, deletes content on success, terminates on failure.
-int BufferToServer();
+// Request folders
+#define TASK_REQUESTS_DIR MOUNT_POINT "/task_status_requests/"
+#define HABIT_REQUESTS_DIR MOUNT_POINT "/habit_status_requests/"
+
+// ------------------------------------------ Tasks -----------------------------------------------
+
+/// @brief NOT UpdateTaskStatusDB. Calls UpdateTaskStatusDB and saves a recipt to disk
+/// @param db Database
+/// @param uuid Unique ID
+/// @param new_status Status to change. MFD deletes the task object from the database.
+esp_err_t UpdateTaskStatus(sqlite3 *db, const char *uuid, TASK_STATUS new_status);
+
+/// @brief Sends cached data to the server
+/// @return ESP_OK if server acknowledged the request, clearing the cache
+esp_err_t SyncTaskRequests(struct callback_data_t *cb_data);
 
 #endif
