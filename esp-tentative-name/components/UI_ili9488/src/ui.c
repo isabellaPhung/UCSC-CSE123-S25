@@ -5,6 +5,11 @@
 //assorted graphic items used across functions
 static lv_indev_t * keypad;
 static button_handle_t btns[5] = {NULL};
+static button_event_t prev4;
+static button_event_t prev2;
+static button_event_t prev3;
+static button_event_t prev1;
+static button_event_t prev0;
 
 static const char *BUTTON = "button"; //for esp_log
 
@@ -38,23 +43,32 @@ void makeButtons(){
 
 
 uint32_t last_key(){
-    if(iot_button_get_event(btns[4]) == BUTTON_PRESS_DOWN){ //if up pressed
+    //ESP_LOGI(BUTTON, "%s", iot_button_get_event_str(iot_button_get_event(btns[0])));
+    uint32_t key = 0;
+    if(prev4 == BUTTON_NONE_PRESS && iot_button_get_event(btns[4]) == BUTTON_PRESS_DOWN){ //if up pressed
         ESP_LOGI(BUTTON, "UP");
-        return  LV_KEY_UP;
-    }else if(iot_button_get_event(btns[3]) == BUTTON_PRESS_DOWN){ //if down pressed
+        key = LV_KEY_UP;
+    }else if(prev3 == BUTTON_NONE_PRESS && iot_button_get_event(btns[3]) == BUTTON_PRESS_DOWN){ //if down pressed
         ESP_LOGI(BUTTON, "DOWN");
-        return  LV_KEY_DOWN;
-    }else if(iot_button_get_event(btns[2]) == BUTTON_PRESS_DOWN){ //if right pressed
+        key = LV_KEY_DOWN;
+    }else if(prev2 == BUTTON_NONE_PRESS && iot_button_get_event(btns[2]) == BUTTON_PRESS_DOWN){ //if right pressed
         ESP_LOGI(BUTTON, "RIGHT");
-        return  LV_KEY_RIGHT;
-    }else if(iot_button_get_event(btns[1]) == BUTTON_PRESS_DOWN){ //if left pressed
+        key = LV_KEY_RIGHT;
+    }else if(prev1 == BUTTON_NONE_PRESS && iot_button_get_event(btns[1]) == BUTTON_PRESS_DOWN){ //if left pressed
         ESP_LOGI(BUTTON, "LEFT");
-        return  LV_KEY_LEFT;
-    }else if(iot_button_get_event(btns[0]) == BUTTON_PRESS_DOWN){ //if select pressed
+        key = LV_KEY_LEFT;
+    }else if(prev0 == BUTTON_NONE_PRESS && iot_button_get_event(btns[0]) == BUTTON_PRESS_DOWN){ //if select pressed
         ESP_LOGI(BUTTON, "ENTER");
-        return  LV_KEY_ENTER;
+        key = LV_KEY_ENTER;
     }
-    return 0;
+    //for edge detection purposes
+    //ESP_LOGI(BUTTON, "prev: %s current: %s", iot_button_get_event_str(prev4), iot_button_get_event_str(iot_button_get_event(btns[4])));
+    prev4 = iot_button_get_event(btns[4]);   
+    prev3 = iot_button_get_event(btns[3]);   
+    prev2 = iot_button_get_event(btns[2]);   
+    prev1 = iot_button_get_event(btns[1]);   
+    prev0 = iot_button_get_event(btns[0]);   
+    return key;
 }
 
 void keyboard_read(lv_indev_t * indev, lv_indev_data_t * data){

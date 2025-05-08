@@ -103,8 +103,8 @@ esp_err_t app_lvgl_init(void)
 #endif
         .rotation = {
             .swap_xy = true,
-            .mirror_x = true,
-            .mirror_y = false,
+            .mirror_x = false,
+            .mirror_y = true,
         },
         .flags = {
             .buff_dma = true,
@@ -114,7 +114,6 @@ esp_err_t app_lvgl_init(void)
         }
     };
     lvgl_disp = lvgl_port_add_disp(&disp_cfg);
-
     return ESP_OK;
 }
 
