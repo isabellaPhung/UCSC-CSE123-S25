@@ -121,6 +121,8 @@ esp_err_t SyncTaskRequests(struct callback_data_t *cb_data, const char *device_i
     char *msg = cJSON_PrintUnformatted(root);
     cJSON_Delete(root);
 
+    mqtt_connect();
+    mqtt_subscribe();
     mqtt_publish(msg, strlen(msg));
     size_t i = 0;
     for (; i < MAX_RETRIES; i++)
