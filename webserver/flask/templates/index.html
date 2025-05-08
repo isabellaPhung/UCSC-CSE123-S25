@@ -357,6 +357,26 @@
             font-size: 0.8em;
             margin-top: 5px;
         }
+        
+        /* NEW STYLES FOR SCHEDULED HABITS AND EVENTS WITH DURATION */
+        .scheduled-habit {
+            background-color: #e6f7ff;
+            border-radius: 4px;
+            padding: 8px;
+            margin-bottom: 8px;
+        }
+
+        .event-duration {
+            color: #555;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .event-end-time {
+            color: #555;
+            font-size: 0.9em;
+            margin-top: 2px;
+        }
     </style>
 </head>
 <body>
@@ -433,7 +453,7 @@
         setInterval(updateDateTime, 1000);
         updateDateTime(); // Initial call
         
-        // Load saved habits from localStorage
+        // COMPLETELY REPLACED FUNCTION: LOAD HABITS WITH SCHEDULED DAYS SUPPORT
         function loadHabits() {
             // Day mapping: 0 = Monday, 1 = Tuesday, 2 = Wednesday, 3 = Thursday, 
             // 4 = Friday, 5 = Saturday, 6 = Sunday
@@ -452,31 +472,50 @@
             habitsList.innerHTML = '';
             
             habits.forEach((habit, index) => {
+                // CHANGED: Only show habits that are scheduled for today
+                const isScheduledToday = habit.scheduledDays && habit.scheduledDays[adjustedDayIndex];
+                
+                // Create habit item
                 const habitItem = document.createElement('div');
                 habitItem.className = 'habit-item';
                 
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.className = 'habit-checkbox';
-                checkbox.checked = habit.completed;
-                checkbox.dataset.habitIndex = index;
-                
-                // Add change listener to update both the completed status and the day status
-                checkbox.addEventListener('change', function() {
-                    updateHabitCompletion(index, this.checked);
-                });
-                
-                const habitText = document.createElement('div');
-                habitText.className = 'habit-text';
-                habitText.textContent = habit.text;
-                
-                habitItem.appendChild(checkbox);
-                habitItem.appendChild(habitText);
-                habitsList.appendChild(habitItem);
+                // CHANGED: Add scheduled indicator (highlight) if this habit is scheduled for today
+                if (isScheduledToday) {
+                    habitItem.classList.add('scheduled-habit');
+                    
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.className = 'habit-checkbox';
+                    checkbox.checked = habit.completed;
+                    checkbox.dataset.habitIndex = index;
+                    
+                    // Add change listener to update both the completed status and the day status
+                    checkbox.addEventListener('change', function() {
+                        updateHabitCompletion(index, this.checked);
+                    });
+                    
+                    const habitText = document.createElement('div');
+                    habitText.className = 'habit-text';
+                    habitText.textContent = habit.text;
+                    
+                    habitItem.appendChild(checkbox);
+                    habitItem.appendChild(habitText);
+                    habitsList.appendChild(habitItem);
+                }
             });
+            
+            // ADDED: If no habits are scheduled for today, show a message
+            if (habitsList.children.length === 0) {
+                const noHabitsMsg = document.createElement('div');
+                noHabitsMsg.textContent = 'No habits scheduled for today.';
+                noHabitsMsg.style.color = '#666';
+                noHabitsMsg.style.fontStyle = 'italic';
+                noHabitsMsg.style.padding = '10px 0';
+                habitsList.appendChild(noHabitsMsg);
+            }
         }
         
-        // Update a habit's completion status
+        // REPLACED FUNCTION: UPDATE HABIT COMPLETION STATUS
         function updateHabitCompletion(habitIndex, completed) {
             // Get user-specific habits
             const allUserHabits = JSON.parse(localStorage.getItem('userHabits')) || {};
@@ -507,8 +546,6 @@
                 localStorage.setItem('userHabits', JSON.stringify(allUserHabits));
             }
         }
-        
-        // We removed the makeEditableHabit function since habits are now managed on the habits page only
         
         // Save habits to localStorage
         function saveHabits(habits) {
@@ -598,8 +635,7 @@
             });
         }
         
-        // UPDATED FUNCTION FOR SHOWING EVENT TIMESTAMPS
-        // Load saved events with timestamp support
+        // COMPLETELY REPLACED FUNCTION: LOAD EVENTS WITH DURATION SUPPORT
         function loadEvents() {
             // Format today's date as YYYY-MM-DD
             const today = new Date();
@@ -642,28 +678,57 @@
                 eventContainer.appendChild(eventName);
                 eventContainer.appendChild(eventTime);
                 
-                // ADDED TIMESTAMP DISPLAY IF AVAILABLE
+                // CHANGED: Create event details section with more info
+                const details = document.createElement('div');
+                details.className = 'event-details';
+                
+                // ADDED: Show duration if available
+                if (event.duration) {
+                    const duration = document.createElement('div');
+                    duration.className = 'event-duration';
+                    duration.textContent = `Duration: ${formatDuration(event.duration)}`;
+                    details.appendChild(duration);
+                }
+                
+                // ADDED: Show end time if available
+                if (event.endTime) {
+                    const endTime = document.createElement('div');
+                    endTime.className = 'event-end-time';
+                    endTime.textContent = `End: ${event.endTime}`;
+                    details.appendChild(endTime);
+                }
+                
+                // Add timestamp if available
                 if (event.timestamp) {
-                    const details = document.createElement('div');
-                    details.className = 'event-details';
-                    
                     const timestamp = document.createElement('div');
                     timestamp.className = 'event-timestamp';
                     timestamp.textContent = `Unix Timestamp: ${event.timestamp}`;
                     details.appendChild(timestamp);
-                    
-                    // Toggle details on click
-                    eventContainer.addEventListener('click', function() {
-                        details.classList.toggle('event-details-visible');
-                    });
-                    
-                    // Add details after container
-                    eventsList.appendChild(eventContainer);
-                    eventsList.appendChild(details);
-                } else {
-                    eventsList.appendChild(eventContainer);
                 }
+                
+                // Toggle details on click
+                eventContainer.addEventListener('click', function() {
+                    details.classList.toggle('event-details-visible');
+                });
+                
+                // Add elements to DOM
+                eventsList.appendChild(eventContainer);
+                eventsList.appendChild(details);
             });
+        }
+        
+        // ADDED HELPER FUNCTION: Format duration for display
+        function formatDuration(duration) {
+            const hours = duration.hours;
+            const minutes = duration.minutes;
+            
+            if (hours === 0) {
+                return `${minutes} min`;
+            } else if (minutes === 0) {
+                return `${hours} hr${hours > 1 ? 's' : ''}`;
+            } else {
+                return `${hours} hr${hours > 1 ? 's' : ''} ${minutes} min`;
+            }
         }
         
         // Format date as YYYY-MM-DD
@@ -673,8 +738,6 @@
             const day = String(date.getDate()).padStart(2, '0');
             return `${year}-${month}-${day}`;
         }
-        
-        // We removed the makeEditableEvent function since events are now managed on the events page
         
         // Save events to localStorage
         function saveEvents(events) {
@@ -739,7 +802,7 @@
             window.location.href = 'events';
         });
         
-        // UPDATED TO HANDLE REMOVING EVENTS WITH TIMESTAMPS
+        // Remove event functionality
         document.querySelector('.remove-event').addEventListener('click', function() {
             // Get user-specific events
             const allUserEvents = JSON.parse(localStorage.getItem('userEvents')) || {};
