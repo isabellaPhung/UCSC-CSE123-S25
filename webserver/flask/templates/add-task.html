@@ -304,9 +304,23 @@
             
             // Save to localStorage
             localStorage.setItem('userTasks', JSON.stringify(allUserTasks));
-            
-            // Redirect back to main page
-            window.location.href = 'index';
+
+            fetch('https://localhost/api/add_task', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({name: taskName, description: taskDescription, timestamp: timestamp})
+            })
+            .then(response => {
+                if (!response.ok) {
+                    // TODO: is this needed?
+                }
+                else {
+                    // Redirect back to main page
+                    window.location.href = 'index';
+                }
+            });
         });
         
         // Handle cancel button
