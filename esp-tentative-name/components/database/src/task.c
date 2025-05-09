@@ -11,7 +11,7 @@ esp_err_t RemoveTaskDB(sqlite3 *db, const char *uuid);
 // Adds JSON entries to database
 esp_err_t ParseTasksJSON(sqlite3 *db, const char *json)
 {
-    static const char *TAG = "task::ParseTasksJSON";
+    const char *TAG = "task::ParseTasksJSON";
 
     cJSON *root = cJSON_Parse(json);
     if (!root)
@@ -77,7 +77,7 @@ esp_err_t ParseTasksJSON(sqlite3 *db, const char *json)
 
 int RetrieveTasksSortedDB(sqlite3 *db, task_t *taskBuffer, int count, int offset)
 {
-    static const char *TAG = "task::RetrieveTasksSortedDB";
+    const char *TAG = "task::RetrieveTasksSortedDB";
 
     if (!taskBuffer || count <= 0)
     {
@@ -150,7 +150,7 @@ int RetrieveTasksSortedDB(sqlite3 *db, task_t *taskBuffer, int count, int offset
 
 esp_err_t UpdateTaskStatusDB(sqlite3 *db, const char *uuid, TASK_STATUS new_status)
 {
-    static const char *TAG = "task::UpdateTaskStatusDB";
+    const char *TAG = "task::UpdateTaskStatusDB";
 
     if (new_status == MFD)
     {
@@ -184,7 +184,7 @@ esp_err_t UpdateTaskStatusDB(sqlite3 *db, const char *uuid, TASK_STATUS new_stat
 
 esp_err_t RemoveTaskDB(sqlite3 *db, const char *uuid)
 {
-    static const char *TAG = "task::CompleteTaskDB";
+    const char *TAG = "task::CompleteTaskDB";
 
     const char *sql = "DELETE FROM tasks WHERE id = ?;";
     sqlite3_stmt *stmt;
@@ -213,7 +213,7 @@ esp_err_t RemoveTaskDB(sqlite3 *db, const char *uuid)
 
 esp_err_t AddTaskDB(sqlite3 *db, task_t *ent)
 {
-    static const char *TAG = "task::AddTaskDB";
+    const char *TAG = "task::AddTaskDB";
 
     const char *sql = "INSERT INTO tasks (id, name, datetime, priority, completed, description) VALUES (?, ?, ?, ?, ?, ?);";
     sqlite3_stmt *stmt;
@@ -246,7 +246,7 @@ esp_err_t AddTaskDB(sqlite3 *db, task_t *ent)
 
 void PrintTask(task_t ent)
 {
-    static const char *TAG = "task::PrintTask";
+    const char *TAG = "task::PrintTask";
 
     struct tm *timeinfo = gmtime(&ent.time);
     char datetime[40];

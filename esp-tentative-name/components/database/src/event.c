@@ -8,7 +8,7 @@ esp_err_t AddEventDB(sqlite3 *db, const event_t *event);
 
 int RetrieveEventsSortedDB(sqlite3 *db, event_t *eventBuffer, int count, int offset)
 {
-    static const char *TAG = "event::RemoveEventDB";
+    const char *TAG = "event::RemoveEventDB";
 
     if (!eventBuffer || count <= 0)
     {
@@ -72,7 +72,7 @@ int RetrieveEventsSortedDB(sqlite3 *db, event_t *eventBuffer, int count, int off
 
 esp_err_t ParseEventsJSON(sqlite3 *db, const char *json)
 {
-    static const char *TAG = "event::ParseEventsJSON";
+    const char *TAG = "event::ParseEventsJSON";
 
     if (!db || !json)
     {
@@ -162,7 +162,7 @@ esp_err_t ParseEventsJSON(sqlite3 *db, const char *json)
 
 esp_err_t AddEventDB(sqlite3 *db, const event_t *event)
 {
-    static const char *TAG = "event::AddEventDB";
+    const char *TAG = "event::AddEventDB";
 
     const char *sql = "INSERT INTO events (id, name, starttime, duration, description) VALUES (?, ?, ?, ?, ?);";
     sqlite3_stmt *stmt;
@@ -194,7 +194,7 @@ esp_err_t AddEventDB(sqlite3 *db, const event_t *event)
 
 esp_err_t RemoveEventDB(sqlite3 *db, const char *uuid)
 {
-    static const char *TAG = "event::RemoveEventDB";
+    const char *TAG = "event::RemoveEventDB";
 
     const char *sql = "DELETE FROM events WHERE id = ?;";
     sqlite3_stmt *stmt;
@@ -223,7 +223,7 @@ esp_err_t RemoveEventDB(sqlite3 *db, const char *uuid)
 // ----------------------------------------- TEST SCRIPT ------------------------------------------
 esp_err_t TestEventFunctions(sqlite3 *db)
 {
-    static const char *TAG = "event::TestEventFunctions";
+    const char *TAG = "event::TestEventFunctions";
 
     if (!db)
     {

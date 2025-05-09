@@ -55,7 +55,7 @@ esp_err_t init_shared_spi_bus()
 /// @return ESP_OK on success, ESP_FAIL otherwise
 esp_err_t MountSDCard()
 {
-    static const char *TAG = "database::MountSDCard";
+    const char *TAG = "database::MountSDCard";
 
     if (sdcard_mounted)
         return ESP_OK;
@@ -103,7 +103,7 @@ esp_err_t MountSDCard()
 /// @return SQLITE error code
 int InitSQL(sqlite3 **db)
 {
-    static const char *TAG = "database::InitSQL";
+    const char *TAG = "database::InitSQL";
 
     if (MountSDCard() != ESP_OK)
     {
@@ -203,7 +203,7 @@ int InitSQL(sqlite3 **db)
 
 int CloseSQL(sqlite3 **db)
 {
-    static const char *TAG = "database::CloseSQL";
+    const char *TAG = "database::CloseSQL";
 
     ESP_LOGI(TAG, "Closing database");
     int rc = sqlite3_close(*db);
@@ -219,7 +219,7 @@ int CloseSQL(sqlite3 **db)
 
 void DeleteDatabaseIfExists(char *database_path)
 {
-    static const char *TAG = "database::DeleteDatabase";
+    const char *TAG = "database::DeleteDatabase";
 
     ESP_LOGW(TAG, "CLEAN_DATABASE Field is ON, DELETING DATABASE!");
 
@@ -244,7 +244,7 @@ void DeleteDatabaseIfExists(char *database_path)
 
 esp_err_t TestSDCard()
 {
-    static const char *TAG = "database::TestSDCard";
+    const char *TAG = "database::TestSDCard";
 
     ESP_LOGI(TAG, "Testing file system...");
 
