@@ -135,12 +135,12 @@ int InitSQL(sqlite3 **db)
 
     if (rc)
     {
-        ESP_LOGE(TAG, "database::InitSQL: Can't open database: %s", sqlite3_errmsg(*db) ? sqlite3_errmsg(*db) : "No error code available");
+        ESP_LOGE(TAG, "Can't open database: %s", sqlite3_errmsg(*db) ? sqlite3_errmsg(*db) : "No error code available");
         return rc;
     }
 
     // -------------------------------------- Task Table ------------------------------------------
-    ESP_LOGI(TAG, "database::InitSQL: Creating Task Table...");
+    ESP_LOGI(TAG, "Creating Task Table...");
     char *sql = "CREATE TABLE IF NOT EXISTS tasks ("
                 "id TEXT PRIMARY KEY,"
                 "name TEXT NOT NULL,"
@@ -153,13 +153,13 @@ int InitSQL(sqlite3 **db)
     rc = sqlite3_exec(*db, sql, 0, 0, &zErrMsg);
     if (rc != SQLITE_OK)
     {
-        ESP_LOGE(TAG, "database::InitSQL: SQL error: %s", zErrMsg);
+        ESP_LOGE(TAG, " SQL error: %s", zErrMsg);
         sqlite3_free(zErrMsg);
         return rc;
     }
 
     // -------------------------------------- Event Table -----------------------------------------
-    ESP_LOGI(TAG, "database::InitSQL: Creating Event Table...");
+    ESP_LOGI(TAG, "Creating Event Table...");
     sql = "CREATE TABLE IF NOT EXISTS events ("
           "id TEXT PRIMARY KEY,"
           "name TEXT NOT NULL,"
@@ -170,7 +170,7 @@ int InitSQL(sqlite3 **db)
     rc = sqlite3_exec(*db, sql, 0, 0, &zErrMsg);
     if (rc != SQLITE_OK)
     {
-        ESP_LOGE(TAG, "database::InitSQL: SQL error: %s", zErrMsg);
+        ESP_LOGE(TAG, "SQL error: %s", zErrMsg);
         sqlite3_free(zErrMsg);
         return rc;
     }

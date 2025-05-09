@@ -1,7 +1,10 @@
 #include "event.h"
 #include <string.h>
 
+#include "cJSON.h"
 #include "esp_log.h"
+
+esp_err_t AddEventDB(sqlite3 *db, const event_t *event);
 
 int RetrieveEventsSortedDB(sqlite3 *db, event_t *eventBuffer, int count, int offset)
 {
@@ -65,6 +68,94 @@ int RetrieveEventsSortedDB(sqlite3 *db, event_t *eventBuffer, int count, int off
     sqlite3_finalize(stmt);
     ESP_LOGI(TAG, "Retrieved %d event(s) starting at offset %d", i, offset);
     return i;
+}
+
+esp_err_t ParseEventsJSON(sqlite3 *db, const char *json)
+{
+    static const char *TAG = "event::ParseEventsJSON";
+
+    if (!db || !json)
+    {
+        ESP_LOGE(TAG, "Invalid input: db or json is NULL");
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    cJSON *root = cJSON_Parse(json);
+    if (!root)
+    {
+        ESP_LOGE(TAG, "Failed to parse JSON");
+        return ESP_FAIL;
+    }
+
+    cJSON *event = cJSON_GetObjectItem(root, "event");
+    if (!cJSON_IsObject(event))
+    {
+        ESP_LOGE(TAG, "Missing or invalid 'event' object");
+        cJSON_Delete(root);
+        return ESP_FAIL;
+    }
+
+    event_t parsed = {0};
+
+    // UUID
+    cJSON *id = cJSON_GetObjectItem(event, "id");
+    if (!cJSON_IsString(id) || strlen(id->valuestring) >= UUID_LENGTH)
+    {
+        ESP_LOGE(TAG, "Invalid or missing 'id'");
+        cJSON_Delete(root);
+        return ESP_ERR_INVALID_ARG;
+    }
+    strncpy(parsed.uuid, id->valuestring, UUID_LENGTH - 1);
+
+    // Name
+    cJSON *name = cJSON_GetObjectItem(event, "name");
+    if (!cJSON_IsString(name) || strlen(name->valuestring) >= MAX_NAME_SIZE)
+    {
+        ESP_LOGE(TAG, "Invalid or missing 'name'");
+        cJSON_Delete(root);
+        return ESP_ERR_INVALID_ARG;
+    }
+    strncpy(parsed.name, name->valuestring, MAX_NAME_SIZE - 1);
+
+    // Description
+    cJSON *desc = cJSON_GetObjectItem(event, "description");
+    if (!cJSON_IsString(desc) || strlen(desc->valuestring) >= MAX_DESC_SIZE)
+    {
+        ESP_LOGE(TAG, "Invalid or missing 'description'");
+        cJSON_Delete(root);
+        return ESP_ERR_INVALID_ARG;
+    }
+    strncpy(parsed.description, desc->valuestring, MAX_DESC_SIZE - 1);
+
+    // Start Time
+    cJSON *starttime = cJSON_GetObjectItem(event, "starttime");
+    if (!cJSON_IsNumber(starttime))
+    {
+        ESP_LOGE(TAG, "Invalid or missing 'starttime'");
+        cJSON_Delete(root);
+        return ESP_ERR_INVALID_ARG;
+    }
+    parsed.start_time = (time_t)starttime->valuedouble;
+
+    // Duration
+    cJSON *duration = cJSON_GetObjectItem(event, "duration");
+    if (!cJSON_IsNumber(duration))
+    {
+        ESP_LOGE(TAG, "Invalid or missing 'duration'");
+        cJSON_Delete(root);
+        return ESP_ERR_INVALID_ARG;
+    }
+    parsed.duration = (time_t)duration->valuedouble;
+
+    // Call AddEventDB
+    esp_err_t result = AddEventDB(db, &parsed);
+    if (result != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to add event to DB");
+    }
+
+    cJSON_Delete(root);
+    return result;
 }
 
 // -------------------------------------- Helper Scripts ------------------------------------------
@@ -134,57 +225,80 @@ esp_err_t TestEventFunctions(sqlite3 *db)
 {
     static const char *TAG = "event::TestEventFunctions";
 
-    ESP_LOGI(TAG, "=== Starting Event DB Function Test ===");
-
-    // Step 1: Create a dummy event
-    event_t test_event = {
-        .uuid = "test-event-uuid-1234",
-        .name = "Test Event",
-        .start_time = time(NULL) + 3600, // 1 hour from now
-        .duration = 1800,                // 30 minutes
-        .description = "This is a test event."};
-
-    esp_err_t err = AddEventDB(db, &test_event);
-    if (err != ESP_OK)
+    if (!db)
     {
-        ESP_LOGE(TAG, "AddEventToDB failed");
-        return ESP_FAIL;
+        ESP_LOGE(TAG, "Invalid database handle");
+        return ESP_ERR_INVALID_ARG;
     }
 
-    // Step 2: Retrieve event using sort
-    event_t buffer[5];
-    int num_found = RetrieveEventsSortedDB(db, buffer, 5, 0);
-    if (num_found < 0)
-    {
-        ESP_LOGE(TAG, "RetrieveEventsSortedDB failed");
-        return ESP_FAIL;
-    }
+    // Define JSON strings with unique UUIDs
+    const char *json_events[3] = {
+        "{\"event\": {\"id\": \"uuid-001\", \"name\": \"Event One\", \"description\": \"First Event\", \"starttime\": 1762266000, \"duration\": 3600}}",
+        "{\"event\": {\"id\": \"uuid-002\", \"name\": \"Event Two\", \"description\": \"Second Event\", \"starttime\": 1762270000, \"duration\": 1800}}",
+        "{\"event\": {\"id\": \"uuid-003\", \"name\": \"Event Three\", \"description\": \"Third Event\", \"starttime\": 1762280000, \"duration\": 7200}}"};
 
-    int found = 0;
-    for (int i = 0; i < num_found; i++)
+    // Insert each JSON event
+    for (int i = 0; i < 3; i++)
     {
-        if (strcmp(buffer[i].uuid, test_event.uuid) == 0)
+        ESP_LOGI(TAG, "Parsing and inserting event %d", i + 1);
+        esp_err_t err = ParseEventsJSON(db, json_events[i]);
+        if (err != ESP_OK)
         {
-            ESP_LOGI(TAG, "Test event retrieved successfully.");
-            found = 1;
-            break;
+            ESP_LOGE(TAG, "Failed to insert event %d", i + 1);
+            return err;
         }
     }
 
-    if (!found)
+    // Retrieve events sorted
+    event_t buffer[3] = {0};
+    ESP_LOGI(TAG, "Retrieving sorted events...");
+    int res = RetrieveEventsSortedDB(db, buffer, 3, 0);
+    if (res < 3)
     {
-        ESP_LOGE(TAG, "Test event not found in retrieval.");
+        ESP_LOGE(TAG, "Failed to retrieve sorted events");
         return ESP_FAIL;
     }
 
-    // Step 3: Delete test event
-    err = RemoveEventDB(db, test_event.uuid);
-    if (err != ESP_OK)
+    // Log events
+    for (int i = 0; i < 3; i++)
     {
-        ESP_LOGE(TAG, "DeleteEventFromDB failed");
-        return ESP_FAIL;
+        ESP_LOGI(TAG, "Event %d:", i + 1);
+        ESP_LOGI(TAG, " UUID: %s", buffer[i].uuid);
+        ESP_LOGI(TAG, " Name: %s", buffer[i].name);
+        ESP_LOGI(TAG, " Description: %s", buffer[i].description);
+        ESP_LOGI(TAG, " Start Time: %lld", buffer[i].start_time);
+        ESP_LOGI(TAG, " Duration: %lld", buffer[i].duration);
     }
 
-    ESP_LOGI(TAG, "=== Event DB Function Test Completed Successfully ===");
+    // Remove all inserted events
+    for (int i = 0; i < 3; i++)
+    {
+        cJSON *root = cJSON_Parse(json_events[i]);
+        if (!root)
+        {
+            ESP_LOGE(TAG, "Failed to parse JSON again for cleanup");
+            return ESP_FAIL;
+        }
+        cJSON *event = cJSON_GetObjectItem(root, "event");
+        cJSON *id = cJSON_GetObjectItem(event, "id");
+        if (!cJSON_IsString(id))
+        {
+            cJSON_Delete(root);
+            ESP_LOGE(TAG, "Failed to extract UUID during cleanup");
+            return ESP_FAIL;
+        }
+
+        ESP_LOGI(TAG, "Removing event with UUID: %s", id->valuestring);
+        esp_err_t err = RemoveEventDB(db, id->valuestring);
+        cJSON_Delete(root);
+
+        if (err != ESP_OK)
+        {
+            ESP_LOGE(TAG, "Failed to remove event %d", i + 1);
+            return err;
+        }
+    }
+
+    ESP_LOGI(TAG, "All event tests passed and cleaned up.");
     return ESP_OK;
 }

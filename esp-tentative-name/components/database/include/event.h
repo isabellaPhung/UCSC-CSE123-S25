@@ -17,9 +17,21 @@ typedef struct
     char description[MAX_DESC_SIZE]; // Verbose description of entry
 } event_t;
 
-esp_err_t RetrieveEventsSortedDB(sqlite3 *db, event_t *eventBuffer, int count, int offset);
+/// @brief Retrieve events from database sorted from soonest to latest
+/// @param dataase
+/// @param eventBuffer Buffer the events are put into
+/// @param count Number of events to put into the buffer
+/// @param offset Offset of entries in the sorting function
+int RetrieveEventsSortedDB(sqlite3 *db, event_t *eventBuffer, int count, int offset);
 
+/// @brief Parses entries from a JSON file to
+/// @param db 
+/// @param json 
+/// @return 
 esp_err_t ParseEventsJSON(sqlite3 *db, const char *json);
+
+/// @brief Deletes entry from database that shares the uuid
+esp_err_t RemoveEventDB(sqlite3 *db, const char *uuid);
 
 // DEBUG FUNCTION
 esp_err_t TestEventFunctions(sqlite3 *db);

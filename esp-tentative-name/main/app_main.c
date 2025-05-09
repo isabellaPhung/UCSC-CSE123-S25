@@ -152,7 +152,13 @@ void app_main()
     ESP_ERROR_CHECK(SetTime());
 
     // -------------------------------------- TEST SCRIPTS ----------------------------------------
-    TestEventFunctions(db);
+    /*
+    ESP_ERROR_CHECK(TestEventFunctions(db));
+    ESP_ERROR_CHECK(TestHabitFunctions(db));
+
+    CloseSQL(&db);
+    return;
+    */
 
     // ------------------------------- Initialize Server Connection -------------------------------
     int return_status;

@@ -27,6 +27,7 @@ typedef struct
 ## Usage
 
 This library will automatically move formatted JSON strings to the local SQL database. These strings *must* have the following syntax:
+
 ```json
 {
     task:[
@@ -75,16 +76,77 @@ UpdateTaskStatusDB(db, tasks[2].uuid, MFD);
 CloseSQL(&db);
 ```
 
+# `event.h`
+
+Events are similar to tasks yet hold duration instead of completion date, indicating time periods.
+
+```c
+typedef struct
+{
+    char uuid[UUID_LENGTH];          // UUID string of entry
+    char name[MAX_NAME_SIZE];        // Title of entry
+    time_t start_time;               // Time the event starts from
+    time_t duration;                 // Duration of event
+    char description[MAX_DESC_SIZE]; // Verbose description of entry
+} event_t;
+```
+
+Similar to the task type, the event type accepts JSON and outputs to a `event_t` list. The following JSON schema is necessary to use `ParseEventsJSON`:
+
+```json
+{
+    event:
+        {
+            id: <UNIQUE string>,
+            name: <string>,
+            description: <string>,
+            starttime: <int>,      // Time since epoch
+            duration: <int>        // Seconds
+        }
+}
+```
+
+# `habit.h`
+
+Habits rely soley on the database for storage and usage. Habits are comprised of two parts, the habit type, and the habit entires. When the user completes the habit a new entry is stored to the database with the date and reference to habit type.
+
+Habit types define two values:
+- The name of the habit.
+- The frequency at which the user will preform the action.
+
+```json
+{
+    habit:
+        {
+            id: <UNIQUE string>,
+            name: <string>,
+            goal_flags: <int>
+        }
+}
+```
+
+`goal_flags` represents which day of the week the task *should* be done, which can be indicated on the GUI. 7 bits of this integer coorespond to days of the week:
+
+| bit     | day       |
+|---------|-----------|
+| 0 (LSB) | Saturday  |
+| 1       | Friday    |
+| 2       | Thursday  |
+| 3       | Wednesday |
+| 4       | Tuesday   |
+| 5       | Monday    |
+| 6 (MSB) | Sunday    |
+
 # Configuration
 
 Currently the SD card uses the wire configuration indicated below:
 
 SD card pin | SPI pin | ESP32-C3 and other chips |
 ------------|---------|--------------------------|
- D0         | MISO    | GPIO21                    |
+ D0         | MISO    | GPIO21                   |
  D3         | CS      | GPIO9                    |
  CLK        | SCK     | GPIO7                    |
- CMD        | MOSI    | GPIO20                    |
+ CMD        | MOSI    | GPIO20                   |
 
 **IMPORTANT**: Every pin must have a 10k pull up resistor to 3.3V.
 
