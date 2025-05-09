@@ -46,7 +46,7 @@ esp_err_t app_lcd_init(void){
         .color_space = LCD_COLOR_SPACE,
         .bits_per_pixel = LCD_BITS_PER_PIXEL,
     };
-    ESP_GOTO_ON_ERROR(esp_lcd_new_panel_ili9488(lcd_io, &panel_config, LCD_H_RES * LCD_DRAW_BUFF_HEIGHT, &lcd_panel), err, UI, "New panel failed");
+    ESP_GOTO_ON_ERROR(esp_lcd_new_panel_ili9488(lcd_io, &panel_config, LCD_DRAW_BUFF_SIZE, &lcd_panel), err, UI, "New panel failed");
 
     esp_lcd_panel_reset(lcd_panel);
     esp_lcd_panel_init(lcd_panel);
@@ -93,7 +93,7 @@ esp_err_t app_lvgl_init(void)
     const lvgl_port_display_cfg_t disp_cfg = {
         .io_handle = lcd_io,
         .panel_handle = lcd_panel,
-        .buffer_size = LCD_H_RES * LCD_DRAW_BUFF_HEIGHT,
+        .buffer_size = LCD_DRAW_BUFF_SIZE,
         .double_buffer = LCD_DRAW_BUFF_DOUBLE,
         .hres = LCD_H_RES,
         .vres = LCD_V_RES,

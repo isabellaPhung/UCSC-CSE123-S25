@@ -6,7 +6,6 @@
 #include "database.h" //for database purposes
 #include "display_init.h"  //initalizes LVGL and display hardware
 #include <time.h>
-//#include "helper_menus.h"
 
 /*
 create_task(tasklist, "Capstone Project", "3/25/2025");
@@ -15,8 +14,10 @@ create_task(tasklist, "Learn PCB Design", "3/30/2025");
 create_task(tasklist, "Learn Computer Aided Design", "4/1/2025");
 */
 
+static const char *TAG = "SQL_DEMO";
+static const char *HEPLE = "HEPLE";
+
 void initDatabase(){
-    static const char *TAG = "SQL_DEMO";
 
     sqlite3 *db;
 
@@ -40,7 +41,6 @@ void initDatabase(){
     time_t t = time(NULL);
     
     task_t newTask = {
-        .uuid = "abcdefg",
         .name = "Capstone Project",
         .description = "Complete Capstone Project",
         .completion = INCOMPLETE,
@@ -68,6 +68,7 @@ void adjustDatabase(){
 }
 
 void app_main(void){
+    ESP_LOGI(HEPLE, "start heap: %d", heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
     
     /* LCD HW initialization */
     ESP_ERROR_CHECK(app_lcd_init());
@@ -77,12 +78,14 @@ void app_main(void){
 
     /* All the GUI drawing */
     app_main_display();
-
+    ESP_LOGI(HEPLE, "largest free block after LVGL: %d", heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
+    //heap_caps_print_heap_info(MALLOC_CAP_DEFAULT);
     initDatabase();
+    ESP_LOGI(HEPLE, "largest free block after database init: %d", heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
     //adjustDatabase();
     while(1){
         vTaskDelay(pdMS_TO_TICKS(10)); //I can't remember why I put this delay here
-        lv_timer_handler(); //update screen
+        //lv_timer_handler(); //update screen
         vTaskDelay(pdMS_TO_TICKS(5000)); //delay
     }
     //CloseSQL(&db);
