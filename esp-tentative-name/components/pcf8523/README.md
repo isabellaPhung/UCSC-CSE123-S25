@@ -12,7 +12,9 @@ RTC Pin     | Connection     |
  SCL        | GPIO6          |
  SQW        | NC             |
 
-**Important:** Use 4.7k or 10k pull up resistors on SDA or SCL
+**Important:** Use external 4.7k or 10k pull up resistors on SDA or SCL
+Will show a warning anyways for some reason though.
+SetTime requires internet connection.
 
 SQW is a square wave generator
 

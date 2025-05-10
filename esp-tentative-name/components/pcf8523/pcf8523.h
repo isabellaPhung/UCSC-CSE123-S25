@@ -16,6 +16,7 @@ esp_err_t RebootRTC();
 // Reads the RTC's time to a pointer
 esp_err_t pcf8523_read_time(time_t *out_time);
 
+// Requires ESP internet connection
 // Use SNTP to set the device's time
 esp_err_t SetTime();
 
