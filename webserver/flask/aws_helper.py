@@ -10,14 +10,20 @@ class AwsS3:
         self.device_bucket = os.getenv("DEVICE_DATA_BUCKET")
         self.user_bucket = os.getenv("USER_DATA_BUCKET")
 
-    def get_tasks(self):
-        obj = self.s3.Object(self.device_bucket, "55/task0.json")
-        data = json.loads(obj.get()["Body"].read().decode('utf-8'))
-        return data["tasks"]
+    def load_info(self, bucket, data_only=False):
+        if bucket == "user":
+            obj = self.s3.Object(self.user_bucket, "users.json")
+            data = json.loads(obj.get()["Body"].read().decode('utf-8'))
+        else:
+            obj = self.s3.Object(self.device_bucket, "55/task0.json")
+            data = json.loads(obj.get()["Body"].read().decode('utf-8'))
+
+        if data_only:
+            return data
+        return obj, data
 
     def check_login(self, username, password):
-        obj = self.s3.Object(self.user_bucket, "users.json")
-        data = json.loads(obj.get()["Body"].read().decode('utf-8'))
+        obj, data = self.load_info("user")
 
         for user in data["users"]:
             if user["username"] == username:
@@ -27,14 +33,12 @@ class AwsS3:
         return False
 
     def add_user(self, fullname, username, password):
-        obj = self.s3.Object(self.user_bucket, "users.json")
-        data = json.loads(obj.get()["Body"].read().decode("utf-8"))
+        obj, data = self.load_info("user")
 
         for user in data["users"]:
             if user["username"] == username:
                 return False
 
-        # TODO: devices?
         data["users"].append({"fullname": fullname, "username": username, "password": password, "devices": []})
 
         obj.put(
@@ -44,8 +48,7 @@ class AwsS3:
         return True
 
     def delete_user(self, username):
-        obj = self.s3.Object(self.user_bucket, "users.json")
-        data = json.loads(obj.get()["Body"].read().decode("utf-8"))
+        obj, data = self.load_info("user")
 
         data["users"] = [user for user in data["users"] if user["username"] != username]
 
@@ -56,8 +59,7 @@ class AwsS3:
         return True
 
     def add_task(self, name, description, duedate):
-        obj = self.s3.Object(self.device_bucket, "55/task0.json")
-        data = json.loads(obj.get()["Body"].read().decode("utf-8"))
+        obj, data = self.load_info("task")
 
         # TODO: check default values
         id = str(uuid.uuid4())

@@ -21,8 +21,7 @@ jwt = JWTManager(app)
 
 @app.route("/test")
 def test():
-    resp = {"tasks": s3_conn.get_tasks()}
-    return jsonify(resp), 200
+    return s3_conn.load_info("task", data_only=True), 200
 
 
 @app.route("/token/login", methods=["POST"])
@@ -80,6 +79,12 @@ def api_add_task():
     if not s3_conn.add_task(name, description, timestamp):
         return {"add_task": False}, 400
     return {"add_task": True}, 200
+
+
+@app.route("/api/get_users")
+def api_get_users():
+    users = s3_conn.load_info("user", data_only=True)
+    return users, 200
 
 
 @app.route("/login")
