@@ -3,6 +3,8 @@
  * Not intended to be used standalone, missing some library definitions and static variables. needs database.h
  */
 #include "helper_menus.h"
+#include <string.h>
+#include "esp_log.h"
 
 static lv_obj_t * label;
 static lv_style_t style_screen;
@@ -34,6 +36,7 @@ static lv_obj_t * obj;
 static lv_obj_t * msgbox;
 static lv_event_code_t code;
 static uint32_t k;
+static const char *TAG = "UI"; //for esp_log
 
 /*
  * callback function for focus menu for menu navigation
@@ -108,6 +111,14 @@ void initGroup(){
     lv_group_set_default(g1);
 }
 
+static char timeString[20];
+//uses static string
+void timeDisplay(char * entry){
+	if(lv_obj_is_valid(dateTime)){
+    	lv_label_set_text(dateTime, entry);
+	}
+}
+
 /*
  * creates focus menu, takes in parent lv_obj
  */
@@ -137,8 +148,8 @@ void focusMenu_create(lv_obj_t * parent){
     //TODO: needs time from RTC
     //adds time to focus tile
     dateTime = lv_label_create(parent);
-    lv_label_set_text(dateTime, "4/11/2025 7:35 PM");
     lv_obj_set_style_text_font(dateTime, &lv_font_montserrat_18, 0);
+    lv_label_set_text_static(dateTime, timeString);
     lv_obj_align(dateTime, LV_ALIGN_BOTTOM_LEFT, 5, -5);
 
     //arrow to indicate scroll down
@@ -301,8 +312,8 @@ void taskEvent_create(lv_obj_t * parent){
     //TODO: needs time from RTC
     //adds time to taskevent tile
     dateTime = lv_label_create(parent);
-    lv_label_set_text(dateTime, "4/11/2025 7:35 PM");
     lv_obj_set_style_text_font(dateTime, &lv_font_montserrat_18, 0);
+    lv_label_set_text_static(dateTime, timeString);
     lv_obj_align(dateTime, LV_ALIGN_TOP_LEFT, 5, 5);
 
     //arrow to indicate scroll up

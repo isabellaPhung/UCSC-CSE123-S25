@@ -5,8 +5,12 @@
  */
 #include "database.h" //for database purposes
 #include "display_init.h"  //initalizes LVGL and display hardware
+#include "pcf8523.h" //for RTC
 #include <time.h>
-
+#include <stdio.h>
+#include <string.h>
+//#include "esp_netif.h"
+//#include "esp_event.h"
 /*
 create_task(tasklist, "Capstone Project", "3/25/2025");
 create_task(tasklist, "Figure out Prototype", "3/29/2025");
@@ -16,6 +20,8 @@ create_task(tasklist, "Learn Computer Aided Design", "4/1/2025");
 
 static const char *TAG = "SQL_DEMO";
 static const char *HEPLE = "HEPLE";
+static const char *RTCTAG = "RTCTAG";
+static const char *NETTAG = "NETTAG";
 
 void initDatabase(){
 
@@ -41,6 +47,7 @@ void initDatabase(){
     time_t t = time(NULL);
     
     task_t newTask = {
+        .uuid = "12345",
         .name = "Capstone Project",
         .description = "Complete Capstone Project",
         .completion = INCOMPLETE,
@@ -68,7 +75,7 @@ void adjustDatabase(){
 }
 
 void app_main(void){
-    ESP_LOGI(HEPLE, "start heap: %d", heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
+    //ESP_LOGI(HEPLE, "start heap: %d", heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
     
     /* LCD HW initialization */
     ESP_ERROR_CHECK(app_lcd_init());
@@ -79,14 +86,35 @@ void app_main(void){
     /* All the GUI drawing */
     app_main_display();
     ESP_LOGI(HEPLE, "largest free block after LVGL: %d", heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
-    //heap_caps_print_heap_info(MALLOC_CAP_DEFAULT);
-    initDatabase();
-    ESP_LOGI(HEPLE, "largest free block after database init: %d", heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
+    //heap_caps_print_heap_info(MALLOC_CAP_DEFAULT); //heap info
+    
+    /* Database initialization */
+    //initDatabase();
+    //ESP_LOGI(HEPLE, "largest free block after database init: %d", heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
+    
+    /* RTC initialization */
+    if (!i2c_scan()){
+        ESP_LOGE(RTCTAG, "No I2C devices found!");
+        return;
+    }
+    ESP_ERROR_CHECK(InitRTC());
+    ESP_ERROR_CHECK(RebootRTC());
+    //set time, but needs internet connection. tried to get it working but it wouldn't cooperate.
+    ESP_LOGI(HEPLE, "largest free block after RTC init: %d", heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
+    
+    time_t rtc_time;
+    struct tm *tm_info = localtime(&rtc_time);
+    char buffer[64];
+    //strftime(buffer, sizeof(buffer), "%D %r", tm_info);
+    //pcf8523_read_time(&rtc_time);
+    timeDisplay(buffer);
+
     //adjustDatabase();
     while(1){
-        vTaskDelay(pdMS_TO_TICKS(10)); //I can't remember why I put this delay here
-        //lv_timer_handler(); //update screen
-        vTaskDelay(pdMS_TO_TICKS(5000)); //delay
+        vTaskDelay(pdMS_TO_TICKS(10)); 
+        //pcf8523_read_time(&rtc_time);
+        timeDisplay(buffer); //update time on 
+        lv_timer_handler(); //update screen
     }
     //CloseSQL(&db);
 }
