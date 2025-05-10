@@ -1,10 +1,10 @@
-//uses code from io_button repo's test code for GPIO buttons
-
 #include "ui.h"
 
 //assorted graphic items used across functions
 static lv_indev_t * keypad;
 static button_handle_t btns[5] = {NULL};
+
+//for edge detecting
 static button_event_t prev4;
 static button_event_t prev2;
 static button_event_t prev3;
@@ -13,6 +13,7 @@ static button_event_t prev0;
 
 static const char *BUTTON = "button"; //for esp_log
 
+/// @brief initializes adc hardware buttons, and draws first menu of GUI
 void makeButtons(){
     // create ADC button
     const button_config_t btn_cfg = {0};
@@ -41,7 +42,8 @@ void makeButtons(){
     }
 }
 
-
+/// @brief returns keyboard key
+/// @return keyboard value for LVGL
 uint32_t last_key(){
     //ESP_LOGI(BUTTON, "%s", iot_button_get_event_str(iot_button_get_event(btns[0])));
     uint32_t key = 0;
@@ -62,7 +64,6 @@ uint32_t last_key(){
         key = LV_KEY_ENTER;
     }
     //for edge detection purposes
-    //ESP_LOGI(BUTTON, "prev: %s current: %s", iot_button_get_event_str(prev4), iot_button_get_event_str(iot_button_get_event(btns[4])));
     prev4 = iot_button_get_event(btns[4]);   
     prev3 = iot_button_get_event(btns[3]);   
     prev2 = iot_button_get_event(btns[2]);   
@@ -71,6 +72,9 @@ uint32_t last_key(){
     return key;
 }
 
+/// @brief keypad callback function 
+/// @param indev lvgl input device 
+/// @param data indev data 
 void keyboard_read(lv_indev_t * indev, lv_indev_data_t * data){
     data->key = last_key();
     if(data->key > 0){
@@ -80,6 +84,7 @@ void keyboard_read(lv_indev_t * indev, lv_indev_data_t * data){
     }
 }
 
+/// @brief initializes buttons as a lvgl keypad
 void keypad_init(){
     keypad = lv_indev_create();
     lv_indev_set_read_cb(keypad, keyboard_read);
@@ -87,6 +92,7 @@ void keypad_init(){
     lv_indev_set_group(keypad, lv_group_get_default());
 }
 
+/// @brief inits necessary fonts and buttons and draws ui
 void create_ui(){
     makeButtons();
     initFonts();

@@ -1,25 +1,40 @@
 #pragma once
-#include "definitions.h"
+
 #include <stddef.h>
 #include <stdint.h>
 #include "lvgl__lvgl/lvgl.h"
 
+#include "definitions.h"
+
+//initializes necessary fonts
 void initFonts();
+
+//initializes groups
 void initGroup();
-void focusMenu_create(lv_obj_t * parent);
-void create_task(const char * name, const char * dueDate);
+
+//loads focus menu
+void loadTile1();
+//loads task event menu
+void loadTile2();
+//loads habit menu
+void loadTile3();
+
+//TODO?
 void loadPrevTasks();
 void loadNextTasks();
 void loadPrevEvents();
 void loadNextEvents();
 
-//takes a static string and sets time
-void timeDisplay();
+//updates time with given string
+void timeDisplay(char * entry);
 
-void taskEvent_create(lv_obj_t * parent);
-void createHabit(lv_obj_t * parent, const char * name, uint8_t row);
-void habitMenu_create(lv_obj_t * parent);
+//adds a task to the task event menu
+void create_task(const char * name, const char * dueDate);
+//TODO
+//adds a event to the task event menu
+//void create_event(const char * name, const char * dueDate);
+//adds a habit to the habit menu
+//TODO fix the row stuff?
+void createHabit(const char * name, uint8_t row);
 
-void loadTile1();
-void loadTile2();
-void loadTile3();
+

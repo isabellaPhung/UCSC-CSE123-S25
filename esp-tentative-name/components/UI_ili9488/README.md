@@ -1,9 +1,33 @@
-# LVGL Example using ILI9488 display
-
+# LVGL using ILI9488 display
 This creates the productivity device UI using LVGL and an ILI9488 SPI display using [atanisoft's driver and example](https://components.espressif.com/components/atanisoft/esp_lcd_ili9488/versions/1.0.11). Screen has been set to landscape mode and currently draws the UI. Interactability has yet to be implemented. This code was taken from [esp_port_lvgl's touchscreen example](https://github.com/espressif/esp-bsp/tree/76cc90336b34955fc76b510557b837e963b6a9e9/components/esp_lvgl_port/examples/touchscreen) and edited to work using the ILI9488 display.
 
+## Usage
+```
+    /* LCD HW initialization */
+    ESP_ERROR_CHECK(app_lcd_init());
+
+    /* LVGL initialization */
+    ESP_ERROR_CHECK(app_lvgl_init());
+
+    /* All the GUI drawing */
+    app_main_display();
+    
+    while (1)
+    {
+        vTaskDelay(pdMS_TO_TICKS(5000)); // delay, can be adjusted
+        lv_timer_handler();              // update screen
+    }
+```
+```
+timeDisplay(char * entry); //update time with string
+```
+```
+create_task(const char * name, const char * dueDate); //add a task to the task list
+```
+
+
 ## Font enabling
-I haven't figured out how to get it to use a default font if it can't find the required font, but at the moment, if you try to build, it'll probably say some font sizes are missing. You have to do `idf.py menuconfig`, go to Component Config > LVGL Configuration > Font Usage > Enable built in fonts and enable sizes 18, 24, and 48.
+sdkconfig.default should have the necessary fonts enabled, but if it says there's fonts missing, you have to do `idf.py menuconfig`, go to Component Config > LVGL Configuration > Font Usage > Enable built in fonts and enable sizes 18, 24, and 48.
 
 ## Default pin assignments
 
@@ -25,7 +49,19 @@ For the ESP32C2 and ILI9488 screen pins are as follows:
 | TOUCH_DO | unused |
 | TOUCH_IRQ | unused |
 
-not 100% sure if TFT reset works since in the original code it was plugged into a weakly low strapping pin on the S3, but C3 does not have that function.
-
 Buttons are all on pin 1.
 Voltage divider ladder is made based off of this [diagram](https://git.ucsc.edu/itphung/cse123-project/-/wikis/attachments/buttonDiagram.png).
+
+If the library doesn't compile right, try adding idf_component.yml with the following. Note that the path I have database may be different from yours. At the moment requires database just for 1 function which shares the SPI interface with the SD card.
+```
+dependencies:
+  idf: '>=4.4'
+  atanisoft/esp_lcd_ili9488: ^1.0.11
+  esp_lvgl_port:
+    version: '*'
+  lvgl/lvgl: ^9.2
+  espressif/button: ^4.1.3
+  database:
+    path: ../database
+```
+

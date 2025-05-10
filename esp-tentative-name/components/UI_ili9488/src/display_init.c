@@ -1,3 +1,5 @@
+//from esp_lvgl_port example
+
 #include "display_init.h"
 #include "database.h"   // For spi bus intialization
 
@@ -10,7 +12,8 @@ static esp_lcd_panel_handle_t lcd_panel = NULL;
 /* LVGL display*/
 static lv_display_t *lvgl_disp = NULL;
 
-//initializes LCD
+/// @brief initializes LCD
+/// @return ESP error code
 esp_err_t app_lcd_init(void){
     esp_err_t ret = ESP_OK;
 
@@ -70,7 +73,8 @@ err:
     return ret;
 }
 
-//initalizes LVGL
+/// @brief initializes LVGL
+/// @return ESP error code
 esp_err_t app_lvgl_init(void)
 {
     /* Initialize LVGL */
@@ -117,6 +121,7 @@ esp_err_t app_lvgl_init(void)
     return ESP_OK;
 }
 
+/// @brief draws UI
 void app_main_display(void)
 {
 

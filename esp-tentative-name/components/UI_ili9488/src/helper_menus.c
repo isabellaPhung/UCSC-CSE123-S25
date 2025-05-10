@@ -1,20 +1,9 @@
-/*
- * This file is created to be used in tandem with the LVGL sim, this way you can import the menus quickly and keep a separate main file with simulation specific functions.
- * Not intended to be used standalone, missing some library definitions and static variables. needs database.h
- */
 #include "helper_menus.h"
 #include <string.h>
 #include "esp_log.h"
 
 static lv_obj_t * label;
 static lv_style_t style_screen;
-
-static lv_obj_t * tile1;
-static lv_obj_t * tile2;
-static lv_obj_t * tile3;
-static lv_obj_t * tasklist;
-static lv_obj_t * eventlist;
-static lv_group_t * g1;
 
 /* Text settings */
 static lv_style_t style_text_muted;
@@ -23,7 +12,13 @@ static lv_style_t style_timer;
 static const lv_font_t * font_large;
 static const lv_font_t * font_giant;
 
-/* Arrow up down symbols */
+static lv_obj_t * tile1;
+static lv_obj_t * tile2;
+static lv_obj_t * tile3;
+static lv_obj_t * tasklist;
+static lv_obj_t * eventlist;
+static lv_group_t * g1;
+
 static lv_obj_t * arrowUp;
 static lv_obj_t * arrowDown;
 static lv_obj_t * arrowLeft;
@@ -35,7 +30,8 @@ static lv_obj_t * child;
 static lv_obj_t * obj;
 static lv_obj_t * msgbox;
 static lv_event_code_t code;
-static uint32_t k;
+static uint32_t k; //LVGL keyboard key
+
 static const char *TAG = "UI"; //for esp_log
 
 /*
@@ -122,7 +118,7 @@ void timeDisplay(char * entry){
 /*
  * creates focus menu, takes in parent lv_obj
  */
-void focusMenu_create(lv_obj_t * parent){
+static void focusMenu_create(lv_obj_t * parent){
     //adding gridnav and focus colors to the taskevent menu
     lv_obj_set_style_bg_color(parent, lv_palette_lighten(LV_PALETTE_BLUE, 4), LV_STATE_FOCUSED);
     lv_gridnav_add(parent, LV_GRIDNAV_CTRL_VERTICAL_MOVE_ONLY);
@@ -301,7 +297,7 @@ static void button_nav_cb(lv_event_t * e){
  * creates menu and lists for tasklist and event list
  * takes in parent lv_obj
  */
-void taskEvent_create(lv_obj_t * parent){
+static void taskEvent_create(lv_obj_t * parent){
     //adding gridnav and focus colors to the taskevent menu
     lv_obj_set_style_bg_color(parent, lv_palette_lighten(LV_PALETTE_BLUE, 4), LV_STATE_FOCUSED);
     lv_gridnav_add(parent, LV_GRIDNAV_CTRL_NONE);
@@ -442,9 +438,9 @@ static const char * btnm_map[] = {"Su", "Mo", "Tu", "We", "Th", "Fr", "Sa", ""};
  * creates habit entry for habit list
  * takes in parent list and name of habit and the row number.
  */
-void createHabit(lv_obj_t * parent, const char * name, uint8_t row){
+void createHabit(const char * name, uint8_t row){
     //creates habit title name
-    lv_obj_t * habits = lv_label_create(parent);
+    lv_obj_t * habits = lv_label_create(tile3);
     lv_label_set_text(habits, name);
     lv_obj_set_style_text_font(habits, &lv_font_montserrat_18, 0);
     lv_obj_set_pos(habits, 15, 25+(row*100));
@@ -467,7 +463,7 @@ void createHabit(lv_obj_t * parent, const char * name, uint8_t row){
 /*
  * creates habit menu, takes in parent lv obj
  */
-void habitMenu_create(lv_obj_t * parent){
+static void habitMenu_create(lv_obj_t * parent){
     //and color when focused and add gridnav 
     lv_obj_set_style_bg_color(parent, lv_palette_lighten(LV_PALETTE_BLUE, 4), LV_STATE_FOCUSED);
     lv_gridnav_add(parent, LV_GRIDNAV_CTRL_NONE);
