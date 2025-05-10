@@ -4,9 +4,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 #include "display_init.h"
+//#include "esp_log.h"
+//static const char *HEAP = "Heap Check";
 
 void app_main(void)
 {
+    //roughly checking heap usage before init LVGL
+    //ESP_LOGI(HEAP, "Largest free block before LVGL init: %d", heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
+    
     /* LCD HW initialization */
     ESP_ERROR_CHECK(app_lcd_init());
 
@@ -15,10 +20,12 @@ void app_main(void)
 
     /* All the GUI drawing */
     app_main_display();
+    
+    //roughly checking heap usage after drawing GUI
+    //ESP_LOGI(HEAP, "largest free block after LVGL: %d", heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
     while (1)
     {
-        vTaskDelay(pdMS_TO_TICKS(10));   // I can't remember why I put this delay here
-        lv_timer_handler();              // update screen
         vTaskDelay(pdMS_TO_TICKS(5000)); // delay
+        lv_timer_handler();              // update screen
     }
 }
