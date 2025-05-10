@@ -340,8 +340,8 @@
                 // Save to localStorage for compatibility with existing code
                 saveTaskToLocalStorage(task);
                 
-                // Upload to S3 bucket
-                uploadTaskToS3(task);
+<!--                // Upload to S3 bucket-->
+<!--                uploadTaskToS3(task);-->
                 
                 // Redirect back to main page
                 window.location.href = 'index';
@@ -369,35 +369,35 @@
             localStorage.setItem('userTasks', JSON.stringify(allUserTasks));
         }
         
-        // Function to upload task to S3 bucket
-        function uploadTaskToS3(task) {
-            // Create a simplified version of the task for S3
-            const s3Task = {
-                id: task.id,
-                name: task.name,
-                description: task.description,
-                completion: task.completion,
-                priority: task.priority,
-                duedate: task.timestamp
-            };
-            
-            // Send the task to your S3 bucket via API endpoint
-            fetch('https://your-api-endpoint/tasks', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(s3Task)
-            })
-            .then(response => {
-                if (!response.ok) {
-                    console.error('Failed to upload task to S3');
-                }
-            })
-            .catch(error => {
-                console.error('Error uploading task to S3:', error);
-            });
-        }
+<!--        // Function to upload task to S3 bucket-->
+<!--        function uploadTaskToS3(task) {-->
+<!--            // Create a simplified version of the task for S3-->
+<!--            const s3Task = {-->
+<!--                id: task.id,-->
+<!--                name: task.name,-->
+<!--                description: task.description,-->
+<!--                completion: task.completion,-->
+<!--                priority: task.priority,-->
+<!--                duedate: task.timestamp-->
+<!--            };-->
+<!--            -->
+<!--            // Send the task to your S3 bucket via API endpoint-->
+<!--            fetch('https://your-api-endpoint/tasks', {-->
+<!--                method: 'POST',-->
+<!--                headers: {-->
+<!--                    'Content-Type': 'application/json'-->
+<!--                },-->
+<!--                body: JSON.stringify(s3Task)-->
+<!--            })-->
+<!--            .then(response => {-->
+<!--                if (!response.ok) {-->
+<!--                    console.error('Failed to upload task to S3');-->
+<!--                }-->
+<!--            })-->
+<!--            .catch(error => {-->
+<!--                console.error('Error uploading task to S3:', error);-->
+<!--            });-->
+<!--        }-->
         
         // Function to generate a UUID v4
         function generateUUID() {

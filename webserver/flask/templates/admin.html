@@ -232,7 +232,6 @@
                     <tr>
                         <th>Full Name</th>
                         <th>Username</th>
-                        <th>Created At</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -357,11 +356,6 @@
                     const usernameCell = document.createElement('td');
                     usernameCell.textContent = user.username;
                     row.appendChild(usernameCell);
-                    
-                    // Created At column
-                    const createdAtCell = document.createElement('td');
-                    createdAtCell.textContent = formatDate(user.createdAt);
-                    row.appendChild(createdAtCell);
                     
                     // Actions column
                     const actionsCell = document.createElement('td');

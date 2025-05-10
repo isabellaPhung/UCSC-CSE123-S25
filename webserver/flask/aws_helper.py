@@ -35,7 +35,19 @@ class AwsS3:
                 return False
 
         # TODO: devices?
-        data["users"].append({"fullname": fullname, "username": username, "password": password})
+        data["users"].append({"fullname": fullname, "username": username, "password": password, "devices": []})
+
+        obj.put(
+            Body=(bytes(json.dumps(data, indent=2).encode("utf-8"))),
+            ContentType="application/json"
+        )
+        return True
+
+    def delete_user(self, username):
+        obj = self.s3.Object(self.user_bucket, "users.json")
+        data = json.loads(obj.get()["Body"].read().decode("utf-8"))
+
+        data["users"] = [user for user in data["users"] if user["username"] != username]
 
         obj.put(
             Body=(bytes(json.dumps(data, indent=2).encode("utf-8"))),
