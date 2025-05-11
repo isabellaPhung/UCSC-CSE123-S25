@@ -631,13 +631,13 @@
                     // Add due date/time
                     const dueDate = document.createElement('div');
                     dueDate.className = 'task-due-date';
-                    dueDate.textContent = `Due: ${new Date(task.timestamp * 1000).toLocaleString()}`;
+                    dueDate.textContent = `Due: ${new Date(task.duedate * 1000).toLocaleString()}`;
                     taskDetails.appendChild(dueDate);
 
                     // Add timestamp
                     const timestamp = document.createElement('div');
                     timestamp.className = 'task-timestamp';
-                    timestamp.textContent = `Unix Timestamp: ${task.timestamp}`;
+                    timestamp.textContent = `Unix Timestamp: ${task.duedate}`;
                     taskDetails.appendChild(timestamp);
 
                     // Toggle details visibility on click
