@@ -74,9 +74,11 @@ def api_signup():
 def api_add_task():
     name = request.json.get("name")
     description = request.json.get("description")
-    timestamp = request.json.get("timestamp")
+    completion = request.json.get("completion")
+    priority = request.json.get("priority")
+    duedate = request.json.get("duedate")
 
-    if not s3_conn.add_task(name, description, timestamp):
+    if not s3_conn.add_task(name, description, completion, priority, duedate):
         return {"add_task": False}, 400
     return {"add_task": True}, 200
 

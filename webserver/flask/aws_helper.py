@@ -58,13 +58,10 @@ class AwsS3:
         )
         return True
 
-    def add_task(self, name, description, duedate):
+    def add_task(self, name, description, completion, priority, duedate):
         obj, data = self.load_info("task")
 
-        # TODO: check default values
         id = str(uuid.uuid4())
-        completion = 0
-        priority = 1
 
         data["tasks"].append(
             {"id": id, "name": name, "description": description,
