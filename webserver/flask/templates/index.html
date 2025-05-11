@@ -554,32 +554,25 @@
         
         // Load today's tasks from localStorage
         function loadTodaysTasks() {
-<!--            // Get user-specific tasks-->
-<!--            const allUserTasks = JSON.parse(localStorage.getItem('userTasks')) || {};-->
-<!--            const tasks = allUserTasks[window.currentUserId] || [];-->
-            
             const tasksContainer = document.getElementById('today-tasks-container');
             tasksContainer.innerHTML = '';
-            
-<!--            // Get today's date in YYYY-MM-DD format-->
-<!--            const today = new Date();-->
-<!--            const year = today.getFullYear();-->
-<!--            const month = String(today.getMonth() + 1).padStart(2, '0');-->
-<!--            const day = String(today.getDate()).padStart(2, '0');-->
-<!--            const todayStr = `${year}-${month}-${day}`;-->
-<!--            -->
-<!--            // Filter tasks for today-->
-<!--            const todaysTasks = tasks.filter(task => task.dueDate === todayStr);-->
-<!--            -->
-<!--            // Sort by time-->
-<!--            todaysTasks.sort((a, b) => {-->
-<!--                return a.timestamp - b.timestamp;-->
-<!--            });-->
+
+            const dayStart = new Date();
+            dayStart.setHours(0, 0, 0, 0);
+            const startTimestamp = Math.floor(dayStart.getTime() / 1000);
+
+            const dayEnd = new Date();
+            dayEnd.setHours(23, 59, 59, 999);
+            const endTimestamp = Math.floor(dayEnd.getTime() / 1000);
 
             let tasks;
 
-            fetch('https://localhost/api/get_tasks', {
-                    method: 'GET'
+            fetch('https://localhost/api/today_tasks', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({start: startTimestamp, end: endTimestamp})
                 })
                 .then(response => {
                     if (!response.ok) {
@@ -589,7 +582,6 @@
                 })
                 .then(data => {
                     tasks = data.tasks;
-                    // TODO: add the filter here
                     const todaysTasks = tasks
             
                 // Check if there are any tasks for today

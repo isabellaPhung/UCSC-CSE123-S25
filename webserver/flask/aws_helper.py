@@ -73,3 +73,11 @@ class AwsS3:
             ContentType="application/json"
         )
         return True
+
+    def get_tasks(self, start_timestamp, end_timestamp):
+        obj, data = self.load_info("task")
+
+        data["tasks"] = [task for task in data["tasks"]
+                         if start_timestamp <= task["duedate"] <= end_timestamp]
+
+        return data

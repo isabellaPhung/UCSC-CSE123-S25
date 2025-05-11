@@ -83,10 +83,13 @@ def api_add_task():
     return {"add_task": True}, 200
 
 
-@app.route("/api/get_tasks")
-def api_get_tasks():
-    users = s3_conn.load_info("task", data_only=True)
-    return users, 200
+@app.route("/api/today_tasks", methods=["POST"])
+def api_today_tasks():
+    start = request.json.get("start")
+    end = request.json.get("end")
+
+    tasks = s3_conn.get_tasks(start, end)
+    return tasks, 200
 
 
 @app.route("/api/get_users")
