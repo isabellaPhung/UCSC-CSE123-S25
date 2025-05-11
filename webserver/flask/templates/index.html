@@ -554,84 +554,101 @@
         
         // Load today's tasks from localStorage
         function loadTodaysTasks() {
-            // Get user-specific tasks
-            const allUserTasks = JSON.parse(localStorage.getItem('userTasks')) || {};
-            const tasks = allUserTasks[window.currentUserId] || [];
+<!--            // Get user-specific tasks-->
+<!--            const allUserTasks = JSON.parse(localStorage.getItem('userTasks')) || {};-->
+<!--            const tasks = allUserTasks[window.currentUserId] || [];-->
             
             const tasksContainer = document.getElementById('today-tasks-container');
             tasksContainer.innerHTML = '';
             
-            // Get today's date in YYYY-MM-DD format
-            const today = new Date();
-            const year = today.getFullYear();
-            const month = String(today.getMonth() + 1).padStart(2, '0');
-            const day = String(today.getDate()).padStart(2, '0');
-            const todayStr = `${year}-${month}-${day}`;
+<!--            // Get today's date in YYYY-MM-DD format-->
+<!--            const today = new Date();-->
+<!--            const year = today.getFullYear();-->
+<!--            const month = String(today.getMonth() + 1).padStart(2, '0');-->
+<!--            const day = String(today.getDate()).padStart(2, '0');-->
+<!--            const todayStr = `${year}-${month}-${day}`;-->
+<!--            -->
+<!--            // Filter tasks for today-->
+<!--            const todaysTasks = tasks.filter(task => task.dueDate === todayStr);-->
+<!--            -->
+<!--            // Sort by time-->
+<!--            todaysTasks.sort((a, b) => {-->
+<!--                return a.timestamp - b.timestamp;-->
+<!--            });-->
+
+            let tasks;
+
+            fetch('https://localhost/api/get_tasks', {
+                    method: 'GET'
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        console.error("Failed to get tasks");
+                    }
+                    return response.json()
+                })
+                .then(data => {
+                    tasks = data.tasks;
+                    // TODO: add the filter here
+                    const todaysTasks = tasks
             
-            // Filter tasks for today
-            const todaysTasks = tasks.filter(task => task.dueDate === todayStr);
-            
-            // Sort by time
-            todaysTasks.sort((a, b) => {
-                return a.timestamp - b.timestamp;
-            });
-            
-            // Check if there are any tasks for today
-            if (todaysTasks.length === 0) {
-                const noTasksMsg = document.createElement('div');
-                noTasksMsg.className = 'no-tasks-message';
-                noTasksMsg.textContent = 'No tasks scheduled for today. Click the + button to add a task.';
-                tasksContainer.appendChild(noTasksMsg);
-                return;
-            }
-            
-            // Display today's tasks
-            todaysTasks.forEach((task, index) => {
-                const taskItem = document.createElement('div');
-                taskItem.className = 'task-item';
-                taskItem.dataset.index = index;
-                
-                const taskName = document.createElement('div');
-                taskName.className = 'task-name';
-                taskName.textContent = task.name;
-                
-                const taskTime = document.createElement('div');
-                taskTime.className = 'task-time';
-                taskTime.textContent = task.displayTime;
-                
-                taskItem.appendChild(taskName);
-                taskItem.appendChild(taskTime);
-                
-                // Create task details section
-                const taskDetails = document.createElement('div');
-                taskDetails.className = 'task-details';
-                
-                // Add description
-                const description = document.createElement('div');
-                description.className = 'task-description';
-                description.textContent = task.description || 'No description provided';
-                taskDetails.appendChild(description);
-                
-                // Add due date/time
-                const dueDate = document.createElement('div');
-                dueDate.className = 'task-due-date';
-                dueDate.textContent = `Due: ${new Date(task.timestamp * 1000).toLocaleString()}`;
-                taskDetails.appendChild(dueDate);
-                
-                // Add timestamp
-                const timestamp = document.createElement('div');
-                timestamp.className = 'task-timestamp';
-                timestamp.textContent = `Unix Timestamp: ${task.timestamp}`;
-                taskDetails.appendChild(timestamp);
-                
-                // Toggle details visibility on click
-                taskItem.addEventListener('click', function() {
-                    taskDetails.classList.toggle('task-details-visible');
+                // Check if there are any tasks for today
+                if (todaysTasks.length === 0) {
+                    const noTasksMsg = document.createElement('div');
+                    noTasksMsg.className = 'no-tasks-message';
+                    noTasksMsg.textContent = 'No tasks scheduled for today. Click the + button to add a task.';
+                    tasksContainer.appendChild(noTasksMsg);
+                    return;
+                }
+
+                // Display today's tasks
+                todaysTasks.forEach((task, index) => {
+                    const taskItem = document.createElement('div');
+                    taskItem.className = 'task-item';
+                    taskItem.dataset.index = index;
+
+                    const taskName = document.createElement('div');
+                    taskName.className = 'task-name';
+                    taskName.textContent = task.name;
+
+                    const taskTime = document.createElement('div');
+                    taskTime.className = 'task-time';
+                    taskTime.textContent = task.displayTime;
+
+                    taskItem.appendChild(taskName);
+                    taskItem.appendChild(taskTime);
+
+                    // Create task details section
+                    const taskDetails = document.createElement('div');
+                    taskDetails.className = 'task-details';
+
+                    // Add description
+                    const description = document.createElement('div');
+                    description.className = 'task-description';
+                    description.textContent = task.description || 'No description provided';
+                    taskDetails.appendChild(description);
+
+                    // Add due date/time
+                    const dueDate = document.createElement('div');
+                    dueDate.className = 'task-due-date';
+                    dueDate.textContent = `Due: ${new Date(task.timestamp * 1000).toLocaleString()}`;
+                    taskDetails.appendChild(dueDate);
+
+                    // Add timestamp
+                    const timestamp = document.createElement('div');
+                    timestamp.className = 'task-timestamp';
+                    timestamp.textContent = `Unix Timestamp: ${task.timestamp}`;
+                    taskDetails.appendChild(timestamp);
+
+                    // Toggle details visibility on click
+                    taskItem.addEventListener('click', function() {
+                        taskDetails.classList.toggle('task-details-visible');
+                    });
+
+                    // Append to task container
+                    tasksContainer.appendChild(taskItem);
+                    tasksContainer.appendChild(taskDetails);
                 });
-                
-                // Append to task container
-                tasksContainer.appendChild(taskItem);
-                tasksContainer.appendChild(taskDetails);
             });
         }
         
