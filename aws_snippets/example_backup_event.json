@@ -1,0 +1,16 @@
+{
+  "event":[
+    {
+      "id":"73afa885-b7d1-4672-987c-0bcb77738344",
+      "name":"Demo day",
+      "starttime":1747334400,
+      "duration":5700
+    },
+    {
+      "id":"b39e4cb5-f87b-4f9b-994f-a53eed4f0013",
+      "name":"Presentation",
+      "starttime":1748538000,
+      "duration":18000
+    }
+  ]
+}

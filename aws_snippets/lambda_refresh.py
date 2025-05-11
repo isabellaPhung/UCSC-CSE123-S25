@@ -1,38 +1,41 @@
 import boto3
 import json
 
-def lambda_handler(event, context):
+client = boto3.client("iot-data")#, region_name='us-west-1')
+s3 = boto3.resource("s3")
 
-    # todo get dvice id from event
-    client = boto3.client('iot-data')#, region_name='us-west-1')
-    s3 = boto3.resource('s3')
-    obj = s3.Object("iot-device-data-backups", "55/task0.json")
-    data = json.loads(obj.get()["Body"].read().decode('utf-8'))
+def lambda_handler(event, context):
+    device_id = event["id"]
+    data_type = event["type"]
+    obj = s3.Object("iot-device-data-backups", device_id + "/" + data_type + "0.json")
+    data = json.loads(obj.get()["Body"].read().decode("utf-8"))
+    arr = data[data_type]
+    length = len(arr)
 
     initial_response = {
         "id" : "server",
         "action" : "length",
-        "length" : len(data["tasks"])
+        "length" : length
     }
     response = client.publish(
-            topic='iotdevice/55/datas3',
+            topic="iotdevice/" + device_id + "/datas3",
             qos=1,
             payload=json.dumps(initial_response)
     )
 
     index = 0
-    for task in data["tasks"]:
+    for data_pub in arr:
         response_data = {
             "id" : "server",
             "action" : "response",
             "index" : index,
-            "task" : task
+            data_type : data_pub
         }
 
         response = client.publish(
-            topic='iotdevice/55/datas3',
+            topic="iotdevice/" + device_id + "/datas3",
             qos=1,
             payload=json.dumps(response_data)
         )
         index += 1
-    return 0
+    return 200
