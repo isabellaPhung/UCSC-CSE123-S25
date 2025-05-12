@@ -677,7 +677,7 @@
 
                     const eventTime = document.createElement('div');
                     eventTime.className = 'event-time';
-                    eventTime.textContent = event.time;
+                    eventTime.textContent = unixToDate(event.starttime);;
 
                     eventContainer.appendChild(eventName);
                     eventContainer.appendChild(eventTime);
@@ -844,6 +844,14 @@
             const date = new Date(timestamp * 1000);
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             return date.toLocaleDateString(undefined, options);
+        }
+
+        // Convert Unix timestamp to start time
+        function unixToDate(unixTimestamp) {
+            const startTime = new Date(unixTimestamp * 1000);
+            hour = startTime.getHours().toString()
+            minute = startTime.getMinutes().toString()
+            return `${hour.padStart(2, '0')}:${minute.padStart(2, '0')}`;
         }
     </script>
 </body>

@@ -115,7 +115,7 @@ class AwsS3:
     def get_events(self, start_timestamp, end_timestamp):
         obj, data = self.load_info("event")
 
-        # data["event"] = [event for event in data["event"]
-        #                  if start_timestamp <= event["starttime"] <= end_timestamp]
+        data["event"] = [event for event in data["event"]
+                         if start_timestamp <= event["starttime"] <= end_timestamp]
 
         return data
