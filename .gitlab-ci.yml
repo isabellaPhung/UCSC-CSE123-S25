@@ -35,7 +35,7 @@ make-design:
     - changes:
       - doc/common/**/*
       - doc/design/*
-      - .gitlab-ci.yml
+      #- .gitlab-ci.yml
   image:
     name: pandoc/latex
     entrypoint: ["/bin/sh", "-c"]
@@ -68,4 +68,24 @@ make-presentation:
   artifacts:
     paths:
       - doc/presentation/build/CSE123_Presentation_Group2.pdf
+    expire_in: 1 week
+
+make-poster:
+  rules:
+    - changes:
+      - doc/common/**/*
+      - doc/poster/*
+      - .gitlab-ci.yml
+  image:
+    name: pandoc/latex
+    entrypoint: ["/bin/sh", "-c"]
+  script:
+    - tlmgr option repository https://ftp.math.utah.edu/pub/tex/historic/systems/texlive/2024/tlnet-final/
+    - tlmgr install fvextra lineno beamerposter xkeyval ragged2e pgfplots type1cm changepage anyfontsize roboto
+    - apk --no-cache add make
+    - cd doc/poster
+    - make pdf
+  artifacts:
+    paths:
+      - doc/poster/build/CSE123_Poster_Group2.pdf
     expire_in: 1 week
