@@ -9,14 +9,26 @@ class AwsS3:
         self.s3 = boto3.resource('s3')
         self.device_bucket = os.getenv("DEVICE_DATA_BUCKET")
         self.user_bucket = os.getenv("USER_DATA_BUCKET")
+        self.user_file = os.getenv("USER_FILE")
+        self.task_file = os.getenv("TASK_FILE")
+        self.event_file = os.getenv("EVENT_FILE")
+        self.habit_file = os.getenv("HABIT_FILE")
 
     def load_info(self, bucket, data_only=False):
+        device_id = "55"
+
         if bucket == "user":
-            obj = self.s3.Object(self.user_bucket, "users.json")
-            data = json.loads(obj.get()["Body"].read().decode('utf-8'))
+            obj = self.s3.Object(self.user_bucket, self.user_file)
+        elif bucket == "task":
+            obj = self.s3.Object(self.device_bucket, f"{device_id}/{self.task_file}")
+        elif bucket == "event":
+            obj = self.s3.Object(self.device_bucket, f"{device_id}/{self.event_file}")
+        elif bucket == "habit":
+            obj = self.s3.Object(self.device_bucket, f"{device_id}/{self.habit_file}")
         else:
-            obj = self.s3.Object(self.device_bucket, "55/task0.json")
-            data = json.loads(obj.get()["Body"].read().decode('utf-8'))
+            return False
+
+        data = json.loads(obj.get()["Body"].read().decode('utf-8'))
 
         if data_only:
             return data
@@ -63,7 +75,7 @@ class AwsS3:
 
         id = str(uuid.uuid4())
 
-        data["tasks"].append(
+        data["task"].append(
             {"id": id, "name": name, "description": description,
              "completion": completion, "priority": priority, "duedate": duedate}
         )
@@ -77,7 +89,7 @@ class AwsS3:
     def get_tasks(self, start_timestamp, end_timestamp):
         obj, data = self.load_info("task")
 
-        data["tasks"] = [task for task in data["tasks"]
-                         if start_timestamp <= task["duedate"] <= end_timestamp]
+        data["task"] = [task for task in data["task"]
+                        if start_timestamp <= task["duedate"] <= end_timestamp]
 
         return data

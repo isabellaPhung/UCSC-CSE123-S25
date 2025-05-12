@@ -565,8 +565,6 @@
             dayEnd.setHours(23, 59, 59, 999);
             const endTimestamp = Math.floor(dayEnd.getTime() / 1000);
 
-            let tasks;
-
             fetch('https://localhost/api/today_tasks', {
                     method: 'POST',
                     headers: {
@@ -581,8 +579,7 @@
                     return response.json()
                 })
                 .then(data => {
-                    tasks = data.tasks;
-                    const todaysTasks = tasks
+                    const todaysTasks = data.task;
             
                 // Check if there are any tasks for today
                 if (todaysTasks.length === 0) {
