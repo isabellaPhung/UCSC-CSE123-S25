@@ -94,7 +94,10 @@ def api_today_tasks():
 
 @app.route("/api/today_events", methods=["POST"])
 def api_today_events():
-    events = s3_conn.get_events()
+    start = request.json.get("start")
+    end = request.json.get("end")
+
+    events = s3_conn.get_events(start, end)
     return events, 200
 
 

@@ -438,6 +438,15 @@
     </div>
 
     <script>
+        // Global variables
+        const dayStart = new Date();
+        dayStart.setHours(0, 0, 0, 0);
+        const startTimestamp = Math.floor(dayStart.getTime() / 1000);
+
+        const dayEnd = new Date();
+        dayEnd.setHours(23, 59, 59, 999);
+        const endTimestamp = Math.floor(dayEnd.getTime() / 1000);
+
         // Update date and time
         function updateDateTime() {
             const now = new Date();
@@ -552,18 +561,10 @@
             localStorage.setItem('habits', JSON.stringify(habits));
         }
         
-        // Load today's tasks from localStorage
+        // Load today's tasks from S3
         function loadTodaysTasks() {
             const tasksContainer = document.getElementById('today-tasks-container');
             tasksContainer.innerHTML = '';
-
-            const dayStart = new Date();
-            dayStart.setHours(0, 0, 0, 0);
-            const startTimestamp = Math.floor(dayStart.getTime() / 1000);
-
-            const dayEnd = new Date();
-            dayEnd.setHours(23, 59, 59, 999);
-            const endTimestamp = Math.floor(dayEnd.getTime() / 1000);
 
             fetch('https://localhost/api/today_tasks', {
                     method: 'POST',
@@ -674,7 +675,7 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({})
+                    body: JSON.stringify({start: startTimestamp, end: endTimestamp})
                 })
                 .then(response => {
                     if (!response.ok) {

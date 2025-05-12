@@ -97,7 +97,26 @@ class AwsS3:
 
         return data
 
-    def get_events(self):
+    def add_event(self, name, description, starttime, duration):
         obj, data = self.load_info("event")
+
+        id = str(uuid.uuid4())
+
+        data["event"].append(
+            {"id": id, "name": name, "description": description,
+             "starttime": starttime, "duration": duration}
+        )
+
+        obj.put(
+            Body=(bytes(json.dumps(data, indent=2).encode("utf-8"))),
+            ContentType="application/json"
+        )
+        return True
+
+    def get_events(self, start_timestamp, end_timestamp):
+        obj, data = self.load_info("event")
+
+        # data["event"] = [event for event in data["event"]
+        #                  if start_timestamp <= event["starttime"] <= end_timestamp]
 
         return data

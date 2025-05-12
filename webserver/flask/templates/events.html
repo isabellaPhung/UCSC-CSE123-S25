@@ -374,6 +374,15 @@
     </div>
     
     <script>
+        // Global variables
+        const dayStart = new Date();
+        dayStart.setHours(0, 0, 0, 0);
+        const startTimestamp = Math.floor(dayStart.getTime() / 1000);
+
+        const dayEnd = new Date();
+        dayEnd.setHours(23, 59, 59, 999);
+        const endTimestamp = Math.floor(dayEnd.getTime() / 1000);
+
         // Get current date
         const today = new Date();
         const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -541,116 +550,126 @@
         
         // Load events from localStorage
         function loadEvents() {
-            // Get user-specific events
-            const allUserEvents = JSON.parse(localStorage.getItem('userEvents')) || {};
-            const userEvents = allUserEvents[window.currentUserId] || {};
-            
-            // Get today's events or initialize empty array
-            const todayEvents = userEvents[todayStr] || [];
-            
             // Get events container
             const eventsContainer = document.getElementById('events-list');
             eventsContainer.innerHTML = '';
-            
-            // Check if there are any events
-            if (todayEvents.length === 0) {
-                const noEventsMsg = document.createElement('div');
-                noEventsMsg.className = 'no-events-message';
-                noEventsMsg.textContent = 'No events scheduled for today.';
-                eventsContainer.appendChild(noEventsMsg);
-                return;
-            }
-            
-            // Sort events by time
-            todayEvents.sort((a, b) => {
-                // Use timestamp for sorting if available
-                if (a.timestamp && b.timestamp) {
-                    return a.timestamp - b.timestamp;
-                } else {
-                    // Fallback to string comparison
-                    const timeA = convertTo24Hour(a.time);
-                    const timeB = convertTo24Hour(b.time);
-                    return timeA.localeCompare(timeB);
-                }
-            });
-            
-            // Add each event to the container
-            todayEvents.forEach((event, index) => {
-                const eventRow = document.createElement('div');
-                eventRow.className = 'event-row';
-                
-                const eventName = document.createElement('div');
-                eventName.className = 'event-name';
-                eventName.textContent = event.name;
-                
-                const eventTime = document.createElement('div');
-                eventTime.className = 'event-time';
-                eventTime.textContent = event.time;
-                
-                // NEW DURATION DISPLAY
-                const eventDuration = document.createElement('div');
-                eventDuration.className = 'event-duration';
-                if (event.duration) {
-                    eventDuration.textContent = formatDuration(event.duration);
-                } else {
-                    eventDuration.textContent = 'N/A';
-                }
-                
-                const eventAction = document.createElement('div');
-                eventAction.className = 'event-action';
-                
-                const deleteBtn = document.createElement('span');
-                deleteBtn.className = 'delete-btn';
-                deleteBtn.innerHTML = '&times;';
-                deleteBtn.title = 'Delete Event';
-                deleteBtn.addEventListener('click', function() {
-                    deleteEvent(index);
-                });
-                
-                eventAction.appendChild(deleteBtn);
-                
-                eventRow.appendChild(eventName);
-                eventRow.appendChild(eventTime);
-                eventRow.appendChild(eventDuration);
-                eventRow.appendChild(eventAction);
-                
-                // Event details with timestamp
-                const eventDetails = document.createElement('div');
-                eventDetails.className = 'event-details';
-                
-                // Add timestamp if available
-                if (event.timestamp) {
-                    const timestamp = document.createElement('div');
-                    timestamp.className = 'event-timestamp';
-                    timestamp.textContent = `Unix Timestamp: ${event.timestamp}`;
-                    eventDetails.appendChild(timestamp);
-                }
-                
-                // NEW END TIME DISPLAY
-                if (event.endTime) {
-                    const endTime = document.createElement('div');
-                    endTime.className = 'event-end-time';
-                    endTime.textContent = `End Time: ${event.endTime}`;
-                    eventDetails.appendChild(endTime);
-                }
-                
-                // Toggle details visibility on click
-                eventRow.addEventListener('click', function(e) {
-                    // Only toggle if not clicking delete button
-                    if (!e.target.classList.contains('delete-btn')) {
-                        eventDetails.classList.toggle('event-details-visible');
+
+            fetch('https://localhost/api/today_events', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({start: startTimestamp, end: endTimestamp})
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        console.error("Failed to get events");
                     }
+                    return response.json()
+                })
+                .then(data => {
+                    const todayEvents = data.event;
+            
+                // Check if there are any events
+                if (todayEvents.length === 0) {
+                    const noEventsMsg = document.createElement('div');
+                    noEventsMsg.className = 'no-events-message';
+                    noEventsMsg.textContent = 'No events scheduled for today.';
+                    eventsContainer.appendChild(noEventsMsg);
+                    return;
+                }
+
+<!--                // Sort events by time-->
+<!--                todayEvents.sort((a, b) => {-->
+<!--                    // Use timestamp for sorting if available-->
+<!--                    if (a.timestamp && b.timestamp) {-->
+<!--                        return a.timestamp - b.timestamp;-->
+<!--                    } else {-->
+<!--                        // Fallback to string comparison-->
+<!--                        const timeA = convertTo24Hour(a.time);-->
+<!--                        const timeB = convertTo24Hour(b.time);-->
+<!--                        return timeA.localeCompare(timeB);-->
+<!--                    }-->
+<!--                });-->
+
+                // Add each event to the container
+                todayEvents.forEach((event, index) => {
+                    const eventRow = document.createElement('div');
+                    eventRow.className = 'event-row';
+
+                    const eventName = document.createElement('div');
+                    eventName.className = 'event-name';
+                    eventName.textContent = event.name;
+
+                    const eventTime = document.createElement('div');
+                    eventTime.className = 'event-time';
+                    eventTime.textContent = unixToDate(event.starttime);
+
+                    // NEW DURATION DISPLAY
+                    const eventDuration = document.createElement('div');
+                    eventDuration.className = 'event-duration';
+                    if (event.duration) {
+                        eventDuration.textContent = formatDuration(event.duration);
+                    } else {
+                        eventDuration.textContent = 'N/A';
+                    }
+
+                    const eventAction = document.createElement('div');
+                    eventAction.className = 'event-action';
+
+                    const deleteBtn = document.createElement('span');
+                    deleteBtn.className = 'delete-btn';
+                    deleteBtn.innerHTML = '&times;';
+                    deleteBtn.title = 'Delete Event';
+                    deleteBtn.addEventListener('click', function() {
+                        deleteEvent(index);
+                    });
+
+                    eventAction.appendChild(deleteBtn);
+
+                    eventRow.appendChild(eventName);
+                    eventRow.appendChild(eventTime);
+                    eventRow.appendChild(eventDuration);
+                    eventRow.appendChild(eventAction);
+
+                    // Event details with timestamp
+                    const eventDetails = document.createElement('div');
+                    eventDetails.className = 'event-details';
+
+                    // Add timestamp if available
+                    if (event.timestamp) {
+                        const timestamp = document.createElement('div');
+                        timestamp.className = 'event-timestamp';
+                        timestamp.textContent = `Unix Timestamp: ${event.timestamp}`;
+                        eventDetails.appendChild(timestamp);
+                    }
+
+                    // NEW END TIME DISPLAY
+                    if (event.endTime) {
+                        const endTime = document.createElement('div');
+                        endTime.className = 'event-end-time';
+                        endTime.textContent = `End Time: ${event.endTime}`;
+                        eventDetails.appendChild(endTime);
+                    }
+
+                    // Toggle details visibility on click
+                    eventRow.addEventListener('click', function(e) {
+                        // Only toggle if not clicking delete button
+                        if (!e.target.classList.contains('delete-btn')) {
+                            eventDetails.classList.toggle('event-details-visible');
+                        }
+                    });
+
+                    eventsContainer.appendChild(eventRow);
+                    eventsContainer.appendChild(eventDetails);
                 });
-                
-                eventsContainer.appendChild(eventRow);
-                eventsContainer.appendChild(eventDetails);
             });
         }
         
         // Helper function to format duration
         function formatDuration(duration) {
-            const hours = duration.hours;
-            const minutes = duration.minutes;
+            const hours = Math.floor(duration / 3600);
+            const minutes = Math.floor((duration % 3600) / 60);
             
             if (hours === 0) {
                 return `${minutes} min`;
@@ -772,6 +791,14 @@
                 // Reload events
                 loadEvents();
             }
+        }
+
+        // Convert Unix timestamp to start time
+        function unixToDate(unixTimestamp) {
+            const startTime = new Date(unixTimestamp * 1000);
+            hour = startTime.getHours().toString()
+            minute = startTime.getMinutes().toString()
+            return `${hour.padStart(2, '0')}:${minute.padStart(2, '0')}`;
         }
     </script>
 </body>
