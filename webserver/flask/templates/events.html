@@ -579,19 +579,6 @@
                     return;
                 }
 
-<!--                // Sort events by time-->
-<!--                todayEvents.sort((a, b) => {-->
-<!--                    // Use timestamp for sorting if available-->
-<!--                    if (a.timestamp && b.timestamp) {-->
-<!--                        return a.timestamp - b.timestamp;-->
-<!--                    } else {-->
-<!--                        // Fallback to string comparison-->
-<!--                        const timeA = convertTo24Hour(a.time);-->
-<!--                        const timeB = convertTo24Hour(b.time);-->
-<!--                        return timeA.localeCompare(timeB);-->
-<!--                    }-->
-<!--                });-->
-
                 // Add each event to the container
                 todayEvents.forEach((event, index) => {
                     const eventRow = document.createElement('div');
@@ -721,38 +708,34 @@
             // NEW: Get duration values
             const durationHours = parseInt(document.getElementById('duration-hours').value);
             const durationMinutes = parseInt(document.getElementById('duration-minutes').value);
-            const duration = {
-                hours: durationHours,
-                minutes: durationMinutes
-            };
+            const duration = durationHours * 3600 + durationMinutes * 60;
             
             // Calculate end time
             const endTime = updateEndTime();
             
-            // Get user-specific events
-            const allUserEvents = JSON.parse(localStorage.getItem('userEvents')) || {};
-            const userEvents = allUserEvents[window.currentUserId] || {};
-            
-            // Initialize today's events array if it doesn't exist
-            if (!userEvents[todayStr]) {
-                userEvents[todayStr] = [];
-            }
+<!--            // Get user-specific events-->
+<!--            const allUserEvents = JSON.parse(localStorage.getItem('userEvents')) || {};-->
+<!--            const userEvents = allUserEvents[window.currentUserId] || {};-->
+<!--            -->
+<!--            // Initialize today's events array if it doesn't exist-->
+<!--            if (!userEvents[todayStr]) {-->
+<!--                userEvents[todayStr] = [];-->
+<!--            }-->
             
             // Add new event with timestamp and duration
-            userEvents[todayStr].push({
+            const event = {
                 name: eventName,
-                time: time,
-                date: todayStr,
-                timestamp: timestamp,
+                starttime: timestamp,
                 duration: duration,
-                endTime: endTime
-            });
+            };
+
+            uploadEventToS3(event);
             
-            // Update user events
-            allUserEvents[window.currentUserId] = userEvents;
-            
-            // Save to localStorage
-            localStorage.setItem('userEvents', JSON.stringify(allUserEvents));
+<!--            // Update user events-->
+<!--            allUserEvents[window.currentUserId] = userEvents;-->
+<!--            -->
+<!--            // Save to localStorage-->
+<!--            localStorage.setItem('userEvents', JSON.stringify(allUserEvents));-->
             
             // Clear form and reload events
             clearForm();
@@ -799,6 +782,33 @@
             hour = startTime.getHours().toString()
             minute = startTime.getMinutes().toString()
             return `${hour.padStart(2, '0')}:${minute.padStart(2, '0')}`;
+        }
+
+        // Function to upload task to S3 bucket
+        function uploadEventToS3(event) {
+            // Create a simplified version of the task for S3
+            const s3Event = {
+                name: event.name,
+                starttime: event.starttime,
+                duration: event.duration
+            };
+
+            // Send the task to your S3 bucket via API endpoint
+            fetch('https://localhost/api/add_event', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(s3Event)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    console.error('Failed to upload event to S3');
+                }
+            })
+            .catch(error => {
+                console.error('Error uploading event to S3:', error);
+            });
         }
     </script>
 </body>
