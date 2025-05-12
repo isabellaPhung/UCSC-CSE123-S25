@@ -14,20 +14,23 @@ class AwsS3:
         self.event_file = os.getenv("EVENT_FILE")
         self.habit_file = os.getenv("HABIT_FILE")
 
-    def load_info(self, bucket, data_only=False):
+    def load_info(self, elem):
         device_id = "55"
 
-        if bucket == "user":
-            obj = self.s3.Object(self.user_bucket, self.user_file)
-        elif bucket == "task":
+        if elem == "task":
             obj = self.s3.Object(self.device_bucket, f"{device_id}/{self.task_file}")
-        elif bucket == "event":
+        elif elem == "event":
             obj = self.s3.Object(self.device_bucket, f"{device_id}/{self.event_file}")
-        elif bucket == "habit":
+        elif elem == "habit":
             obj = self.s3.Object(self.device_bucket, f"{device_id}/{self.habit_file}")
         else:
             return False
 
+        data = json.loads(obj.get()["Body"].read().decode('utf-8'))
+        return obj, data
+
+    def get_users(self, data_only=False):
+        obj = self.s3.Object(self.user_bucket, self.user_file)
         data = json.loads(obj.get()["Body"].read().decode('utf-8'))
 
         if data_only:
@@ -35,7 +38,7 @@ class AwsS3:
         return obj, data
 
     def check_login(self, username, password):
-        obj, data = self.load_info("user")
+        data = self.get_users(data_only=True)
 
         for user in data["users"]:
             if user["username"] == username:
@@ -45,7 +48,7 @@ class AwsS3:
         return False
 
     def add_user(self, fullname, username, password):
-        obj, data = self.load_info("user")
+        obj, data = self.get_users()
 
         for user in data["users"]:
             if user["username"] == username:
@@ -60,7 +63,7 @@ class AwsS3:
         return True
 
     def delete_user(self, username):
-        obj, data = self.load_info("user")
+        obj, data = self.get_users()
 
         data["users"] = [user for user in data["users"] if user["username"] != username]
 
@@ -91,5 +94,10 @@ class AwsS3:
 
         data["task"] = [task for task in data["task"]
                         if start_timestamp <= task["duedate"] <= end_timestamp]
+
+        return data
+
+    def get_events(self):
+        obj, data = self.load_info("event")
 
         return data
