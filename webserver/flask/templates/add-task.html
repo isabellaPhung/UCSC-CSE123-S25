@@ -333,9 +333,6 @@
                     completion: completion
                 };
                 
-                // Save to localStorage for compatibility with existing code
-                saveTaskToLocalStorage(task);
-                
                 // Upload to S3 bucket
                 uploadTaskToS3(task);
                 
@@ -348,22 +345,6 @@
                 window.location.href = 'index';
             });
         });
-        
-        // Function to save task to localStorage (for compatibility)
-        function saveTaskToLocalStorage(task) {
-            // Get existing tasks or create empty array
-            const allUserTasks = JSON.parse(localStorage.getItem('userTasks')) || {};
-            const userTasks = allUserTasks[window.currentUserId] || [];
-            
-            // Add new task
-            userTasks.push(task);
-            
-            // Update user tasks
-            allUserTasks[window.currentUserId] = userTasks;
-            
-            // Save to localStorage
-            localStorage.setItem('userTasks', JSON.stringify(allUserTasks));
-        }
         
         // Function to upload task to S3 bucket
         function uploadTaskToS3(task) {

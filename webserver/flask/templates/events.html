@@ -713,15 +713,6 @@
             // Calculate end time
             const endTime = updateEndTime();
             
-<!--            // Get user-specific events-->
-<!--            const allUserEvents = JSON.parse(localStorage.getItem('userEvents')) || {};-->
-<!--            const userEvents = allUserEvents[window.currentUserId] || {};-->
-<!--            -->
-<!--            // Initialize today's events array if it doesn't exist-->
-<!--            if (!userEvents[todayStr]) {-->
-<!--                userEvents[todayStr] = [];-->
-<!--            }-->
-            
             // Add new event with timestamp and duration
             const event = {
                 name: eventName,
@@ -730,12 +721,6 @@
             };
 
             uploadEventToS3(event);
-            
-<!--            // Update user events-->
-<!--            allUserEvents[window.currentUserId] = userEvents;-->
-<!--            -->
-<!--            // Save to localStorage-->
-<!--            localStorage.setItem('userEvents', JSON.stringify(allUserEvents));-->
             
             // Clear form and reload events
             clearForm();

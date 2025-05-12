@@ -648,27 +648,8 @@
             const today = new Date();
             const todayStr = formatDateString(today);
             
-<!--            // Get user-specific events-->
-<!--            const allUserEvents = JSON.parse(localStorage.getItem('userEvents')) || {};-->
-<!--            const userEvents = allUserEvents[window.currentUserId] || {};-->
-<!--            -->
-<!--            // Get today's events-->
-<!--            const events = userEvents[todayStr] || [];-->
-            
             const eventsList = document.getElementById('events');
             eventsList.innerHTML = '';
-            
-<!--            // Sort events by timestamp if available-->
-<!--            if (events.length > 0) {-->
-<!--                events.sort((a, b) => {-->
-<!--                    if (a.timestamp && b.timestamp) {-->
-<!--                        return a.timestamp - b.timestamp;-->
-<!--                    } else {-->
-<!--                        // Fallback for events without timestamp-->
-<!--                        return a.time.localeCompare(b.time);-->
-<!--                    }-->
-<!--                });-->
-<!--            }-->
 
             fetch('https://localhost/api/today_events', {
                     method: 'POST',
@@ -761,11 +742,6 @@
             const month = String(date.getMonth() + 1).padStart(2, '0');
             const day = String(date.getDate()).padStart(2, '0');
             return `${year}-${month}-${day}`;
-        }
-        
-        // Save events to localStorage
-        function saveEvents(events) {
-            localStorage.setItem('events', JSON.stringify(events));
         }
         
         // Initialize the page
