@@ -15,13 +15,14 @@ app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
 # app.config['JWT_COOKIE_SECURE'] = True
 # app.config['JWT_COOKIE_CSRF_PROTECT'] = True
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
+app.config["JWT_REFRESH_COOKIE_PATH"] = "/token/refresh"
 
 jwt = JWTManager(app)
 
 
 @app.route("/test")
 def test():
-    return {"hello": "world"}
+    return s3_conn.get_habits("2025-05-13"), 200
 
 
 @app.route("/token/login", methods=["POST"])
@@ -39,21 +40,6 @@ def login_authenticate():
     set_access_cookies(resp, access_token)
     set_refresh_cookies(resp, refresh_token)
     return resp, 200
-
-
-@app.after_request
-def refresh_token(resp):
-    try:
-        exp_timestamp = get_jwt()["exp"]
-        now = datetime.now(timezone.utc)
-        target_timestamp = datetime.timestamp(now + timedelta(minutes=30))
-        if target_timestamp > exp_timestamp:
-            access_token = create_access_token(identity=get_jwt_identity())
-            set_access_cookies(resp, access_token)
-        return resp
-    except (RuntimeError, KeyError):
-        # Case where there is not a valid JWT. Just return the original response
-        return resp
 
 
 @app.route("/token/remove", methods=["POST"])
@@ -127,7 +113,7 @@ def api_today_events():
 
 @app.route("/api/today_habits", methods=["POST"])
 def api_today_habits():
-    habits = s3_conn.get_habits()
+    habits = s3_conn.get_habits("2025-05-12")
     return habits, 200
 
 
@@ -181,6 +167,11 @@ def events():
 @jwt_required()
 def habits():
     return render_template("habits.html")
+
+
+# @jwt.expired_token_loader
+# def expired_jwt_token(jwt_header, jwt_payload):
+#     return {"msg": "Token expired"}, 401
 
 
 @jwt.unauthorized_loader

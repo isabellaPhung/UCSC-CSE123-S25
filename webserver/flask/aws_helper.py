@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 import json
 import os
 import uuid
@@ -135,7 +136,14 @@ class AwsS3:
 
         return data
 
-    def get_habits(self):
+    def get_habits(self, current_date):
         obj, data = self.load_info("habit")
+
+        today = datetime.strptime(current_date, "%Y-%m-%d")
+        monday = today - timedelta(days=today.weekday())
+        week = [(monday + timedelta(days=i)).strftime("%Y-%m-%d") for i in range(7)]
+
+        for habit in data["habit"]:
+            habit["completed"] = [date for date in habit["completed"] if date in week]
 
         return data
