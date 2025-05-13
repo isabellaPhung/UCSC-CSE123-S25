@@ -92,8 +92,10 @@ class AwsS3:
     def get_tasks(self, start_timestamp, end_timestamp):
         obj, data = self.load_info("task")
 
-        data["task"] = [task for task in data["task"]
-                        if start_timestamp <= task["duedate"] <= end_timestamp]
+        today_data = [task for task in data["task"]
+                      if start_timestamp <= task["duedate"] <= end_timestamp]
+
+        data["task"] = sorted(today_data, key=lambda task: task["duedate"])
 
         return data
 
@@ -112,10 +114,28 @@ class AwsS3:
         )
         return True
 
+    def delete_event(self, id):
+        obj, data = self.load_info("event")
+
+        data["event"] = [event for event in data["event"] if event["id"] != id]
+
+        obj.put(
+            Body=(bytes(json.dumps(data, indent=2).encode("utf-8"))),
+            ContentType="application/json"
+        )
+        return True
+
     def get_events(self, start_timestamp, end_timestamp):
         obj, data = self.load_info("event")
 
-        data["event"] = [event for event in data["event"]
-                         if start_timestamp <= event["starttime"] <= end_timestamp]
+        today_data = [event for event in data["event"]
+                      if start_timestamp <= event["starttime"] <= end_timestamp]
+
+        data["event"] = sorted(today_data, key=lambda event: event["starttime"])
+
+        return data
+
+    def get_habits(self):
+        obj, data = self.load_info("habit")
 
         return data

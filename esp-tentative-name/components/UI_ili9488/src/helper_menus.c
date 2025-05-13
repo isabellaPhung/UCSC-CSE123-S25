@@ -1,6 +1,8 @@
 #include "helper_menus.h"
-#include <string.h>
-#include "esp_log.h"
+
+static uint32_t taskCursor = 0;
+static uint32_t eventCursor = 0;
+static uint32_t habitCursor = 0;
 
 static lv_obj_t * label;
 static lv_style_t style_screen;
@@ -15,6 +17,8 @@ static const lv_font_t * font_giant;
 static lv_obj_t * tile1;
 static lv_obj_t * tile2;
 static lv_obj_t * tile3;
+static lv_obj_t * taskTile;
+static lv_obj_t * eventTile;
 static lv_obj_t * tasklist;
 static lv_obj_t * eventlist;
 static lv_group_t * g1;
@@ -24,12 +28,13 @@ static lv_obj_t * arrowDown;
 static lv_obj_t * arrowLeft;
 static lv_obj_t * arrowRight;
 static lv_obj_t * button;
+static lv_obj_t * title;
 static lv_obj_t * label;
 static lv_obj_t * dateTime;
+static lv_obj_t * cont;
 static lv_obj_t * child;
 static lv_obj_t * obj;
 static lv_obj_t * msgbox;
-static lv_event_code_t code;
 static uint32_t k; //LVGL keyboard key
 
 static const char *TAG = "UI"; //for esp_log
@@ -99,16 +104,15 @@ void initFonts(){
 
 /*
  * initializes necessary fonts
- * I would like this to be configurable
- * but maybe later
  */
 void initGroup(){
     g1 = lv_group_create();
     lv_group_set_default(g1);
 }
 
-static char timeString[20];
-//uses static string
+/*
+ * updates clock display
+ */
 void timeDisplay(char * entry){
 	if(lv_obj_is_valid(dateTime)){
     	lv_label_set_text(dateTime, entry);
@@ -141,11 +145,9 @@ static void focusMenu_create(lv_obj_t * parent){
     lv_obj_add_style(task, &style_title, 0);
     lv_obj_align(task, LV_ALIGN_CENTER, 0 , -75);
     
-    //TODO: needs time from RTC
     //adds time to focus tile
     dateTime = lv_label_create(parent);
     lv_obj_set_style_text_font(dateTime, &lv_font_montserrat_18, 0);
-    lv_label_set_text_static(dateTime, timeString);
     lv_obj_align(dateTime, LV_ALIGN_BOTTOM_LEFT, 5, -5);
 
     //arrow to indicate scroll down
@@ -154,51 +156,165 @@ static void focusMenu_create(lv_obj_t * parent){
     lv_obj_align(arrowDown, LV_ALIGN_BOTTOM_RIGHT, -5, -5);
 }
 
-static void complete_cb(lv_event_t * e){
-    msgbox = lv_event_get_user_data(e);
-    //TODO: completion implementation
-    lv_msgbox_close(msgbox);
-    lv_group_focus_freeze(lv_group_get_default(), false);
+static void exit_event_cb(lv_event_t * e){
+    loadTile2();
+    lv_obj_del(eventTile);
+}
+
+static void delete_event_cb(lv_event_t * e){
+    //TODO: delete event implementation
+}
+
+/* creates a new screen when event is selected and displays info */
+static void eventTile_create(lv_obj_t * parent){
+    //adding gridnav and focus colors to the taskevent menu
+    cont = lv_obj_create(parent);
+    lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_size(cont, lv_pct(100), lv_pct(80));
+
+    title = lv_label_create(cont);
+    lv_label_set_text(title, "Event Title");
+    lv_obj_add_style(title, &style_title, 0);
+    
+    label = lv_label_create(cont);
+    lv_obj_set_style_text_font(label, &lv_font_montserrat_18, 0);
+    lv_label_set_text(label, "Time and Date");
+
+    label = lv_label_create(cont);
+    lv_label_set_text(label, "Event Duration");
+
+    label = lv_label_create(cont);
+    lv_label_set_text(label, "Event Description");
+    
+    lv_obj_t * cont1 = lv_obj_create(parent);
+    lv_obj_set_size(cont1, lv_pct(100), lv_pct(20));
+    lv_obj_set_style_pad_all(cont1, 10, LV_PART_MAIN);
+    lv_obj_align_to(cont1, cont, LV_ALIGN_OUT_BOTTOM_MID, 0, 0);
+    lv_gridnav_add(cont1, LV_GRIDNAV_CTRL_HORIZONTAL_MOVE_ONLY);
+    lv_group_add_obj(lv_group_get_default(), cont1);
+    lv_obj_set_flex_flow(cont1, LV_FLEX_FLOW_ROW);
+
+    button = lv_btn_create(cont1);
+    lv_group_remove_obj(button);
+    lv_obj_add_event_cb(button, exit_event_cb, LV_EVENT_CLICKED, NULL);
+    label = lv_label_create(button);
+    lv_label_set_text(label, "Exit");
+    lv_obj_center(label);
+    lv_group_focus_obj(button);
+
+    button = lv_btn_create(cont1);
+    lv_group_remove_obj(button);
+    lv_obj_add_event_cb(button, delete_event_cb, LV_EVENT_CLICKED, NULL);
+    label = lv_label_create(button);
+    lv_label_set_text(label, "Delete");
+    lv_obj_center(label);
+
+}
+
+/*
+ * loads new screen for event
+ */
+void loadEventTile(){
+    eventTile = lv_obj_create(NULL);
+    lv_scr_load(eventTile); 
+    eventTile_create(eventTile);
+}
+
+static void event_desc_cb(lv_event_t * e){
+    loadEventTile();
+    lv_obj_del(tile2);
+}
+
+
+static void exit_task_cb(lv_event_t * e){
+    loadTile2();
+    lv_obj_del(taskTile);
+}
+
+static void complete_task_cb(lv_event_t * e){
+    //TODO: task completion implementation
 }
 
 static void focus_task_cb(lv_event_t * e){
-    msgbox = lv_event_get_user_data(e);
-    //TODO: focus implementation
-    lv_msgbox_close(msgbox);
-    lv_group_focus_freeze(lv_group_get_default(), false);
+    //TODO: focus task implementation
 }
 
-static void msgbox_cb(lv_event_t * e){
-    msgbox = lv_event_get_user_data(e);
-
-    lv_msgbox_close(msgbox);
-    lv_group_focus_freeze(lv_group_get_default(), false);
+static void delete_task_cb(lv_event_t * e){
+    //TODO: delte task implementation
 }
 
-//after the msg box is closed it always returns to the events list for some reason
-//may figure out something for that maybe
-static void task_desc_cb(lv_event_t * e){
-    msgbox = lv_msgbox_create(NULL);
-    //lv_msgbox_add_title(mbox, get_task_name);
-    lv_msgbox_add_title(msgbox, "Task/Event title");
-    //lv_msgbox_add_text(mbox, get_task_desc);
-    lv_msgbox_add_text(msgbox, "Task/Event Description"); //also include due date
+/* creates a new screen when Tile is selected and displays info */
+static void taskTile_create(lv_obj_t * parent){
+    //adding gridnav and focus colors to the taskevent menu
+    cont = lv_obj_create(parent);
+    lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_size(cont, lv_pct(100), lv_pct(80));
 
-    button = lv_msgbox_add_footer_button(msgbox, "Exit");
-    lv_obj_add_event_cb(button, msgbox_cb, LV_EVENT_CLICKED, msgbox);
+    title = lv_label_create(cont);
+    lv_label_set_text(title, "Task Title");
+    lv_obj_add_style(title, &style_title, 0);
+    
+    label = lv_label_create(cont);
+    lv_obj_set_style_text_font(label, &lv_font_montserrat_18, 0);
+    lv_label_set_text(label, "Due date");
+
+    label = lv_label_create(cont);
+    lv_label_set_text(label, "Task Priority");
+
+    label = lv_label_create(cont);
+    lv_label_set_text(label, "Task Description");
+    
+    lv_obj_t * cont1 = lv_obj_create(parent);
+    lv_obj_set_size(cont1, lv_pct(100), lv_pct(20));
+    lv_obj_set_style_pad_all(cont1, 10, LV_PART_MAIN);
+    lv_obj_align_to(cont1, cont, LV_ALIGN_OUT_BOTTOM_MID, 0, 0);
+    lv_gridnav_add(cont1, LV_GRIDNAV_CTRL_HORIZONTAL_MOVE_ONLY);
+    lv_group_add_obj(lv_group_get_default(), cont1);
+    lv_obj_set_flex_flow(cont1, LV_FLEX_FLOW_ROW);
+
+    button = lv_btn_create(cont1);
+    lv_group_remove_obj(button);
+    lv_obj_add_event_cb(button, exit_task_cb, LV_EVENT_CLICKED, NULL);
+    label = lv_label_create(button);
+    lv_label_set_text(label, "Exit");
+    lv_obj_center(label);
     lv_group_focus_obj(button);
-    lv_group_focus_freeze(lv_group_get_default(), true);
     
-    button = lv_msgbox_add_footer_button(msgbox, "Complete");
-    lv_obj_add_event_cb(button, complete_cb, LV_EVENT_CLICKED, msgbox);
+    button = lv_btn_create(cont1);
+    lv_group_remove_obj(button);
+    lv_obj_add_event_cb(button, focus_task_cb, LV_EVENT_CLICKED, NULL);
+    label = lv_label_create(button);
+    lv_label_set_text(label, "Focus Task");
+    lv_obj_center(label);
     
-    button = lv_msgbox_add_footer_button(msgbox, "Focus");
-    lv_obj_add_event_cb(button, focus_task_cb, LV_EVENT_CLICKED, msgbox);
+    button = lv_btn_create(cont1);
+    lv_group_remove_obj(button);
+    lv_obj_add_event_cb(button, complete_task_cb, LV_EVENT_CLICKED, NULL);
+    label = lv_label_create(button);
+    lv_label_set_text(label, "Task Completed");
+    lv_obj_center(label);
 
-    lv_obj_align(msgbox, LV_ALIGN_CENTER, 0, 0);
+    button = lv_btn_create(cont1);
+    lv_group_remove_obj(button);
+    lv_obj_add_event_cb(button, delete_task_cb, LV_EVENT_CLICKED, NULL);
+    label = lv_label_create(button);
+    lv_label_set_text(label, "Delete");
+    lv_obj_center(label);
 
-    lv_obj_set_style_bg_opa(lv_obj_get_parent(msgbox), LV_OPA_70, 0);
-    lv_obj_set_style_bg_color(lv_obj_get_parent(msgbox), lv_palette_main(LV_PALETTE_GREY), 0);
+}
+
+/*
+ * loads new screen for task
+ */
+void loadTaskTile(){
+    taskTile = lv_obj_create(NULL);
+    lv_scr_load(taskTile); 
+    taskTile_create(taskTile);
+}
+
+static void task_desc_cb(lv_event_t * e){
+    loadTaskTile();
+    lv_obj_del(tile2);
 }
 
 /*
@@ -206,13 +322,13 @@ static void task_desc_cb(lv_event_t * e){
  * returns an lv_obj pointer to task list entry
  * probably needs to be fixed to be generic for tasks
  */
-void create_task(const char * name, const char * dueDate){
+void create_task(task_t * task){
     //creates button for task using existing list button style
-    lv_obj_t * cont = lv_obj_class_create_obj(&lv_list_button_class, tasklist);
+    cont = lv_obj_class_create_obj(&lv_list_button_class, tasklist);
     lv_obj_class_init_obj(cont);
-    lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_COLUMN); //sets button to flex flow column form so it'll expand as needed
+    //lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_COLUMN); //sets button to flex flow column form so it'll expand as needed
     lv_group_remove_obj(cont);   //Not needed, we use the gridnav instead
-    lv_obj_add_event_cb(cont, task_desc_cb, LV_EVENT_CLICKED, name);
+    lv_obj_add_event_cb(cont, task_desc_cb, LV_EVENT_CLICKED, task);
    
     //initalizes columns and rows of grid for the button so things are nicely aligned
     static int32_t grid_col_dsc[] = {LV_GRID_CONTENT, LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
@@ -225,61 +341,90 @@ void create_task(const char * name, const char * dueDate){
     //label for task name
     lv_obj_t * label;
     label = lv_label_create(cont);
-    lv_label_set_text_static(label, name);
+    lv_label_set_text_static(label, task.name);
     lv_obj_set_width(label, LCD_H_RES*0.4);
     lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP); 
     lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_END, 0, 1);
 
     //label for due date
     label = lv_label_create(cont);
-    lv_label_set_text_static(label, dueDate);
+    lv_label_set_text_static(label, task.time);
     lv_obj_add_style(label, &style_text_muted, 0);
     lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 1, 1);
 }
 
+/*
+ * takes parent obj(usually an lv list), name of task, and due date of task
+ * returns an lv_obj pointer to task list entry
+ * probably needs to be fixed to be generic for tasks
+ */
+void create_event(event_t event){
+    //creates button for task using existing list button style
+    cont = lv_obj_class_create_obj(&lv_list_button_class, eventlist);
+    lv_obj_class_init_obj(cont);
+    lv_group_remove_obj(cont);   //Not needed, we use the gridnav instead
+    lv_obj_add_event_cb(cont, event_desc_cb, LV_EVENT_CLICKED, event);
+   
+    //initalizes columns and rows of grid for the button so things are nicely aligned
+    static int32_t grid_col_dsc[] = {LV_GRID_CONTENT, LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
+    static int32_t grid_row_dsc[] = {LV_GRID_CONTENT, LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
+    
+    //initializes grid
+    lv_obj_set_grid_dsc_array(cont, grid_col_dsc, grid_row_dsc);
+    lv_obj_set_style_pad_left(cont, 0, LV_PART_MAIN); //removes unnecessary left margin
 
+    //label for task name
+    lv_obj_t * label;
+    label = lv_label_create(cont);
+    lv_label_set_text_static(label, event.name);
+    lv_obj_set_width(label, LCD_H_RES*0.4);
+    lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP); 
+    lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_END, 0, 1);
 
-void loadPrevTasks(){
-    //TODO: load prev 4 tasks
+    //label for due date
+    label = lv_label_create(cont);
+    lv_label_set_text_static(label, event.start_time);
+    lv_obj_add_style(label, &style_text_muted, 0);
+    lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 1, 1);
 }
 
-void loadNextTasks(){
-    //TODO: load next 4 tasks
-}
-
-void loadPrevEvents(){
-    //TODO: load prev 4 events
-}
-
-void loadNextEvents(){
-    //TODO: load next 4 events
-}
+task_t taskBuffer[4];
+event_t eventBuffer[4];
+habit_t habitBuffer[3];
 
 static void tasks_left_cb(lv_event_t * e){
-    code = lv_event_get_code(e);
-    if(code == LV_EVENT_CLICKED) {
-        //TODO: load prev 4 tasks
+    taskCursor -= 4;
+    int taskNum = RetrieveTasksSortedDB(db, taskBuffer, 4, taskCursor);
+    for(int i = 0; i < taskNum; i++){
+        create_task(taskBuffer[i]);
     }
 }
 
 static void tasks_right_cb(lv_event_t * e){
-    code = lv_event_get_code(e);
-    if(code == LV_EVENT_CLICKED) {
-        //TODO: load next 4 tasks
+    int taskNum = RetrieveEventsSortedDB(db, taskBuffer, 4, taskCursor);
+    if(taskNum == 4){
+        taskCursor += 4;
+    }
+    for(int i = 0; i < taskNum; i++){
+        create_task(taskBuffer[i]);
     }
 }
 
 static void events_left_cb(lv_event_t * e){
-    code = lv_event_get_code(e);
-    if(code == LV_EVENT_CLICKED) {
-        //TODO: load prev 4 events
+    eventCursor -= 4;
+    int eventNum = RetrieveTasksSortedDB(db, eventBuffer, 4, eventCursor);
+    for(int i = 0; i < eventNum; i++){
+        create_event(eventBuffer[i]);
     }
 }
 
 static void events_right_cb(lv_event_t * e){
-    code = lv_event_get_code(e);
-    if(code == LV_EVENT_CLICKED) {
-        //TODO: load next 4 events
+    int eventNum = RetrieveTasksSortedDB(db, eventBuffer, 4, eventCursor);
+    if(eventNum == 4){
+        eventCursor += 4;
+    }
+    for(int i = 0; i < eventNum; i++){
+        create_event(eventBuffer[i]);
     }
 }
 
@@ -309,7 +454,6 @@ static void taskEvent_create(lv_obj_t * parent){
     //adds time to taskevent tile
     dateTime = lv_label_create(parent);
     lv_obj_set_style_text_font(dateTime, &lv_font_montserrat_18, 0);
-    lv_label_set_text_static(dateTime, timeString);
     lv_obj_align(dateTime, LV_ALIGN_TOP_LEFT, 5, 5);
 
     //arrow to indicate scroll up
@@ -317,39 +461,31 @@ static void taskEvent_create(lv_obj_t * parent){
     lv_label_set_text(arrowUp, LV_SYMBOL_UP);
     lv_obj_align(arrowUp, LV_ALIGN_TOP_RIGHT, -5, 5);
     
-    //make tasklist 
-        
     //left task list arrows
     button = lv_btn_create(parent);
-    //lv_group_add_obj(lv_group_get_default(), button);
     lv_group_remove_obj(button);
     lv_obj_align(button, LV_ALIGN_TOP_LEFT, (LCD_H_RES/4)-25, 35);
     lv_obj_set_size(button, 25, 25);
-    lv_obj_add_event_cb(button, tasks_left_cb, LV_EVENT_ALL, NULL);
-    //lv_obj_add_event_cb(button, button_nav_cb, LV_EVENT_KEY, NULL);
+    lv_obj_add_event_cb(button, tasks_left_cb, LV_EVENT_CLICKED, NULL);
     label = lv_label_create(button);
     lv_label_set_text(label, LV_SYMBOL_LEFT);
     lv_obj_center(label);
     
     //right task list arrows
     button = lv_btn_create(parent);
-    //lv_group_add_obj(lv_group_get_default(), button);
     lv_group_remove_obj(button);
     lv_obj_align(button, LV_ALIGN_TOP_LEFT, (LCD_H_RES/4)+25, 35);
     lv_obj_set_size(button, 25, 25);
-    lv_obj_add_event_cb(button, tasks_right_cb, LV_EVENT_ALL, NULL);
-    //lv_obj_add_event_cb(button, button_nav_cb, LV_EVENT_KEY, NULL);
+    lv_obj_add_event_cb(button, tasks_right_cb, LV_EVENT_CLICKED, NULL);
     label = lv_label_create(button);
     lv_label_set_text(label, LV_SYMBOL_RIGHT);
     lv_obj_center(label);
 
     //left event list arrows
     button = lv_btn_create(parent);
-    //lv_group_add_obj(lv_group_get_default(), button);
     lv_group_remove_obj(button);
     lv_obj_align(button, LV_ALIGN_TOP_RIGHT, -((LCD_H_RES/4)+25), 35);
     lv_obj_add_event_cb(button, events_left_cb, LV_EVENT_ALL, NULL);//probably need to be updated for each button?
-    //lv_obj_add_event_cb(button, button_nav_cb, LV_EVENT_KEY, NULL);
     lv_obj_set_size(button, 25, 25);
     label = lv_label_create(button);
     lv_label_set_text(label, LV_SYMBOL_LEFT);
@@ -357,16 +493,15 @@ static void taskEvent_create(lv_obj_t * parent){
     
     //right event list arrows
     button = lv_btn_create(parent);
-    //lv_group_add_obj(lv_group_get_default(), button);
     lv_group_remove_obj(button);
     lv_obj_align(button, LV_ALIGN_TOP_RIGHT, -((LCD_H_RES/4)-25), 35);
-    //lv_obj_add_event_cb(button, events_right_cb, LV_EVENT_ALL, NULL);
-    lv_obj_add_event_cb(button, button_nav_cb, LV_EVENT_KEY, NULL);
+    lv_obj_add_event_cb(button, events_right_cb, LV_EVENT_CLICKED, NULL);
     lv_obj_set_size(button, 25, 25);
     label = lv_label_create(button);
     lv_label_set_text(label, LV_SYMBOL_RIGHT);
     lv_obj_center(label);
 
+    //make tasklist 
     //create lv list obj
     tasklist = lv_list_create(parent);
     lv_group_add_obj(lv_group_get_default(), tasklist);
@@ -374,19 +509,11 @@ static void taskEvent_create(lv_obj_t * parent){
     lv_obj_set_size(tasklist, lv_pct(49), lv_pct(73));
     lv_obj_align(tasklist, LV_ALIGN_TOP_LEFT, 3, 60);
     lv_obj_set_style_pad_all(tasklist, 0, LV_PART_MAIN);
-  
-    /*
-    //dummy tasks
-    create_task(tasklist, "Capstone Project", "3/25/2025");
-    create_task(tasklist, "Figure out Prototype", "3/29/2025");
-    create_task(tasklist, "Learn PCB Design", "3/30/2025");
-    create_task(tasklist, "Learn Computer Aided Design", "4/1/2025");
-    */ 
 
     //create a title for tasks
-    lv_obj_t * taskTitle = lv_label_create(parent);
-    lv_label_set_text(taskTitle, "Tasks");
-    lv_obj_align(taskTitle, LV_ALIGN_BOTTOM_LEFT, 5, -5);
+    title = lv_label_create(parent);
+    lv_label_set_text(title, "Tasks");
+    lv_obj_align(title, LV_ALIGN_BOTTOM_LEFT, 5, -5);
     
     //create event list
     //create lv list obj
@@ -397,24 +524,26 @@ static void taskEvent_create(lv_obj_t * parent){
     lv_obj_align(eventlist, LV_ALIGN_TOP_LEFT, (LCD_H_RES/2), 60);
     lv_obj_set_style_pad_all(eventlist, 0, LV_PART_MAIN);
   
-    /*
-    //dummy events
-    //TODO: make them iterate through the database to display
-    //loadNextEvents();
-    create_task(eventlist, "Capstone Meeting", "3/21/2025 3:00PM");
-    create_task(eventlist, "ECE171 Class", "3/29/2025 2:00PM");
-    create_task(eventlist, "CSE121 Class", "3/30/2025 5:00PM");
-    */
-
      //create a title for events
-    lv_obj_t * eventTitle = lv_label_create(parent);
-    lv_label_set_text(eventTitle, "Events");
-    lv_obj_align(eventTitle, LV_ALIGN_BOTTOM_LEFT, (LCD_H_RES/2)+3, -5);
+    title = lv_label_create(parent);
+    lv_label_set_text(title, "Events");
+    lv_obj_align(title, LV_ALIGN_BOTTOM_LEFT, (LCD_H_RES/2)+3, -5);
 
     //arrow to indicate scroll down
     arrowDown = lv_label_create(parent);
     lv_label_set_text(arrowDown, LV_SYMBOL_DOWN);
     lv_obj_align(arrowDown, LV_ALIGN_BOTTOM_RIGHT, -5, -5);
+   
+    /*
+    //dummy tasks and events for testing
+    create_task("Capstone Project", "3/25/2025");
+    create_task("Figure out Prototype", "3/29/2025");
+    create_task("Learn PCB Design", "3/30/2025");
+    create_task("Learn Computer Aided Design", "4/1/2025");
+    create_event("Capstone Meeting", "3/21/2025 3:00PM");
+    create_event("ECE171 Class", "3/29/2025 2:00PM");
+    create_event("CSE121 Class", "3/30/2025 5:00PM");
+    */
 }
 
 /*
@@ -446,10 +575,10 @@ void createHabit(const char * name, uint8_t row){
     lv_obj_set_pos(habits, 15, 25+(row*100));
     
     //trying out button matrix
-    lv_obj_t * buttons = lv_btnmatrix_create(parent);
+    lv_obj_t * buttons = lv_btnmatrix_create(tile3);
     lv_gridnav_add(buttons, LV_GRIDNAV_CTRL_NONE);
     lv_obj_add_event_cb(buttons, buttonmatrix_cb, LV_EVENT_KEY, NULL);//probably need to be updated for each button?
-    lv_obj_set_style_bg_color(parent, lv_palette_lighten(LV_PALETTE_BLUE, 4), LV_STATE_FOCUSED);
+    lv_obj_set_style_bg_color(tile3, lv_palette_lighten(LV_PALETTE_BLUE, 4), LV_STATE_FOCUSED);
     lv_obj_set_style_pad_all(buttons, 5, LV_PART_MAIN);
     lv_group_add_obj(lv_group_get_default(), buttons);
     lv_btnmatrix_set_map(buttons, btnm_map);
@@ -457,7 +586,17 @@ void createHabit(const char * name, uint8_t row){
     lv_obj_set_size(buttons, LCD_H_RES-50, LCD_V_RES/5.5);
     for(uint8_t i = 0; i < 7; i++){
         lv_btnmatrix_set_btn_ctrl(buttons, i, LV_BTNMATRIX_CTRL_CHECKABLE);
+        //TODO: disable button if not necessary for that day or toggle based off of habit list
+        //lv_obj_add_state(btn, LV_STATE_DISABLED);
     }
+}
+
+static void habits_left_cb(lv_event_t * e){
+        //TODO: load prev 4 habits
+}
+
+static void habits_right_cb(lv_event_t * e){
+        //TODO: load next 4 habits
 }
 
 /*
@@ -471,30 +610,42 @@ static void habitMenu_create(lv_obj_t * parent){
     lv_group_focus_obj(parent);
     lv_obj_add_event_cb(parent, habit_cb, LV_EVENT_KEY, NULL);
 
+    //left habit list arrows
+    button = lv_btn_create(parent);
+    lv_group_remove_obj(button);
+    lv_obj_align(button, LV_ALIGN_BOTTOM_MID, +25, -35);
+    lv_obj_add_event_cb(button, habits_left_cb, LV_EVENT_CLICKED, NULL);//probably need to be updated for each button?
+    lv_obj_set_size(button, 25, 25);
+    label = lv_label_create(button);
+    lv_label_set_text(label, LV_SYMBOL_LEFT);
+    lv_obj_center(label);
+    
+    //right habit list arrows
+    button = lv_btn_create(parent);
+    lv_group_remove_obj(button);
+    lv_obj_align(button, LV_ALIGN_BOTTOM_MID, -25, -35);
+    lv_obj_add_event_cb(button, habits_right_cb, LV_EVENT_CLICKED, NULL);
+    lv_obj_set_size(button, 25, 25);
+    label = lv_label_create(button);
+    lv_label_set_text(label, LV_SYMBOL_RIGHT);
+    lv_obj_center(label);
+
     //arrow to indicate scroll up
     arrowUp = lv_label_create(parent);
     lv_label_set_text(arrowUp, LV_SYMBOL_UP);
     lv_obj_align(arrowUp, LV_ALIGN_TOP_RIGHT, -5, 5);
 
-    /*
-    //refresh button
-    //not sure if we're gonna need this, idk if the database will auto update and lvgl will update accordingly prob not. prob needs to refresh the buffer every now and again.
-    lv_obj_t * refreshButton = lv_button_create(parent);
-    refresh = lv_label_create(refreshButton);
-    lv_label_set_text(refresh, LV_SYMBOL_REFRESH);
-    */
-
     //creates a title for the habits tile
-    lv_obj_t * habits = lv_label_create(parent);
-    lv_label_set_text(habits, "Habit Progress");
-    lv_obj_set_style_text_font(habits, &lv_font_montserrat_18, 0);
-    lv_obj_align(habits, LV_ALIGN_TOP_LEFT, 5, 5);
+    title = lv_label_create(parent);
+    lv_label_set_text(title, "Habit Progress");
+    lv_obj_set_style_text_font(title, &lv_font_montserrat_18, 0);
+    lv_obj_align(title, LV_ALIGN_TOP_LEFT, 5, 5);
 
     //dummy habits
     //TODO: get habits from database
-    createHabit(parent, "Go to the Gym", 0);
-    createHabit(parent, "Walk the dog", 1);
-    createHabit(parent, "Journal", 2);
+    createHabit("Go to the Gym", 0);
+    createHabit("Walk the dog", 1);
+    createHabit("Journal", 2);
 }
 
 /*
@@ -523,4 +674,3 @@ void loadTile3(){
     lv_scr_load(tile3); 
     habitMenu_create(tile3);
 }
-

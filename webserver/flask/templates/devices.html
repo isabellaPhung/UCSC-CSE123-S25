@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Dashboard - Device Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .username {
+            font-weight: bold;
+        }
+        
+        .logout-btn {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            flex-grow: 1;
+        }
+        
+        h1 {
+            margin-bottom: 30px;
+            color: #333;
+            text-align: center;
+        }
+        
+        .section-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .add-device-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .device-list {
+            margin-bottom: 30px;
+        }
+        
+        .device-card {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        
+        .device-card:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .device-card.active {
+            border-color: #4CAF50;
+            background-color: #f1f8e9;
+        }
+        
+        .device-info {
+            flex-grow: 1;
+        }
+        
+        .device-name {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        
+        .device-id {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .device-status {
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 10px;
+            margin-top: 5px;
+            display: inline-block;
+        }
+        
+        .status-online {
+            background-color: #e8f5e9;
+            color: #388e3c;
+        }
+        
+        .status-offline {
+            background-color: #ffebee;
+            color: #d32f2f;
+        }
+        
+        .device-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        
+        .select-btn {
+            color: #2196F3;
+        }
+        
+        .select-btn:hover {
+            background-color: rgba(33, 150, 243, 0.1);
+        }
+        
+        .edit-btn {
+            color: #ff9800;
+        }
+        
+        .edit-btn:hover {
+            background-color: rgba(255, 152, 0, 0.1);
+        }
+        
+        .delete-btn {
+            color: #f44336;
+        }
+        
+        .delete-btn:hover {
+            background-color: rgba(244, 67, 54, 0.1);
+        }
+        
+        .no-devices {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+            font-style: italic;
+            background-color: #f9f9f9;
+            border-radius: 6px;
+        }
+        
+        .setup-instructions {
+            background-color: #e3f2fd;
+            border-radius: 6px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .setup-instructions h3 {
+            margin-top: 0;
+            color: #1565c0;
+        }
+        
+        .setup-steps {
+            margin-top: 15px;
+        }
+        
+        .setup-step {
+            margin-bottom: 10px;
+        }
+        
+        .setup-step-number {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            background-color: #1565c0;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 24px;
+            margin-right: 10px;
+        }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: 0;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #555;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #2196F3;
+        }
+        
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .cancel-btn {
+            background-color: #f5f5f5;
+            color: #333;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .save-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .back-to-dash {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .back-link {
+            color: #2196F3;
+            text-decoration: none;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        
+        .active-device-banner {
+            background-color: #e8f5e9;
+            color: #388e3c;
+            padding: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .active-device-name {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="user-info">
+            <span class="username" id="username-display">User</span>
+        </div>
+        <button class="logout-btn" id="logout-btn">Logout</button>
+    </div>
+    
+    <div class="container">
+        <h1>Device Management</h1>
+        
+        <div class="active-device-banner" id="active-device-banner" style="display: none;">
+            <div>
+                Currently managing: <span class="active-device-name" id="active-device-name"></span>
+            </div>
+            <div>
+                <button class="back-link" id="go-to-dashboard">Go to Dashboard</button>
+            </div>
+        </div>
+        
+        <div class="section-title">
+            <h2>Your Devices</h2>
+            <button class="add-device-btn" id="add-device-btn">Add Device</button>
+        </div>
+        
+        <div class="device-list" id="device-list">
+            <!-- Devices will be dynamically loaded here -->
+        </div>
+        
+        <div class="setup-instructions">
+            <h3>How to Set Up a New Device</h3>
+            <p>Follow these simple steps to connect your ESP32-based tablet device to your account:</p>
+            
+            <div class="setup-steps">
+                <div class="setup-step">
+                    <span class="setup-step-number">1</span>
+                    Power on your new device and ensure it's connected to Wi-Fi.
+                </div>
+                <div class="setup-step">
+                    <span class="setup-step-number">2</span>
+                    Find the Device ID on the back of your device or in the settings menu.
+                </div>
+                <div class="setup-step">
+                    <span class="setup-step-number">3</span>
+                    Click "Add Device" above and enter the Device ID.
+                </div>
+                <div class="setup-step">
+                    <span class="setup-step-number">4</span>
+                    Give your device a friendly name (e.g., "Kitchen Tablet").
+                </div>
+                <div class="setup-step">
+                    <span class="setup-step-number">5</span>
+                    Select the device from the list to start managing it.
+                </div>
+            </div>
+        </div>
+        
+        <div class="back-to-dash">
+            <a href="index" class="back-link">Back to Dashboard</a>
+        </div>
+    </div>
+    
+    <!-- Add/Edit Device Modal -->
+    <div class="modal" id="device-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modal-title">Add New Device</h2>
+                <button class="close-modal" id="close-modal">&times;</button>
+            </div>
+            
+            <form id="device-form">
+                <input type="hidden" id="edit-device-id">
+                
+                <div class="form-group">
+                    <label for="device-name">Device Name</label>
+                    <input type="text" id="device-name" placeholder="e.g., Kitchen Tablet" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="device-id">Device ID</label>
+                    <input type="text" id="device-id" placeholder="Enter the device ID" required>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="cancel-btn" id="cancel-btn">Cancel</button>
+                    <button type="submit" class="save-btn">Save Device</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser) {
+                window.location.href = 'login';
+                return;
+            }
+            
+            // Set username
+            document.getElementById('username-display').textContent = currentUser.username;
+            
+            // Get the active device if any
+            const activeDeviceId = localStorage.getItem('activeDeviceId');
+            if (activeDeviceId) {
+                showActiveDeviceBanner(activeDeviceId);
+            }
+            
+            // Event Listeners
+            document.getElementById('logout-btn').addEventListener('click', logout);
+            document.getElementById('add-device-btn').addEventListener('click', showAddDeviceModal);
+            document.getElementById('close-modal').addEventListener('click', closeModal);
+            document.getElementById('cancel-btn').addEventListener('click', closeModal);
+            document.getElementById('device-form').addEventListener('submit', saveDevice);
+            document.getElementById('go-to-dashboard').addEventListener('click', function() {
+                window.location.href = 'index';
+            });
+            
+            // Load devices
+            loadUserDevices();
+        });
+        
+        // Load user's devices
+        function loadUserDevices() {
+            const deviceList = document.getElementById('device-list');
+            deviceList.innerHTML = '';
+            
+            // Get current user
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            
+            // Get user's devices from the backend
+            fetch('https://localhost/api/user_devices', {
+                method: 'GET'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch devices');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const devices = data.devices || [];
+                
+                // Check if user has any devices
+                if (devices.length === 0) {
+                    const noDevicesMsg = document.createElement('div');
+                    noDevicesMsg.className = 'no-devices';
+                    noDevicesMsg.textContent = 'You don\'t have any devices yet. Add a device to get started.';
+                    deviceList.appendChild(noDevicesMsg);
+                    return;
+                }
+                
+                // Get active device ID
+                const activeDeviceId = localStorage.getItem('activeDeviceId');
+                
+                // Display each device
+                devices.forEach(device => {
+                    const deviceCard = document.createElement('div');
+                    deviceCard.className = 'device-card';
+                    if (device.id === activeDeviceId) {
+                        deviceCard.classList.add('active');
+                    }
+                    
+                    const deviceInfo = document.createElement('div');
+                    deviceInfo.className = 'device-info';
+                    
+                    const deviceName = document.createElement('div');
+                    deviceName.className = 'device-name';
+                    deviceName.textContent = device.name;
+                    
+                    const deviceId = document.createElement('div');
+                    deviceId.className = 'device-id';
+                    deviceId.textContent = `ID: ${device.id}`;
+                    
+                    // Optional status (if available)
+                    if (device.status) {
+                        const deviceStatus = document.createElement('div');
+                        deviceStatus.className = `device-status status-${device.status.toLowerCase()}`;
+                        deviceStatus.textContent = device.status;
+                        deviceInfo.appendChild(deviceStatus);
+                    }
+                    
+                    deviceInfo.appendChild(deviceName);
+                    deviceInfo.appendChild(deviceId);
+                    
+                    const deviceActions = document.createElement('div');
+                    deviceActions.className = 'device-actions';
+                    
+                    // Select button
+                    const selectBtn = document.createElement('button');
+                    selectBtn.className = 'action-btn select-btn';
+                    selectBtn.innerHTML = device.id === activeDeviceId ? 'Selected' : 'Select';
+                    selectBtn.title = 'Select this device to manage';
+                    selectBtn.addEventListener('click', function() {
+                        selectDevice(device.id, device.name);
+                    });
+                    
+                    // Edit button
+                    const editBtn = document.createElement('button');
+                    editBtn.className = 'action-btn edit-btn';
+                    editBtn.innerHTML = '✏️';
+                    editBtn.title = 'Edit device details';
+                    editBtn.addEventListener('click', function() {
+                        showEditDeviceModal(device);
+                    });
+                    
+                    // Delete button
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'action-btn delete-btn';
+                    deleteBtn.innerHTML = '🗑️';
+                    deleteBtn.title = 'Remove this device';
+                    deleteBtn.addEventListener('click', function() {
+                        deleteDevice(device.id);
+                    });
+                    
+                    deviceActions.appendChild(selectBtn);
+                    deviceActions.appendChild(editBtn);
+                    deviceActions.appendChild(deleteBtn);
+                    
+                    deviceCard.appendChild(deviceInfo);
+                    deviceCard.appendChild(deviceActions);
+                    
+                    deviceList.appendChild(deviceCard);
+                });
+            })
+            .catch(error => {
+                console.error('Error loading devices:', error);
+                deviceList.innerHTML = `
+                    <div class="no-devices">
+                        Failed to load devices. Please try again later.
+                    </div>
+                `;
+            });
+        }
+        
+        // Show active device banner
+        function showActiveDeviceBanner(deviceId) {
+            // Find device details
+            fetch(`https://localhost/api/device/${deviceId}`, {
+                method: 'GET'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch device details');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const device = data.device;
+                if (device) {
+                    document.getElementById('active-device-name').textContent = device.name;
+                    document.getElementById('active-device-banner').style.display = 'flex';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching device details:', error);
+            });
+        }
+        
+        // Select a device to manage
+        function selectDevice(deviceId, deviceName) {
+            // Store the active device ID in localStorage
+            localStorage.setItem('activeDeviceId', deviceId);
+            localStorage.setItem('activeDeviceName', deviceName);
+            
+            // Show confirmation
+            alert(`You are now managing "${deviceName}"`);
+            
+            // Refresh the page
+            window.location.reload();
+        }
+        
+        // Show add device modal
+        function showAddDeviceModal() {
+            // Reset form
+            document.getElementById('device-form').reset();
+            document.getElementById('edit-device-id').value = '';
+            
+            // Set modal title
+            document.getElementById('modal-title').textContent = 'Add New Device';
+            
+            // Show the modal
+            document.getElementById('device-modal').style.display = 'flex';
+        }
+        
+        // Show edit device modal
+        function showEditDeviceModal(device) {
+            // Fill in form with device details
+            document.getElementById('device-name').value = device.name;
+            document.getElementById('device-id').value = device.id;
+            document.getElementById('edit-device-id').value = device.id;
+            
+            // Set modal title
+            document.getElementById('modal-title').textContent = 'Edit Device';
+            
+            // Show the modal
+            document.getElementById('device-modal').style.display = 'flex';
+        }
+        
+        // Close the modal
+        function closeModal() {
+            document.getElementById('device-modal').style.display = 'none';
+        }
+        
+        // Save device (add or edit)
+        function saveDevice(e) {
+            e.preventDefault();
+            
+            const editDeviceId = document.getElementById('edit-device-id').value;
+            const deviceName = document.getElementById('device-name').value;
+            const deviceId = document.getElementById('device-id').value;
+            
+            if (!deviceName || !deviceId) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            // Prepare device data
+            const deviceData = {
+                name: deviceName,
+                id: deviceId
+            };
+            
+            // Determine if this is an add or edit
+            const isEdit = editDeviceId !== '';
+            const endpoint = isEdit ? `https://localhost/api/update_device/${editDeviceId}` : 'https://localhost/api/add_device';
+            const method = isEdit ? 'PUT' : 'POST';
+            
+            // Send to backend
+            fetch(endpoint, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(deviceData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(isEdit ? 'Failed to update device' : 'Failed to add device');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Close modal
+                closeModal();
+                
+                // If there are no active devices, set this as active
+                if (!localStorage.getItem('activeDeviceId')) {
+                    localStorage.setItem('activeDeviceId', deviceId);
+                    localStorage.setItem('activeDeviceName', deviceName);
+                }
+                
+                // Show success message
+                alert(isEdit ? 'Device updated successfully!' : 'Device added successfully!');
+                
+                // Reload devices
+                loadUserDevices();
+            })
+            .catch(error => {
+                console.error('Error saving device:', error);
+                alert(error.message);
+            });
+        }
+        
+        // Delete a device
+        function deleteDevice(deviceId) {
+            if (!confirm('Are you sure you want to remove this device? All associated data will be lost.')) {
+                return;
+            }
+            
+            // Send delete request to backend
+            fetch(`https://localhost/api/delete_device/${deviceId}`, {
+                method: 'DELETE'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to delete device');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Check if the deleted device was the active device
+                const activeDeviceId = localStorage.getItem('activeDeviceId');
+                if (activeDeviceId === deviceId) {
+                    localStorage.removeItem('activeDeviceId');
+                    localStorage.removeItem('activeDeviceName');
+                }
+                
+                // Show success message
+                alert('Device removed successfully!');
+                
+                // Reload devices
+                loadUserDevices();
+            })
+            .catch(error => {
+                console.error('Error deleting device:', error);
+                alert(error.message);
+            });
+        }
+        
+        // Logout function
+        function logout() {
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('activeDeviceId');
+            localStorage.removeItem('activeDeviceName');
+            
+            // Send logout request to backend
+            fetch('https://localhost/token/remove', {
+                method: 'POST'
+            })
+            .then(() => {
+                window.location.href = 'login';
+            })
+            .catch(error => {
+                console.error('Error during logout:', error);
+                window.location.href = 'login';
+            });
+        }
+    </script>
+</body>
+</html>

@@ -483,36 +483,36 @@
             habits.forEach((habit, index) => {
                 // CHANGED: Only show habits that are scheduled for today
                 const isScheduledToday = habit.scheduledDays && habit.scheduledDays[adjustedDayIndex];
-                
+
                 // Create habit item
                 const habitItem = document.createElement('div');
                 habitItem.className = 'habit-item';
-                
+
                 // CHANGED: Add scheduled indicator (highlight) if this habit is scheduled for today
                 if (isScheduledToday) {
                     habitItem.classList.add('scheduled-habit');
-                    
+
                     const checkbox = document.createElement('input');
                     checkbox.type = 'checkbox';
                     checkbox.className = 'habit-checkbox';
                     checkbox.checked = habit.completed;
                     checkbox.dataset.habitIndex = index;
-                    
+
                     // Add change listener to update both the completed status and the day status
                     checkbox.addEventListener('change', function() {
                         updateHabitCompletion(index, this.checked);
                     });
-                    
+
                     const habitText = document.createElement('div');
                     habitText.className = 'habit-text';
                     habitText.textContent = habit.text;
-                    
+
                     habitItem.appendChild(checkbox);
                     habitItem.appendChild(habitText);
                     habitsList.appendChild(habitItem);
                 }
             });
-            
+
             // ADDED: If no habits are scheduled for today, show a message
             if (habitsList.children.length === 0) {
                 const noHabitsMsg = document.createElement('div');
@@ -754,8 +754,6 @@
         
         // Task management - Redirect to add task page
         document.getElementById('add-task-btn').addEventListener('click', function() {
-            // Store the current user ID in localStorage so add-task.html can access it
-            localStorage.setItem('taskUserId', window.currentUserId);
             window.location.href = 'add_task';
         });
         
@@ -797,8 +795,6 @@
         
         // Event management
         document.querySelector('.add-event').addEventListener('click', function() {
-            // Store the current user ID in localStorage so events.html can access it
-            localStorage.setItem('eventUserId', window.currentUserId);
             window.location.href = 'events';
         });
         

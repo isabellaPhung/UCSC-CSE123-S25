@@ -1,7 +1,8 @@
+from datetime import datetime, timedelta, timezone
 from flask import Flask, request, render_template, redirect, url_for, jsonify
 from flask_jwt_extended import (
     JWTManager, create_access_token, create_refresh_token, unset_jwt_cookies,
-    set_access_cookies, set_refresh_cookies, get_jwt_identity, jwt_required
+    set_access_cookies, set_refresh_cookies, get_jwt, get_jwt_identity, jwt_required
 )
 from aws_helper import AwsS3
 
@@ -13,8 +14,7 @@ app.config["JWT_SECRET_KEY"] = "TODO"
 app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
 # app.config['JWT_COOKIE_SECURE'] = True
 # app.config['JWT_COOKIE_CSRF_PROTECT'] = True
-# app.config['JWT_ACCESS_COOKIE_PATH'] = '/api/'
-app.config["JWT_REFRESH_COOKIE_PATH"] = "/token/refresh"
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 
 jwt = JWTManager(app)
 
@@ -41,15 +41,19 @@ def login_authenticate():
     return resp, 200
 
 
-@app.route("/token/refresh", methods=["POST"])
-@jwt_required(refresh=True)
-def refresh():
-    current_user = get_jwt_identity()
-    access_token = create_access_token(identity=current_user)
-
-    resp = jsonify({"refresh": True})
-    set_access_cookies(resp, access_token)
-    return resp, 200
+@app.after_request
+def refresh_token(resp):
+    try:
+        exp_timestamp = get_jwt()["exp"]
+        now = datetime.now(timezone.utc)
+        target_timestamp = datetime.timestamp(now + timedelta(minutes=30))
+        if target_timestamp > exp_timestamp:
+            access_token = create_access_token(identity=get_jwt_identity())
+            set_access_cookies(resp, access_token)
+        return resp
+    except (RuntimeError, KeyError):
+        # Case where there is not a valid JWT. Just return the original response
+        return resp
 
 
 @app.route("/token/remove", methods=["POST"])
@@ -103,6 +107,15 @@ def api_add_event():
     return {"add_event": True}, 200
 
 
+@app.route("/api/delete_event", methods=["POST"])
+def api_delete_event():
+    id = request.json.get("id")
+
+    if not s3_conn.delete_event(id):
+        return {"delete_event": False}, 400
+    return {"delete_event": True}, 200
+
+
 @app.route("/api/today_events", methods=["POST"])
 def api_today_events():
     start = request.json.get("start")
@@ -110,6 +123,12 @@ def api_today_events():
 
     events = s3_conn.get_events(start, end)
     return events, 200
+
+
+@app.route("/api/today_habits", methods=["POST"])
+def api_today_habits():
+    habits = s3_conn.get_habits()
+    return habits, 200
 
 
 @app.route("/api/get_users")
