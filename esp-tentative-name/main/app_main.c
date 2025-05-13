@@ -174,9 +174,9 @@ void app_main()
     {
         return;
     }*/
-    ESP_ERROR_CHECK(InitRTC());
-    ESP_ERROR_CHECK(RebootRTC());
-    ESP_ERROR_CHECK(SetTime());
+    ESP_ERROR_CHECK(InitRTC());     // Establish R2C connection
+    ESP_ERROR_CHECK(RebootRTC());   // RECONFIGURE RTC configuration (optional)
+    ESP_ERROR_CHECK(SetTime());     // Get the current time from NTP server
 
     // -------------------------------------- TEST SCRIPTS ----------------------------------------
     /*
