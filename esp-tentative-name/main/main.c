@@ -102,8 +102,8 @@ void app_main(void){
     //set time, but needs internet connection. tried to get it working but it wouldn't cooperate.
     ESP_LOGI(HEPLE, "largest free block after RTC init: %d", heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
     
-    time_t rtc_time;
-    struct tm *tm_info = localtime(&rtc_time);
+    //time_t rtc_time;
+    //struct tm *tm_info = localtime(&rtc_time);
     char buffer[64];
     //strftime(buffer, sizeof(buffer), "%D %r", tm_info);
     //pcf8523_read_time(&rtc_time);
