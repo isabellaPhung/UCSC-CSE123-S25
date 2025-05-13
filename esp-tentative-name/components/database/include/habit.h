@@ -8,6 +8,14 @@
 
 #include "esp_err.h"
 
+typedef struct
+{
+    char uuid[UUID_LENGTH];
+    char name[MAX_NAME_SIZE];
+} habit_t;
+
+int RetrieveHabitsDB(sqlite3 *db, habit_t *habitBuffer, int count, int offset);
+
 /// @brief Adds habit entry from JSON script to create a new habit in database
 esp_err_t ParseHabitsJSON(sqlite3 *db, const char *json);
 

@@ -1,8 +1,63 @@
 #include "habit.h"
 #include "esp_log.h"
 #include <cJSON.h>
+#include <string.h>
 
 uint8_t GetDayFlag(int tm_wday);
+
+int RetrieveHabitsDB(sqlite3 *db, habit_t *habitBuffer, int count, int offset)
+{
+    const char *TAG = "habit::RetrieveHabitsDB";
+
+    if (!db || !habitBuffer || count <= 0 || offset < 0)
+    {
+        ESP_LOGE(TAG, "Invalid arguments");
+        return -1;
+    }
+
+    const char *sql = "SELECT id, name FROM habits LIMIT ? OFFSET ?;";
+    sqlite3_stmt *stmt;
+    int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+    if (rc != SQLITE_OK)
+    {
+        ESP_LOGE(TAG, "Failed to prepare statement: %s", sqlite3_errmsg(db));
+        return -1;
+    }
+
+    sqlite3_bind_int(stmt, 1, count);
+    sqlite3_bind_int(stmt, 2, offset);
+
+    int idx = 0;
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW && idx < count)
+    {
+        const unsigned char *id = sqlite3_column_text(stmt, 0);
+        const unsigned char *name = sqlite3_column_text(stmt, 1);
+
+        if (!id || !name)
+        {
+            ESP_LOGW(TAG, "Null field detected at row %d", idx);
+            continue;
+        }
+
+        strncpy(habitBuffer[idx].uuid, (const char *)id, UUID_LENGTH - 1);
+        habitBuffer[idx].uuid[UUID_LENGTH - 1] = '\0';
+
+        strncpy(habitBuffer[idx].name, (const char *)name, MAX_NAME_SIZE - 1);
+        habitBuffer[idx].name[MAX_NAME_SIZE - 1] = '\0';
+
+        idx++;
+    }
+
+    if (rc != SQLITE_DONE && rc != SQLITE_ROW)
+    {
+        ESP_LOGE(TAG, "Error during stepping: %s", sqlite3_errmsg(db));
+        sqlite3_finalize(stmt);
+        return -1;
+    }
+
+    sqlite3_finalize(stmt);
+    return idx;
+}
 
 esp_err_t HabitAddDB(sqlite3 *db, const char *uuid, const char *name, uint8_t goal_flags)
 {
