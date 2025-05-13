@@ -1,6 +1,8 @@
-//#include "helper_menus.h"
-#define LCD_H_RES   (480)
-#define LCD_V_RES   (320)
+#include "helper_menus.h"
+
+static uint32_t taskCursor = 0;
+static uint32_t eventCursor = 0;
+static uint32_t habitCursor = 0;
 
 static lv_obj_t * label;
 static lv_style_t style_screen;
@@ -230,7 +232,7 @@ static void exit_task_cb(lv_event_t * e){
 }
 
 static void complete_task_cb(lv_event_t * e){
-    //TODO: complete task implementation
+    //TODO: task completion implementation
 }
 
 static void focus_task_cb(lv_event_t * e){
@@ -320,13 +322,13 @@ static void task_desc_cb(lv_event_t * e){
  * returns an lv_obj pointer to task list entry
  * probably needs to be fixed to be generic for tasks
  */
-void create_task(const char * name, const char * dueDate){
+void create_task(task_t * task){
     //creates button for task using existing list button style
     cont = lv_obj_class_create_obj(&lv_list_button_class, tasklist);
     lv_obj_class_init_obj(cont);
     //lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_COLUMN); //sets button to flex flow column form so it'll expand as needed
     lv_group_remove_obj(cont);   //Not needed, we use the gridnav instead
-    lv_obj_add_event_cb(cont, task_desc_cb, LV_EVENT_CLICKED, name);
+    lv_obj_add_event_cb(cont, task_desc_cb, LV_EVENT_CLICKED, task);
    
     //initalizes columns and rows of grid for the button so things are nicely aligned
     static int32_t grid_col_dsc[] = {LV_GRID_CONTENT, LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
@@ -339,14 +341,14 @@ void create_task(const char * name, const char * dueDate){
     //label for task name
     lv_obj_t * label;
     label = lv_label_create(cont);
-    lv_label_set_text_static(label, name);
+    lv_label_set_text_static(label, task.name);
     lv_obj_set_width(label, LCD_H_RES*0.4);
     lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP); 
     lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_END, 0, 1);
 
     //label for due date
     label = lv_label_create(cont);
-    lv_label_set_text_static(label, dueDate);
+    lv_label_set_text_static(label, task.time);
     lv_obj_add_style(label, &style_text_muted, 0);
     lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 1, 1);
 }
@@ -356,12 +358,12 @@ void create_task(const char * name, const char * dueDate){
  * returns an lv_obj pointer to task list entry
  * probably needs to be fixed to be generic for tasks
  */
-void create_event(const char * name, const char * dueDate){
+void create_event(event_t event){
     //creates button for task using existing list button style
     cont = lv_obj_class_create_obj(&lv_list_button_class, eventlist);
     lv_obj_class_init_obj(cont);
     lv_group_remove_obj(cont);   //Not needed, we use the gridnav instead
-    lv_obj_add_event_cb(cont, event_desc_cb, LV_EVENT_CLICKED, name);
+    lv_obj_add_event_cb(cont, event_desc_cb, LV_EVENT_CLICKED, event);
    
     //initalizes columns and rows of grid for the button so things are nicely aligned
     static int32_t grid_col_dsc[] = {LV_GRID_CONTENT, LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
@@ -374,48 +376,56 @@ void create_event(const char * name, const char * dueDate){
     //label for task name
     lv_obj_t * label;
     label = lv_label_create(cont);
-    lv_label_set_text_static(label, name);
+    lv_label_set_text_static(label, event.name);
     lv_obj_set_width(label, LCD_H_RES*0.4);
     lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP); 
     lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_END, 0, 1);
 
     //label for due date
     label = lv_label_create(cont);
-    lv_label_set_text_static(label, dueDate);
+    lv_label_set_text_static(label, event.start_time);
     lv_obj_add_style(label, &style_text_muted, 0);
     lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 1, 1);
 }
 
-void loadPrevTasks(){
-    //TODO: load prev 4 tasks
-}
-
-void loadNextTasks(){
-    //TODO: load next 4 tasks
-}
-
-void loadPrevEvents(){
-    //TODO: load prev 4 events
-}
-
-void loadNextEvents(){
-    //TODO: load next 4 events
-}
+task_t taskBuffer[4];
+event_t eventBuffer[4];
+habit_t habitBuffer[3];
 
 static void tasks_left_cb(lv_event_t * e){
-        //TODO: load prev 4 tasks
+    taskCursor -= 4;
+    int taskNum = RetrieveTasksSortedDB(db, taskBuffer, 4, taskCursor);
+    for(int i = 0; i < taskNum; i++){
+        create_task(taskBuffer[i]);
+    }
 }
 
 static void tasks_right_cb(lv_event_t * e){
-        //TODO: load next 4 tasks
+    int taskNum = RetrieveEventsSortedDB(db, taskBuffer, 4, taskCursor);
+    if(taskNum == 4){
+        taskCursor += 4;
+    }
+    for(int i = 0; i < taskNum; i++){
+        create_task(taskBuffer[i]);
+    }
 }
 
 static void events_left_cb(lv_event_t * e){
-        //TODO: load prev 4 events
+    eventCursor -= 4;
+    int eventNum = RetrieveTasksSortedDB(db, eventBuffer, 4, eventCursor);
+    for(int i = 0; i < eventNum; i++){
+        create_event(eventBuffer[i]);
+    }
 }
 
 static void events_right_cb(lv_event_t * e){
-        //TODO: load next 4 events
+    int eventNum = RetrieveTasksSortedDB(db, eventBuffer, 4, eventCursor);
+    if(eventNum == 4){
+        eventCursor += 4;
+    }
+    for(int i = 0; i < eventNum; i++){
+        create_event(eventBuffer[i]);
+    }
 }
 
 static void button_nav_cb(lv_event_t * e){
@@ -523,7 +533,9 @@ static void taskEvent_create(lv_obj_t * parent){
     arrowDown = lv_label_create(parent);
     lv_label_set_text(arrowDown, LV_SYMBOL_DOWN);
     lv_obj_align(arrowDown, LV_ALIGN_BOTTOM_RIGHT, -5, -5);
-    
+   
+    /*
+    //dummy tasks and events for testing
     create_task("Capstone Project", "3/25/2025");
     create_task("Figure out Prototype", "3/29/2025");
     create_task("Learn PCB Design", "3/30/2025");
@@ -531,6 +543,7 @@ static void taskEvent_create(lv_obj_t * parent){
     create_event("Capstone Meeting", "3/21/2025 3:00PM");
     create_event("ECE171 Class", "3/29/2025 2:00PM");
     create_event("CSE121 Class", "3/30/2025 5:00PM");
+    */
 }
 
 /*
@@ -661,4 +674,3 @@ void loadTile3(){
     lv_scr_load(tile3); 
     habitMenu_create(tile3);
 }
-
