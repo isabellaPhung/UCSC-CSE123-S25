@@ -6,9 +6,6 @@ static uint32_t taskCursor = 0;
 static uint32_t eventCursor = 0;
 static uint32_t habitCursor = 0;
 
-static lv_obj_t * label;
-static lv_style_t style_screen;
-
 /* Text settings */
 static lv_style_t style_text_muted;
 static lv_style_t style_title;
@@ -27,8 +24,6 @@ static lv_group_t * g1;
 
 static lv_obj_t * arrowUp;
 static lv_obj_t * arrowDown;
-static lv_obj_t * arrowLeft;
-static lv_obj_t * arrowRight;
 static lv_obj_t * button;
 static lv_obj_t * title;
 static lv_obj_t * label;
@@ -36,10 +31,9 @@ static lv_obj_t * dateTime;
 static lv_obj_t * cont;
 static lv_obj_t * child;
 static lv_obj_t * obj;
-static lv_obj_t * msgbox;
 static uint32_t k; //LVGL keyboard key
 
-static const char *TAG = "UI"; //for esp_log
+//static const char *TAG = "UI"; //for esp_log
 
 /*
  * callback function for focus menu for menu navigation
@@ -324,13 +318,13 @@ static void task_desc_cb(lv_event_t * e){
  * returns an lv_obj pointer to task list entry
  * probably needs to be fixed to be generic for tasks
  */
-void create_task(task_t * task){
+void create_task(task_t task){
     //creates button for task using existing list button style
     cont = lv_obj_class_create_obj(&lv_list_button_class, tasklist);
     lv_obj_class_init_obj(cont);
     //lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_COLUMN); //sets button to flex flow column form so it'll expand as needed
     lv_group_remove_obj(cont);   //Not needed, we use the gridnav instead
-    lv_obj_add_event_cb(cont, task_desc_cb, LV_EVENT_CLICKED, task);
+    lv_obj_add_event_cb(cont, task_desc_cb, LV_EVENT_CLICKED, &task);
    
     //initalizes columns and rows of grid for the button so things are nicely aligned
     static int32_t grid_col_dsc[] = {LV_GRID_CONTENT, LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
@@ -343,14 +337,17 @@ void create_task(task_t * task){
     //label for task name
     lv_obj_t * label;
     label = lv_label_create(cont);
-    lv_label_set_text_static(label, task->name);
+    lv_label_set_text_static(label, task.name);
     lv_obj_set_width(label, LCD_H_RES*0.4);
     lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP); 
     lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_END, 0, 1);
 
     //label for due date
     label = lv_label_create(cont);
-    lv_label_set_text_static(label, task->time);
+    struct tm * timeinfo = gmtime(&(task.time));
+    char timestr[40];
+    strftime(timestr, sizeof(timestr), "%D %r", timeinfo);
+    lv_label_set_text_static(label, timestr);
     lv_obj_add_style(label, &style_text_muted, 0);
     lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 1, 1);
 }
@@ -360,12 +357,12 @@ void create_task(task_t * task){
  * returns an lv_obj pointer to task list entry
  * probably needs to be fixed to be generic for tasks
  */
-void create_event(event_t * event){
+void create_event(event_t event){
     //creates button for task using existing list button style
     cont = lv_obj_class_create_obj(&lv_list_button_class, eventlist);
     lv_obj_class_init_obj(cont);
     lv_group_remove_obj(cont);   //Not needed, we use the gridnav instead
-    lv_obj_add_event_cb(cont, event_desc_cb, LV_EVENT_CLICKED, event);
+    lv_obj_add_event_cb(cont, event_desc_cb, LV_EVENT_CLICKED, &event);
    
     //initalizes columns and rows of grid for the button so things are nicely aligned
     static int32_t grid_col_dsc[] = {LV_GRID_CONTENT, LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
@@ -378,21 +375,24 @@ void create_event(event_t * event){
     //label for task name
     lv_obj_t * label;
     label = lv_label_create(cont);
-    lv_label_set_text_static(label, event->name);
+    lv_label_set_text_static(label, event.name);
     lv_obj_set_width(label, LCD_H_RES*0.4);
     lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP); 
     lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_END, 0, 1);
 
     //label for due date
     label = lv_label_create(cont);
-    lv_label_set_text_static(label, event->start_time);
+    struct tm * timeinfo = gmtime(&(event.start_time));
+    char timestr[40];
+    strftime(timestr, sizeof(timestr), "%D %r", timeinfo);
+    lv_label_set_text_static(label, timestr);
     lv_obj_add_style(label, &style_text_muted, 0);
     lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 1, 1);
 }
 
-task_t * taskBuffer[4];
-event_t * eventBuffer[4];
-//habit_t * habitBuffer[3];
+task_t taskBuffer[4];
+event_t eventBuffer[4];
+habit_t habitBuffer[3];
 
 static void tasks_left_cb(lv_event_t * e){
     taskCursor -= 4;
@@ -403,7 +403,7 @@ static void tasks_left_cb(lv_event_t * e){
 }
 
 static void tasks_right_cb(lv_event_t * e){
-    int taskNum = RetrieveEventsSortedDB(db, taskBuffer, 4, taskCursor);
+    int taskNum = RetrieveTasksSortedDB(db, taskBuffer, 4, taskCursor);
     if(taskNum == 4){
         taskCursor += 4;
     }
@@ -414,14 +414,14 @@ static void tasks_right_cb(lv_event_t * e){
 
 static void events_left_cb(lv_event_t * e){
     eventCursor -= 4;
-    int eventNum = RetrieveTasksSortedDB(db, eventBuffer, 4, eventCursor);
+    int eventNum = RetrieveEventsSortedDB(db, eventBuffer, 4, eventCursor);
     for(int i = 0; i < eventNum; i++){
         create_event(eventBuffer[i]);
     }
 }
 
 static void events_right_cb(lv_event_t * e){
-    int eventNum = RetrieveTasksSortedDB(db, eventBuffer, 4, eventCursor);
+    int eventNum = RetrieveEventsSortedDB(db, eventBuffer, 4, eventCursor);
     if(eventNum == 4){
         eventCursor += 4;
     }
@@ -569,12 +569,10 @@ static const char * btnm_map[] = {"Su", "Mo", "Tu", "We", "Th", "Fr", "Sa", ""};
  * creates habit entry for habit list
  * takes in parent list and name of habit and the row number.
  */
-//void createHabit(habit_t * habit, uint8_t row){
-void createHabit(const char * name, uint8_t row){
+void createHabit(habit_t habit, uint8_t row){
     //creates habit title name
     lv_obj_t * habits = lv_label_create(tile3);
-    //lv_label_set_text(habits, habit->name);
-    lv_label_set_text(habits, name);
+    lv_label_set_text(habits, habit.name);
     lv_obj_set_style_text_font(habits, &lv_font_montserrat_18, 0);
     lv_obj_set_pos(habits, 15, 25+(row*100));
     
