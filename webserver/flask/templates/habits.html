@@ -443,83 +443,100 @@
         function loadHabits() {
             const habitsContainer = document.getElementById('habits-container');
             
-            // Get user-specific habits
-            const allUserHabits = JSON.parse(localStorage.getItem('userHabits')) || {};
-            const habits = allUserHabits[window.currentUserId] || [];
+<!--            // Get user-specific habits-->
+<!--            const allUserHabits = JSON.parse(localStorage.getItem('userHabits')) || {};-->
+<!--            const habits = allUserHabits[window.currentUserId] || [];-->
             
             // Clear the container except for the header
             while (habitsContainer.children.length > 1) {
                 habitsContainer.removeChild(habitsContainer.lastChild);
             }
-            
-            // Add each habit to the container
-            habits.forEach((habit, index) => {
-                const habitRow = document.createElement('div');
-                habitRow.className = 'habit-row';
-                habitRow.dataset.index = index;
-                
-                const habitName = document.createElement('div');
-                habitName.className = 'habit-name';
-                habitName.textContent = habit.name;
-                habitRow.appendChild(habitName);
-                
-                // Add checkboxes for each day of the week
-                for (let i = 0; i < 7; i++) {
-                    const dayCell = document.createElement('div');
-                    dayCell.className = 'day-cell';
-                    if (i === adjustedDayIndex) {
-                        dayCell.classList.add('current-day');
-                    }
-                    
-                    // Create a container for the checkbox to allow styling
-                    const checkboxContainer = document.createElement('div');
-                    
-                    // Determine if this day is scheduled using bitwise operations
-                    const isScheduled = habit.goal ?
-                        isDayIndexScheduled(habit.goal, i) : false;
-                    
-                    // Add scheduled class to the container if day is scheduled
-                    checkboxContainer.className = isScheduled ? 'day-scheduled' : 'day-not-scheduled';
-                    
-                    const checkbox = document.createElement('input');
-                    checkbox.type = 'checkbox';
-                    checkbox.className = 'day-checkbox';
-                    
-                    // Initialize completion status array if it doesn't exist
-                    if (!habit.days) {
-                        habit.days = [false, false, false, false, false, false, false];
-                    }
-                    checkbox.checked = habit.days[i];
-                    
-                    checkbox.dataset.day = i;
-                    checkbox.dataset.habitIndex = index;
-                    
-                    // Handle checkbox change for completion status
-                    checkbox.addEventListener('change', function() {
-                        updateHabitDay(index, i, this.checked);
-                    });
-                    
-                    checkboxContainer.appendChild(checkbox);
-                    dayCell.appendChild(checkboxContainer);
-                    habitRow.appendChild(dayCell);
+
+            fetch('https://localhost/api/today_habits', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({today: today.toISOString("%Y-%m-%d").split("T")[0]})
+            })
+            .then(response => {
+                if (!response.ok) {
+                    console.error("Failed to get habits");
                 }
-                
-                // Add delete button
-                const actionsCell = document.createElement('div');
-                actionsCell.className = 'day-cell habit-controls';
-                
-                const deleteButton = document.createElement('span');
-                deleteButton.className = 'delete-habit';
-                deleteButton.innerHTML = '&times;';
-                deleteButton.title = 'Delete Habit';
-                deleteButton.addEventListener('click', function() {
-                    deleteHabit(index);
+                return response.json()
+            })
+            .then(data => {
+                const habits = data.habit;
+            
+                // Add each habit to the container
+                habits.forEach((habit, index) => {
+                    const habitRow = document.createElement('div');
+                    habitRow.className = 'habit-row';
+                    habitRow.dataset.index = index;
+
+                    const habitName = document.createElement('div');
+                    habitName.className = 'habit-name';
+                    habitName.textContent = habit.name;
+                    habitRow.appendChild(habitName);
+
+                    // Add checkboxes for each day of the week
+                    for (let i = 0; i < 7; i++) {
+                        const dayCell = document.createElement('div');
+                        dayCell.className = 'day-cell';
+                        if (i === adjustedDayIndex) {
+                            dayCell.classList.add('current-day');
+                        }
+
+                        // Create a container for the checkbox to allow styling
+                        const checkboxContainer = document.createElement('div');
+
+                        // Determine if this day is scheduled using bitwise operations
+                        const isScheduled = habit.goal ?
+                            isDayIndexScheduled(habit.goal, i) : false;
+
+                        // Add scheduled class to the container if day is scheduled
+                        checkboxContainer.className = isScheduled ? 'day-scheduled' : 'day-not-scheduled';
+
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.className = 'day-checkbox';
+
+                        // Initialize completion status array if it doesn't exist
+                        if (!habit.days) {
+                            habit.days = [false, false, false, false, false, false, false];
+                        }
+                        checkbox.checked = habit.days[i];
+
+                        checkbox.dataset.day = i;
+                        checkbox.dataset.habitIndex = index;
+
+                        // Handle checkbox change for completion status
+                        checkbox.addEventListener('change', function() {
+                            updateHabitDay(index, i, this.checked);
+                        });
+
+                        checkboxContainer.appendChild(checkbox);
+                        dayCell.appendChild(checkboxContainer);
+                        habitRow.appendChild(dayCell);
+                    }
+
+                    // Add delete button
+                    const actionsCell = document.createElement('div');
+                    actionsCell.className = 'day-cell habit-controls';
+
+                    const deleteButton = document.createElement('span');
+                    deleteButton.className = 'delete-habit';
+                    deleteButton.innerHTML = '&times;';
+                    deleteButton.title = 'Delete Habit';
+                    deleteButton.addEventListener('click', function() {
+                        deleteHabit(index);
+                    });
+
+                    actionsCell.appendChild(deleteButton);
+                    habitRow.appendChild(actionsCell);
+
+                    habitsContainer.appendChild(habitRow);
                 });
-                
-                actionsCell.appendChild(deleteButton);
-                habitRow.appendChild(actionsCell);
-                
-                habitsContainer.appendChild(habitRow);
             });
         }
         

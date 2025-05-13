@@ -124,7 +124,9 @@ def api_today_events():
 
 @app.route("/api/today_habits", methods=["POST"])
 def api_today_habits():
-    habits = s3_conn.get_habits("2025-05-12")
+    today = request.json.get("today")
+
+    habits = s3_conn.get_habits(today)
     return habits, 200
 
 

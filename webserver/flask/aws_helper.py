@@ -145,5 +145,7 @@ class AwsS3:
 
         for habit in data["habit"]:
             habit["completed"] = [date for date in habit["completed"] if date in week]
+            # For web app checkboxes
+            habit["days"] = [day in habit["completed"] for day in week]
 
         return data
