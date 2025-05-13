@@ -136,6 +136,22 @@ class AwsS3:
 
         return data
 
+    def update_habit(self, id, current_date, completed):
+        obj, data = self.load_info("habit")
+
+        for habit in data["habit"]:
+            if habit["id"] == id:
+                if completed:
+                    habit["completed"].append(current_date)
+                else:
+                    habit["completed"].remove(current_date)
+
+        obj.put(
+            Body=(bytes(json.dumps(data, indent=2).encode("utf-8"))),
+            ContentType="application/json"
+        )
+        return True
+
     def get_habits(self, current_date):
         obj, data = self.load_info("habit")
 

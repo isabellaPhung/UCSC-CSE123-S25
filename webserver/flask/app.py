@@ -122,6 +122,17 @@ def api_today_events():
     return events, 200
 
 
+@app.route("/api/update_habit", methods=["POST"])
+def api_update_habit():
+    id = request.json.get("id")
+    today = request.json.get("today")
+    completed = request.json.get("completed")
+
+    if not s3_conn.update_habit(id, today, completed):
+        return {"update_habit": False}, 400
+    return {"update_habit": True}, 200
+
+
 @app.route("/api/today_habits", methods=["POST"])
 def api_today_habits():
     today = request.json.get("today")

@@ -425,6 +425,7 @@
         
         // Determine the current day of the week (0 = Sunday, 1 = Monday, etc.)
         const today = new Date();
+        todayStr = today.toISOString("%Y-%m-%d").split("T")[0];
         const currentDayIndex = today.getDay(); // 0-6
         // Adjust to our display order (0 = Monday, ... 6 = Sunday)
         const adjustedDayIndex = currentDayIndex === 0 ? 6 : currentDayIndex - 1;
@@ -457,7 +458,7 @@
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({today: today.toISOString("%Y-%m-%d").split("T")[0]})
+                body: JSON.stringify({today: todayStr})
             })
             .then(response => {
                 if (!response.ok) {
@@ -512,7 +513,7 @@
 
                         // Handle checkbox change for completion status
                         checkbox.addEventListener('change', function() {
-                            updateHabitDay(index, i, this.checked);
+                            updateHabitDay(habit.id, i, this.checked);
                         });
 
                         checkboxContainer.appendChild(checkbox);
@@ -541,34 +542,29 @@
         }
         
         // Update a habit's completion status for a specific day
-        function updateHabitDay(habitIndex, dayIndex, completed) {
-            // Get user-specific habits
-            const allUserHabits = JSON.parse(localStorage.getItem('userHabits')) || {};
-            const habits = allUserHabits[window.currentUserId] || [];
-            
-            if (habits[habitIndex]) {
-                // Initialize days array if it doesn't exist (for completion status)
-                if (!habits[habitIndex].days) {
-                    habits[habitIndex].days = [false, false, false, false, false, false, false];
+        function updateHabitDay(habitId, dayIndex, completed) {
+            // Send the task to S3
+            fetch('https://localhost/api/update_habit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({id: habitId, today: todayStr, completed: completed})
+            })
+            .then(response => {
+                if (!response.ok) {
+                    console.error('Failed to update habit to S3');
                 }
-                
-                // Update the day's completion status
-                habits[habitIndex].days[dayIndex] = completed;
-                
-                // If this is today's checkbox, update the main "completed" property
-                if (dayIndex === adjustedDayIndex) {
-                    habits[habitIndex].completed = completed;
-                }
-                
-                // Update user habits
-                allUserHabits[window.currentUserId] = habits;
-                
-                // Save back to localStorage
-                localStorage.setItem('userHabits', JSON.stringify(allUserHabits));
-                
+            })
+            .catch(error => {
+                console.error('Error updating habit to S3:', error);
+            });
+
+            // Give S3 a second to update
+            setTimeout(() => {
                 // Refresh the display to show the updated state
                 loadHabits();
-            }
+            }, "1000");
         }
         
         // Function to get flags from day selection checkboxes
