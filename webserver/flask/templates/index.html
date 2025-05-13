@@ -447,6 +447,18 @@
         dayEnd.setHours(23, 59, 59, 999);
         const endTimestamp = Math.floor(dayEnd.getTime() / 1000);
 
+        // Day mapping: 0 = Monday, 1 = Tuesday, 2 = Wednesday, 3 = Thursday,
+        // 4 = Friday, 5 = Saturday, 6 = Sunday
+
+        // Get current day of the week (0-6 where 0 is Sunday)
+        const today = new Date();
+        const todayStr = today.toISOString("%Y-%m-%d").split("T")[0];
+        const currentDayIndex = today.getDay();
+        // Convert to our display order (0 = Monday, ... 6 = Sunday)
+        const adjustedDayIndex = currentDayIndex === 0 ? 6 : currentDayIndex - 1;
+        // Convert to our flag order (0 = Saturday, ... 6 = Sunday)
+        const flagDayIndex = 6 - currentDayIndex;
+
         // Update date and time
         function updateDateTime() {
             const now = new Date();
@@ -464,103 +476,94 @@
         
         // COMPLETELY REPLACED FUNCTION: LOAD HABITS WITH SCHEDULED DAYS SUPPORT
         function loadHabits() {
-            // Day mapping: 0 = Monday, 1 = Tuesday, 2 = Wednesday, 3 = Thursday, 
-            // 4 = Friday, 5 = Saturday, 6 = Sunday
-            
-            // Get current day of the week (0-6 where 0 is Sunday)
-            const today = new Date();
-            const currentDayIndex = today.getDay();
-            // Convert to our display order (0 = Monday, ... 6 = Sunday)
-            const adjustedDayIndex = currentDayIndex === 0 ? 6 : currentDayIndex - 1;
-            // Convert to our flag order (0 = Saturday, ... 6 = Sunday)
-            const flagDayIndex = 6 - currentDayIndex;
-            
-            // Get user-specific habits
-            const allUserHabits = JSON.parse(localStorage.getItem('userHabits')) || {};
-            let habits = allUserHabits[window.currentUserId] || [];
-            
             const habitsList = document.getElementById('main-habits-list');
             habitsList.innerHTML = '';
+
+            fetch('https://localhost/api/today_habits', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({today: todayStr})
+            })
+            .then(response => {
+                if (!response.ok) {
+                    console.error("Failed to get habits");
+                }
+                return response.json()
+            })
+            .then(data => {
+                const habits = data.habit;
             
-            habits.forEach((habit, index) => {
-                // CHANGED: Only show habits that are scheduled for today
-                const isScheduledToday = habit.goal & Math.pow(2, flagDayIndex);
+                habits.forEach((habit, index) => {
+                    // CHANGED: Only show habits that are scheduled for today
+                    const isScheduledToday = habit.goal & Math.pow(2, flagDayIndex);
 
-                // Create habit item
-                const habitItem = document.createElement('div');
-                habitItem.className = 'habit-item';
+                    // Create habit item
+                    const habitItem = document.createElement('div');
+                    habitItem.className = 'habit-item';
 
-                // CHANGED: Add scheduled indicator (highlight) if this habit is scheduled for today
-                if (isScheduledToday) {
-                    habitItem.classList.add('scheduled-habit');
+                    // CHANGED: Add scheduled indicator (highlight) if this habit is scheduled for today
+                    if (isScheduledToday) {
+                        habitItem.classList.add('scheduled-habit');
 
-                    const checkbox = document.createElement('input');
-                    checkbox.type = 'checkbox';
-                    checkbox.className = 'habit-checkbox';
-                    checkbox.checked = habit.completed;
-                    checkbox.dataset.habitIndex = index;
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.className = 'habit-checkbox';
+                        checkbox.checked = habit.days[adjustedDayIndex];
+                        checkbox.dataset.habitIndex = index;
 
-                    // Add change listener to update both the completed status and the day status
-                    checkbox.addEventListener('change', function() {
-                        updateHabitCompletion(index, this.checked);
-                    });
+                        // Add change listener to update both the completed status and the day status
+                        checkbox.addEventListener('change', function() {
+                            updateHabitCompletion(habit.id, this.checked);
+                        });
 
-                    const habitText = document.createElement('div');
-                    habitText.className = 'habit-text';
-                    habitText.textContent = habit.name;
+                        const habitText = document.createElement('div');
+                        habitText.className = 'habit-text';
+                        habitText.textContent = habit.name;
 
-                    habitItem.appendChild(checkbox);
-                    habitItem.appendChild(habitText);
-                    habitsList.appendChild(habitItem);
+                        habitItem.appendChild(checkbox);
+                        habitItem.appendChild(habitText);
+                        habitsList.appendChild(habitItem);
+                    }
+                });
+
+                // ADDED: If no habits are scheduled for today, show a message
+                if (habitsList.children.length === 0) {
+                    const noHabitsMsg = document.createElement('div');
+                    noHabitsMsg.textContent = 'No habits scheduled for today.';
+                    noHabitsMsg.style.color = '#666';
+                    noHabitsMsg.style.fontStyle = 'italic';
+                    noHabitsMsg.style.padding = '10px 0';
+                    habitsList.appendChild(noHabitsMsg);
                 }
             });
-
-            // ADDED: If no habits are scheduled for today, show a message
-            if (habitsList.children.length === 0) {
-                const noHabitsMsg = document.createElement('div');
-                noHabitsMsg.textContent = 'No habits scheduled for today.';
-                noHabitsMsg.style.color = '#666';
-                noHabitsMsg.style.fontStyle = 'italic';
-                noHabitsMsg.style.padding = '10px 0';
-                habitsList.appendChild(noHabitsMsg);
-            }
         }
         
         // REPLACED FUNCTION: UPDATE HABIT COMPLETION STATUS
-        function updateHabitCompletion(habitIndex, completed) {
-            // Get user-specific habits
-            const allUserHabits = JSON.parse(localStorage.getItem('userHabits')) || {};
-            const habits = allUserHabits[window.currentUserId] || [];
-            
-            if (habits[habitIndex]) {
-                // Get current day of the week (0-6 where 0 is Sunday)
-                const today = new Date();
-                const currentDayIndex = today.getDay();
-                // Convert to our display order (0 = Monday, ... 6 = Sunday)
-                const adjustedDayIndex = currentDayIndex === 0 ? 6 : currentDayIndex - 1;
-                
-                // Update the main completed property
-                habits[habitIndex].completed = completed;
-                
-                // Initialize days array if it doesn't exist
-                if (!habits[habitIndex].days) {
-                    habits[habitIndex].days = [false, false, false, false, false, false, false];
+        function updateHabitCompletion(habitId, completed) {
+            // Send the habit to S3
+            fetch('https://localhost/api/update_habit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({id: habitId, today: todayStr, completed: completed})
+            })
+            .then(response => {
+                if (!response.ok) {
+                    console.error('Failed to update habit to S3');
                 }
-                
-                // Update the current day's completion status
-                habits[habitIndex].days[adjustedDayIndex] = completed;
-                
-                // Update the user's habits
-                allUserHabits[window.currentUserId] = habits;
-                
-                // Save back to localStorage
-                localStorage.setItem('userHabits', JSON.stringify(allUserHabits));
-            }
-        }
-        
-        // Save habits to localStorage
-        function saveHabits(habits) {
-            localStorage.setItem('habits', JSON.stringify(habits));
+            })
+            .catch(error => {
+                console.error('Error updating habit to S3:', error);
+            });
+
+            // Give S3 a second to update
+            setTimeout(() => {
+                // Refresh the display to show the updated state
+                loadHabits();
+            }, "1000");
         }
         
         // Load today's tasks from S3

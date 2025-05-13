@@ -425,7 +425,7 @@
         
         // Determine the current day of the week (0 = Sunday, 1 = Monday, etc.)
         const today = new Date();
-        todayStr = today.toISOString("%Y-%m-%d").split("T")[0];
+        const todayStr = today.toISOString("%Y-%m-%d").split("T")[0];
         const currentDayIndex = today.getDay(); // 0-6
         // Adjust to our display order (0 = Monday, ... 6 = Sunday)
         const adjustedDayIndex = currentDayIndex === 0 ? 6 : currentDayIndex - 1;
@@ -539,7 +539,7 @@
         
         // Update a habit's completion status for a specific day
         function updateHabitDay(habitId, dayIndex, completed) {
-            // Send the task to S3
+            // Send the habit to S3
             fetch('https://localhost/api/update_habit', {
                 method: 'POST',
                 headers: {
