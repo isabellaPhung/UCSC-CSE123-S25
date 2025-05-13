@@ -544,7 +544,7 @@
             const eventsContainer = document.getElementById('events-list');
             eventsContainer.innerHTML = '';
 
-            fetch('https://localhost/api/today_events', {
+            fetch('https://scheduleapp.click/api/today_events', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -734,7 +734,7 @@
         
         // Delete an event
         function deleteEvent(taskId) {
-            fetch('https://localhost/api/delete_event', {
+            fetch('https://scheduleapp.click/api/delete_event', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -769,7 +769,7 @@
             };
 
             // Send the task to your S3 bucket via API endpoint
-            fetch('https://localhost/api/add_event', {
+            fetch('https://scheduleapp.click/api/add_event', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

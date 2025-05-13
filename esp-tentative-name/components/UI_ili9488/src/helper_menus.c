@@ -390,11 +390,16 @@ void create_event(event_t event){
     lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 1, 1);
 }
 
-task_t taskBuffer[4];
-event_t eventBuffer[4];
-habit_t habitBuffer[3];
+task_t * taskBuffer;
+event_t * eventBuffer;
+habit_t * habitBuffer;
+void initBuffers(){
+    taskBuffer = (task_t *)malloc(sizeof(task_t)*4);
+    eventBuffer = (event_t *)malloc(sizeof(event_t)*4);
+    habitBuffer = (habit_t *)malloc(sizeof(habit_t)*3);
+}
 
-static void tasks_left_cb(lv_event_t * e){
+static void tasks_left_cb(){
     taskCursor -= 4;
     int taskNum = RetrieveTasksSortedDB(db, taskBuffer, 4, taskCursor);
     for(int i = 0; i < taskNum; i++){
@@ -402,7 +407,7 @@ static void tasks_left_cb(lv_event_t * e){
     }
 }
 
-static void tasks_right_cb(lv_event_t * e){
+static void tasks_right_cb(){
     int taskNum = RetrieveTasksSortedDB(db, taskBuffer, 4, taskCursor);
     if(taskNum == 4){
         taskCursor += 4;
@@ -412,7 +417,7 @@ static void tasks_right_cb(lv_event_t * e){
     }
 }
 
-static void events_left_cb(lv_event_t * e){
+static void events_left_cb(){
     eventCursor -= 4;
     int eventNum = RetrieveEventsSortedDB(db, eventBuffer, 4, eventCursor);
     for(int i = 0; i < eventNum; i++){
@@ -420,7 +425,7 @@ static void events_left_cb(lv_event_t * e){
     }
 }
 
-static void events_right_cb(lv_event_t * e){
+static void events_right_cb(){
     int eventNum = RetrieveEventsSortedDB(db, eventBuffer, 4, eventCursor);
     if(eventNum == 4){
         eventCursor += 4;
@@ -535,7 +540,9 @@ static void taskEvent_create(lv_obj_t * parent){
     arrowDown = lv_label_create(parent);
     lv_label_set_text(arrowDown, LV_SYMBOL_DOWN);
     lv_obj_align(arrowDown, LV_ALIGN_BOTTOM_RIGHT, -5, -5);
-   
+    
+    tasks_right_cb();
+    events_right_cb();
     /*
     //dummy tasks and events for testing
     create_task("Capstone Project", "3/25/2025");

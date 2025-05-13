@@ -42,7 +42,7 @@
 
             logoutButton.addEventListener('click', function() {
                 localStorage.removeItem('currentUser');
-                fetch('https://localhost/token/remove', {
+                fetch('https://scheduleapp.click/token/remove', {
                     method: 'POST'
                 })
                 .then(response => {
@@ -479,7 +479,7 @@
             const habitsList = document.getElementById('main-habits-list');
             habitsList.innerHTML = '';
 
-            fetch('https://localhost/api/today_habits', {
+            fetch('https://scheduleapp.click/api/today_habits', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -543,7 +543,7 @@
         // REPLACED FUNCTION: UPDATE HABIT COMPLETION STATUS
         function updateHabitCompletion(habitId, completed) {
             // Send the habit to S3
-            fetch('https://localhost/api/update_habit', {
+            fetch('https://scheduleapp.click/api/update_habit', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -571,7 +571,7 @@
             const tasksContainer = document.getElementById('today-tasks-container');
             tasksContainer.innerHTML = '';
 
-            fetch('https://localhost/api/today_tasks', {
+            fetch('https://scheduleapp.click/api/today_tasks', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -656,7 +656,7 @@
             const eventsList = document.getElementById('events');
             eventsList.innerHTML = '';
 
-            fetch('https://localhost/api/today_events', {
+            fetch('https://scheduleapp.click/api/today_events', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
