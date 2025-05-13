@@ -178,12 +178,6 @@
             function login() {
                 const usernameVal = document.getElementById('username').value;
                 const passwordVal = document.getElementById('password').value;
-                
-<!--                // Get users from localStorage-->
-<!--                const users = JSON.parse(localStorage.getItem('users')) || [];-->
-<!--                -->
-<!--                // Find the user-->
-<!--                const user = users.find(u => u.username === usernameVal && u.password === passwordVal);-->
 
                 fetch('https://localhost/token/login', {
                     method: 'POST',
