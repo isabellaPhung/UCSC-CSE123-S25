@@ -143,6 +143,15 @@ def api_update_habit():
     return {"update_habit": True}, 200
 
 
+@app.route("/api/delete_habit", methods=["POST"])
+def api_delete_habit():
+    id = request.json.get("id")
+
+    if not s3_conn.delete_habit(id):
+        return {"delete_habit": False}, 400
+    return {"delete_habit": True}, 200
+
+
 @app.route("/api/today_habits", methods=["POST"])
 def api_today_habits():
     today = request.json.get("today")

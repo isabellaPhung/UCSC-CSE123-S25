@@ -444,10 +444,6 @@
         function loadHabits() {
             const habitsContainer = document.getElementById('habits-container');
             
-<!--            // Get user-specific habits-->
-<!--            const allUserHabits = JSON.parse(localStorage.getItem('userHabits')) || {};-->
-<!--            const habits = allUserHabits[window.currentUserId] || [];-->
-            
             // Clear the container except for the header
             while (habitsContainer.children.length > 1) {
                 habitsContainer.removeChild(habitsContainer.lastChild);
@@ -530,7 +526,7 @@
                     deleteButton.innerHTML = '&times;';
                     deleteButton.title = 'Delete Habit';
                     deleteButton.addEventListener('click', function() {
-                        deleteHabit(index);
+                        deleteHabit(habit.id);
                     });
 
                     actionsCell.appendChild(deleteButton);
@@ -647,20 +643,22 @@
         }
         
         // Delete a specific habit
-        function deleteHabit(index) {
-            // Get user-specific habits
-            const allUserHabits = JSON.parse(localStorage.getItem('userHabits')) || {};
-            const habits = allUserHabits[window.currentUserId] || [];
-            
-            if (index >= 0 && index < habits.length) {
-                habits.splice(index, 1);
-                
-                // Update user habits
-                allUserHabits[window.currentUserId] = habits;
-                localStorage.setItem('userHabits', JSON.stringify(allUserHabits));
-                
-                loadHabits();
-            }
+        function deleteHabit(habitId) {
+            fetch('https://localhost/api/delete_habit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({id: habitId})
+            })
+            .then(response => {
+                if (!response.ok) {
+                    console.error("Failed to delete habit");
+                }
+                else {
+                    loadHabits();
+                }
+            });
         }
         
         // Clear day selection checkboxes

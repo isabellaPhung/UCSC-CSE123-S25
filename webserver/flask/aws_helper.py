@@ -136,6 +136,21 @@ class AwsS3:
 
         return data
 
+    def add_habit(self, name, goal):
+        obj, data = self.load_info("habit")
+
+        id = str(uuid.uuid4())
+
+        data["habit"].append(
+            {"id": id, "name": name, "goal": goal, "completed": []}
+        )
+
+        obj.put(
+            Body=(bytes(json.dumps(data, indent=2).encode("utf-8"))),
+            ContentType="application/json"
+        )
+        return True
+
     def update_habit(self, id, current_date, completed):
         obj, data = self.load_info("habit")
 
@@ -152,14 +167,10 @@ class AwsS3:
         )
         return True
 
-    def add_habit(self, name, goal):
+    def delete_habit(self, id):
         obj, data = self.load_info("habit")
 
-        id = str(uuid.uuid4())
-
-        data["habit"].append(
-            {"id": id, "name": name, "goal": goal, "completed": []}
-        )
+        data["habit"] = [habit for habit in data["habit"] if habit["id"] != id]
 
         obj.put(
             Body=(bytes(json.dumps(data, indent=2).encode("utf-8"))),
