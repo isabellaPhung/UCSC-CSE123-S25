@@ -51,7 +51,7 @@ void demo_callback(const char *payload, size_t payload_length, void *cb_data)
             ParseTasksJSON(data->db_ptr, payload);
             data->cur_index++;
         }
-        else if (item && (strcmp(item->valuestring, "acknowledge") == 0))
+        else if (item && (strcmp(item->valuestring, "ack") == 0))
         {
             ESP_LOGI(TAG, "Server acknowledged update!");
             data->update_ack = 1;
@@ -61,7 +61,7 @@ void demo_callback(const char *payload, size_t payload_length, void *cb_data)
     ESP_LOGI(TAG, "Callback function called\n");
 }
 
-#define BACKUP_PAYLOAD "{\"id\":\"c72572d0-8c8c-4f37-8ff6-829cac2eabec\",\"action\":\"refresh\"}"
+#define BACKUP_PAYLOAD "{\"id\":\"55\",\"action\":\"refresh\",\"type\":\"task\"}"
 #define BACKUP_PAYLOAD_LENGTH ((size_t)(sizeof(BACKUP_PAYLOAD) - 1))
 #define RETRY_DELAY_MS 5000U
 
@@ -146,10 +146,11 @@ void app_main()
     /*if (!i2c_scan())
     {
         return;
-    }*/
+    }
     ESP_ERROR_CHECK(InitRTC());
     ESP_ERROR_CHECK(RebootRTC());
     ESP_ERROR_CHECK(SetTime());
+    */
 
     // -------------------------------------- TEST SCRIPTS ----------------------------------------
     /*
@@ -169,6 +170,19 @@ void app_main()
     // retrievetaskssorted(&database, &(ui_data.on_screen), TASK_LIST_SIZE);
 
     request_backup(&cb_data);
+
+    // ------------------------------------ Update Task Status ------------------------------------
+    task_t tasks[3];
+    int tasks_count = RetrieveTasksSortedDB(db, tasks, 3, 0);
+    if (tasks_count < 1)
+    {
+        ESP_LOGE(TAG, "Failed to get items!");
+        CloseSQL(&db);
+        return;
+    }
+
+    ESP_ERROR_CHECK(UpdateTaskStatus(db, tasks[0].uuid, COMPLETE));
+    ESP_ERROR_CHECK(SyncTaskRequests(&cb_data, "55"));
 
 #if 0
   long frame_timer = 0;

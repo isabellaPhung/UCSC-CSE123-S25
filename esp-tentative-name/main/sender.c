@@ -6,6 +6,7 @@
 #include <errno.h>
 #include <string.h>
 #include <dirent.h>
+#include <sys/stat.h>
 #include <cJSON.h>
 
 #define MAX_RETRIES 5
@@ -14,6 +15,24 @@
 #define PATH_LENGTH 255 + 32 + UUID_LENGTH
 
 // ------------------------------------------ Tasks -----------------------------------------------
+
+FILE * fopen_mkdir(const char *path, const char *mode)
+{
+    char *p = strdup(path);
+    char *sep = strchr(p+1, '/');
+    while(sep != NULL)
+    {
+        *sep = '\0';
+        if (mkdir(p, 0777) && errno != EEXIST)
+        {
+            fprintf(stderr, "error while trying to create %s\n", p);
+        }
+        *sep = '/';
+        sep = strchr(sep+1, '/');
+    }
+    free(p);
+    return fopen(path, mode);
+}
 
 esp_err_t UpdateTaskStatus(sqlite3 *db, const char *uuid, TASK_STATUS new_status)
 {
@@ -31,12 +50,12 @@ esp_err_t UpdateTaskStatus(sqlite3 *db, const char *uuid, TASK_STATUS new_status
     // Set path name to UUID to be changed, this both makes the file contents apparent,
     // but also results put in the new requests file will be overwritten.
     char path[PATH_LENGTH];
-    snprintf(path, PATH_LENGTH, TASK_REQUESTS_DIR "%s.txt", uuid); // Ensure full path
+    snprintf(path, PATH_LENGTH, MOUNT_POINT TASK_REQUESTS_DIR "/%s.txt", uuid); // Ensure full path
 
-    FILE *file = fopen(path, "w");
+    FILE *file = fopen_mkdir(path, "w");
     if (!file)
     {
-        ESP_LOGE(TAG, "Failed to open file %s for writing", path);
+        ESP_LOGE(TAG, "Failed to open file %s for writing: %s", path, strerror(errno));
         return ESP_FAIL;
     }
 
@@ -50,7 +69,7 @@ esp_err_t SyncTaskRequests(struct callback_data_t *cb_data, const char *device_i
 {
     static const char *TAG = "sender::UpdateTaskStatus";
 
-    DIR *dir = opendir(TASK_REQUESTS_DIR);
+    DIR *dir = opendir(MOUNT_POINT TASK_REQUESTS_DIR);
     if (!dir)
     {
         ESP_LOGE(TAG, "Failed to open directory: %s", TASK_REQUESTS_DIR);
@@ -74,7 +93,7 @@ esp_err_t SyncTaskRequests(struct callback_data_t *cb_data, const char *device_i
             continue;
 
         char path[PATH_LENGTH];
-        snprintf(path, PATH_LENGTH, TASK_REQUESTS_DIR "%s", entry->d_name);
+        snprintf(path, PATH_LENGTH, MOUNT_POINT TASK_REQUESTS_DIR "/%s", entry->d_name);
 
         FILE *file = fopen(path, "r");
         if (!file)

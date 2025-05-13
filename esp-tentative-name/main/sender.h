@@ -19,8 +19,8 @@ struct callback_data_t
 #define MAX_ENTRIES 16
 
 // Request folders
-#define TASK_REQUESTS_DIR MOUNT_POINT "/task_status_requests/"
-#define HABIT_REQUESTS_DIR MOUNT_POINT "/habit_status_requests/"
+#define TASK_REQUESTS_DIR "/taskrequests"
+#define HABIT_REQUESTS_DIR "/habitrequests"
 
 // ------------------------------------------ Tasks -----------------------------------------------
 
