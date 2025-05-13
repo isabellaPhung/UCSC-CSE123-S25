@@ -714,7 +714,11 @@
             
             // Clear form and reload events
             clearForm();
-            loadEvents();
+            // Give S3 a second to update
+            setTimeout(() => {
+                // Refresh the display to show the updated state
+                loadEvents();
+            }, "1000");
         }
         
         // Clear the add event form
