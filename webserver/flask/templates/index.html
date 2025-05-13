@@ -754,8 +754,6 @@
         
         // Task management - Redirect to add task page
         document.getElementById('add-task-btn').addEventListener('click', function() {
-            // Store the current user ID in localStorage so add-task.html can access it
-            localStorage.setItem('taskUserId', window.currentUserId);
             window.location.href = 'add_task';
         });
         
@@ -797,8 +795,6 @@
         
         // Event management
         document.querySelector('.add-event').addEventListener('click', function() {
-            // Store the current user ID in localStorage so events.html can access it
-            localStorage.setItem('eventUserId', window.currentUserId);
             window.location.href = 'events';
         });
         

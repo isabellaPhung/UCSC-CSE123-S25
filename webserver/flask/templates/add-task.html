@@ -12,16 +12,6 @@
             // Get the current user from localStorage
             const currentUser = JSON.parse(localStorage.getItem('currentUser'));
             
-            // Get the user ID for task creation (set by index.html)
-            const taskUserId = localStorage.getItem('taskUserId');
-            if (!taskUserId) {
-                window.location.href = 'index';
-                return;
-            }
-            
-            // Store user ID for use in form submission
-            window.currentUserId = taskUserId;
-            
             // Add username display and back button to the page
             const titleElement = document.querySelector('h1');
             

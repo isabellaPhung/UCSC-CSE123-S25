@@ -12,16 +12,6 @@
             // Get the current user from localStorage
             const currentUser = JSON.parse(localStorage.getItem('currentUser'));
             
-            // Get the user ID for event creation (set by index.html)
-            const eventUserId = localStorage.getItem('eventUserId');
-            if (!eventUserId) {
-                window.location.href = 'index';
-                return;
-            }
-            
-            // Store user ID for use in form submission
-            window.currentUserId = eventUserId;
-            
             // Add username display to the page
             const headerElement = document.querySelector('.page-header');
             
