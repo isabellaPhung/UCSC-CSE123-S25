@@ -84,10 +84,11 @@ esp_err_t HabitAddDB(sqlite3 *db, const char *uuid, const char *name, uint8_t go
     }
 
     sqlite3_finalize(stmt);
+    ESP_LOGI(TAG, "Added <%s> with UUID <%s>", name, uuid);
     return result;
 }
 
-esp_err_t ParseHabitJSON(sqlite3 *db, const char *json)
+esp_err_t ParseHabitsJSON(sqlite3 *db, const char *json)
 {
     const char *TAG = "habit::ParseHabitJSON";
 
@@ -131,10 +132,10 @@ esp_err_t ParseHabitJSON(sqlite3 *db, const char *json)
     }
 
     // Extract Goal Flags
-    cJSON *goal_flags = cJSON_GetObjectItem(habit, "goal_flags");
+    cJSON *goal_flags = cJSON_GetObjectItem(habit, "goal");
     if (!cJSON_IsNumber(goal_flags) || goal_flags->valueint < 0 || goal_flags->valueint > 0x7F)
     {
-        ESP_LOGE(TAG, "Missing or invalid 'goal_flags'");
+        ESP_LOGE(TAG, "Missing or invalid 'goal'");
         cJSON_Delete(root);
         return ESP_ERR_INVALID_ARG;
     }

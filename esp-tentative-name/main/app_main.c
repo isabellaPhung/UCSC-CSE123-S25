@@ -18,6 +18,7 @@
 #include "pcf8523.h"
 
 #include "sender.h"
+#include "database.h"
 
 #include "cJSON.h"
 
@@ -47,8 +48,27 @@ void demo_callback(const char *payload, size_t payload_length, void *cb_data)
         else if (item && (strcmp(item->valuestring, "response") == 0))
         {
             ESP_LOGI(TAG, "Server response index %d", data->cur_index);
-            // Add task information to database
-            ParseTasksJSON(data->db_ptr, payload);
+            cJSON *task = cJSON_GetObjectItem(root, "task");
+            cJSON *event = cJSON_GetObjectItem(root, "event");
+            cJSON *habit = cJSON_GetObjectItem(root, "habit");
+            if (task)
+            {
+                // Add task information to database
+                ParseTasksJSON(data->db_ptr, payload);
+            }
+            else if (event)
+            {
+                ParseEventsJSON(data->db_ptr, payload);
+            }
+            else if (habit)
+            {
+                ParseHabitsJSON(data->db_ptr, payload);
+            }
+            else
+            {
+                ESP_LOGE(TAG, "Missing entry information!");
+            }
+
             data->cur_index++;
         }
         else if (item && (strcmp(item->valuestring, "ack") == 0))
@@ -61,8 +81,7 @@ void demo_callback(const char *payload, size_t payload_length, void *cb_data)
     ESP_LOGI(TAG, "Callback function called\n");
 }
 
-#define BACKUP_PAYLOAD "{\"id\":\"55\",\"action\":\"refresh\",\"type\":\"task\"}"
-#define BACKUP_PAYLOAD_LENGTH ((size_t)(sizeof(BACKUP_PAYLOAD) - 1))
+#define DEVICE_ID "55"
 #define RETRY_DELAY_MS 5000U
 
 int request_backup(struct callback_data_t *cb_data)
@@ -72,30 +91,38 @@ int request_backup(struct callback_data_t *cb_data)
     mqtt_connect();
     mqtt_subscribe();
 
-    mqtt_publish(BACKUP_PAYLOAD, BACKUP_PAYLOAD_LENGTH);
-    while (1)
+    // Request payloads for all 3 entry types
+    const char *backup_payload[3] = {"{\"id\":\"55\",\"action\":\"refresh\",\"type\":\"task\"}",
+                                     "{\"id\":\"55\",\"action\":\"refresh\",\"type\":\"event\"}",
+                                     "{\"id\":\"55\",\"action\":\"refresh\",\"type\":\"habit\"}"};
+
+    for (int ent_itr = 0; ent_itr < 3; ent_itr++)
     {
-        mqtt_loop(5000);
-        retries--;
-        if (retries == 0)
+        mqtt_publish(backup_payload[ent_itr], strlen(backup_payload[ent_itr]));
+        while (1)
         {
-            return_status = EXIT_FAILURE;
-            ESP_LOGW(TAG, "Three failures of backup request, trying again later");
-            break;
-        }
-        if (cb_data->expected == 0)
-        {
-            ESP_LOGI(TAG, "Did not get back a length message from the server, re-publishing after a delay");
-            vTaskDelay(RETRY_DELAY_MS / portTICK_PERIOD_MS);
-            mqtt_publish(BACKUP_PAYLOAD, BACKUP_PAYLOAD_LENGTH);
-        }
-        else if (cb_data->expected != cb_data->cur_index)
-        {
-            ESP_LOGI(TAG, "Did not get the expected amount, listening for some more time");
-        }
-        else
-        {
-            break;
+            mqtt_loop(5000);
+            retries--;
+            if (retries == 0)
+            {
+                return_status = EXIT_FAILURE;
+                ESP_LOGW(TAG, "Three failures of backup request, trying again later");
+                break;
+            }
+            if (cb_data->expected == 0)
+            {
+                ESP_LOGI(TAG, "Did not get back a length message from the server, re-publishing after a delay");
+                vTaskDelay(RETRY_DELAY_MS / portTICK_PERIOD_MS);
+                mqtt_publish(backup_payload[ent_itr], strlen(backup_payload[ent_itr]));
+            }
+            else if (cb_data->expected != cb_data->cur_index)
+            {
+                ESP_LOGI(TAG, "Did not get the expected amount, listening for some more time");
+            }
+            else
+            {
+                break;
+            }
         }
     }
 
@@ -146,11 +173,10 @@ void app_main()
     /*if (!i2c_scan())
     {
         return;
-    }
+    }*/
     ESP_ERROR_CHECK(InitRTC());
     ESP_ERROR_CHECK(RebootRTC());
     ESP_ERROR_CHECK(SetTime());
-    */
 
     // -------------------------------------- TEST SCRIPTS ----------------------------------------
     /*
@@ -182,7 +208,7 @@ void app_main()
     }
 
     ESP_ERROR_CHECK(UpdateTaskStatus(db, tasks[0].uuid, COMPLETE));
-    ESP_ERROR_CHECK(SyncTaskRequests(&cb_data, "55"));
+    ESP_ERROR_CHECK(SyncTaskRequests(&cb_data, DEVICE_ID));
 
 #if 0
   long frame_timer = 0;
@@ -212,6 +238,7 @@ void app_main()
     if (frame_timer >= 900 seconds) {
         if (push_new_completions_mqtt){
           // publish the "these tasks have been updates" payload
+          SyncTaskRequests(&cb_data, DEVICE_ID);
           push_new_completions_mqtt = false;
         }
         // publish the "need new tasks" payload

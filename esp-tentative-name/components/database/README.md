@@ -120,7 +120,7 @@ Habit types define two values:
         {
             id: <UNIQUE string>,
             name: <string>,
-            goal_flags: <int>
+            goal: <int>     // Flag
         }
 }
 ```

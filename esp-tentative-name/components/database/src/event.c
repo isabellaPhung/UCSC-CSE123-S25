@@ -17,7 +17,9 @@ int RetrieveEventsSortedDB(sqlite3 *db, event_t *eventBuffer, int count, int off
     }
 
     const char *sql = "SELECT id, name, starttime, duration, description "
-                      "FROM events ASC LIMIT ? OFFSET ?;";
+                      "FROM events "
+                      "ORDER BY starttime ASC "
+                      "LIMIT ? OFFSET ?;";
     sqlite3_stmt *stmt;
     int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
     if (rc != SQLITE_OK)
