@@ -472,6 +472,8 @@
             const currentDayIndex = today.getDay();
             // Convert to our display order (0 = Monday, ... 6 = Sunday)
             const adjustedDayIndex = currentDayIndex === 0 ? 6 : currentDayIndex - 1;
+            // Convert to our flag order (0 = Saturday, ... 6 = Sunday)
+            const flagDayIndex = 6 - currentDayIndex;
             
             // Get user-specific habits
             const allUserHabits = JSON.parse(localStorage.getItem('userHabits')) || {};
@@ -482,7 +484,7 @@
             
             habits.forEach((habit, index) => {
                 // CHANGED: Only show habits that are scheduled for today
-                const isScheduledToday = habit.scheduledDays && habit.scheduledDays[adjustedDayIndex];
+                const isScheduledToday = habit.goal & Math.pow(2, flagDayIndex);
 
                 // Create habit item
                 const habitItem = document.createElement('div');
@@ -505,7 +507,7 @@
 
                     const habitText = document.createElement('div');
                     habitText.className = 'habit-text';
-                    habitText.textContent = habit.text;
+                    habitText.textContent = habit.name;
 
                     habitItem.appendChild(checkbox);
                     habitItem.appendChild(habitText);
