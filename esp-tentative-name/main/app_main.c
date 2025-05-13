@@ -26,7 +26,7 @@
 
 static const char *TAG = "MAIN";
 
-void demo_callback(const char *payload, size_t payload_length, void *cb_data)
+void callback(const char *payload, size_t payload_length, void *cb_data)
 {
     struct callback_data_t *data = (struct callback_data_t *)cb_data;
     cJSON *root = cJSON_ParseWithLength(payload, payload_length);
@@ -82,6 +82,7 @@ void demo_callback(const char *payload, size_t payload_length, void *cb_data)
 }
 
 #define DEVICE_ID "55"
+#define UTC_OFFSET -7 * 3600
 #define RETRY_DELAY_MS 5000U
 
 int request_backup(struct callback_data_t *cb_data)
@@ -174,9 +175,19 @@ void app_main()
     {
         return;
     }*/
-    ESP_ERROR_CHECK(InitRTC());     // Establish R2C connection
-    ESP_ERROR_CHECK(RebootRTC());   // RECONFIGURE RTC configuration (optional)
-    ESP_ERROR_CHECK(SetTime());     // Get the current time from NTP server
+    ESP_ERROR_CHECK(InitRTC());   // Establish R2C connection
+    ESP_ERROR_CHECK(RebootRTC()); // RECONFIGURE RTC configuration (optional)
+    ESP_ERROR_CHECK(SetTime());   // Get the current time from NTP server
+
+    {
+        // Get current time
+        time_t t = time(NULL);
+        t += UTC_OFFSET;
+        // Convert it to local time
+        struct tm *ptr = localtime(&t);
+        // Get the string of local time
+        printf("%s", asctime(ptr));
+    }
 
     // -------------------------------------- TEST SCRIPTS ----------------------------------------
     /*
@@ -188,13 +199,9 @@ void app_main()
     */
 
     // ------------------------------- Initialize Server Connection -------------------------------
-    int return_status;
-    return_status = mqtt_init(&demo_callback, (void *)&cb_data);
-    assert(return_status == EXIT_SUCCESS);
+    assert(mqtt_init(&callback, (void *)&cb_data) == EXIT_SUCCESS);
 
-    // TODO refill on_screen with the 0th page of tasks
-    // retrievetaskssorted(&database, &(ui_data.on_screen), TASK_LIST_SIZE);
-
+    // Populate database
     request_backup(&cb_data);
 
     // ------------------------------------ Update Task Status ------------------------------------
