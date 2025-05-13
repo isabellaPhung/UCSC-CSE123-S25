@@ -1,5 +1,7 @@
 #include "helper_menus.h"
 
+sqlite3 *db;
+
 static uint32_t taskCursor = 0;
 static uint32_t eventCursor = 0;
 static uint32_t habitCursor = 0;
@@ -341,14 +343,14 @@ void create_task(task_t * task){
     //label for task name
     lv_obj_t * label;
     label = lv_label_create(cont);
-    lv_label_set_text_static(label, task.name);
+    lv_label_set_text_static(label, task->name);
     lv_obj_set_width(label, LCD_H_RES*0.4);
     lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP); 
     lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_END, 0, 1);
 
     //label for due date
     label = lv_label_create(cont);
-    lv_label_set_text_static(label, task.time);
+    lv_label_set_text_static(label, task->time);
     lv_obj_add_style(label, &style_text_muted, 0);
     lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 1, 1);
 }
@@ -358,7 +360,7 @@ void create_task(task_t * task){
  * returns an lv_obj pointer to task list entry
  * probably needs to be fixed to be generic for tasks
  */
-void create_event(event_t event){
+void create_event(event_t * event){
     //creates button for task using existing list button style
     cont = lv_obj_class_create_obj(&lv_list_button_class, eventlist);
     lv_obj_class_init_obj(cont);
@@ -376,21 +378,21 @@ void create_event(event_t event){
     //label for task name
     lv_obj_t * label;
     label = lv_label_create(cont);
-    lv_label_set_text_static(label, event.name);
+    lv_label_set_text_static(label, event->name);
     lv_obj_set_width(label, LCD_H_RES*0.4);
     lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP); 
     lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_END, 0, 1);
 
     //label for due date
     label = lv_label_create(cont);
-    lv_label_set_text_static(label, event.start_time);
+    lv_label_set_text_static(label, event->start_time);
     lv_obj_add_style(label, &style_text_muted, 0);
     lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 1, 1);
 }
 
-task_t taskBuffer[4];
-event_t eventBuffer[4];
-habit_t habitBuffer[3];
+task_t * taskBuffer[4];
+event_t * eventBuffer[4];
+//habit_t * habitBuffer[3];
 
 static void tasks_left_cb(lv_event_t * e){
     taskCursor -= 4;
@@ -485,7 +487,7 @@ static void taskEvent_create(lv_obj_t * parent){
     button = lv_btn_create(parent);
     lv_group_remove_obj(button);
     lv_obj_align(button, LV_ALIGN_TOP_RIGHT, -((LCD_H_RES/4)+25), 35);
-    lv_obj_add_event_cb(button, events_left_cb, LV_EVENT_ALL, NULL);//probably need to be updated for each button?
+    lv_obj_add_event_cb(button, events_left_cb, LV_EVENT_ALL, NULL);
     lv_obj_set_size(button, 25, 25);
     label = lv_label_create(button);
     lv_label_set_text(label, LV_SYMBOL_LEFT);
@@ -567,9 +569,11 @@ static const char * btnm_map[] = {"Su", "Mo", "Tu", "We", "Th", "Fr", "Sa", ""};
  * creates habit entry for habit list
  * takes in parent list and name of habit and the row number.
  */
+//void createHabit(habit_t * habit, uint8_t row){
 void createHabit(const char * name, uint8_t row){
     //creates habit title name
     lv_obj_t * habits = lv_label_create(tile3);
+    //lv_label_set_text(habits, habit->name);
     lv_label_set_text(habits, name);
     lv_obj_set_style_text_font(habits, &lv_font_montserrat_18, 0);
     lv_obj_set_pos(habits, 15, 25+(row*100));
@@ -577,7 +581,7 @@ void createHabit(const char * name, uint8_t row){
     //trying out button matrix
     lv_obj_t * buttons = lv_btnmatrix_create(tile3);
     lv_gridnav_add(buttons, LV_GRIDNAV_CTRL_NONE);
-    lv_obj_add_event_cb(buttons, buttonmatrix_cb, LV_EVENT_KEY, NULL);//probably need to be updated for each button?
+    lv_obj_add_event_cb(buttons, buttonmatrix_cb, LV_EVENT_KEY, NULL);
     lv_obj_set_style_bg_color(tile3, lv_palette_lighten(LV_PALETTE_BLUE, 4), LV_STATE_FOCUSED);
     lv_obj_set_style_pad_all(buttons, 5, LV_PART_MAIN);
     lv_group_add_obj(lv_group_get_default(), buttons);
@@ -614,7 +618,7 @@ static void habitMenu_create(lv_obj_t * parent){
     button = lv_btn_create(parent);
     lv_group_remove_obj(button);
     lv_obj_align(button, LV_ALIGN_BOTTOM_MID, +25, -35);
-    lv_obj_add_event_cb(button, habits_left_cb, LV_EVENT_CLICKED, NULL);//probably need to be updated for each button?
+    lv_obj_add_event_cb(button, habits_left_cb, LV_EVENT_CLICKED, NULL);
     lv_obj_set_size(button, 25, 25);
     label = lv_label_create(button);
     lv_label_set_text(label, LV_SYMBOL_LEFT);
@@ -641,11 +645,12 @@ static void habitMenu_create(lv_obj_t * parent){
     lv_obj_set_style_text_font(title, &lv_font_montserrat_18, 0);
     lv_obj_align(title, LV_ALIGN_TOP_LEFT, 5, 5);
 
+    /*
     //dummy habits
-    //TODO: get habits from database
     createHabit("Go to the Gym", 0);
     createHabit("Walk the dog", 1);
     createHabit("Journal", 2);
+    */
 }
 
 /*

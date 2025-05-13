@@ -5,6 +5,10 @@
 #include "lvgl__lvgl/lvgl.h"
 
 #include "definitions.h"
+#include "database.h"
+#include "task.h"
+#include "event.h"
+//#include "habit.h"
 
 //initializes necessary fonts
 void initFonts();
@@ -29,7 +33,8 @@ void loadNextEvents();
 void timeDisplay(char * entry);
 
 //adds a task to the task event menu
-void create_task(const char * name, const char * dueDate);
+void create_task(task_t * task);
+void create_event(event_t * event);
 //TODO
 //adds a event to the task event menu
 //void create_event(const char * name, const char * dueDate);
