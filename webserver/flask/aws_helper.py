@@ -119,3 +119,8 @@ class AwsS3:
                          if start_timestamp <= event["starttime"] <= end_timestamp]
 
         return data
+
+    def get_habits(self):
+        obj, data = self.load_info("habit")
+
+        return data

@@ -460,7 +460,7 @@
                 
                 const habitName = document.createElement('div');
                 habitName.className = 'habit-name';
-                habitName.textContent = habit.text;
+                habitName.textContent = habit.name;
                 habitRow.appendChild(habitName);
                 
                 // Add checkboxes for each day of the week
@@ -475,8 +475,8 @@
                     const checkboxContainer = document.createElement('div');
                     
                     // Determine if this day is scheduled using bitwise operations
-                    const isScheduled = habit.scheduledDays ? 
-                        isDayIndexScheduled(habit.scheduledDays, i) : false;
+                    const isScheduled = habit.goal ?
+                        isDayIndexScheduled(habit.goal, i) : false;
                     
                     // Add scheduled class to the container if day is scheduled
                     checkboxContainer.className = isScheduled ? 'day-scheduled' : 'day-not-scheduled';
@@ -604,10 +604,10 @@
                 
                 // Add the new habit with bitwise flags for scheduled days
                 habits.push({
-                    text: habitName,
+                    name: habitName,
                     completed: false, // Initially not completed for today
                     days: completionDays, // Completion status for each day
-                    scheduledDays: scheduledDays // Bitwise flags for scheduled days
+                    goal: scheduledDays // Bitwise flags for scheduled days
                 });
                 
                 // Update user habits
