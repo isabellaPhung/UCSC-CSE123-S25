@@ -114,6 +114,17 @@ class AwsS3:
         )
         return True
 
+    def delete_event(self, id):
+        obj, data = self.load_info("event")
+
+        data["event"] = [event for event in data["event"] if event["id"] != id]
+
+        obj.put(
+            Body=(bytes(json.dumps(data, indent=2).encode("utf-8"))),
+            ContentType="application/json"
+        )
+        return True
+
     def get_events(self, start_timestamp, end_timestamp):
         obj, data = self.load_info("event")
 

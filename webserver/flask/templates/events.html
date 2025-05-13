@@ -548,7 +548,7 @@
             document.getElementById('period-select').value = period;
         }
         
-        // Load events from localStorage
+        // Load events from S3
         function loadEvents() {
             // Get events container
             const eventsContainer = document.getElementById('events-list');
@@ -609,7 +609,7 @@
                     deleteBtn.innerHTML = '&times;';
                     deleteBtn.title = 'Delete Event';
                     deleteBtn.addEventListener('click', function() {
-                        deleteEvent(index);
+                        deleteEvent(event.id);
                     });
 
                     eventAction.appendChild(deleteBtn);
@@ -739,26 +739,22 @@
         }
         
         // Delete an event
-        function deleteEvent(index) {
-            // Get user-specific events
-            const allUserEvents = JSON.parse(localStorage.getItem('userEvents')) || {};
-            const userEvents = allUserEvents[window.currentUserId] || {};
-            
-            // Get today's events
-            const todayEvents = userEvents[todayStr] || [];
-            
-            // Remove the event
-            if (index >= 0 && index < todayEvents.length) {
-                todayEvents.splice(index, 1);
-                
-                // Update localStorage
-                userEvents[todayStr] = todayEvents;
-                allUserEvents[window.currentUserId] = userEvents;
-                localStorage.setItem('userEvents', JSON.stringify(allUserEvents));
-                
-                // Reload events
-                loadEvents();
-            }
+        function deleteEvent(taskId) {
+            fetch('https://localhost/api/delete_event', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({id: taskId})
+            })
+            .then(response => {
+                if (!response.ok) {
+                    console.error("Failed to delete event");
+                }
+                else {
+                    loadEvents();
+                }
+            });
         }
 
         // Convert Unix timestamp to start time

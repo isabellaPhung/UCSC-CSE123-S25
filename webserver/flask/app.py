@@ -107,6 +107,15 @@ def api_add_event():
     return {"add_event": True}, 200
 
 
+@app.route("/api/delete_event", methods=["POST"])
+def api_delete_event():
+    id = request.json.get("id")
+
+    if not s3_conn.delete_event(id):
+        return {"delete_event": False}, 400
+    return {"delete_event": True}, 200
+
+
 @app.route("/api/today_events", methods=["POST"])
 def api_today_events():
     start = request.json.get("start")
