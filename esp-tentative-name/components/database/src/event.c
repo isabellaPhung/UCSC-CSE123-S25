@@ -8,7 +8,7 @@ esp_err_t AddEventDB(sqlite3 *db, const event_t *event);
 
 int RetrieveEventsSortedDB(sqlite3 *db, event_t *eventBuffer, int count, int offset)
 {
-    const char *TAG = "event::RemoveEventDB";
+    const char *TAG = "event::RetrieveEventsSortedDB";
 
     if (!eventBuffer || count <= 0)
     {
@@ -17,7 +17,7 @@ int RetrieveEventsSortedDB(sqlite3 *db, event_t *eventBuffer, int count, int off
     }
 
     const char *sql = "SELECT id, name, starttime, duration, description "
-                      "FROM events ORDER BY starttime ASC LIMIT ? OFFSET ?;";
+                      "FROM events ASC LIMIT ? OFFSET ?;";
     sqlite3_stmt *stmt;
     int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
     if (rc != SQLITE_OK)
