@@ -15,7 +15,7 @@ app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
 # app.config['JWT_COOKIE_SECURE'] = True
 # app.config['JWT_COOKIE_CSRF_PROTECT'] = True
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
-app.config["JWT_REFRESH_COOKIE_PATH"] = "/token/refresh"
+# app.config["JWT_REFRESH_COOKIE_PATH"] = "/token/refresh"
 
 jwt = JWTManager(app)
 
@@ -39,6 +39,17 @@ def login_authenticate():
 
     set_access_cookies(resp, access_token)
     set_refresh_cookies(resp, refresh_token)
+    return resp, 200
+
+
+@app.route("/token/refresh", methods=["POST"])
+@jwt_required(refresh=True)
+def refresh(endpoint):
+    current_user = get_jwt_identity()
+    access_token = create_access_token(identity=current_user)
+
+    resp = redirect(url_for(endpoint))
+    set_access_cookies(resp, access_token)
     return resp, 200
 
 
@@ -169,9 +180,17 @@ def habits():
     return render_template("habits.html")
 
 
-# @jwt.expired_token_loader
-# def expired_jwt_token(jwt_header, jwt_payload):
-#     return {"msg": "Token expired"}, 401
+@jwt.expired_token_loader
+def expired_jwt_token(jwt_header, jwt_payload):
+    endpoint = request.path
+    try:
+        # TODO: fix this
+        resp, code = refresh(endpoint)
+        return resp, code
+    except:
+        resp = redirect(url_for("login"))
+        unset_jwt_cookies(resp)
+        return resp, 302
 
 
 @jwt.unauthorized_loader
