@@ -449,7 +449,7 @@
                 habitsContainer.removeChild(habitsContainer.lastChild);
             }
 
-            fetch('https://localhost/api/today_habits', {
+            fetch('https://scheduleapp.click/api/today_habits', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -540,7 +540,7 @@
         // Update a habit's completion status for a specific day
         function updateHabitDay(habitId, dayIndex, completed) {
             // Send the habit to S3
-            fetch('https://localhost/api/update_habit', {
+            fetch('https://scheduleapp.click/api/update_habit', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -602,7 +602,7 @@
                 const scheduledDays = getFlagsFromDaySelections();
 
                 // Send the habit to S3
-                fetch('https://localhost/api/add_habit', {
+                fetch('https://scheduleapp.click/api/add_habit', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -644,7 +644,7 @@
         
         // Delete a specific habit
         function deleteHabit(habitId) {
-            fetch('https://localhost/api/delete_habit', {
+            fetch('https://scheduleapp.click/api/delete_habit', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
