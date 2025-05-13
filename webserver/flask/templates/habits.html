@@ -602,32 +602,25 @@
             const habitName = habitInput.value.trim();
             
             if (habitName) {
-                // Get user-specific habits
-                const allUserHabits = JSON.parse(localStorage.getItem('userHabits')) || {};
-                const habits = allUserHabits[window.currentUserId] || [];
-                
                 // Get scheduled days as bitwise flags
                 const scheduledDays = getFlagsFromDaySelections();
-                
-                // Initialize completion status as all false
-                const completionDays = [false, false, false, false, false, false, false];
-                
-                // Check if today is scheduled using bitwise operations
-                const isTodayScheduled = isDayIndexScheduled(scheduledDays, adjustedDayIndex);
-                
-                // Add the new habit with bitwise flags for scheduled days
-                habits.push({
-                    name: habitName,
-                    completed: false, // Initially not completed for today
-                    days: completionDays, // Completion status for each day
-                    goal: scheduledDays // Bitwise flags for scheduled days
+
+                // Send the habit to S3
+                fetch('https://localhost/api/add_habit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({name: habitName, goal: scheduledDays})
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        console.error('Failed to upload habit to S3');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error uploading habit to S3:', error);
                 });
-                
-                // Update user habits
-                allUserHabits[window.currentUserId] = habits;
-                
-                // Save back to localStorage
-                localStorage.setItem('userHabits', JSON.stringify(allUserHabits));
                 
                 // Clear the input and reload the habits
                 habitInput.value = '';

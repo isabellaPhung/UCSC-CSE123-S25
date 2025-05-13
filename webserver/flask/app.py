@@ -122,6 +122,16 @@ def api_today_events():
     return events, 200
 
 
+@app.route("/api/add_habit", methods=["POST"])
+def api_add_habit():
+    name = request.json.get("name")
+    goal = request.json.get("goal")
+
+    if not s3_conn.add_habit(name, goal):
+        return {"add_habit": False}, 400
+    return {"add_habit": True}, 200
+
+
 @app.route("/api/update_habit", methods=["POST"])
 def api_update_habit():
     id = request.json.get("id")

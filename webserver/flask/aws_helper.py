@@ -152,6 +152,21 @@ class AwsS3:
         )
         return True
 
+    def add_habit(self, name, goal):
+        obj, data = self.load_info("habit")
+
+        id = str(uuid.uuid4())
+
+        data["habit"].append(
+            {"id": id, "name": name, "goal": goal, "completed": []}
+        )
+
+        obj.put(
+            Body=(bytes(json.dumps(data, indent=2).encode("utf-8"))),
+            ContentType="application/json"
+        )
+        return True
+
     def get_habits(self, current_date):
         obj, data = self.load_info("habit")
 
