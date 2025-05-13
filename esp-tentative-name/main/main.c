@@ -62,12 +62,12 @@ void initDatabase(){
         return;
     }
     ESP_LOGI(TAG, "Created Task!\n");
-
+    
+    /*
     //trying to get the task info in the GUI
     struct tm* ptr;
     ptr = localtime(&(newTask.time));
-
-    //create_task(newTask.name, asctime(ptr)); //needs to be on screen 2
+    */
 }
 
 void adjustDatabase(){
@@ -75,7 +75,7 @@ void adjustDatabase(){
 }
 
 void app_main(void){
-    //ESP_LOGI(HEPLE, "start heap: %d", heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
+    ESP_LOGI(HEPLE, "start heap: %d", heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
     
     /* LCD HW initialization */
     ESP_ERROR_CHECK(app_lcd_init());
@@ -89,10 +89,10 @@ void app_main(void){
     //heap_caps_print_heap_info(MALLOC_CAP_DEFAULT); //heap info
     
     /* Database initialization */
-    //initDatabase();
-    //ESP_LOGI(HEPLE, "largest free block after database init: %d", heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
-    
-    /* RTC initialization */
+    initDatabase();
+    ESP_LOGI(HEPLE, "largest free block after database init: %d", heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
+    /* 
+    // RTC initialization
     if (!i2c_scan()){
         ESP_LOGE(RTCTAG, "No I2C devices found!");
         return;
@@ -102,18 +102,18 @@ void app_main(void){
     //set time, but needs internet connection. tried to get it working but it wouldn't cooperate.
     ESP_LOGI(HEPLE, "largest free block after RTC init: %d", heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
     
-    //time_t rtc_time;
-    //struct tm *tm_info = localtime(&rtc_time);
+    time_t rtc_time;
+    struct tm *tm_info = localtime(&rtc_time);
     char buffer[64];
-    //strftime(buffer, sizeof(buffer), "%D %r", tm_info);
-    //pcf8523_read_time(&rtc_time);
+    strftime(buffer, sizeof(buffer), "%D %r", tm_info);
+    pcf8523_read_time(&rtc_time);
     timeDisplay(buffer);
-
+    */
     //adjustDatabase();
     while(1){
         vTaskDelay(pdMS_TO_TICKS(10)); 
         //pcf8523_read_time(&rtc_time);
-        timeDisplay(buffer); //update time on 
+        //timeDisplay(buffer); //update time on 
         lv_timer_handler(); //update screen
     }
     //CloseSQL(&db);

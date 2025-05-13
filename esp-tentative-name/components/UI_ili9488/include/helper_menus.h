@@ -17,6 +17,9 @@ void initFonts();
 //initializes groups
 void initGroup();
 
+//initializes buffers
+void initBuffers();
+
 //loads focus menu
 void loadTile1();
 //loads task event menu

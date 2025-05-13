@@ -97,6 +97,7 @@ void create_ui(){
     makeButtons();
     initFonts();
     initGroup();
+    initBuffers();
     keypad_init();
 
     loadTile1();
