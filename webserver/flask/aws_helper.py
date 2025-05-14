@@ -100,6 +100,10 @@ class AwsS3:
 
         return data
 
+    def get_all_tasks(self):
+        obj, data = self.load_info("task")
+        return data
+
     def add_event(self, name, description, starttime, duration):
         obj, data = self.load_info("event")
 

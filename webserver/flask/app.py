@@ -167,6 +167,12 @@ def api_get_users():
     return users, 200
 
 
+@app.route("/api/get_all_tasks")
+def api_get_all_tasks():
+    users = s3_conn.get_all_tasks()
+    return users, 200
+
+
 @app.route("/login")
 def login():
     return render_template("login.html")

@@ -433,89 +433,98 @@
             
             // Get the current day for highlighting
             const today = new Date();
-            
-            // UPDATED TO GET USER-SPECIFIC TASKS
-            // Load tasks from localStorage
-            const allUserTasks = JSON.parse(localStorage.getItem('userTasks')) || {};
-            const tasks = allUserTasks[window.currentUserId] || [];
-            
-            // Create calendar rows and cells
-            let date = 1;
-            let nextMonthDate = 1;
-            
-            // Create 6 rows to ensure we have enough space for months that start late in the week
-            for (let i = 0; i < 6; i++) {
-                // Create a row
-                const row = document.createElement('tr');
-                
-                // Create 7 cells for each day of the week
-                for (let j = 0; j < 7; j++) {
-                    const cell = document.createElement('td');
-                    
-                    // Fill in previous month's days
-                    if (i === 0 && j < startingDay) {
-                        const prevMonthDay = prevMonthLastDay - startingDay + j + 1;
-                        const dayDiv = document.createElement('div');
-                        dayDiv.className = 'calendar-day';
-                        dayDiv.textContent = prevMonthDay;
-                        cell.appendChild(dayDiv);
-                        cell.className = 'other-month';
-                        
-                        // Add the previous month's date for data attribute
-                        const prevMonthDate = new Date(currentYear, currentMonth - 1, prevMonthDay);
-                        cell.dataset.date = formatDateString(prevMonthDate);
-                    } 
-                    // Fill in current month's days
-                    else if (date <= totalDays) {
-                        const dayDiv = document.createElement('div');
-                        dayDiv.className = 'calendar-day';
-                        dayDiv.textContent = date;
-                        cell.appendChild(dayDiv);
-                        
-                        // Add the current date for data attribute
-                        const currentMonthDate = new Date(currentYear, currentMonth, date);
-                        cell.dataset.date = formatDateString(currentMonthDate);
-                        
-                        // Highlight current day
-                        if (date === today.getDate() && 
-                            currentMonth === today.getMonth() && 
-                            currentYear === today.getFullYear()) {
-                            cell.className = 'current-day';
-                        }
-                        
-                        // Add tasks for this day
-                        addTasksToCell(cell, tasks, currentYear, currentMonth, date);
-                        
-                        // Add click event to show day view
-                        cell.addEventListener('click', function() {
-                            showDayView(this.dataset.date);
-                        });
-                        
-                        date++;
-                    } 
-                    // Fill in next month's days
-                    else {
-                        const dayDiv = document.createElement('div');
-                        dayDiv.className = 'calendar-day';
-                        dayDiv.textContent = nextMonthDate;
-                        cell.appendChild(dayDiv);
-                        cell.className = 'other-month';
-                        
-                        // Add the next month's date for data attribute
-                        const nextMonthDateObj = new Date(currentYear, currentMonth + 1, nextMonthDate);
-                        cell.dataset.date = formatDateString(nextMonthDateObj);
-                        
-                        nextMonthDate++;
-                    }
-                    
-                    row.appendChild(cell);
+
+            // Load tasks from S3
+            fetch('https://scheduleapp.click/api/get_all_tasks', {
+                method: 'GET'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    console.error("Failed to get tasks");
                 }
-                
-                calendarBody.appendChild(row);
-                
-                // Stop creating rows if we've displayed all days of the current month
-                if (date > totalDays && i >= 4) break;
-            }
+                return response.json()
+            })
+            .then(data => {
+                const tasks = data.task;
+            
+                // Create calendar rows and cells
+                let date = 1;
+                let nextMonthDate = 1;
+
+                // Create 6 rows to ensure we have enough space for months that start late in the week
+                for (let i = 0; i < 6; i++) {
+                    // Create a row
+                    const row = document.createElement('tr');
+
+                    // Create 7 cells for each day of the week
+                    for (let j = 0; j < 7; j++) {
+                        const cell = document.createElement('td');
+
+                        // Fill in previous month's days
+                        if (i === 0 && j < startingDay) {
+                            const prevMonthDay = prevMonthLastDay - startingDay + j + 1;
+                            const dayDiv = document.createElement('div');
+                            dayDiv.className = 'calendar-day';
+                            dayDiv.textContent = prevMonthDay;
+                            cell.appendChild(dayDiv);
+                            cell.className = 'other-month';
+
+                            // Add the previous month's date for data attribute
+                            const prevMonthDate = new Date(currentYear, currentMonth - 1, prevMonthDay);
+                            cell.dataset.date = formatDateString(prevMonthDate);
+                        }
+                        // Fill in current month's days
+                        else if (date <= totalDays) {
+                            const dayDiv = document.createElement('div');
+                            dayDiv.className = 'calendar-day';
+                            dayDiv.textContent = date;
+                            cell.appendChild(dayDiv);
+
+                            // Add the current date for data attribute
+                            const currentMonthDate = new Date(currentYear, currentMonth, date);
+                            cell.dataset.date = formatDateString(currentMonthDate);
+
+                            // Highlight current day
+                            if (date === today.getDate() &&
+                                currentMonth === today.getMonth() &&
+                                currentYear === today.getFullYear()) {
+                                cell.className = 'current-day';
+                            }
+
+                            // Add tasks for this day
+                            addTasksToCell(cell, tasks, currentYear, currentMonth, date);
+
+                            // Add click event to show day view
+                            cell.addEventListener('click', function() {
+                                showDayView(this.dataset.date);
+                            });
+
+                            date++;
+                        }
+                        // Fill in next month's days
+                        else {
+                            const dayDiv = document.createElement('div');
+                            dayDiv.className = 'calendar-day';
+                            dayDiv.textContent = nextMonthDate;
+                            cell.appendChild(dayDiv);
+                            cell.className = 'other-month';
+
+                            // Add the next month's date for data attribute
+                            const nextMonthDateObj = new Date(currentYear, currentMonth + 1, nextMonthDate);
+                            cell.dataset.date = formatDateString(nextMonthDateObj);
+
+                            nextMonthDate++;
+                        }
+
+                        row.appendChild(cell);
+                    }
+
+                    calendarBody.appendChild(row);
+
+                    // Stop creating rows if we've displayed all days of the current month
+                    if (date > totalDays && i >= 4) break;
+                }
+            });
         }
         
         // Format date as YYYY-MM-DD string
@@ -530,33 +539,44 @@
         function addTasksToCell(cell, tasks, year, month, day) {
             // Create date string to compare with task dueDate
             const dateStr = formatDateString(new Date(year, month, day));
-            
+
+            const dayStart = new Date(dateStr);
+            dayStart.setHours(0, 0, 0, 0);
+            const startTimestamp = Math.floor(dayStart.getTime() / 1000);
+
+            const dayEnd = new Date(dateStr);
+            dayEnd.setHours(23, 59, 59, 999);
+            const endTimestamp = Math.floor(dayEnd.getTime() / 1000);
+
             // Filter tasks for this date
-            const cellTasks = tasks.filter(task => task.dueDate === dateStr);
-            
+            const cellTasks = tasks.filter(task =>
+                startTimestamp <= task.duedate &&
+                task.duedate <= endTimestamp
+            );
+
             // Sort tasks by time
-            cellTasks.sort((a, b) => a.timestamp - b.timestamp);
-            
+            cellTasks.sort((a, b) => a.duedate - b.duedate);
+
             // Add tasks to cell (limit to 3 for space)
             const maxVisibleTasks = 3;
             for (let i = 0; i < cellTasks.length && i < maxVisibleTasks; i++) {
                 const task = cellTasks[i];
-                
+
                 const taskDiv = document.createElement('div');
                 taskDiv.className = 'calendar-task';
-                
+
                 const taskContent = document.createElement('div');
                 taskContent.textContent = task.name;
-                
+
                 const taskTime = document.createElement('div');
                 taskTime.className = 'task-time';
                 taskTime.textContent = task.displayTime;
-                
+
                 taskDiv.appendChild(taskContent);
                 taskDiv.appendChild(taskTime);
                 cell.appendChild(taskDiv);
             }
-            
+
             // Add indicator if there are more tasks
             if (cellTasks.length > maxVisibleTasks) {
                 const moreTasksDiv = document.createElement('div');
@@ -575,65 +595,81 @@
             const dateObj = new Date(dateStr);
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             document.getElementById('day-view-title').textContent = `Tasks for ${dateObj.toLocaleDateString(undefined, options)}`;
+
+            const dayStart = new Date(dateStr);
+            dayStart.setHours(0, 0, 0, 0);
+            const startTimestamp = Math.floor(dayStart.getTime() / 1000);
+
+            const dayEnd = new Date(dateStr);
+            dayEnd.setHours(23, 59, 59, 999);
+            const endTimestamp = Math.floor(dayEnd.getTime() / 1000);
+
+            // Get user's tasks
+            fetch('https://scheduleapp.click/api/today_tasks', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({start: startTimestamp, end: endTimestamp})
+            })
+            .then(response => {
+                if (!response.ok) {
+                    console.error("Failed to get tasks");
+                }
+                return response.json()
+            })
+            .then(data => {
+                const dayTasks = data.task;
             
-            // Get user-specific tasks
-            const allUserTasks = JSON.parse(localStorage.getItem('userTasks')) || {};
-            const tasks = allUserTasks[window.currentUserId] || [];
-            
-            // Get tasks for this date
-            const dayTasks = tasks.filter(task => task.dueDate === dateStr);
-            
-            // Sort tasks by time
-            dayTasks.sort((a, b) => a.timestamp - b.timestamp);
-            
-            // Display tasks
-            const tasksList = document.getElementById('day-tasks-list');
-            tasksList.innerHTML = '';
-            
-            if (dayTasks.length === 0) {
-                const noTasksMsg = document.createElement('div');
-                noTasksMsg.className = 'no-tasks-message';
-                noTasksMsg.textContent = 'No tasks scheduled for this day.';
-                tasksList.appendChild(noTasksMsg);
-            } else {
-                dayTasks.forEach((task, index) => {
-                    // Create task item
-                    const taskItem = document.createElement('div');
-                    taskItem.className = 'day-task-item';
-                    
-                    const taskName = document.createElement('div');
-                    taskName.className = 'day-task-name';
-                    taskName.textContent = task.name;
-                    
-                    const taskTime = document.createElement('div');
-                    taskTime.className = 'day-task-time';
-                    taskTime.textContent = task.displayTime;
-                    
-                    taskItem.appendChild(taskName);
-                    taskItem.appendChild(taskTime);
-                    
-                    // Create task details
-                    const taskDetails = document.createElement('div');
-                    taskDetails.className = 'day-task-details';
-                    taskDetails.innerHTML = `
-                        <div class="task-description">${task.description || 'No description provided'}</div>
-                        <div class="task-due-date">Due: ${new Date(task.timestamp * 1000).toLocaleTimeString()}</div>
-                        <div class="task-timestamp">Unix Timestamp: ${task.timestamp}</div>
-                    `;
-                    
-                    // Toggle details on click
-                    taskItem.addEventListener('click', function() {
-                        if (taskDetails.style.display === 'block') {
-                            taskDetails.style.display = 'none';
-                        } else {
-                            taskDetails.style.display = 'block';
-                        }
+                // Display tasks
+                const tasksList = document.getElementById('day-tasks-list');
+                tasksList.innerHTML = '';
+
+                if (dayTasks.length === 0) {
+                    const noTasksMsg = document.createElement('div');
+                    noTasksMsg.className = 'no-tasks-message';
+                    noTasksMsg.textContent = 'No tasks scheduled for this day.';
+                    tasksList.appendChild(noTasksMsg);
+                } else {
+                    dayTasks.forEach((task, index) => {
+                        // Create task item
+                        const taskItem = document.createElement('div');
+                        taskItem.className = 'day-task-item';
+
+                        const taskName = document.createElement('div');
+                        taskName.className = 'day-task-name';
+                        taskName.textContent = task.name;
+
+                        const taskTime = document.createElement('div');
+                        taskTime.className = 'day-task-time';
+                        taskTime.textContent = task.displayTime;
+
+                        taskItem.appendChild(taskName);
+                        taskItem.appendChild(taskTime);
+
+                        // Create task details
+                        const taskDetails = document.createElement('div');
+                        taskDetails.className = 'day-task-details';
+                        taskDetails.innerHTML = `
+                            <div class="task-description">${task.description || 'No description provided'}</div>
+                            <div class="task-due-date">Due: ${new Date(task.duedate * 1000).toLocaleTimeString()}</div>
+                            <div class="task-timestamp">Unix Timestamp: ${task.duedate}</div>
+                        `;
+
+                        // Toggle details on click
+                        taskItem.addEventListener('click', function() {
+                            if (taskDetails.style.display === 'block') {
+                                taskDetails.style.display = 'none';
+                            } else {
+                                taskDetails.style.display = 'block';
+                            }
+                        });
+
+                        tasksList.appendChild(taskItem);
+                        tasksList.appendChild(taskDetails);
                     });
-                    
-                    tasksList.appendChild(taskItem);
-                    tasksList.appendChild(taskDetails);
-                });
-            }
+                }
+            });
             
             // Show the overlay and day view
             document.getElementById('overlay').style.display = 'block';
