@@ -14,6 +14,12 @@ esp_err_t ParseTasksJSON(sqlite3 *db, const cJSON *taskItem)
 {
     static const char *TAG = "task::ParseTasksJSON";
 
+    if (!db)
+    {
+        ESP_LOGE(TAG, "Invalid input: Missing database");
+        return ESP_ERR_INVALID_ARG;
+    }
+
     if (!cJSON_IsObject(taskItem))
     {
         ESP_LOGE(TAG, "Invalid JSON: 'task' should be a JSON object");
@@ -47,13 +53,17 @@ esp_err_t ParseTasksJSON(sqlite3 *db, const cJSON *taskItem)
         return ESP_ERR_INVALID_ARG;
     }
 
-    // Sanity check string lengths
-    if (strlen(id->valuestring) >= UUID_LENGTH ||
-        strlen(name->valuestring) >= MAX_NAME_SIZE)
+    // Check lengths
+    if (strlen(id->valuestring) >= UUID_LENGTH)
     {
-        ESP_LOGE(TAG, "UUID or name string too long");
+        ESP_LOGE(TAG, "UUID too long (max %d)", UUID_LENGTH - 1);
         free(task);
         return ESP_ERR_INVALID_ARG;
+    }
+
+    if (strlen(name->valuestring) >= MAX_NAME_SIZE)
+    {
+        ESP_LOGW(TAG, "Name too long (max %d), truncating", MAX_NAME_SIZE - 1);
     }
 
     strncpy(task->uuid, id->valuestring, UUID_LENGTH - 1);
