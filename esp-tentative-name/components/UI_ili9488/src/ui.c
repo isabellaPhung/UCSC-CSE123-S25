@@ -92,6 +92,7 @@ void keypad_init(){
     lv_indev_set_group(keypad, lv_group_get_default());
 }
 
+
 /// @brief inits necessary fonts and buttons and draws ui
 void create_ui(){
     makeButtons();

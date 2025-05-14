@@ -1,7 +1,6 @@
 #include "helper_menus.h"
 
-sqlite3 *db;
-
+sqlite3 *database;
 static uint32_t taskCursor = 0;
 static uint32_t eventCursor = 0;
 static uint32_t habitCursor = 0;
@@ -34,6 +33,10 @@ static lv_obj_t * obj;
 static uint32_t k; //LVGL keyboard key
 
 //static const char *TAG = "UI"; //for esp_log
+
+void initDatabase(sqlite3 * db){
+    database = db;
+}
 
 /*
  * callback function for focus menu for menu navigation
@@ -318,7 +321,7 @@ static void task_desc_cb(lv_event_t * e){
  * returns an lv_obj pointer to task list entry
  * probably needs to be fixed to be generic for tasks
  */
-void create_task(task_t task){
+void create_task(task_t * task){
     //creates button for task using existing list button style
     cont = lv_obj_class_create_obj(&lv_list_button_class, tasklist);
     lv_obj_class_init_obj(cont);
@@ -337,17 +340,17 @@ void create_task(task_t task){
     //label for task name
     lv_obj_t * label;
     label = lv_label_create(cont);
-    lv_label_set_text_static(label, task.name);
+    lv_label_set_text(label, task->name);
     lv_obj_set_width(label, LCD_H_RES*0.4);
     lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP); 
     lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_END, 0, 1);
 
     //label for due date
     label = lv_label_create(cont);
-    struct tm * timeinfo = gmtime(&(task.time));
+    struct tm * timeinfo = gmtime(&(task->time));
     char timestr[40];
     strftime(timestr, sizeof(timestr), "%D %r", timeinfo);
-    lv_label_set_text_static(label, timestr);
+    lv_label_set_text(label, timestr);
     lv_obj_add_style(label, &style_text_muted, 0);
     lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 1, 1);
 }
@@ -357,7 +360,7 @@ void create_task(task_t task){
  * returns an lv_obj pointer to task list entry
  * probably needs to be fixed to be generic for tasks
  */
-void create_event(event_t event){
+void create_event(event_t * event){
     //creates button for task using existing list button style
     cont = lv_obj_class_create_obj(&lv_list_button_class, eventlist);
     lv_obj_class_init_obj(cont);
@@ -375,17 +378,17 @@ void create_event(event_t event){
     //label for task name
     lv_obj_t * label;
     label = lv_label_create(cont);
-    lv_label_set_text_static(label, event.name);
+    lv_label_set_text(label, event->name);
     lv_obj_set_width(label, LCD_H_RES*0.4);
     lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP); 
     lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_END, 0, 1);
 
     //label for due date
     label = lv_label_create(cont);
-    struct tm * timeinfo = gmtime(&(event.start_time));
+    struct tm * timeinfo = gmtime(&(event->start_time));
     char timestr[40];
     strftime(timestr, sizeof(timestr), "%D %r", timeinfo);
-    lv_label_set_text_static(label, timestr);
+    lv_label_set_text(label, timestr);
     lv_obj_add_style(label, &style_text_muted, 0);
     lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 1, 1);
 }
@@ -400,38 +403,42 @@ void initBuffers(){
 }
 
 static void tasks_left_cb(){
-    taskCursor -= 4;
-    int taskNum = RetrieveTasksSortedDB(db, taskBuffer, 4, taskCursor);
-    for(int i = 0; i < taskNum; i++){
-        create_task(taskBuffer[i]);
+    if(eventCursor >= 4){
+        taskCursor -= 4;
+        int taskNum = RetrieveTasksSortedDB(database, taskBuffer, 4, taskCursor);
+        for(int i = 0; i < taskNum; i++){
+            create_task(&taskBuffer[i]);
+        }
     }
 }
 
 static void tasks_right_cb(){
-    int taskNum = RetrieveTasksSortedDB(db, taskBuffer, 4, taskCursor);
+    int taskNum = RetrieveTasksSortedDB(database, taskBuffer, 4, taskCursor);
     if(taskNum == 4){
         taskCursor += 4;
     }
     for(int i = 0; i < taskNum; i++){
-        create_task(taskBuffer[i]);
+        create_task(&taskBuffer[i]);
     }
 }
 
 static void events_left_cb(){
-    eventCursor -= 4;
-    int eventNum = RetrieveEventsSortedDB(db, eventBuffer, 4, eventCursor);
-    for(int i = 0; i < eventNum; i++){
-        create_event(eventBuffer[i]);
+    if(eventCursor >= 4){
+        eventCursor -= 4;
+        int eventNum = RetrieveEventsSortedDB(database, eventBuffer, 4, eventCursor);
+        for(int i = 0; i < eventNum; i++){
+            create_event(&eventBuffer[i]);
+        }
     }
 }
 
 static void events_right_cb(){
-    int eventNum = RetrieveEventsSortedDB(db, eventBuffer, 4, eventCursor);
+    int eventNum = RetrieveEventsSortedDB(database, eventBuffer, 4, eventCursor);
     if(eventNum == 4){
         eventCursor += 4;
     }
     for(int i = 0; i < eventNum; i++){
-        create_event(eventBuffer[i]);
+        create_event(&eventBuffer[i]);
     }
 }
 
@@ -576,10 +583,10 @@ static const char * btnm_map[] = {"Su", "Mo", "Tu", "We", "Th", "Fr", "Sa", ""};
  * creates habit entry for habit list
  * takes in parent list and name of habit and the row number.
  */
-void createHabit(habit_t habit, uint8_t row){
+void createHabit(habit_t * habit, uint8_t row){
     //creates habit title name
     lv_obj_t * habits = lv_label_create(tile3);
-    lv_label_set_text(habits, habit.name);
+    lv_label_set_text(habits, habit->name);
     lv_obj_set_style_text_font(habits, &lv_font_montserrat_18, 0);
     lv_obj_set_pos(habits, 15, 25+(row*100));
     

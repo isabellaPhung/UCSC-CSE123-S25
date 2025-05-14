@@ -9,5 +9,6 @@
 #include "definitions.h"
 #include "helper_menus.h" //Menu drawing functions
 
+void initDatabase(sqlite3 * db);
 //initializes adc hardware buttons, and draws first menu of GUI
 void create_ui();

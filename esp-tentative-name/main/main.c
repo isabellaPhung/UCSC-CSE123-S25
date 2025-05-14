@@ -6,6 +6,7 @@
 #include "database.h" //for database purposes
 #include "display_init.h"  //initalizes LVGL and display hardware
 #include "pcf8523.h" //for RTC
+#include "helper_menus.h"
 #include <time.h>
 #include <stdio.h>
 #include <string.h>
@@ -23,10 +24,8 @@ static const char *HEPLE = "HEPLE";
 static const char *RTCTAG = "RTCTAG";
 static const char *NETTAG = "NETTAG";
 
-void initDatabase(){
-
-    sqlite3 *db;
-
+sqlite3 * db;
+void initdb(){
     ESP_LOGI(TAG, "SQL Database Tests For Schedule Companion\n");
 
     // ---------------------------------- Create Databse ----------------------------------
@@ -73,24 +72,25 @@ void initDatabase(){
 void adjustDatabase(){
 
 }
-
 void app_main(void){
     ESP_LOGI(HEPLE, "start heap: %d", heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
     
+    /* Database initialization */
+    initdb();
+    ESP_LOGI(HEPLE, "largest free block after database init: %d", heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
+
     /* LCD HW initialization */
     ESP_ERROR_CHECK(app_lcd_init());
 
     /* LVGL initialization */
     ESP_ERROR_CHECK(app_lvgl_init());
 
+    initDatabase(db);
     /* All the GUI drawing */
     app_main_display();
     ESP_LOGI(HEPLE, "largest free block after LVGL: %d", heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
     //heap_caps_print_heap_info(MALLOC_CAP_DEFAULT); //heap info
     
-    /* Database initialization */
-    initDatabase();
-    ESP_LOGI(HEPLE, "largest free block after database init: %d", heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
     /* 
     // RTC initialization
     if (!i2c_scan()){
