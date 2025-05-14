@@ -34,6 +34,7 @@ int RetrieveHabitsDB(sqlite3 *db, habit_t *habitBuffer, int count, int offset)
     {
         const unsigned char *id = sqlite3_column_text(stmt, 0);
         const unsigned char *name = sqlite3_column_text(stmt, 1);
+        int goal = sqlite3_column_int(stmt, 2);
 
         if (!id || !name)
         {
@@ -46,6 +47,8 @@ int RetrieveHabitsDB(sqlite3 *db, habit_t *habitBuffer, int count, int offset)
 
         strncpy(habitBuffer[idx].name, (const char *)name, MAX_NAME_SIZE - 1);
         habitBuffer[idx].name[MAX_NAME_SIZE - 1] = '\0';
+
+        habitBuffer[idx].goal = goal;
 
         idx++;
     }
@@ -95,18 +98,24 @@ esp_err_t HabitAddDB(sqlite3 *db, const char *uuid, const char *name, uint8_t go
     return result;
 }
 
-esp_err_t ParseHabitsJSON(sqlite3 *db, const cJSON *habit)
+esp_err_t ParseHabitsJSON(sqlite3 *db, const cJSON *habitItem)
 {
     const char *TAG = "habit::ParseHabitJSON";
 
-    if (!db || !habit)
+    if (!db)
     {
-        ESP_LOGE(TAG, "Invalid input: db or habit item is NULL");
+        ESP_LOGE(TAG, "Invalid input: Missing database");
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    if (!cJSON_IsObject(habitItem))
+    {
+        ESP_LOGE(TAG, "Invalid JSON: 'task' should be a JSON object");
         return ESP_ERR_INVALID_ARG;
     }
 
     // Extract UUID
-    cJSON *id = cJSON_GetObjectItem(habit, "id");
+    cJSON *id = cJSON_GetObjectItem(habitItem, "id");
     if (!cJSON_IsString(id))
     {
         ESP_LOGE(TAG, "Missing or invalid 'id'");
@@ -114,15 +123,27 @@ esp_err_t ParseHabitsJSON(sqlite3 *db, const cJSON *habit)
     }
 
     // Extract Name
-    cJSON *name = cJSON_GetObjectItem(habit, "name");
+    cJSON *name = cJSON_GetObjectItem(habitItem, "name");
     if (!cJSON_IsString(name))
     {
         ESP_LOGE(TAG, "Missing or invalid 'name'");
         return ESP_ERR_INVALID_ARG;
     }
 
+    // Check lengths
+    if (strlen(id->valuestring) >= UUID_LENGTH)
+    {
+        ESP_LOGE(TAG, "UUID too long (max %d)", UUID_LENGTH - 1);
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    if (strlen(name->valuestring) >= MAX_NAME_SIZE)
+    {
+        ESP_LOGE(TAG, "Name too long (max %d)", MAX_NAME_SIZE - 1);
+    }
+
     // Extract Goal Flags
-    cJSON *goal_flags = cJSON_GetObjectItem(habit, "goal");
+    cJSON *goal_flags = cJSON_GetObjectItem(habitItem, "goal");
     if (!cJSON_IsNumber(goal_flags) || goal_flags->valueint < 0 || goal_flags->valueint > 0x7F)
     {
         ESP_LOGE(TAG, "Missing or invalid 'goal'");

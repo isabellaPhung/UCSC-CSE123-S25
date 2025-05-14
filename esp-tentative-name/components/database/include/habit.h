@@ -13,6 +13,7 @@ typedef struct
 {
     char uuid[UUID_LENGTH];
     char name[MAX_NAME_SIZE];
+    uint8_t goal;
 } habit_t;
 
 int RetrieveHabitsDB(sqlite3 *db, habit_t *habitBuffer, int count, int offset);
