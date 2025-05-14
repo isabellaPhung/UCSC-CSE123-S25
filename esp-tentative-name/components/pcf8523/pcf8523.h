@@ -4,6 +4,8 @@
 #include <time.h>
 #include "esp_err.h"
 
+#define UTC_OFFSET -7 * 3600
+
 // Checks if there is a valid address to find for the I2C
 // False on failure
 bool i2c_scan();

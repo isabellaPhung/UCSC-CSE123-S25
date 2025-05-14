@@ -1,7 +1,6 @@
 #include "event.h"
 #include <string.h>
 
-#include "cJSON.h"
 #include "esp_log.h"
 
 esp_err_t AddEventDB(sqlite3 *db, const event_t *event);
@@ -72,29 +71,14 @@ int RetrieveEventsSortedDB(sqlite3 *db, event_t *eventBuffer, int count, int off
     return i;
 }
 
-esp_err_t ParseEventsJSON(sqlite3 *db, const char *json)
+esp_err_t ParseEventsJSON(sqlite3 *db, const cJSON *event)
 {
     const char *TAG = "event::ParseEventsJSON";
 
-    if (!db || !json)
+    if (!db || !event)
     {
-        ESP_LOGE(TAG, "Invalid input: db or json is NULL");
+        ESP_LOGE(TAG, "Invalid input: db or event item is NULL");
         return ESP_ERR_INVALID_ARG;
-    }
-
-    cJSON *root = cJSON_Parse(json);
-    if (!root)
-    {
-        ESP_LOGE(TAG, "Failed to parse JSON");
-        return ESP_FAIL;
-    }
-
-    cJSON *event = cJSON_GetObjectItem(root, "event");
-    if (!cJSON_IsObject(event))
-    {
-        ESP_LOGE(TAG, "Missing or invalid 'event' object");
-        cJSON_Delete(root);
-        return ESP_FAIL;
     }
 
     event_t parsed = {0};
@@ -104,7 +88,6 @@ esp_err_t ParseEventsJSON(sqlite3 *db, const char *json)
     if (!cJSON_IsString(id) || strlen(id->valuestring) >= UUID_LENGTH)
     {
         ESP_LOGE(TAG, "Invalid or missing 'id'");
-        cJSON_Delete(root);
         return ESP_ERR_INVALID_ARG;
     }
     strncpy(parsed.uuid, id->valuestring, UUID_LENGTH - 1);
@@ -114,7 +97,6 @@ esp_err_t ParseEventsJSON(sqlite3 *db, const char *json)
     if (!cJSON_IsString(name) || strlen(name->valuestring) >= MAX_NAME_SIZE)
     {
         ESP_LOGE(TAG, "Invalid or missing 'name'");
-        cJSON_Delete(root);
         return ESP_ERR_INVALID_ARG;
     }
     strncpy(parsed.name, name->valuestring, MAX_NAME_SIZE - 1);
@@ -124,7 +106,6 @@ esp_err_t ParseEventsJSON(sqlite3 *db, const char *json)
     if (!cJSON_IsString(desc) || strlen(desc->valuestring) >= MAX_DESC_SIZE)
     {
         ESP_LOGE(TAG, "Invalid or missing 'description'");
-        cJSON_Delete(root);
         return ESP_ERR_INVALID_ARG;
     }
     strncpy(parsed.description, desc->valuestring, MAX_DESC_SIZE - 1);
@@ -134,7 +115,6 @@ esp_err_t ParseEventsJSON(sqlite3 *db, const char *json)
     if (!cJSON_IsNumber(starttime))
     {
         ESP_LOGE(TAG, "Invalid or missing 'starttime'");
-        cJSON_Delete(root);
         return ESP_ERR_INVALID_ARG;
     }
     parsed.start_time = (time_t)starttime->valuedouble;
@@ -144,7 +124,6 @@ esp_err_t ParseEventsJSON(sqlite3 *db, const char *json)
     if (!cJSON_IsNumber(duration))
     {
         ESP_LOGE(TAG, "Invalid or missing 'duration'");
-        cJSON_Delete(root);
         return ESP_ERR_INVALID_ARG;
     }
     parsed.duration = (time_t)duration->valuedouble;
@@ -156,7 +135,6 @@ esp_err_t ParseEventsJSON(sqlite3 *db, const char *json)
         ESP_LOGE(TAG, "Failed to add event to DB");
     }
 
-    cJSON_Delete(root);
     return result;
 }
 
@@ -223,6 +201,7 @@ esp_err_t RemoveEventDB(sqlite3 *db, const char *uuid)
 }
 
 // ----------------------------------------- TEST SCRIPT ------------------------------------------
+/*
 esp_err_t TestEventFunctions(sqlite3 *db)
 {
     const char *TAG = "event::TestEventFunctions";
@@ -304,3 +283,4 @@ esp_err_t TestEventFunctions(sqlite3 *db)
     ESP_LOGI(TAG, "All event tests passed and cleaned up.");
     return ESP_OK;
 }
+*/

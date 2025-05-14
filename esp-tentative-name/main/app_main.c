@@ -20,6 +20,9 @@
 #include "sender.h"
 #include "database.h"
 
+#include "display_init.h" //initalizes LVGL and display hardware
+#include "helper_menus.h"
+
 #include "cJSON.h"
 
 #include "esp_log.h"
@@ -54,15 +57,15 @@ void callback(const char *payload, size_t payload_length, void *cb_data)
             if (task)
             {
                 // Add task information to database
-                ParseTasksJSON(data->db_ptr, payload);
+                ParseTasksJSON(data->db_ptr, task);
             }
             else if (event)
             {
-                ParseEventsJSON(data->db_ptr, payload);
+                ParseEventsJSON(data->db_ptr, event);
             }
             else if (habit)
             {
-                ParseHabitsJSON(data->db_ptr, payload);
+                ParseHabitsJSON(data->db_ptr, habit);
             }
             else
             {
@@ -82,7 +85,6 @@ void callback(const char *payload, size_t payload_length, void *cb_data)
 }
 
 #define DEVICE_ID "55"
-#define UTC_OFFSET -7 * 3600
 #define RETRY_DELAY_MS 5000U
 
 int request_backup(struct callback_data_t *cb_data)
@@ -93,9 +95,9 @@ int request_backup(struct callback_data_t *cb_data)
     mqtt_subscribe();
 
     // Request payloads for all 3 entry types
-    const char *backup_payload[3] = {"{\"id\":\"55\",\"action\":\"refresh\",\"type\":\"task\"}",
-                                     "{\"id\":\"55\",\"action\":\"refresh\",\"type\":\"event\"}",
-                                     "{\"id\":\"55\",\"action\":\"refresh\",\"type\":\"habit\"}"};
+    const char *backup_payload[3] = {"{\"id\":\"" DEVICE_ID "\",\"action\":\"refresh\",\"type\":\"task\"}",
+                                     "{\"id\":\"" DEVICE_ID "\",\"action\":\"refresh\",\"type\":\"event\"}",
+                                     "{\"id\":\"" DEVICE_ID "\",\"action\":\"refresh\",\"type\":\"habit\"}"};
 
     for (int ent_itr = 0; ent_itr < 3; ent_itr++)
     {
@@ -132,21 +134,12 @@ int request_backup(struct callback_data_t *cb_data)
     return return_status;
 }
 
-// TODO
-#if 0
-#define TASK_LIST_SIZE 7
-
-struct packed_t {
-  struct task_t on_screen[TASK_LIST_SIZE],
-  bool req_db_updates,
-  bool push_new_completions_local,
-  bool push_new_completions_mqtt
-};
-#endif
-
 void app_main()
 {
     esp_log_level_set("*", ESP_LOG_INFO);
+
+    // ------------------------------------- Set Up Wifi ------------------------------------------
+    ESP_LOGI("main::Setting up Wifi", "Free heap total: %lu bytes", esp_get_free_heap_size());
 
     esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
@@ -161,99 +154,96 @@ void app_main()
 
     ESP_ERROR_CHECK(example_connect());
 
+    // -------------------------------- Create new database object --------------------------------
+    ESP_LOGI("main::Create new database object", "Free heap total: %lu bytes", esp_get_free_heap_size());
+
+    sqlite3 *db;
+    int db_res = InitSQL(&db);
+    if (db_res != SQLITE_OK)
+    {
+        ESP_LOGE(TAG, "Failed to initialize database!");
+        return;
+    }
+
+    // ----------------------------------- Create Task ------------------------------------
+    ESP_LOGI(TAG, "Adding a Task...");
+    // Define a task
+
+    // current time
+    time_t t = time(NULL);
+
+    task_t newTask = {
+        .uuid = "12345",
+        .name = "Capstone Project",
+        .description = "Complete Capstone Project",
+        .completion = INCOMPLETE,
+        .priority = 5,
+        .time = t,
+    };
+
+    // Add task
+    int rc = AddTaskDB(db, &newTask);
+    if (rc != SQLITE_OK)
+    {
+        ESP_LOGE(TAG, "Failed to add task!");
+        return;
+    }
+    ESP_LOGI(TAG, "Created Task!\n");
+
+    // -------------------------------- Configure Clock (PCF8523) ---------------------------------
+    ESP_LOGI("main::Configure Clock", "Free heap total: %lu bytes", esp_get_free_heap_size());
+
+    // Establish R2C connection
+    ESP_ERROR_CHECK(InitRTC());
+    ESP_ERROR_CHECK(RebootRTC()); // RECONFIGURE RTC configuration (optional)
+
+    // Get the current time from NTP server
+    SetTime();
+
+    // ------------------------------- Initialize Server Connection -------------------------------
+    ESP_LOGI("main::Initialize Server Connection", "Free heap total: %lu bytes", esp_get_free_heap_size());
+
     struct callback_data_t cb_data;
     cb_data.expected = 0;
     cb_data.cur_index = -1;
-
-    // Create new database object
-    sqlite3 *db;
-    InitSQL(&db);
     cb_data.db_ptr = db;
 
-    // -------------------------------- Configure Clock (PCF8523) ---------------------------------
-    /*if (!i2c_scan())
-    {
-        return;
-    }*/
-    ESP_ERROR_CHECK(InitRTC());   // Establish R2C connection
-    ESP_ERROR_CHECK(RebootRTC()); // RECONFIGURE RTC configuration (optional)
-    ESP_ERROR_CHECK(SetTime());   // Get the current time from NTP server
-
-    {
-        // Get current time
-        time_t t = time(NULL);
-        t += UTC_OFFSET;
-        // Convert it to local time
-        struct tm *ptr = localtime(&t);
-        // Get the string of local time
-        printf("%s", asctime(ptr));
-    }
-
-    // -------------------------------------- TEST SCRIPTS ----------------------------------------
-    /*
-    ESP_ERROR_CHECK(TestEventFunctions(db));
-    ESP_ERROR_CHECK(TestHabitFunctions(db));
-
-    CloseSQL(&db);
-    return;
-    */
-
-    // ------------------------------- Initialize Server Connection -------------------------------
     assert(mqtt_init(&callback, (void *)&cb_data) == EXIT_SUCCESS);
 
     // Populate database
     request_backup(&cb_data);
 
-    // ------------------------------------ Update Task Status ------------------------------------
-    task_t tasks[3];
-    int tasks_count = RetrieveTasksSortedDB(db, tasks, 3, 0);
-    if (tasks_count < 1)
+    // ------------------------------------- Initialize LCD ---------------------------------------
+    ESP_LOGI("main::Initialize LCD", "Largest free block after database init: %d", heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
+    ESP_LOGI("main::Initialize LCD", "Free heap total: %lu bytes", esp_get_free_heap_size());
+    /* LCD HW initialization */
+    ESP_ERROR_CHECK(app_lcd_init());
+
+    /* LVGL initialization */
+    ESP_ERROR_CHECK(app_lvgl_init());
+    initDatabase(db);
+
+    // --------------------------------------- Runtime --------------------------------------------
+    ESP_LOGI("main::Entering Runtime", "Free heap total: %lu bytes", esp_get_free_heap_size());
+
+    app_main_display();
+
+    long frame_timer = 0;
+    while (1)
     {
-        ESP_LOGE(TAG, "Failed to get items!");
-        CloseSQL(&db);
-        return;
-    }
+        vTaskDelay(pdMS_TO_TICKS(10));
+        lv_timer_handler(); // update screen
+        frame_timer++;
 
-    ESP_ERROR_CHECK(UpdateTaskStatus(db, tasks[0].uuid, COMPLETE));
-    ESP_ERROR_CHECK(SyncTaskRequests(&cb_data, DEVICE_ID));
+        // Request from server
+        if (frame_timer >= 900000) // ~900 seconds
+        {
+            SyncTaskRequests(&cb_data, DEVICE_ID);
 
-#if 0
-  long frame_timer = 0;
-  while (1){
-    // update the screen
-    frame_timer++;
-
-    // if there has been inputs where the user needs new tasks 
-    // on the screen, modify the req_db_updates variables inside 
-    // of the ui library
-    if (req_db_updates) {
-      // refill the on_screen array
-      retrievetaskssorted(&db, &on_screen, TASK_LIST_SIZE, 0);
-      req_db_updates = false;
-    }
-
-    // if tasks have been marked as completed this frame, modify
-    // the push_new_completions variable inside the ui library
-    if (push_new_completions_local) {
-      // push changes to local db
-      // push changes to disk
-      push_new_completions_local = false;
-      push_new_completions_mqtt = true;
-      // possibly mark how many and/or which ones need to be pushed to the server
-    }
-
-    if (frame_timer >= 900 seconds) {
-        if (push_new_completions_mqtt){
-          // publish the "these tasks have been updates" payload
-          SyncTaskRequests(&cb_data, DEVICE_ID);
-          push_new_completions_mqtt = false;
+            request_backup(&cb_data);
+            frame_timer = 0;
         }
-        // publish the "need new tasks" payload
-        request_backup(&cb_data);
-        frame_timer = 0;
     }
-  }
-#endif
 
     // Close database
     CloseSQL(&db);

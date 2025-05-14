@@ -88,29 +88,14 @@ esp_err_t HabitAddDB(sqlite3 *db, const char *uuid, const char *name, uint8_t go
     return result;
 }
 
-esp_err_t ParseHabitsJSON(sqlite3 *db, const char *json)
+esp_err_t ParseHabitsJSON(sqlite3 *db, const cJSON *habit)
 {
     const char *TAG = "habit::ParseHabitJSON";
 
-    if (!db || !json)
+    if (!db || !habit)
     {
-        ESP_LOGE(TAG, "Invalid input: db or json is NULL");
+        ESP_LOGE(TAG, "Invalid input: db or habit item is NULL");
         return ESP_ERR_INVALID_ARG;
-    }
-
-    cJSON *root = cJSON_Parse(json);
-    if (!root)
-    {
-        ESP_LOGE(TAG, "Failed to parse JSON");
-        return ESP_FAIL;
-    }
-
-    cJSON *habit = cJSON_GetObjectItem(root, "habit");
-    if (!cJSON_IsObject(habit))
-    {
-        ESP_LOGE(TAG, "Missing or invalid 'habit' object");
-        cJSON_Delete(root);
-        return ESP_FAIL;
     }
 
     // Extract UUID
@@ -118,7 +103,6 @@ esp_err_t ParseHabitsJSON(sqlite3 *db, const char *json)
     if (!cJSON_IsString(id))
     {
         ESP_LOGE(TAG, "Missing or invalid 'id'");
-        cJSON_Delete(root);
         return ESP_ERR_INVALID_ARG;
     }
 
@@ -127,7 +111,6 @@ esp_err_t ParseHabitsJSON(sqlite3 *db, const char *json)
     if (!cJSON_IsString(name))
     {
         ESP_LOGE(TAG, "Missing or invalid 'name'");
-        cJSON_Delete(root);
         return ESP_ERR_INVALID_ARG;
     }
 
@@ -136,7 +119,6 @@ esp_err_t ParseHabitsJSON(sqlite3 *db, const char *json)
     if (!cJSON_IsNumber(goal_flags) || goal_flags->valueint < 0 || goal_flags->valueint > 0x7F)
     {
         ESP_LOGE(TAG, "Missing or invalid 'goal'");
-        cJSON_Delete(root);
         return ESP_ERR_INVALID_ARG;
     }
 
@@ -147,7 +129,6 @@ esp_err_t ParseHabitsJSON(sqlite3 *db, const char *json)
         ESP_LOGE(TAG, "Failed to add habit to DB");
     }
 
-    cJSON_Delete(root);
     return result;
 }
 
@@ -321,6 +302,7 @@ uint8_t GetDayFlag(int tm_wday)
 }
 
 // ----------------------------------------- TEST SCRIPT ------------------------------------------
+/*
 esp_err_t TestHabitFunctions(sqlite3 *db)
 {
     const char *TAG = "habit::TestHabitFunctions";
@@ -414,3 +396,4 @@ esp_err_t TestHabitFunctions(sqlite3 *db)
     ESP_LOGI(TAG, "=== All habit DB tests passed! ===");
     return ESP_OK;
 }
+*/
