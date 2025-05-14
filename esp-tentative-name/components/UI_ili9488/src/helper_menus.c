@@ -199,12 +199,12 @@ static void eventTile_create(lv_obj_t * parent, event_t * event){
     struct tm * timeinfo = gmtime(&(event->start_time));
     char timestr[40];
     strftime(timestr, sizeof(timestr), "%D %r", timeinfo);
-    lv_label_set_text(label, timestr);
+    lv_label_set_text_fmt(label, "Date: %s", timestr);
 
     label = lv_label_create(cont);
     timeinfo = gmtime(&(event->duration));
-    strftime(timestr, sizeof(timestr), "%D %r", timeinfo);
-    lv_label_set_text(label, timestr);
+    strftime(timestr, sizeof(timestr), "%r", timeinfo);
+    lv_label_set_text_fmt(label, "Duration: %s", timestr);
 
     label = lv_label_create(cont);
     lv_label_set_text(label, event->description);
@@ -464,6 +464,12 @@ void updateEventBuff(){
 void drawTasks(){
 	if(lv_obj_is_valid(tile2)){
         lv_obj_clean(tasklist);
+        if(taskBuffSize == 0){
+            lv_group_remove_obj(tasklist);
+            return;
+        }else{
+            lv_group_add_obj(lv_group_get_default(), tasklist);
+        }
         for(int i = 0; i < taskBuffSize; i++){
             if(taskBuffer[i].completion != MFD){
                 create_task(&taskBuffer[i]);
@@ -476,6 +482,12 @@ void drawTasks(){
 void drawEvents(){
 	if(lv_obj_is_valid(tile2)){
         lv_obj_clean(eventlist);
+        if(eventBuffSize == 0){
+            lv_group_remove_obj(eventlist);
+            return;
+        }else{
+            lv_group_add_obj(lv_group_get_default(), eventlist);
+        }
         time_t currTime = time(NULL);
         for(int i = 0; i < eventBuffSize; i++){
             if(difftime(eventBuffer[i].start_time, currTime) < 0){ //checks if event has past current time, doesn't draw it otherwise
@@ -487,7 +499,7 @@ void drawEvents(){
 
 static void tasks_left_cb(){
     if(taskCursor > 4){
-        taskCursor = (taskCursor % 4) - 4;
+        taskCursor = taskCursor - 4;
         taskBuffSize = RetrieveTasksSortedDB(database, taskBuffer, 4, taskCursor);
         drawTasks();
     }
@@ -505,7 +517,7 @@ static void tasks_right_cb(){
 
 static void events_left_cb(){
     if(eventCursor > 4){
-        eventCursor = (eventCursor % 4) - 4;
+        eventCursor = eventCursor - 4;
         eventBuffSize = RetrieveEventsSortedDB(database, eventBuffer, 4, eventCursor);
         drawEvents();
     }
@@ -680,7 +692,7 @@ void drawHabits(){
 }
 static void habits_left_cb(){
     if(habitCursor > 3){
-        habitCursor = (habitCursor % 3) - 3;
+        habitCursor = habitCursor - 3;
         habitBuffSize = RetrieveHabitsDB(database, habitBuffer, 3, habitCursor);
         drawHabits();
     }
@@ -688,10 +700,10 @@ static void habits_left_cb(){
 
 static void habits_right_cb(){
     habitBuffSize = RetrieveHabitsDB(database, habitBuffer, 3, habitCursor);
-    if(habitBuffSize == 4){
+    if(habitBuffSize == 3){
         habitCursor += habitBuffSize;
     }
-    if(eventBuffSize != 0){
+    if(habitBuffSize != 0){
         drawHabits();
     }
 }
