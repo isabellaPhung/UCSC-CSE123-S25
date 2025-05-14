@@ -1,3 +1,4 @@
+import os
 from datetime import datetime, timedelta, timezone
 from flask import Flask, request, render_template, redirect, url_for, jsonify
 from flask_jwt_extended import (
@@ -9,12 +10,11 @@ from aws_helper import AwsS3
 app = Flask(__name__)
 s3_conn = AwsS3()
 
-# TODO: add proper config
-app.config["JWT_SECRET_KEY"] = "TODO"
-app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
-# app.config['JWT_COOKIE_SECURE'] = True
+app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
+app.config["JWT_TOKEN_LOCATION"] = [os.getenv("JWT_TOKEN_LOCATION")]
+app.config['JWT_COOKIE_SECURE'] = True
 # app.config['JWT_COOKIE_CSRF_PROTECT'] = True
-app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = int(os.getenv("JWT_ACCESS_TOKEN_EXPIRES"))
 # app.config["JWT_REFRESH_COOKIE_PATH"] = "/token/refresh"
 
 jwt = JWTManager(app)
