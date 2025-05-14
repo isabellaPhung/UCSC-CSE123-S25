@@ -98,8 +98,11 @@ void create_ui(){
     makeButtons();
     initFonts();
     initGroup();
-    initBuffers();
+    //initBuffers();
     keypad_init();
 
+    tasks_right_cb();
+    events_right_cb();
+    habits_right_cb();
     loadTile1();
 }
