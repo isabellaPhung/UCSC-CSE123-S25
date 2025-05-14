@@ -101,8 +101,6 @@ void create_ui(){
     //initBuffers();
     keypad_init();
 
-    initTaskBuff();
-    initEventBuff();
-    initHabitBuff();
-    loadTile1();
+    //loadTile1();
+    loadTile2();
 }

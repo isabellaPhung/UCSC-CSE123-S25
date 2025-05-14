@@ -1,4 +1,5 @@
 #include "helper_menus.h"
+#include "esp_log.h"
 
 sqlite3 *database;
 static uint32_t taskCursor = 0;
@@ -10,9 +11,9 @@ static lv_style_t style_text_muted;
 static lv_style_t style_title;
 static lv_style_t style_timer;
 static const lv_font_t * font_large;
-static const lv_font_t * font_giant;
+//static const lv_font_t * font_giant;
 
-static lv_obj_t * tile1;
+//static lv_obj_t * tile1;
 static lv_obj_t * tile2;
 static lv_obj_t * tile3;
 static lv_obj_t * taskTile;
@@ -33,7 +34,7 @@ static lv_obj_t * child;
 static lv_obj_t * obj;
 static uint32_t k; //LVGL keyboard key
 
-//static const char *TAG = "UI"; //for esp_log
+static const char *TAG = "UI"; //for esp_log
 
 /*
 char * convertTime(time_t * value){
@@ -52,6 +53,7 @@ void initDatabase(sqlite3 * db){
  * callback function for focus menu for menu navigation
  * takes in keypress event 
  */
+/*
 static void focus_cb(lv_event_t * e){
     k = lv_event_get_key(e);
     if(k == LV_KEY_DOWN) {
@@ -59,6 +61,7 @@ static void focus_cb(lv_event_t * e){
         lv_obj_del(tile1);
     }
 }
+*/
 
 /*
  * callback function for taskevent menu for menu navigation
@@ -69,10 +72,13 @@ static void taskevent_cb(lv_event_t * e){
     if(k == LV_KEY_DOWN) {
         loadTile3();
         lv_obj_del(tile2);
-    }else if(k == LV_KEY_UP) {
+    }
+    /*
+    else if(k == LV_KEY_UP) {
         loadTile1();
         lv_obj_del(tile2);
     }
+    */
 }
 /*
  * callback function for habit menu for menu navigation
@@ -102,11 +108,11 @@ void initFonts(){
     lv_style_init(&style_title);
     font_large     = &lv_font_montserrat_24;
     lv_style_set_text_font(&style_title, font_large);
-    
+    /*
     lv_style_init(&style_timer);
     font_giant     = &lv_font_montserrat_48;
     lv_style_set_text_font(&style_timer, font_giant);
-
+    */
     lv_style_init(&style_text_muted);
     lv_style_set_text_opa(&style_text_muted, LV_OPA_50);
 }
@@ -131,6 +137,7 @@ void timeDisplay(char * entry){
 /*
  * creates focus menu, takes in parent lv_obj
  */
+/*
 static void focusMenu_create(lv_obj_t * parent){
     //adding gridnav and focus colors to the taskevent menu
     lv_obj_set_style_bg_color(parent, lv_palette_lighten(LV_PALETTE_BLUE, 4), LV_STATE_FOCUSED);
@@ -164,15 +171,17 @@ static void focusMenu_create(lv_obj_t * parent){
     lv_label_set_text(arrowDown, LV_SYMBOL_DOWN);
     lv_obj_align(arrowDown, LV_ALIGN_BOTTOM_RIGHT, -5, -5);
 }
+*/
 
-static void exit_event_cb(lv_event_t * e){
+static void exit_event_cb(){
     loadTile2();
     lv_obj_del(eventTile);
 }
 
 static void delete_event_cb(lv_event_t * e){
-    //TODO: delete event implementation
-
+    event_t * event = lv_event_get_user_data(e);
+    RemoveEventDB(database, event->uuid);
+    exit_event_cb();
 }
 
 /* creates a new screen when event is selected and displays info */
@@ -236,19 +245,21 @@ void loadEventTile(event_t * event){
 }
 
 static void event_desc_cb(lv_event_t * e){
-    event_t * event_t = lv_event_get_user_data(e);
-    loadEventTile(event_t);
+    loadEventTile(lv_event_get_user_data(e));
     lv_obj_del(tile2);
 }
 
 
-static void exit_task_cb(lv_event_t * e){
+static void exit_task_cb(){
     loadTile2();
     lv_obj_del(taskTile);
 }
 
 static void complete_task_cb(lv_event_t * e){
-    //TODO: task completion implementation
+    task_t * task = lv_event_get_user_data(e);
+    UpdateTaskStatusDB(database, task->uuid, COMPLETE);
+    ESP_LOGE(TAG, "Updated Completion: %d", task->completion);
+    exit_task_cb();
 }
 
 static void focus_task_cb(lv_event_t * e){
@@ -256,7 +267,9 @@ static void focus_task_cb(lv_event_t * e){
 }
 
 static void delete_task_cb(lv_event_t * e){
-    //TODO: delte task implementation
+    task_t * task = lv_event_get_user_data(e);
+    UpdateTaskStatusDB(database, task->uuid, MFD);
+    exit_task_cb();
 }
 
 /* creates a new screen when Tile is selected and displays info */
@@ -275,10 +288,17 @@ static void taskTile_create(lv_obj_t * parent, task_t * task){
     struct tm * timeinfo = gmtime(&(task->time));
     char timestr[40];
     strftime(timestr, sizeof(timestr), "%D %r", timeinfo);
-    lv_label_set_text(label, timestr);
+    lv_label_set_text_fmt(label, "Due date: %s", timestr);
+   
+    label = lv_label_create(cont);
+    if(task->completion == 0){
+        lv_label_set_text(label, "Status: Incomplete");
+    }else if(task->completion == 1){
+        lv_label_set_text(label, "Status: Complete");
+    }
 
     label = lv_label_create(cont);
-    lv_label_set_text_fmt(label, "%d", task->priority);
+    lv_label_set_text_fmt(label, "Priority: %d", task->priority);
 
     label = lv_label_create(cont);
     lv_label_set_text(label, task->description);
@@ -301,21 +321,21 @@ static void taskTile_create(lv_obj_t * parent, task_t * task){
     
     button = lv_btn_create(cont1);
     lv_group_remove_obj(button);
-    lv_obj_add_event_cb(button, focus_task_cb, LV_EVENT_CLICKED, NULL);
+    lv_obj_add_event_cb(button, focus_task_cb, LV_EVENT_CLICKED, task);
     label = lv_label_create(button);
     lv_label_set_text(label, "Focus Task");
     lv_obj_center(label);
     
     button = lv_btn_create(cont1);
     lv_group_remove_obj(button);
-    lv_obj_add_event_cb(button, complete_task_cb, LV_EVENT_CLICKED, NULL);
+    lv_obj_add_event_cb(button, complete_task_cb, LV_EVENT_CLICKED, task);
     label = lv_label_create(button);
     lv_label_set_text(label, "Task Completed");
     lv_obj_center(label);
 
     button = lv_btn_create(cont1);
     lv_group_remove_obj(button);
-    lv_obj_add_event_cb(button, delete_task_cb, LV_EVENT_CLICKED, NULL);
+    lv_obj_add_event_cb(button, delete_task_cb, LV_EVENT_CLICKED, task);
     label = lv_label_create(button);
     lv_label_set_text(label, "Delete");
     lv_obj_center(label);
@@ -332,8 +352,7 @@ void loadTaskTile(task_t * task){
 }
 
 static void task_desc_cb(lv_event_t * e){
-    task_t * task = lv_event_get_user_data(e);
-    loadTaskTile(task);
+    loadTaskTile(lv_event_get_user_data(e));
     lv_obj_del(tile2);
 }
 
@@ -348,7 +367,7 @@ void create_task(task_t * task){
     lv_obj_class_init_obj(cont);
     //lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_COLUMN); //sets button to flex flow column form so it'll expand as needed
     lv_group_remove_obj(cont);   //Not needed, we use the gridnav instead
-    lv_obj_add_event_cb(cont, task_desc_cb, LV_EVENT_CLICKED, &task);
+    lv_obj_add_event_cb(cont, task_desc_cb, LV_EVENT_CLICKED, task);
    
     //initalizes columns and rows of grid for the button so things are nicely aligned
     static int32_t grid_col_dsc[] = {LV_GRID_CONTENT, LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
@@ -386,7 +405,7 @@ void create_event(event_t * event){
     cont = lv_obj_class_create_obj(&lv_list_button_class, eventlist);
     lv_obj_class_init_obj(cont);
     lv_group_remove_obj(cont);   //Not needed, we use the gridnav instead
-    lv_obj_add_event_cb(cont, event_desc_cb, LV_EVENT_CLICKED, &event);
+    lv_obj_add_event_cb(cont, event_desc_cb, LV_EVENT_CLICKED, event);
    
     //initalizes columns and rows of grid for the button so things are nicely aligned
     static int32_t grid_col_dsc[] = {LV_GRID_CONTENT, LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
@@ -421,25 +440,36 @@ uint8_t eventBuffSize;
 habit_t habitBuffer[3];
 uint8_t habitBuffSize;
 
-void initTaskBuff(){
+void updateTaskBuff(){
     taskBuffSize = RetrieveTasksSortedDB(database, taskBuffer, 4, taskCursor);
-    taskCursor += taskBuffSize;
 }
 
-void initEventBuff(){
+void updateEventBuff(){
     eventBuffSize = RetrieveEventsSortedDB(database, eventBuffer, 4, eventCursor);
-    eventCursor += eventBuffSize;
 }
 
 static void drawTasks(){
-    for(int i = 0; i < taskBuffSize; i++){
-        create_task(&taskBuffer[i]);
+	if(lv_obj_is_valid(tile2)){
+        lv_obj_clean(tasklist);
+        for(int i = 0; i < taskBuffSize; i++){
+            ESP_LOGE(TAG, "Completion: %d", taskBuffer[i].completion);
+            if(taskBuffer[i].completion != MFD){
+                create_task(&taskBuffer[i]);
+            }
+        }
     }
+    
 }
 
 static void drawEvents(){
-    for(int i = 0; i < eventBuffSize; i++){
-        create_event(&eventBuffer[i]);
+	if(lv_obj_is_valid(tile2)){
+        lv_obj_clean(eventlist);
+        time_t currTime = time(NULL);
+        for(int i = 0; i < eventBuffSize; i++){
+            if(difftime(eventBuffer[i].start_time, currTime) < 0){ //checks if event has past current time, doesn't draw it otherwise
+                create_event(&eventBuffer[i]);
+            }
+        }
     }
 }
 
@@ -447,16 +477,16 @@ static void tasks_left_cb(){
     if(taskCursor > 4){
         taskCursor = (taskCursor % 4) - 4;
         taskBuffSize = RetrieveTasksSortedDB(database, taskBuffer, 4, taskCursor);
-        lv_obj_clean(tasklist);
         drawTasks();
     }
 }
 
 static void tasks_right_cb(){
     taskBuffSize = RetrieveTasksSortedDB(database, taskBuffer, 4, taskCursor);
-    taskCursor += taskBuffSize;
+    if(taskBuffSize == 4){
+        taskCursor += taskBuffSize;
+    }
     if(taskBuffSize != 0){
-        lv_obj_clean(tasklist);
         drawTasks();
     }
 }
@@ -465,16 +495,16 @@ static void events_left_cb(){
     if(eventCursor > 4){
         eventCursor = (eventCursor % 4) - 4;
         eventBuffSize = RetrieveEventsSortedDB(database, eventBuffer, 4, eventCursor);
-        lv_obj_clean(eventlist);
         drawEvents();
     }
 }
 
 static void events_right_cb(){
     eventBuffSize = RetrieveEventsSortedDB(database, eventBuffer, 4, eventCursor);
-    eventCursor += eventBuffSize;
+    if(eventBuffSize == 4){
+        eventCursor += eventBuffSize;
+    } 
     if(eventBuffSize != 0){
-        lv_obj_clean(eventlist);
         drawEvents();
     }
 }
@@ -584,6 +614,8 @@ static void taskEvent_create(lv_obj_t * parent){
     lv_label_set_text(arrowDown, LV_SYMBOL_DOWN);
     lv_obj_align(arrowDown, LV_ALIGN_BOTTOM_RIGHT, -5, -5);
     
+    updateTaskBuff();
+    updateEventBuff();
     drawTasks();
     drawEvents();
 }
@@ -632,30 +664,32 @@ void createHabit(habit_t * habit){
     }
 }
 
-void initHabitBuff(){
+void updateHabitBuff(){
     habitBuffSize = RetrieveHabitsDB(database, habitBuffer, 3, habitCursor);
-    habitCursor += habitBuffSize;
 }
 
 static void drawHabits(){
-    for(int i = 0; i < habitBuffSize; i++){
-        createHabit(&habitBuffer[i]);
+	if(lv_obj_is_valid(tile3)){
+        lv_obj_clean(habitlist);
+        for(int i = 0; i < habitBuffSize; i++){
+            createHabit(&habitBuffer[i]);
+        }
     }
 }
 static void habits_left_cb(){
     if(habitCursor > 3){
         habitCursor = (habitCursor % 3) - 3;
         habitBuffSize = RetrieveHabitsDB(database, habitBuffer, 3, habitCursor);
-        lv_obj_clean(habitlist);
         drawHabits();
     }
 }
 
 static void habits_right_cb(){
     habitBuffSize = RetrieveHabitsDB(database, habitBuffer, 3, habitCursor);
-    habitCursor += habitBuffSize;
+    if(habitBuffSize == 4){
+        habitCursor += habitBuffSize;
+    }
     if(eventBuffSize != 0){
-        lv_obj_clean(habitlist);
         drawHabits();
     }
 }
@@ -713,17 +747,20 @@ static void habitMenu_create(lv_obj_t * parent){
     lv_obj_set_style_pad_row(habitlist, 5, LV_PART_MAIN);
     lv_obj_set_style_bg_opa(habitlist, LV_OPA_0, LV_PART_MAIN);
     
+    updateHabitBuff();
     drawHabits();
 }
 
 /*
  * loads 1st tile, Focus
  */
+/*
 void loadTile1(){
     tile1 = lv_obj_create(NULL);
     lv_scr_load(tile1); 
     focusMenu_create(tile1);
 }
+*/
 
 /*
  * loads 2nd tile, Task Tile
