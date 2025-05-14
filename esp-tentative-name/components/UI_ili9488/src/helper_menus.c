@@ -8,7 +8,7 @@ static uint32_t habitCursor = 0;
 /* Text settings */
 static lv_style_t style_text_muted;
 static lv_style_t style_title;
-static lv_style_t style_timer;
+//static lv_style_t style_timer;
 static const lv_font_t * font_large;
 //static const lv_font_t * font_giant;
 
@@ -248,7 +248,6 @@ static void event_desc_cb(lv_event_t * e){
     lv_obj_del(tile2);
 }
 
-
 static void exit_task_cb(){
     loadTile2();
     lv_obj_del(taskTile);
@@ -257,6 +256,12 @@ static void exit_task_cb(){
 static void complete_task_cb(lv_event_t * e){
     task_t * task = lv_event_get_user_data(e);
     UpdateTaskStatusDB(database, task->uuid, COMPLETE);
+    exit_task_cb();
+}
+
+static void incomplete_task_cb(lv_event_t * e){
+    task_t * task = lv_event_get_user_data(e);
+    UpdateTaskStatusDB(database, task->uuid, INCOMPLETE);
     exit_task_cb();
 }
 
@@ -326,11 +331,18 @@ static void taskTile_create(lv_obj_t * parent, task_t * task){
     
     button = lv_btn_create(cont1);
     lv_group_remove_obj(button);
-    lv_obj_add_event_cb(button, complete_task_cb, LV_EVENT_CLICKED, task);
-    label = lv_label_create(button);
-    lv_label_set_text(label, "Task Completed");
-    lv_obj_center(label);
-
+    if(task->completion == INCOMPLETE){
+        lv_obj_add_event_cb(button, complete_task_cb, LV_EVENT_CLICKED, task);
+        label = lv_label_create(button);
+        lv_label_set_text(label, "Task Complete");
+        lv_obj_center(label);
+    }else{
+        lv_obj_add_event_cb(button, incomplete_task_cb, LV_EVENT_CLICKED, task);
+        label = lv_label_create(button);
+        lv_label_set_text(label, "Task Incomplete");
+        lv_obj_center(label);
+    }
+    
     button = lv_btn_create(cont1);
     lv_group_remove_obj(button);
     lv_obj_add_event_cb(button, delete_task_cb, LV_EVENT_CLICKED, task);
@@ -506,16 +518,6 @@ static void events_right_cb(){
     } 
     if(eventBuffSize != 0){
         drawEvents();
-    }
-}
-
-static void button_nav_cb(lv_event_t * e){
-    k = lv_event_get_key(e);
-    obj = lv_event_get_target(e);
-    if(k == LV_KEY_RIGHT) {
-        lv_group_focus_next(lv_obj_get_group(obj));
-    }else if(k == LV_KEY_LEFT) {
-        lv_group_focus_prev(lv_obj_get_group(obj));
     }
 }
 
