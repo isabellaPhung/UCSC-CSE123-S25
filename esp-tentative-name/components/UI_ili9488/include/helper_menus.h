@@ -21,7 +21,7 @@ void initGroup();
 //void initBuffers();
 
 //loads focus menu
-void loadTile1();
+//void loadTile1();
 //loads task event menu
 void loadTile2();
 //loads habit menu
@@ -41,9 +41,15 @@ void create_task(task_t * task);
 //adds a event to the task event menu
 void create_event(event_t * event);
 //adds a habit to the habit menu
-void createHabit(habit_t * habit, uint8_t row);
-void tasks_right_cb();
-void events_right_cb();
-void habits_right_cb();
+void createHabit(habit_t * habit);
+
+//update functions, call according one after update recieved
+void updateTaskBuff();
+void drawTasks();
+void updateEventBuff();
+void drawEvents();
+void updateHabitBuff();
+void drawHabits();
+
 
 

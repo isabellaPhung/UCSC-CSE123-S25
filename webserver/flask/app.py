@@ -1,3 +1,4 @@
+import os
 from datetime import datetime, timedelta, timezone
 from flask import Flask, request, render_template, redirect, url_for, jsonify
 from flask_jwt_extended import (
@@ -9,12 +10,11 @@ from aws_helper import AwsS3
 app = Flask(__name__)
 s3_conn = AwsS3()
 
-# TODO: add proper config
-app.config["JWT_SECRET_KEY"] = "TODO"
-app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
-# app.config['JWT_COOKIE_SECURE'] = True
+app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
+app.config["JWT_TOKEN_LOCATION"] = [os.getenv("JWT_TOKEN_LOCATION")]
+app.config['JWT_COOKIE_SECURE'] = True
 # app.config['JWT_COOKIE_CSRF_PROTECT'] = True
-app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = int(os.getenv("JWT_ACCESS_TOKEN_EXPIRES"))
 # app.config["JWT_REFRESH_COOKIE_PATH"] = "/token/refresh"
 
 jwt = JWTManager(app)
@@ -96,10 +96,11 @@ def api_today_tasks():
 @app.route("/api/add_event", methods=["POST"])
 def api_add_event():
     name = request.json.get("name")
+    description = request.json.get("description")
     starttime = request.json.get("starttime")
     duration = request.json.get("duration")
 
-    if not s3_conn.add_event(name, starttime, duration):
+    if not s3_conn.add_event(name, description, starttime, duration):
         return {"add_event": False}, 400
     return {"add_event": True}, 200
 
@@ -163,6 +164,12 @@ def api_today_habits():
 @app.route("/api/get_users")
 def api_get_users():
     users = s3_conn.get_users(data_only=True)
+    return users, 200
+
+
+@app.route("/api/get_all_tasks")
+def api_get_all_tasks():
+    users = s3_conn.get_all_tasks()
     return users, 200
 
 
