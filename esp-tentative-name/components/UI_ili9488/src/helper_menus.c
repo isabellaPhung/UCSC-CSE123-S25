@@ -203,7 +203,7 @@ static void eventTile_create(lv_obj_t * parent, event_t * event){
 
     label = lv_label_create(cont);
     timeinfo = gmtime(&(event->duration));
-    strftime(timestr, sizeof(timestr), "%r", timeinfo);
+    strftime(timestr, sizeof(timestr), "%I:%M:%S", timeinfo);
     lv_label_set_text_fmt(label, "Duration: %s", timestr);
 
     label = lv_label_create(cont);
@@ -227,7 +227,7 @@ static void eventTile_create(lv_obj_t * parent, event_t * event){
 
     button = lv_btn_create(cont1);
     lv_group_remove_obj(button);
-    lv_obj_add_event_cb(button, delete_event_cb, LV_EVENT_CLICKED, NULL);
+    lv_obj_add_event_cb(button, delete_event_cb, LV_EVENT_CLICKED, event);
     label = lv_label_create(button);
     lv_label_set_text(label, "Delete");
     lv_obj_center(label);
@@ -321,14 +321,16 @@ static void taskTile_create(lv_obj_t * parent, task_t * task){
     lv_label_set_text(label, "Exit");
     lv_obj_center(label);
     lv_group_focus_obj(button);
-    
+   
+    /*
     button = lv_btn_create(cont1);
     lv_group_remove_obj(button);
     lv_obj_add_event_cb(button, focus_task_cb, LV_EVENT_CLICKED, task);
     label = lv_label_create(button);
     lv_label_set_text(label, "Focus Task");
     lv_obj_center(label);
-    
+    */
+
     button = lv_btn_create(cont1);
     lv_group_remove_obj(button);
     if(task->completion == INCOMPLETE){
