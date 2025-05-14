@@ -403,8 +403,8 @@ void initBuffers(){
 }
 
 static void tasks_left_cb(){
-    if(eventCursor >= 4){
-        taskCursor -= 4;
+    if(taskCursor > 4){
+        taskCursor = (taskCursor % 4) - 4;
         int taskNum = RetrieveTasksSortedDB(database, taskBuffer, 4, taskCursor);
         for(int i = 0; i < taskNum; i++){
             create_task(&taskBuffer[i]);
@@ -414,17 +414,17 @@ static void tasks_left_cb(){
 
 static void tasks_right_cb(){
     int taskNum = RetrieveTasksSortedDB(database, taskBuffer, 4, taskCursor);
-    if(taskNum == 4){
-        taskCursor += 4;
-    }
-    for(int i = 0; i < taskNum; i++){
-        create_task(&taskBuffer[i]);
+    taskCursor += taskNum;
+    if(taskNum != 0){
+        for(int i = 0; i < taskNum; i++){
+            create_task(&taskBuffer[i]);
+        }
     }
 }
 
 static void events_left_cb(){
-    if(eventCursor >= 4){
-        eventCursor -= 4;
+    if(eventCursor > 4){
+        eventCursor = (eventCursor % 4) - 4;
         int eventNum = RetrieveEventsSortedDB(database, eventBuffer, 4, eventCursor);
         for(int i = 0; i < eventNum; i++){
             create_event(&eventBuffer[i]);
@@ -434,11 +434,11 @@ static void events_left_cb(){
 
 static void events_right_cb(){
     int eventNum = RetrieveEventsSortedDB(database, eventBuffer, 4, eventCursor);
-    if(eventNum == 4){
-        eventCursor += 4;
-    }
-    for(int i = 0; i < eventNum; i++){
-        create_event(&eventBuffer[i]);
+    eventCursor += eventNum;
+    if(eventNum != 0){
+        for(int i = 0; i < eventNum; i++){
+            create_event(&eventBuffer[i]);
+        }
     }
 }
 
@@ -629,7 +629,7 @@ static void habitMenu_create(lv_obj_t * parent){
     //left habit list arrows
     button = lv_btn_create(parent);
     lv_group_remove_obj(button);
-    lv_obj_align(button, LV_ALIGN_BOTTOM_MID, +25, -35);
+    lv_obj_align(button, LV_ALIGN_BOTTOM_MID, -25, -5);
     lv_obj_add_event_cb(button, habits_left_cb, LV_EVENT_CLICKED, NULL);
     lv_obj_set_size(button, 25, 25);
     label = lv_label_create(button);
@@ -639,7 +639,7 @@ static void habitMenu_create(lv_obj_t * parent){
     //right habit list arrows
     button = lv_btn_create(parent);
     lv_group_remove_obj(button);
-    lv_obj_align(button, LV_ALIGN_BOTTOM_MID, -25, -35);
+    lv_obj_align(button, LV_ALIGN_BOTTOM_MID, +25, -5);
     lv_obj_add_event_cb(button, habits_right_cb, LV_EVENT_CLICKED, NULL);
     lv_obj_set_size(button, 25, 25);
     label = lv_label_create(button);
