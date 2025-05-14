@@ -92,7 +92,7 @@
             font-size: 16px;
         }
         
-        /* NEW DURATION SELECTION STYLES */
+        /* DURATION SELECTION STYLES */
         .duration-selection {
             display: flex;
             gap: 10px;
@@ -157,7 +157,7 @@
             text-align: center;
         }
         
-        /* NEW DURATION HEADER STYLE */
+        /* DURATION HEADER STYLE */
         .event-duration-header {
             width: 100px;
             text-align: center;
@@ -189,7 +189,7 @@
             text-align: center;
         }
         
-        /* NEW DURATION DISPLAY STYLE */
+        /* DURATION DISPLAY STYLE */
         .event-duration {
             width: 100px;
             text-align: center;
@@ -256,6 +256,20 @@
             font-size: 0.9em;
             margin-top: 5px;
         }
+        
+        /* NEW STYLE FOR EVENT DESCRIPTION */
+        textarea.form-input {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .event-description {
+            margin: 10px 0;
+            padding: 5px 0;
+            border-top: 1px dotted #ddd;
+            border-bottom: 1px dotted #ddd;
+            color: #555;
+        }
     </style>
 </head>
 <body>
@@ -272,6 +286,18 @@
         <div class="form-row">
             <div class="form-label">Event Name:</div>
             <input type="text" id="event-name" class="form-input" placeholder="Enter event name...">
+        </div>
+        
+        <!-- NEW: Add Description Field -->
+        <div class="form-row">
+            <div class="form-label">Description:</div>
+            <textarea id="event-description" class="form-input" placeholder="Enter event description..."></textarea>
+        </div>
+        
+        <!-- NEW: Add Date Field (matching task format) -->
+        <div class="form-row">
+            <div class="form-label">Event Date:</div>
+            <input type="date" id="event-date" class="form-input">
         </div>
         
         <div class="form-row">
@@ -306,7 +332,7 @@
             </div>
         </div>
         
-        <!-- NEW DURATION SELECTION -->
+        <!-- DURATION SELECTION -->
         <div class="form-row">
             <div class="form-label">Duration:</div>
             <div class="duration-selection">
@@ -385,6 +411,9 @@
         document.addEventListener('DOMContentLoaded', function() {
             loadEvents();
             
+            // Set today's date as default for the event date input
+            document.getElementById('event-date').value = todayStr;
+            
             // Set current time as default
             setCurrentTimeAsDefault();
             
@@ -404,6 +433,10 @@
             });
             
             // Event listeners for timestamp updates
+            document.getElementById('event-date').addEventListener('change', function() {
+                updateUnixTimestamp();
+                updateEndTime();
+            });
             document.getElementById('hour-select').addEventListener('change', function() {
                 updateUnixTimestamp();
                 updateEndTime();
@@ -417,7 +450,7 @@
                 updateEndTime();
             });
             
-            // NEW EVENT LISTENERS FOR DURATION
+            // EVENT LISTENERS FOR DURATION
             document.getElementById('duration-hours').addEventListener('change', updateEndTime);
             document.getElementById('duration-minutes').addEventListener('change', updateEndTime);
         });
@@ -432,8 +465,8 @@
         
         // Update Unix timestamp
         function updateUnixTimestamp() {
-            // Get current date (today)
-            const dateStr = todayStr;
+            // MODIFIED: Get date from date input instead of using today
+            const dateStr = document.getElementById('event-date').value;
             
             // Get time values
             let hour = parseInt(document.getElementById('hour-select').value);
@@ -462,7 +495,7 @@
             return timestamp;
         }
         
-        // NEW FUNCTION TO UPDATE END TIME BASED ON START TIME AND DURATION
+        // Function to update end time based on start time and duration
         function updateEndTime() {
             // Get start time
             let startHour = parseInt(document.getElementById('hour-select').value);
@@ -582,7 +615,7 @@
                     eventTime.className = 'event-time';
                     eventTime.textContent = unixToDate(event.starttime);
 
-                    // NEW DURATION DISPLAY
+                    // DURATION DISPLAY
                     const eventDuration = document.createElement('div');
                     eventDuration.className = 'event-duration';
                     if (event.duration) {
@@ -613,6 +646,14 @@
                     const eventDetails = document.createElement('div');
                     eventDetails.className = 'event-details';
 
+                    // Add description if available
+                    if (event.description) {
+                        const description = document.createElement('div');
+                        description.className = 'event-description';
+                        description.textContent = event.description;
+                        eventDetails.appendChild(description);
+                    }
+
                     // Add timestamp if available
                     if (event.timestamp) {
                         const timestamp = document.createElement('div');
@@ -621,7 +662,7 @@
                         eventDetails.appendChild(timestamp);
                     }
 
-                    // NEW END TIME DISPLAY
+                    // Add end time display
                     if (event.endTime) {
                         const endTime = document.createElement('div');
                         endTime.className = 'event-end-time';
@@ -637,6 +678,7 @@
                         }
                     });
 
+                    // Append to event container
                     eventsContainer.appendChild(eventRow);
                     eventsContainer.appendChild(eventDetails);
                 });
@@ -684,6 +726,9 @@
                 return;
             }
             
+            // Get description
+            const description = document.getElementById('event-description').value.trim();
+            
             // Get time values
             const hour = document.getElementById('hour-select').value;
             const minute = document.getElementById('minute-select').value;
@@ -695,7 +740,7 @@
             // Get timestamp
             const timestamp = updateUnixTimestamp();
             
-            // NEW: Get duration values
+            // Get duration values
             const durationHours = parseInt(document.getElementById('duration-hours').value);
             const durationMinutes = parseInt(document.getElementById('duration-minutes').value);
             const duration = durationHours * 3600 + durationMinutes * 60;
@@ -706,6 +751,7 @@
             // Add new event with timestamp and duration
             const event = {
                 name: eventName,
+                description: description,
                 starttime: timestamp,
                 duration: duration,
             };
@@ -724,6 +770,8 @@
         // Clear the add event form
         function clearForm() {
             document.getElementById('event-name').value = '';
+            document.getElementById('event-description').value = '';
+            document.getElementById('event-date').value = todayStr;
             setCurrentTimeAsDefault();
             document.getElementById('duration-hours').value = '1';
             document.getElementById('duration-minutes').value = '0';
@@ -764,6 +812,7 @@
             // Create a simplified version of the task for S3
             const s3Event = {
                 name: event.name,
+                description: event.description,
                 starttime: event.starttime,
                 duration: event.duration
             };
