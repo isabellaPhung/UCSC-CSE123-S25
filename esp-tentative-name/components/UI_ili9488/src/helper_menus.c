@@ -162,6 +162,7 @@ static void exit_event_cb(lv_event_t * e){
 
 static void delete_event_cb(lv_event_t * e){
     //TODO: delete event implementation
+
 }
 
 /* creates a new screen when event is selected and displays info */
@@ -393,53 +394,42 @@ void create_event(event_t * event){
     lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 1, 1);
 }
 
-task_t * taskBuffer;
-event_t * eventBuffer;
-habit_t * habitBuffer;
+task_t taskBuffer[4];
+uint8_t taskBuffSize;
+event_t eventBuffer[4];
+uint8_t eventBuffSize;
+habit_t habitBuffer[3];
+uint8_t habitBuffSize;
+/*
 void initBuffers(){
     taskBuffer = (task_t *)malloc(sizeof(task_t)*4);
     eventBuffer = (event_t *)malloc(sizeof(event_t)*4);
     habitBuffer = (habit_t *)malloc(sizeof(habit_t)*3);
 }
+*/
 
 static void tasks_left_cb(){
     if(taskCursor > 4){
         taskCursor = (taskCursor % 4) - 4;
-        int taskNum = RetrieveTasksSortedDB(database, taskBuffer, 4, taskCursor);
-        for(int i = 0; i < taskNum; i++){
-            create_task(&taskBuffer[i]);
-        }
+        taskBuffSize = RetrieveTasksSortedDB(database, taskBuffer, 4, taskCursor);
     }
 }
 
-static void tasks_right_cb(){
-    int taskNum = RetrieveTasksSortedDB(database, taskBuffer, 4, taskCursor);
-    taskCursor += taskNum;
-    if(taskNum != 0){
-        for(int i = 0; i < taskNum; i++){
-            create_task(&taskBuffer[i]);
-        }
-    }
+void tasks_right_cb(){
+    taskBuffSize = RetrieveTasksSortedDB(database, taskBuffer, 4, taskCursor);
+    taskCursor += taskBuffSize;
 }
 
 static void events_left_cb(){
     if(eventCursor > 4){
         eventCursor = (eventCursor % 4) - 4;
         int eventNum = RetrieveEventsSortedDB(database, eventBuffer, 4, eventCursor);
-        for(int i = 0; i < eventNum; i++){
-            create_event(&eventBuffer[i]);
-        }
     }
 }
 
-static void events_right_cb(){
-    int eventNum = RetrieveEventsSortedDB(database, eventBuffer, 4, eventCursor);
-    eventCursor += eventNum;
-    if(eventNum != 0){
-        for(int i = 0; i < eventNum; i++){
-            create_event(&eventBuffer[i]);
-        }
-    }
+void events_right_cb(){
+    eventBuffSize = RetrieveEventsSortedDB(database, eventBuffer, 4, eventCursor);
+    eventCursor += eventBuffSize;
 }
 
 static void button_nav_cb(lv_event_t * e){
@@ -464,7 +454,6 @@ static void taskEvent_create(lv_obj_t * parent){
     lv_group_focus_obj(parent);
     lv_obj_add_event_cb(parent, taskevent_cb, LV_EVENT_KEY, NULL);
     
-    //TODO: needs time from RTC
     //adds time to taskevent tile
     dateTime = lv_label_create(parent);
     lv_obj_set_style_text_font(dateTime, &lv_font_montserrat_18, 0);
@@ -548,18 +537,13 @@ static void taskEvent_create(lv_obj_t * parent){
     lv_label_set_text(arrowDown, LV_SYMBOL_DOWN);
     lv_obj_align(arrowDown, LV_ALIGN_BOTTOM_RIGHT, -5, -5);
     
-    tasks_right_cb();
-    events_right_cb();
-    /*
-    //dummy tasks and events for testing
-    create_task("Capstone Project", "3/25/2025");
-    create_task("Figure out Prototype", "3/29/2025");
-    create_task("Learn PCB Design", "3/30/2025");
-    create_task("Learn Computer Aided Design", "4/1/2025");
-    create_event("Capstone Meeting", "3/21/2025 3:00PM");
-    create_event("ECE171 Class", "3/29/2025 2:00PM");
-    create_event("CSE121 Class", "3/30/2025 5:00PM");
-    */
+    for(int i = 0; i < taskBuffSize; i++){
+        create_task(&taskBuffer[i]);
+    }
+
+    for(int i = 0; i < eventBuffSize; i++){
+        create_event(&eventBuffer[i]);
+    }
 }
 
 /*
@@ -607,12 +591,16 @@ void createHabit(habit_t * habit, uint8_t row){
     }
 }
 
-static void habits_left_cb(lv_event_t * e){
-        //TODO: load prev 4 habits
+static void habits_left_cb(){
+     if(habitCursor > 3){
+        habitCursor = (habitCursor % 3) - 3;
+        habitBuffSize = RetrieveHabitsDB(database, habitBuffer, 3, habitCursor);
+    }
 }
 
-static void habits_right_cb(lv_event_t * e){
-        //TODO: load next 4 habits
+void habits_right_cb(){
+    habitBuffSize = RetrieveHabitsDB(database, habitBuffer, 3, habitCursor);
+    habitCursor += habitBuffSize;
 }
 
 /*
@@ -657,12 +645,9 @@ static void habitMenu_create(lv_obj_t * parent){
     lv_obj_set_style_text_font(title, &lv_font_montserrat_18, 0);
     lv_obj_align(title, LV_ALIGN_TOP_LEFT, 5, 5);
 
-    /*
-    //dummy habits
-    createHabit("Go to the Gym", 0);
-    createHabit("Walk the dog", 1);
-    createHabit("Journal", 2);
-    */
+    for(int i = 0; i < habitBuffSize; i++){
+        createHabit(&habitBuffer[i], i);
+    }
 }
 
 /*
