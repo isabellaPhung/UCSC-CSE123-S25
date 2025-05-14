@@ -41,7 +41,7 @@ void create_task(task_t * task);
 //adds a event to the task event menu
 void create_event(event_t * event);
 //adds a habit to the habit menu
-void createHabit(habit_t * habit, uint8_t row);
+void createHabit(habit_t * habit);
 void initTaskBuff();
 void initEventBuff();
 void initHabitBuff();

@@ -35,6 +35,15 @@ static uint32_t k; //LVGL keyboard key
 
 //static const char *TAG = "UI"; //for esp_log
 
+/*
+char * convertTime(time_t * value){
+    struct tm * timeinfo = gmtime(value);
+    char timestr[40];
+    strftime(timestr, sizeof(timestr), "%D %r", timeinfo);
+    return timestr;
+}
+*/
+
 void initDatabase(sqlite3 * db){
     database = db;
 }
@@ -167,25 +176,30 @@ static void delete_event_cb(lv_event_t * e){
 }
 
 /* creates a new screen when event is selected and displays info */
-static void eventTile_create(lv_obj_t * parent){
+static void eventTile_create(lv_obj_t * parent, event_t * event){
     //adding gridnav and focus colors to the taskevent menu
     cont = lv_obj_create(parent);
     lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_COLUMN);
     lv_obj_set_size(cont, lv_pct(100), lv_pct(80));
 
     title = lv_label_create(cont);
-    lv_label_set_text(title, "Event Title");
+    lv_label_set_text(title, event->name);
     lv_obj_add_style(title, &style_title, 0);
     
     label = lv_label_create(cont);
     lv_obj_set_style_text_font(label, &lv_font_montserrat_18, 0);
-    lv_label_set_text(label, "Time and Date");
+    struct tm * timeinfo = gmtime(&(event->start_time));
+    char timestr[40];
+    strftime(timestr, sizeof(timestr), "%D %r", timeinfo);
+    lv_label_set_text(label, timestr);
 
     label = lv_label_create(cont);
-    lv_label_set_text(label, "Event Duration");
+    timeinfo = gmtime(&(event->duration));
+    strftime(timestr, sizeof(timestr), "%D %r", timeinfo);
+    lv_label_set_text(label, timestr);
 
     label = lv_label_create(cont);
-    lv_label_set_text(label, "Event Description");
+    lv_label_set_text(label, event->description);
     
     lv_obj_t * cont1 = lv_obj_create(parent);
     lv_obj_set_size(cont1, lv_pct(100), lv_pct(20));
@@ -215,14 +229,15 @@ static void eventTile_create(lv_obj_t * parent){
 /*
  * loads new screen for event
  */
-void loadEventTile(){
+void loadEventTile(event_t * event){
     eventTile = lv_obj_create(NULL);
     lv_scr_load(eventTile); 
-    eventTile_create(eventTile);
+    eventTile_create(eventTile, event);
 }
 
 static void event_desc_cb(lv_event_t * e){
-    loadEventTile();
+    event_t * event_t = lv_event_get_user_data(e);
+    loadEventTile(event_t);
     lv_obj_del(tile2);
 }
 
@@ -245,25 +260,28 @@ static void delete_task_cb(lv_event_t * e){
 }
 
 /* creates a new screen when Tile is selected and displays info */
-static void taskTile_create(lv_obj_t * parent){
+static void taskTile_create(lv_obj_t * parent, task_t * task){
     //adding gridnav and focus colors to the taskevent menu
     cont = lv_obj_create(parent);
     lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_COLUMN);
     lv_obj_set_size(cont, lv_pct(100), lv_pct(80));
 
     title = lv_label_create(cont);
-    lv_label_set_text(title, "Task Title");
+    lv_label_set_text(title, task->name);
     lv_obj_add_style(title, &style_title, 0);
     
     label = lv_label_create(cont);
     lv_obj_set_style_text_font(label, &lv_font_montserrat_18, 0);
-    lv_label_set_text(label, "Due date");
+    struct tm * timeinfo = gmtime(&(task->time));
+    char timestr[40];
+    strftime(timestr, sizeof(timestr), "%D %r", timeinfo);
+    lv_label_set_text(label, timestr);
 
     label = lv_label_create(cont);
-    lv_label_set_text(label, "Task Priority");
+    lv_label_set_text_fmt(label, "%d", task->priority);
 
     label = lv_label_create(cont);
-    lv_label_set_text(label, "Task Description");
+    lv_label_set_text(label, task->description);
     
     lv_obj_t * cont1 = lv_obj_create(parent);
     lv_obj_set_size(cont1, lv_pct(100), lv_pct(20));
@@ -307,14 +325,15 @@ static void taskTile_create(lv_obj_t * parent){
 /*
  * loads new screen for task
  */
-void loadTaskTile(){
+void loadTaskTile(task_t * task){
     taskTile = lv_obj_create(NULL);
     lv_scr_load(taskTile); 
-    taskTile_create(taskTile);
+    taskTile_create(taskTile, task);
 }
 
 static void task_desc_cb(lv_event_t * e){
-    loadTaskTile();
+    task_t * task = lv_event_get_user_data(e);
+    loadTaskTile(task);
     lv_obj_del(tile2);
 }
 
@@ -590,7 +609,7 @@ static const char * btnm_map[] = {"Su", "Mo", "Tu", "We", "Th", "Fr", "Sa", ""};
  * creates habit entry for habit list
  * takes in parent list and name of habit and the row number.
  */
-void createHabit(habit_t * habit, uint8_t row){
+void createHabit(habit_t * habit){
     //creates habit title name
     lv_obj_t * habits = lv_label_create(habitlist);
     lv_label_set_text(habits, habit->name);
@@ -609,6 +628,7 @@ void createHabit(habit_t * habit, uint8_t row){
         lv_btnmatrix_set_btn_ctrl(buttons, i, LV_BTNMATRIX_CTRL_CHECKABLE);
         //TODO: disable button if not necessary for that day or toggle based off of habit list
         //lv_obj_add_state(btn, LV_STATE_DISABLED);
+        //habit functionality for each button to have a cb funciton is also necessary
     }
 }
 
@@ -619,7 +639,7 @@ void initHabitBuff(){
 
 static void drawHabits(){
     for(int i = 0; i < habitBuffSize; i++){
-        createHabit(&habitBuffer[i], i);
+        createHabit(&habitBuffer[i]);
     }
 }
 static void habits_left_cb(){
