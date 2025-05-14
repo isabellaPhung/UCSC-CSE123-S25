@@ -699,6 +699,14 @@
                         details.appendChild(duration);
                     }
 
+                    // ADDED: Show description if available
+                    if (event.description) {
+                        const description = document.createElement('div');
+                        description.className = 'event-description';
+                        description.textContent = event.description;
+                        details.appendChild(description);
+                    }
+
                     // ADDED: Show end time if available
                     if (event.endTime) {
                         const endTime = document.createElement('div');

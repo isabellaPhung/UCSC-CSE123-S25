@@ -100,13 +100,14 @@ class AwsS3:
 
         return data
 
-    def add_event(self, name, starttime, duration):
+    def add_event(self, name, description, starttime, duration):
         obj, data = self.load_info("event")
 
         id = str(uuid.uuid4())
 
         data["event"].append(
-            {"id": id, "name": name, "starttime": starttime, "duration": duration}
+            {"id": id, "name": name, "description": description,
+             "starttime": starttime, "duration": duration}
         )
 
         obj.put(

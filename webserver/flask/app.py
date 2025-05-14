@@ -96,10 +96,11 @@ def api_today_tasks():
 @app.route("/api/add_event", methods=["POST"])
 def api_add_event():
     name = request.json.get("name")
+    description = request.json.get("description")
     starttime = request.json.get("starttime")
     duration = request.json.get("duration")
 
-    if not s3_conn.add_event(name, starttime, duration):
+    if not s3_conn.add_event(name, description, starttime, duration):
         return {"add_event": False}, 400
     return {"add_event": True}, 200
 
