@@ -1,5 +1,4 @@
 #include "helper_menus.h"
-#include "esp_log.h"
 
 sqlite3 *database;
 static uint32_t taskCursor = 0;
@@ -34,7 +33,7 @@ static lv_obj_t * child;
 static lv_obj_t * obj;
 static uint32_t k; //LVGL keyboard key
 
-static const char *TAG = "UI"; //for esp_log
+//static const char *TAG = "UI"; //for esp_log
 
 /*
 char * convertTime(time_t * value){
@@ -258,7 +257,6 @@ static void exit_task_cb(){
 static void complete_task_cb(lv_event_t * e){
     task_t * task = lv_event_get_user_data(e);
     UpdateTaskStatusDB(database, task->uuid, COMPLETE);
-    ESP_LOGE(TAG, "Updated Completion: %d", task->completion);
     exit_task_cb();
 }
 
@@ -368,7 +366,10 @@ void create_task(task_t * task){
     //lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_COLUMN); //sets button to flex flow column form so it'll expand as needed
     lv_group_remove_obj(cont);   //Not needed, we use the gridnav instead
     lv_obj_add_event_cb(cont, task_desc_cb, LV_EVENT_CLICKED, task);
-   
+    if(task->completion == COMPLETE){
+        lv_obj_set_style_bg_color(cont, lv_palette_lighten(LV_PALETTE_GREEN, 5), LV_PART_MAIN);
+    }
+  
     //initalizes columns and rows of grid for the button so things are nicely aligned
     static int32_t grid_col_dsc[] = {LV_GRID_CONTENT, LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
     static int32_t grid_row_dsc[] = {LV_GRID_CONTENT, LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
@@ -448,11 +449,10 @@ void updateEventBuff(){
     eventBuffSize = RetrieveEventsSortedDB(database, eventBuffer, 4, eventCursor);
 }
 
-static void drawTasks(){
+void drawTasks(){
 	if(lv_obj_is_valid(tile2)){
         lv_obj_clean(tasklist);
         for(int i = 0; i < taskBuffSize; i++){
-            ESP_LOGE(TAG, "Completion: %d", taskBuffer[i].completion);
             if(taskBuffer[i].completion != MFD){
                 create_task(&taskBuffer[i]);
             }
@@ -461,7 +461,7 @@ static void drawTasks(){
     
 }
 
-static void drawEvents(){
+void drawEvents(){
 	if(lv_obj_is_valid(tile2)){
         lv_obj_clean(eventlist);
         time_t currTime = time(NULL);
@@ -668,7 +668,7 @@ void updateHabitBuff(){
     habitBuffSize = RetrieveHabitsDB(database, habitBuffer, 3, habitCursor);
 }
 
-static void drawHabits(){
+void drawHabits(){
 	if(lv_obj_is_valid(tile3)){
         lv_obj_clean(habitlist);
         for(int i = 0; i < habitBuffSize; i++){
