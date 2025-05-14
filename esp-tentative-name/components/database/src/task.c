@@ -1,6 +1,7 @@
 #include "task.h"
 
 #include "cJSON.h"
+#include "esp_system.h"
 #include "esp_log.h"
 #include <stdio.h>
 #include <string.h>
@@ -9,75 +10,96 @@ esp_err_t AddTaskDB(sqlite3 *db, task_t *ent);
 esp_err_t RemoveTaskDB(sqlite3 *db, const char *uuid);
 
 // Adds JSON entries to database
-esp_err_t ParseTasksJSON(sqlite3 *db, const char *json)
+esp_err_t ParseTasksJSON(sqlite3 *db, const cJSON *taskItem)
 {
-    const char *TAG = "task::ParseTasksJSON";
+    static const char *TAG = "task::ParseTasksJSON";
 
-    cJSON *root = cJSON_Parse(json);
-    if (!root)
+    if (!db)
     {
-        ESP_LOGE(TAG, "Error parsing JSON");
+        ESP_LOGE(TAG, "Invalid input: Missing database");
         return ESP_ERR_INVALID_ARG;
     }
 
-    cJSON *taskItem = cJSON_GetObjectItem(root, "task");
     if (!cJSON_IsObject(taskItem))
     {
         ESP_LOGE(TAG, "Invalid JSON: 'task' should be a JSON object");
-        cJSON_Delete(root);
         return ESP_ERR_INVALID_ARG;
     }
 
-    task_t task = {0};
+    // Allocate task on heap
+    task_t *task = (task_t *)calloc(1, sizeof(task_t));
+    if (!task)
+    {
+        ESP_LOGE(TAG, "Failed to allocate memory for task");
+        ESP_LOGW(TAG, "Free heap: %lu bytes", esp_get_free_heap_size());
+        return ESP_ERR_NO_MEM;
+    }
 
+    // Extract JSON fields
     const cJSON *id = cJSON_GetObjectItem(taskItem, "id");
     const cJSON *name = cJSON_GetObjectItem(taskItem, "name");
     const cJSON *description = cJSON_GetObjectItem(taskItem, "description");
-    const cJSON *completion = cJSON_GetObjectItem(taskItem, "completion"); // TODO: Convert to integer input
+    const cJSON *completion = cJSON_GetObjectItem(taskItem, "completion");
     const cJSON *priority = cJSON_GetObjectItem(taskItem, "priority");
     const cJSON *duedate = cJSON_GetObjectItem(taskItem, "duedate");
 
-    if (!cJSON_IsString(id) || !cJSON_IsString(name) || !cJSON_IsNumber(priority) || !cJSON_IsNumber(duedate) || !cJSON_IsNumber(completion))
+    // Validate required fields
+    if (!cJSON_IsString(id) || !cJSON_IsString(name) ||
+        !cJSON_IsNumber(priority) || !cJSON_IsNumber(duedate) ||
+        !cJSON_IsNumber(completion))
     {
         ESP_LOGE(TAG, "Missing or invalid task fields");
+        free(task);
         return ESP_ERR_INVALID_ARG;
     }
 
-    strncpy(task.uuid, id->valuestring, UUID_LENGTH - 1);
-    strncpy(task.name, name->valuestring, MAX_NAME_SIZE - 1);
-    task.time = (time_t)duedate->valueint;
+    // Check lengths
+    if (strlen(id->valuestring) >= UUID_LENGTH)
+    {
+        ESP_LOGE(TAG, "UUID too long (max %d)", UUID_LENGTH - 1);
+        free(task);
+        return ESP_ERR_INVALID_ARG;
+    }
 
-    // Parse priority enum
-    task.priority = (char)priority->valueint;
+    if (strlen(name->valuestring) >= MAX_NAME_SIZE)
+    {
+        ESP_LOGW(TAG, "Name too long (max %d), truncating", MAX_NAME_SIZE - 1);
+    }
+
+    strncpy(task->uuid, id->valuestring, UUID_LENGTH - 1);
+    strncpy(task->name, name->valuestring, MAX_NAME_SIZE - 1);
+    task->time = (time_t)duedate->valueint;
+    task->priority = (char)priority->valueint;
 
     if ((TASK_STATUS)completion->valueint == MFD)
     {
-        ESP_LOGE(TAG, "Cannot add an entry that has been marked for deletion!");
-        cJSON_Delete(root);
+        ESP_LOGE(TAG, "Cannot add an entry marked for deletion!");
+        free(task);
         return ESP_ERR_INVALID_ARG;
     }
-    task.completion = (TASK_STATUS)completion->valueint;
 
-    if (cJSON_IsString(description))
+    task->completion = (TASK_STATUS)completion->valueint;
+
+    if (cJSON_IsString(description) && strlen(description->valuestring) < MAX_DESC_SIZE)
     {
-        strncpy(task.description, description->valuestring, MAX_DESC_SIZE - 1);
+        strncpy(task->description, description->valuestring, MAX_DESC_SIZE - 1);
     }
 
-    int rc = AddTaskDB(db, &task);
-    cJSON_Delete(root);
+    int rc = AddTaskDB(db, task);
+    free(task);
 
     if (rc != SQLITE_OK)
     {
-        ESP_LOGI(TAG, "Failed to insert task %s: %s", task.uuid, sqlite3_errmsg(db));
+        ESP_LOGI(TAG, "Failed to insert task %s: %s", id->valuestring, sqlite3_errmsg(db));
         return ESP_FAIL;
     }
 
-    return 0;
+    return ESP_OK;
 }
 
 int RetrieveTasksSortedDB(sqlite3 *db, task_t *taskBuffer, int count, int offset)
 {
-    const char *TAG = "task::RetrieveTasksSortedDB";
+    static const char *TAG = "task::RetrieveTasksSortedDB";
 
     if (!taskBuffer || count <= 0)
     {
@@ -86,10 +108,10 @@ int RetrieveTasksSortedDB(sqlite3 *db, task_t *taskBuffer, int count, int offset
     }
 
     // Currently sorts by just TIME
-    const char *sql = "SELECT id, name, datetime, priority, completed, description "
-                      "FROM tasks "
-                      "ORDER BY (datetime - (priority * " PRIORITY_MULTIPLIER ")) ASC "
-                      "LIMIT ? OFFSET ?;";
+    static const char *sql = "SELECT id, name, datetime, priority, completed, description "
+                             "FROM tasks "
+                             "ORDER BY (datetime - (priority * " PRIORITY_MULTIPLIER ")) ASC "
+                             "LIMIT ? OFFSET ?;";
     sqlite3_stmt *stmt;
     int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
     if (rc != SQLITE_OK)
@@ -150,14 +172,14 @@ int RetrieveTasksSortedDB(sqlite3 *db, task_t *taskBuffer, int count, int offset
 
 esp_err_t UpdateTaskStatusDB(sqlite3 *db, const char *uuid, TASK_STATUS new_status)
 {
-    const char *TAG = "task::UpdateTaskStatusDB";
+    static const char *TAG = "task::UpdateTaskStatusDB";
 
     if (new_status == MFD)
     {
         return RemoveTaskDB(db, uuid);
     }
 
-    const char *sql = "UPDATE tasks SET completed = ? WHERE id = ?;";
+    static const char *sql = "UPDATE tasks SET completed = ? WHERE id = ?;";
     sqlite3_stmt *stmt;
     int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
     if (rc != SQLITE_OK)
@@ -184,9 +206,9 @@ esp_err_t UpdateTaskStatusDB(sqlite3 *db, const char *uuid, TASK_STATUS new_stat
 
 esp_err_t RemoveTaskDB(sqlite3 *db, const char *uuid)
 {
-    const char *TAG = "task::CompleteTaskDB";
+    static const char *TAG = "task::CompleteTaskDB";
 
-    const char *sql = "DELETE FROM tasks WHERE id = ?;";
+    static const char *sql = "DELETE FROM tasks WHERE id = ?;";
     sqlite3_stmt *stmt;
     int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
     if (rc != SQLITE_OK)
@@ -213,9 +235,11 @@ esp_err_t RemoveTaskDB(sqlite3 *db, const char *uuid)
 
 esp_err_t AddTaskDB(sqlite3 *db, task_t *ent)
 {
-    const char *TAG = "task::AddTaskDB";
+    static const char *TAG = "task::AddTaskDB";
+    ESP_LOGI(TAG, "Free heap: %lu bytes", esp_get_free_heap_size());
 
-    const char *sql = "INSERT INTO tasks (id, name, datetime, priority, completed, description) VALUES (?, ?, ?, ?, ?, ?);";
+    static const char *sql = "INSERT INTO tasks (id, name, datetime, priority, completed, description) "
+                             "VALUES (?, ?, ?, ?, ?, ?);";
     sqlite3_stmt *stmt;
     int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
     if (rc != SQLITE_OK)
@@ -235,6 +259,7 @@ esp_err_t AddTaskDB(sqlite3 *db, task_t *ent)
     if (rc != SQLITE_DONE)
     {
         ESP_LOGE(TAG, "Execution failed: %s", sqlite3_errmsg(db));
+        ESP_LOGI(TAG, "Free heap: %lu bytes", esp_get_free_heap_size());
         sqlite3_finalize(stmt);
         return ESP_FAIL;
     }
@@ -246,7 +271,7 @@ esp_err_t AddTaskDB(sqlite3 *db, task_t *ent)
 
 void PrintTask(task_t ent)
 {
-    const char *TAG = "task::PrintTask";
+    static const char *TAG = "task::PrintTask";
 
     struct tm *timeinfo = gmtime(&ent.time);
     char datetime[40];

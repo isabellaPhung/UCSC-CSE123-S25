@@ -1,7 +1,7 @@
 #include "event.h"
 #include <string.h>
 
-#include "cJSON.h"
+#include "esp_system.h"
 #include "esp_log.h"
 
 esp_err_t AddEventDB(sqlite3 *db, const event_t *event);
@@ -72,91 +72,87 @@ int RetrieveEventsSortedDB(sqlite3 *db, event_t *eventBuffer, int count, int off
     return i;
 }
 
-esp_err_t ParseEventsJSON(sqlite3 *db, const char *json)
+esp_err_t ParseEventsJSON(sqlite3 *db, const cJSON *eventItem)
 {
     const char *TAG = "event::ParseEventsJSON";
 
-    if (!db || !json)
+    if (!db)
     {
-        ESP_LOGE(TAG, "Invalid input: db or json is NULL");
+        ESP_LOGE(TAG, "Invalid input: Missing database");
         return ESP_ERR_INVALID_ARG;
     }
 
-    cJSON *root = cJSON_Parse(json);
-    if (!root)
+    if (!cJSON_IsObject(eventItem))
     {
-        ESP_LOGE(TAG, "Failed to parse JSON");
-        return ESP_FAIL;
+        ESP_LOGE(TAG, "Invalid JSON: 'event' should be a JSON object");
+        return ESP_ERR_INVALID_ARG;
     }
 
-    cJSON *event = cJSON_GetObjectItem(root, "event");
-    if (!cJSON_IsObject(event))
+    event_t *event = (event_t *)calloc(1, sizeof(event_t));
+    if (!event)
     {
-        ESP_LOGE(TAG, "Missing or invalid 'event' object");
-        cJSON_Delete(root);
-        return ESP_FAIL;
+        ESP_LOGE(TAG, "Failed to allocate memory for event");
+        ESP_LOGW(TAG, "Free heap: %lu bytes", esp_get_free_heap_size());
+        return ESP_ERR_NO_MEM;
     }
-
-    event_t parsed = {0};
 
     // UUID
-    cJSON *id = cJSON_GetObjectItem(event, "id");
+    cJSON *id = cJSON_GetObjectItem(eventItem, "id");
     if (!cJSON_IsString(id) || strlen(id->valuestring) >= UUID_LENGTH)
     {
         ESP_LOGE(TAG, "Invalid or missing 'id'");
-        cJSON_Delete(root);
+        free(event);
         return ESP_ERR_INVALID_ARG;
     }
-    strncpy(parsed.uuid, id->valuestring, UUID_LENGTH - 1);
+    strncpy(event->uuid, id->valuestring, UUID_LENGTH - 1);
 
     // Name
-    cJSON *name = cJSON_GetObjectItem(event, "name");
+    cJSON *name = cJSON_GetObjectItem(eventItem, "name");
     if (!cJSON_IsString(name) || strlen(name->valuestring) >= MAX_NAME_SIZE)
     {
         ESP_LOGE(TAG, "Invalid or missing 'name'");
-        cJSON_Delete(root);
+        free(event);
         return ESP_ERR_INVALID_ARG;
     }
-    strncpy(parsed.name, name->valuestring, MAX_NAME_SIZE - 1);
+    strncpy(event->name, name->valuestring, MAX_NAME_SIZE - 1);
 
     // Description
-    cJSON *desc = cJSON_GetObjectItem(event, "description");
+    cJSON *desc = cJSON_GetObjectItem(eventItem, "description");
     if (!cJSON_IsString(desc) || strlen(desc->valuestring) >= MAX_DESC_SIZE)
     {
         ESP_LOGE(TAG, "Invalid or missing 'description'");
-        cJSON_Delete(root);
+        free(event);
         return ESP_ERR_INVALID_ARG;
     }
-    strncpy(parsed.description, desc->valuestring, MAX_DESC_SIZE - 1);
+    strncpy(event->description, desc->valuestring, MAX_DESC_SIZE - 1);
 
     // Start Time
-    cJSON *starttime = cJSON_GetObjectItem(event, "starttime");
+    cJSON *starttime = cJSON_GetObjectItem(eventItem, "starttime");
     if (!cJSON_IsNumber(starttime))
     {
         ESP_LOGE(TAG, "Invalid or missing 'starttime'");
-        cJSON_Delete(root);
+        free(event);
         return ESP_ERR_INVALID_ARG;
     }
-    parsed.start_time = (time_t)starttime->valuedouble;
+    event->start_time = (time_t)starttime->valuedouble;
 
     // Duration
-    cJSON *duration = cJSON_GetObjectItem(event, "duration");
+    cJSON *duration = cJSON_GetObjectItem(eventItem, "duration");
     if (!cJSON_IsNumber(duration))
     {
         ESP_LOGE(TAG, "Invalid or missing 'duration'");
-        cJSON_Delete(root);
+        free(event);
         return ESP_ERR_INVALID_ARG;
     }
-    parsed.duration = (time_t)duration->valuedouble;
+    event->duration = (time_t)duration->valuedouble;
 
     // Call AddEventDB
-    esp_err_t result = AddEventDB(db, &parsed);
+    esp_err_t result = AddEventDB(db, event);
     if (result != ESP_OK)
     {
         ESP_LOGE(TAG, "Failed to add event to DB");
     }
 
-    cJSON_Delete(root);
     return result;
 }
 
@@ -165,6 +161,7 @@ esp_err_t ParseEventsJSON(sqlite3 *db, const char *json)
 esp_err_t AddEventDB(sqlite3 *db, const event_t *event)
 {
     const char *TAG = "event::AddEventDB";
+    ESP_LOGI(TAG, "Free heap: %lu bytes", esp_get_free_heap_size());
 
     const char *sql = "INSERT INTO events (id, name, starttime, duration, description) VALUES (?, ?, ?, ?, ?);";
     sqlite3_stmt *stmt;
@@ -185,13 +182,15 @@ esp_err_t AddEventDB(sqlite3 *db, const event_t *event)
     if (rc != SQLITE_DONE)
     {
         ESP_LOGE(TAG, "Failed to execute INSERT statement: %s", sqlite3_errmsg(db));
-        sqlite3_finalize(stmt);
-        return ESP_FAIL;
+        ESP_LOGI(TAG, "Free heap: %lu bytes", esp_get_free_heap_size());
+    }
+    else
+    {
+        ESP_LOGI(TAG, "Inserted event with ID: %s", event->uuid);
     }
 
-    ESP_LOGI(TAG, "Inserted event with ID: %s", event->uuid);
     sqlite3_finalize(stmt);
-    return ESP_OK;
+    return (rc == SQLITE_DONE) ? ESP_OK : ESP_FAIL;
 }
 
 esp_err_t RemoveEventDB(sqlite3 *db, const char *uuid)
@@ -223,6 +222,7 @@ esp_err_t RemoveEventDB(sqlite3 *db, const char *uuid)
 }
 
 // ----------------------------------------- TEST SCRIPT ------------------------------------------
+/*
 esp_err_t TestEventFunctions(sqlite3 *db)
 {
     const char *TAG = "event::TestEventFunctions";
@@ -304,3 +304,4 @@ esp_err_t TestEventFunctions(sqlite3 *db)
     ESP_LOGI(TAG, "All event tests passed and cleaned up.");
     return ESP_OK;
 }
+*/

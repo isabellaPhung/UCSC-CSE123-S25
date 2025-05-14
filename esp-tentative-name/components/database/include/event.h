@@ -3,6 +3,7 @@
 
 #include <sqlite3.h>
 #include <time.h>
+#include <cJSON.h>
 
 #include "defs.h"
 
@@ -28,12 +29,12 @@ int RetrieveEventsSortedDB(sqlite3 *db, event_t *eventBuffer, int count, int off
 /// @param db 
 /// @param json 
 /// @return 
-esp_err_t ParseEventsJSON(sqlite3 *db, const char *json);
+esp_err_t ParseEventsJSON(sqlite3 *db, const cJSON *event);
 
 /// @brief Deletes entry from database that shares the uuid
 esp_err_t RemoveEventDB(sqlite3 *db, const char *uuid);
 
 // DEBUG FUNCTION
-esp_err_t TestEventFunctions(sqlite3 *db);
+//esp_err_t TestEventFunctions(sqlite3 *db);
 
 #endif

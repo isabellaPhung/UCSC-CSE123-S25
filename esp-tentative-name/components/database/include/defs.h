@@ -5,7 +5,7 @@
 #define SPI_HOST SPI2_HOST
 
 #define MAX_NAME_SIZE 128
-#define MAX_DESC_SIZE 1024
+#define MAX_DESC_SIZE 32
 
 /// Priority is an offset parameter, this value decides how many seconds difference each point
 /// of priority is worth.

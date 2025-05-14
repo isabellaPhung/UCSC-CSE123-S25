@@ -74,7 +74,7 @@ esp_err_t MountSDCard()
     esp_vfs_fat_sdmmc_mount_config_t mount_config = {
         .max_files = 2, // Maximum number of files that can be open at the same time
         .format_if_mount_failed = true,
-        .allocation_unit_size = 16 * 1024,
+        .allocation_unit_size = 2 * 512,
     };
 
     sdmmc_host_t host = SDSPI_HOST_DEFAULT();
@@ -138,6 +138,8 @@ int InitSQL(sqlite3 **db)
         ESP_LOGE(TAG, "Can't open database: %s", sqlite3_errmsg(*db) ? sqlite3_errmsg(*db) : "No error code available");
         return rc;
     }
+
+    sqlite3_soft_heap_limit64(4096);    // Set heap limit
 
     // -------------------------------------- Task Table ------------------------------------------
     ESP_LOGI(TAG, "Creating Task Table...");

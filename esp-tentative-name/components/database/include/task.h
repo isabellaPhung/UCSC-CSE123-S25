@@ -3,6 +3,8 @@
 
 #include <sqlite3.h>
 #include <time.h>
+#include <cJSON.h>
+
 #include "esp_err.h"
 
 #include "defs.h"
@@ -19,11 +21,11 @@ typedef enum
  */
 typedef struct
 {
-    char uuid[UUID_LENGTH];               // UUID string of entry
+    char uuid[UUID_LENGTH];          // UUID string of entry
     char name[MAX_NAME_SIZE];        // Title of entry
-    time_t time;                          // Unix time (UTC)
-    char priority;                        // Priority 0-9
-    TASK_STATUS completion;               // Completion status of the entry
+    time_t time;                     // Unix time (UTC)
+    char priority;                   // Priority 0-9
+    TASK_STATUS completion;          // Completion status of the entry
     char description[MAX_DESC_SIZE]; // Verbose description of entry
 } task_t;
 
@@ -33,11 +35,11 @@ typedef struct
 /// @param db SQLite database object
 /// @param json JSON text
 /// @return Error code
-int ParseTasksJSON(sqlite3 *db, const char *json);
+int ParseTasksJSON(sqlite3 *db, const cJSON *taskItem);
 
 // --- Entry modification ---
 
-/// @brief Modifies the completion status of the task on the database or removes it from the 
+/// @brief Modifies the completion status of the task on the database or removes it from the
 ///        database
 /// @param db SQLite database object
 /// @param uuid Task's unique ID
@@ -47,7 +49,7 @@ esp_err_t UpdateTaskStatusDB(sqlite3 *db, const char *uuid, TASK_STATUS new_stat
 
 // --- Entry Recovery ---
 
-/// @brief Retrieves a number of tasks sorted by date from the database with some offset from 
+/// @brief Retrieves a number of tasks sorted by date from the database with some offset from
 ///        the most urgant task
 /// @param db SQLite database object
 /// @param taskBuffer Array of objects used to store the retrieved tasks
