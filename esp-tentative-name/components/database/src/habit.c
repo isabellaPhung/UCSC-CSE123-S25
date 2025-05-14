@@ -1,5 +1,7 @@
 #include "habit.h"
 #include "esp_log.h"
+#include "esp_system.h"
+
 #include <cJSON.h>
 #include <string.h>
 
@@ -62,6 +64,7 @@ int RetrieveHabitsDB(sqlite3 *db, habit_t *habitBuffer, int count, int offset)
 esp_err_t HabitAddDB(sqlite3 *db, const char *uuid, const char *name, uint8_t goal_flags)
 {
     const char *TAG = "habit::HabitAddDB";
+    ESP_LOGI(TAG, "Free heap: %lu bytes", esp_get_free_heap_size());
 
     const char *sql = "INSERT INTO habits (id, name, day_goals) VALUES (?, ?, ?);";
     sqlite3_stmt *stmt;
@@ -81,10 +84,14 @@ esp_err_t HabitAddDB(sqlite3 *db, const char *uuid, const char *name, uint8_t go
     if (result != ESP_OK)
     {
         ESP_LOGE(TAG, "Failed to insert habit: %s", sqlite3_errmsg(db));
+        ESP_LOGI(TAG, "Free heap: %lu bytes", esp_get_free_heap_size());
+    }
+    else
+    {
+        ESP_LOGI(TAG, "Added <%s> with UUID <%s>", name, uuid);
     }
 
     sqlite3_finalize(stmt);
-    ESP_LOGI(TAG, "Added <%s> with UUID <%s>", name, uuid);
     return result;
 }
 

@@ -15,7 +15,6 @@ idf_component_register(
     "nvs_flash"
     "esp_event"
     "esp_netif"
-    "esp_wifi"
     "protocol_examples_common"
     "json"
 

@@ -25,6 +25,7 @@ esp_err_t ParseTasksJSON(sqlite3 *db, const cJSON *taskItem)
     if (!task)
     {
         ESP_LOGE(TAG, "Failed to allocate memory for task");
+        ESP_LOGW(TAG, "Free heap: %lu bytes", esp_get_free_heap_size());
         return ESP_ERR_NO_MEM;
     }
 
@@ -225,6 +226,7 @@ esp_err_t RemoveTaskDB(sqlite3 *db, const char *uuid)
 esp_err_t AddTaskDB(sqlite3 *db, task_t *ent)
 {
     static const char *TAG = "task::AddTaskDB";
+    ESP_LOGI(TAG, "Free heap: %lu bytes", esp_get_free_heap_size());
 
     static const char *sql = "INSERT INTO tasks (id, name, datetime, priority, completed, description) "
                              "VALUES (?, ?, ?, ?, ?, ?);";

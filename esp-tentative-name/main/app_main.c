@@ -95,9 +95,9 @@ int request_backup(struct callback_data_t *cb_data)
     mqtt_subscribe();
 
     // Request payloads for all 3 entry types
-    const char *backup_payload[3] = {"{\"id\":\"" DEVICE_ID "\",\"action\":\"refresh\",\"type\":\"task\"}",
-                                     "{\"id\":\"" DEVICE_ID "\",\"action\":\"refresh\",\"type\":\"event\"}",
-                                     "{\"id\":\"" DEVICE_ID "\",\"action\":\"refresh\",\"type\":\"habit\"}"};
+    static const char *backup_payload[3] = {"{\"id\":\"" DEVICE_ID "\",\"action\":\"refresh\",\"type\":\"task\"}",
+                                            "{\"id\":\"" DEVICE_ID "\",\"action\":\"refresh\",\"type\":\"event\"}",
+                                            "{\"id\":\"" DEVICE_ID "\",\"action\":\"refresh\",\"type\":\"habit\"}"};
 
     for (int ent_itr = 0; ent_itr < 3; ent_itr++)
     {
@@ -136,10 +136,10 @@ int request_backup(struct callback_data_t *cb_data)
 
 void app_main()
 {
-    esp_log_level_set("*", ESP_LOG_INFO);
 
     // ------------------------------------- Set Up Wifi ------------------------------------------
     ESP_LOGI("main::Setting up Wifi", "Free heap total: %lu bytes", esp_get_free_heap_size());
+    esp_log_level_set("*", ESP_LOG_WARN);
 
     esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
@@ -211,6 +211,7 @@ void app_main()
     assert(mqtt_init(&callback, (void *)&cb_data) == EXIT_SUCCESS);
 
     // Populate database
+    ESP_LOGI("main::Initialize LCD", "Largest free block seen by request_backup: %d", heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
     request_backup(&cb_data);
 
     // ------------------------------------- Initialize LCD ---------------------------------------

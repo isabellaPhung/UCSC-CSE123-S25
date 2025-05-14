@@ -1,6 +1,7 @@
 #include "event.h"
 #include <string.h>
 
+#include "esp_system.h"
 #include "esp_log.h"
 
 esp_err_t AddEventDB(sqlite3 *db, const event_t *event);
@@ -143,6 +144,7 @@ esp_err_t ParseEventsJSON(sqlite3 *db, const cJSON *event)
 esp_err_t AddEventDB(sqlite3 *db, const event_t *event)
 {
     const char *TAG = "event::AddEventDB";
+    ESP_LOGI(TAG, "Free heap: %lu bytes", esp_get_free_heap_size());
 
     const char *sql = "INSERT INTO events (id, name, starttime, duration, description) VALUES (?, ?, ?, ?, ?);";
     sqlite3_stmt *stmt;
@@ -163,13 +165,16 @@ esp_err_t AddEventDB(sqlite3 *db, const event_t *event)
     if (rc != SQLITE_DONE)
     {
         ESP_LOGE(TAG, "Failed to execute INSERT statement: %s", sqlite3_errmsg(db));
-        sqlite3_finalize(stmt);
-        return ESP_FAIL;
+        ESP_LOGI(TAG, "Free heap: %lu bytes", esp_get_free_heap_size());
+    }
+    else
+    {
+        ESP_LOGI(TAG, "Inserted event with ID: %s", event->uuid);
+
     }
 
-    ESP_LOGI(TAG, "Inserted event with ID: %s", event->uuid);
     sqlite3_finalize(stmt);
-    return ESP_OK;
+    return rc;
 }
 
 esp_err_t RemoveEventDB(sqlite3 *db, const char *uuid)
