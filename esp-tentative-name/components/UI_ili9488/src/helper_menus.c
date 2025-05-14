@@ -19,6 +19,7 @@ static lv_obj_t * taskTile;
 static lv_obj_t * eventTile;
 static lv_obj_t * tasklist;
 static lv_obj_t * eventlist;
+static lv_obj_t * habitlist;
 static lv_group_t * g1;
 
 static lv_obj_t * arrowUp;
@@ -444,7 +445,7 @@ static void tasks_right_cb(){
 static void events_left_cb(){
     if(eventCursor > 4){
         eventCursor = (eventCursor % 4) - 4;
-        int eventNum = RetrieveEventsSortedDB(database, eventBuffer, 4, eventCursor);
+        eventBuffSize = RetrieveEventsSortedDB(database, eventBuffer, 4, eventCursor);
         lv_obj_clean(eventlist);
         drawEvents();
     }
@@ -591,20 +592,18 @@ static const char * btnm_map[] = {"Su", "Mo", "Tu", "We", "Th", "Fr", "Sa", ""};
  */
 void createHabit(habit_t * habit, uint8_t row){
     //creates habit title name
-    lv_obj_t * habits = lv_label_create(tile3);
+    lv_obj_t * habits = lv_label_create(habitlist);
     lv_label_set_text(habits, habit->name);
     lv_obj_set_style_text_font(habits, &lv_font_montserrat_18, 0);
-    lv_obj_set_pos(habits, 15, 25+(row*100));
     
     //trying out button matrix
-    lv_obj_t * buttons = lv_btnmatrix_create(tile3);
+    lv_obj_t * buttons = lv_btnmatrix_create(habitlist);
     lv_gridnav_add(buttons, LV_GRIDNAV_CTRL_NONE);
     lv_obj_add_event_cb(buttons, buttonmatrix_cb, LV_EVENT_KEY, NULL);
     lv_obj_set_style_bg_color(tile3, lv_palette_lighten(LV_PALETTE_BLUE, 4), LV_STATE_FOCUSED);
     lv_obj_set_style_pad_all(buttons, 5, LV_PART_MAIN);
     lv_group_add_obj(lv_group_get_default(), buttons);
     lv_btnmatrix_set_map(buttons, btnm_map);
-    lv_obj_set_pos(buttons, 15, 50+(row*100));
     lv_obj_set_size(buttons, LCD_H_RES-50, LCD_V_RES/5.5);
     for(uint8_t i = 0; i < 7; i++){
         lv_btnmatrix_set_btn_ctrl(buttons, i, LV_BTNMATRIX_CTRL_CHECKABLE);
@@ -627,6 +626,7 @@ static void habits_left_cb(){
     if(habitCursor > 3){
         habitCursor = (habitCursor % 3) - 3;
         habitBuffSize = RetrieveHabitsDB(database, habitBuffer, 3, habitCursor);
+        lv_obj_clean(habitlist);
         drawHabits();
     }
 }
@@ -635,6 +635,7 @@ static void habits_right_cb(){
     habitBuffSize = RetrieveHabitsDB(database, habitBuffer, 3, habitCursor);
     habitCursor += habitBuffSize;
     if(eventBuffSize != 0){
+        lv_obj_clean(habitlist);
         drawHabits();
     }
 }
@@ -649,11 +650,11 @@ static void habitMenu_create(lv_obj_t * parent){
     lv_group_add_obj(lv_group_get_default(), parent);
     lv_group_focus_obj(parent);
     lv_obj_add_event_cb(parent, habit_cb, LV_EVENT_KEY, NULL);
-
+    
     //left habit list arrows
     button = lv_btn_create(parent);
     lv_group_remove_obj(button);
-    lv_obj_align(button, LV_ALIGN_BOTTOM_MID, -25, -5);
+    lv_obj_align(button, LV_ALIGN_TOP_MID, -25, 5);
     lv_obj_add_event_cb(button, habits_left_cb, LV_EVENT_CLICKED, NULL);
     lv_obj_set_size(button, 25, 25);
     label = lv_label_create(button);
@@ -663,7 +664,7 @@ static void habitMenu_create(lv_obj_t * parent){
     //right habit list arrows
     button = lv_btn_create(parent);
     lv_group_remove_obj(button);
-    lv_obj_align(button, LV_ALIGN_BOTTOM_MID, +25, -5);
+    lv_obj_align(button, LV_ALIGN_TOP_MID, +25, 5);
     lv_obj_add_event_cb(button, habits_right_cb, LV_EVENT_CLICKED, NULL);
     lv_obj_set_size(button, 25, 25);
     label = lv_label_create(button);
@@ -676,10 +677,22 @@ static void habitMenu_create(lv_obj_t * parent){
     lv_obj_align(arrowUp, LV_ALIGN_TOP_RIGHT, -5, 5);
 
     //creates a title for the habits tile
-    title = lv_label_create(parent);
-    lv_label_set_text(title, "Habit Progress");
-    lv_obj_set_style_text_font(title, &lv_font_montserrat_18, 0);
-    lv_obj_align(title, LV_ALIGN_TOP_LEFT, 5, 5);
+    lv_obj_t * habits = lv_label_create(parent);
+    lv_label_set_text(habits, "Habit Progress");
+    lv_obj_set_style_text_font(habits, &lv_font_montserrat_18, 0);
+    lv_obj_align(habits, LV_ALIGN_TOP_LEFT, 5, 5);
+
+
+    habitlist = lv_obj_create(parent);
+    lv_obj_set_size(habitlist, lv_pct(100), lv_pct(90));
+    lv_obj_align(habitlist, LV_ALIGN_BOTTOM_LEFT, 0, 0);
+    lv_obj_set_style_pad_top(habitlist, 0, LV_PART_MAIN);
+    lv_obj_set_style_pad_bottom(habitlist, 0, LV_PART_MAIN);
+    lv_obj_set_style_border_width(habitlist, 0, LV_PART_MAIN);
+    lv_obj_set_flex_flow(habitlist, LV_FLEX_FLOW_COLUMN); //sets button to flex flow column form so it'll expand as needed
+    lv_obj_set_style_pad_row(habitlist, 5, LV_PART_MAIN);
+    lv_obj_set_style_bg_opa(habitlist, LV_OPA_0, LV_PART_MAIN);
+    
     drawHabits();
 }
 
