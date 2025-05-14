@@ -42,8 +42,9 @@ void create_task(task_t * task);
 void create_event(event_t * event);
 //adds a habit to the habit menu
 void createHabit(habit_t * habit, uint8_t row);
-void tasks_right_cb();
-void events_right_cb();
-void habits_right_cb();
+void initTaskBuff();
+void initEventBuff();
+void initHabitBuff();
+
 
 

@@ -400,36 +400,63 @@ event_t eventBuffer[4];
 uint8_t eventBuffSize;
 habit_t habitBuffer[3];
 uint8_t habitBuffSize;
-/*
-void initBuffers(){
-    taskBuffer = (task_t *)malloc(sizeof(task_t)*4);
-    eventBuffer = (event_t *)malloc(sizeof(event_t)*4);
-    habitBuffer = (habit_t *)malloc(sizeof(habit_t)*3);
+
+void initTaskBuff(){
+    taskBuffSize = RetrieveTasksSortedDB(database, taskBuffer, 4, taskCursor);
+    taskCursor += taskBuffSize;
 }
-*/
+
+void initEventBuff(){
+    eventBuffSize = RetrieveEventsSortedDB(database, eventBuffer, 4, eventCursor);
+    eventCursor += eventBuffSize;
+}
+
+static void drawTasks(){
+    for(int i = 0; i < taskBuffSize; i++){
+        create_task(&taskBuffer[i]);
+    }
+}
+
+static void drawEvents(){
+    for(int i = 0; i < eventBuffSize; i++){
+        create_event(&eventBuffer[i]);
+    }
+}
 
 static void tasks_left_cb(){
     if(taskCursor > 4){
         taskCursor = (taskCursor % 4) - 4;
         taskBuffSize = RetrieveTasksSortedDB(database, taskBuffer, 4, taskCursor);
+        lv_obj_clean(tasklist);
+        drawTasks();
     }
 }
 
-void tasks_right_cb(){
+static void tasks_right_cb(){
     taskBuffSize = RetrieveTasksSortedDB(database, taskBuffer, 4, taskCursor);
     taskCursor += taskBuffSize;
+    if(taskBuffSize != 0){
+        lv_obj_clean(tasklist);
+        drawTasks();
+    }
 }
 
 static void events_left_cb(){
     if(eventCursor > 4){
         eventCursor = (eventCursor % 4) - 4;
         int eventNum = RetrieveEventsSortedDB(database, eventBuffer, 4, eventCursor);
+        lv_obj_clean(eventlist);
+        drawEvents();
     }
 }
 
-void events_right_cb(){
+static void events_right_cb(){
     eventBuffSize = RetrieveEventsSortedDB(database, eventBuffer, 4, eventCursor);
     eventCursor += eventBuffSize;
+    if(eventBuffSize != 0){
+        lv_obj_clean(eventlist);
+        drawEvents();
+    }
 }
 
 static void button_nav_cb(lv_event_t * e){
@@ -537,13 +564,8 @@ static void taskEvent_create(lv_obj_t * parent){
     lv_label_set_text(arrowDown, LV_SYMBOL_DOWN);
     lv_obj_align(arrowDown, LV_ALIGN_BOTTOM_RIGHT, -5, -5);
     
-    for(int i = 0; i < taskBuffSize; i++){
-        create_task(&taskBuffer[i]);
-    }
-
-    for(int i = 0; i < eventBuffSize; i++){
-        create_event(&eventBuffer[i]);
-    }
+    drawTasks();
+    drawEvents();
 }
 
 /*
@@ -591,16 +613,30 @@ void createHabit(habit_t * habit, uint8_t row){
     }
 }
 
+void initHabitBuff(){
+    habitBuffSize = RetrieveHabitsDB(database, habitBuffer, 3, habitCursor);
+    habitCursor += habitBuffSize;
+}
+
+static void drawHabits(){
+    for(int i = 0; i < habitBuffSize; i++){
+        createHabit(&habitBuffer[i], i);
+    }
+}
 static void habits_left_cb(){
-     if(habitCursor > 3){
+    if(habitCursor > 3){
         habitCursor = (habitCursor % 3) - 3;
         habitBuffSize = RetrieveHabitsDB(database, habitBuffer, 3, habitCursor);
+        drawHabits();
     }
 }
 
-void habits_right_cb(){
+static void habits_right_cb(){
     habitBuffSize = RetrieveHabitsDB(database, habitBuffer, 3, habitCursor);
     habitCursor += habitBuffSize;
+    if(eventBuffSize != 0){
+        drawHabits();
+    }
 }
 
 /*
@@ -644,10 +680,7 @@ static void habitMenu_create(lv_obj_t * parent){
     lv_label_set_text(title, "Habit Progress");
     lv_obj_set_style_text_font(title, &lv_font_montserrat_18, 0);
     lv_obj_align(title, LV_ALIGN_TOP_LEFT, 5, 5);
-
-    for(int i = 0; i < habitBuffSize; i++){
-        createHabit(&habitBuffer[i], i);
-    }
+    drawHabits();
 }
 
 /*
