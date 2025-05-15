@@ -33,6 +33,13 @@ static lv_obj_t * child;
 static lv_obj_t * obj;
 static uint32_t k; //LVGL keyboard key
 
+task_t taskBuffer[4];
+uint8_t taskBuffSize;
+event_t eventBuffer[4];
+uint8_t eventBuffSize;
+habit_t habitBuffer[3];
+uint8_t habitBuffSize;
+
 //static const char *TAG = "UI"; //for esp_log
 
 /*
@@ -69,6 +76,9 @@ static void focus_cb(lv_event_t * e){
 static void taskevent_cb(lv_event_t * e){
     k = lv_event_get_key(e);
     if(k == LV_KEY_DOWN) {
+        lv_obj_clean(tile2);
+        taskCursor -= taskBuffSize;
+        eventCursor -= eventBuffSize;
         loadTile3();
         lv_obj_del(tile2);
     }
@@ -86,6 +96,7 @@ static void taskevent_cb(lv_event_t * e){
 static void habit_cb(lv_event_t * e){
     k = lv_event_get_key(e);
     if(k == LV_KEY_UP) {
+        lv_obj_clean(tile3);
         loadTile2();
         lv_obj_del(tile3);
     }else if(k == LV_KEY_LEFT){
@@ -265,9 +276,11 @@ static void incomplete_task_cb(lv_event_t * e){
     exit_task_cb();
 }
 
+/*
 static void focus_task_cb(lv_event_t * e){
     //TODO: focus task implementation
 }
+*/
 
 static void delete_task_cb(lv_event_t * e){
     task_t * task = lv_event_get_user_data(e);
@@ -448,19 +461,15 @@ void create_event(event_t * event){
     lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 1, 1);
 }
 
-task_t taskBuffer[4];
-uint8_t taskBuffSize;
-event_t eventBuffer[4];
-uint8_t eventBuffSize;
-habit_t habitBuffer[3];
-uint8_t habitBuffSize;
 
 void updateTaskBuff(){
     taskBuffSize = RetrieveTasksSortedDB(database, taskBuffer, 4, taskCursor);
+    taskCursor += taskBuffSize;
 }
 
 void updateEventBuff(){
     eventBuffSize = RetrieveEventsSortedDB(database, eventBuffer, 4, eventCursor);
+    eventCursor += eventBuffSize;
 }
 
 void drawTasks(){
@@ -500,7 +509,7 @@ void drawEvents(){
 }
 
 static void tasks_left_cb(){
-    if(taskCursor > 4){
+    if(taskCursor >= 4){
         taskCursor = taskCursor - 4;
         taskBuffSize = RetrieveTasksSortedDB(database, taskBuffer, 4, taskCursor);
         drawTasks();
@@ -509,7 +518,7 @@ static void tasks_left_cb(){
 
 static void tasks_right_cb(){
     taskBuffSize = RetrieveTasksSortedDB(database, taskBuffer, 4, taskCursor);
-    if(taskBuffSize == 4){
+    if(taskBuffSize % 4 == 0){
         taskCursor += taskBuffSize;
     }
     if(taskBuffSize != 0){
@@ -518,7 +527,7 @@ static void tasks_right_cb(){
 }
 
 static void events_left_cb(){
-    if(eventCursor > 4){
+    if(eventCursor >= 4){
         eventCursor = eventCursor - 4;
         eventBuffSize = RetrieveEventsSortedDB(database, eventBuffer, 4, eventCursor);
         drawEvents();
@@ -527,7 +536,7 @@ static void events_left_cb(){
 
 static void events_right_cb(){
     eventBuffSize = RetrieveEventsSortedDB(database, eventBuffer, 4, eventCursor);
-    if(eventBuffSize == 4){
+    if(eventBuffSize % 4 == 0){
         eventCursor += eventBuffSize;
     } 
     if(eventBuffSize != 0){
@@ -652,7 +661,8 @@ static void buttonmatrix_cb(lv_event_t * e){
     }
 }
 
-static const char * btnm_map[] = {"Su", "Mo", "Tu", "We", "Th", "Fr", "Sa", ""};
+static const char * weekdays[7] = {"Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"};
+static char * btnm_map[8];
 /*
  * creates habit entry for habit list
  * takes in parent list and name of habit and the row number.
@@ -662,6 +672,16 @@ void createHabit(habit_t * habit){
     lv_obj_t * habits = lv_label_create(habitlist);
     lv_label_set_text(habits, habit->name);
     lv_obj_set_style_text_font(habits, &lv_font_montserrat_18, 0);
+   
+    //makes button map
+    time_t currtime = time(NULL);
+    struct tm * timeinfo = localtime(&currtime);
+    
+    for(int i = 0; i < 7; i++){
+        btnm_map[i] = weekdays[(timeinfo->tm_wday + 1 + i) % 7];
+    }
+    btnm_map[7] = "";
+    
     
     //trying out button matrix
     lv_obj_t * buttons = lv_btnmatrix_create(habitlist);
@@ -672,12 +692,10 @@ void createHabit(habit_t * habit){
     lv_group_add_obj(lv_group_get_default(), buttons);
     lv_btnmatrix_set_map(buttons, btnm_map);
     lv_obj_set_size(buttons, LCD_H_RES-50, LCD_V_RES/5.5);
-    lv_btnmatrix_set_btn_ctrl_all(buttons, i, LV_BTNMATRIX_CTRL_CHECKABLE);
-    time_t currtime;
-    struct tm * timeinfo = localtime(currtime);
-    //timeinfo.tm_wday
+    lv_btnmatrix_set_btn_ctrl_all(buttons, LV_BTNMATRIX_CTRL_CHECKABLE);
+    
     for(uint8_t i = 7; i > 0; i++){
-        if(HabitEntryCompletedDB(database, habit->habit_id, datetime)){
+        if(HabitEntryCompletedDB(database, habit->uuid, difftime(currtime, i*86400))){
             lv_btnmatrix_set_btn_ctrl(buttons, i, LV_BTNMATRIX_CTRL_CHECKED);
         }
         //TODO: disable button if not necessary for that day or toggle based off of habit list
