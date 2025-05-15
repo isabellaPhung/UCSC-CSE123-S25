@@ -10,10 +10,10 @@ from aws_helper import AwsS3
 app = Flask(__name__)
 s3_conn = AwsS3()
 
+app.config['JWT_COOKIE_SECURE'] = True
+app.config['JWT_COOKIE_CSRF_PROTECT'] = True
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
 app.config["JWT_TOKEN_LOCATION"] = [os.getenv("JWT_TOKEN_LOCATION")]
-app.config['JWT_COOKIE_SECURE'] = True
-# app.config['JWT_COOKIE_CSRF_PROTECT'] = True
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = int(os.getenv("JWT_ACCESS_TOKEN_EXPIRES"))
 # app.config["JWT_REFRESH_COOKIE_PATH"] = "/token/refresh"
 
@@ -161,6 +161,13 @@ def api_today_habits():
     return habits, 200
 
 
+@app.route("/api/get_devices")
+@jwt_required()
+def api_get_devices():
+    devices = s3_conn.get_devices(get_jwt_identity())
+    return devices, 200
+
+
 @app.route("/api/get_users")
 def api_get_users():
     users = s3_conn.get_users(data_only=True)
@@ -188,6 +195,12 @@ def signup():
 @jwt_required()
 def index():
     return render_template("index.html")
+
+
+@app.route("/devices")
+@jwt_required()
+def devices():
+    return render_template("devices.html")
 
 
 @app.route("/add_task")

@@ -11,6 +11,7 @@ class AwsS3:
         self.device_bucket = os.getenv("DEVICE_DATA_BUCKET")
         self.user_bucket = os.getenv("USER_DATA_BUCKET")
         self.user_file = os.getenv("USER_FILE")
+        self.device_file = os.getenv("DEVICE_FILE")
         self.task_file = os.getenv("TASK_FILE")
         self.event_file = os.getenv("EVENT_FILE")
         self.habit_file = os.getenv("HABIT_FILE")
@@ -73,6 +74,13 @@ class AwsS3:
             ContentType="application/json"
         )
         return True
+
+    def get_devices(self, username):
+        obj, data = self.get_users()
+
+        devices = [user["devices"] for user in data["users"] if user["username"] == username]
+
+        return devices
 
     def add_task(self, name, description, completion, priority, duedate):
         obj, data = self.load_info("task")
