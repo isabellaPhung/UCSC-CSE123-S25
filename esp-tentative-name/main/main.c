@@ -62,16 +62,93 @@ void initdb(){
     }
     ESP_LOGI(TAG, "Created Task!\n");
     
+    // ----------------------------------- Create Event ------------------------------------
+    /* 
+    ESP_LOGI(TAG, "Adding an Event...");
+    // Define a task
+
+    event_t newEvent = {
+        .uuid = "toes",
+        .name = "Meet with Capstone Team",
+        .description = "Meeting with Capstone Team at Engineering 2",
+        .start_time = t,
+        .duration = 7200,
+    };
+
+    // Add event
+    rc = AddEventDB(db, &newEvent);
+    if (rc != SQLITE_OK){
+        ESP_LOGE(TAG, "Failed to add event!");
+        return;
+    }
+    ESP_LOGI(TAG, "Created Event!\n");
+    */ 
     /*
-    //trying to get the task info in the GUI
-    struct tm* ptr;
-    ptr = localtime(&(newTask.time));
+    // ----------------------------------- Create Habit ------------------------------------
+    ESP_LOGI(TAG, "Adding a Habit...");
+    // Define a habit
+
+    event_t newHabit = {
+        .uuid = "23456",
+        .name = "Walk the Dog",
+    };
+
+    // Add event
+    rc = AddHabitDB(db, &newHabit);
+    if (rc != SQLITE_OK){
+        ESP_LOGE(TAG, "Failed to add habit!");
+        return;
+    }
+    ESP_LOGI(TAG, "Created Habit!\n");
     */
 }
 
 void adjustDatabase(){
+// ----------------------------------- Create 2nd Task ------------------------------------
+    ESP_LOGI(TAG, "Adding a 2nd Task...");
+    // Define a task
+
+    // current time
+    time_t t = time(NULL);
+    
+    task_t newTask = {
+        .uuid = "777",
+        .name = "Finish ECE173 Homework",
+        .description = "Design PCB for ground bounce",
+        .completion = INCOMPLETE,
+        .priority = 2,
+        .time = t,
+    };
+
+    // Add task
+    int rc = AddTaskDB(db, &newTask);
+    if (rc != SQLITE_OK){
+        ESP_LOGE(TAG, "Failed to add task!");
+        return;
+    }
+    ESP_LOGI(TAG, "Created 2nd Task!\n");
+
+    ESP_LOGI(TAG, "Adding an Event...");
+    // Define a task
+
+    event_t newEvent = {
+        .uuid = "toes",
+        .name = "Meet with Capstone Team",
+        .description = "Meeting with Capstone Team at Engineering 2",
+        .start_time = t,
+        .duration = 7200,
+    };
+
+    // Add event
+    rc = AddEventDB(db, &newEvent);
+    if (rc != SQLITE_OK){
+        ESP_LOGE(TAG, "Failed to add event!");
+        return;
+    }
+    ESP_LOGI(TAG, "Created Event!\n");
 
 }
+
 void app_main(void){
     ESP_LOGI(HEPLE, "start heap: %d", heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
     
@@ -109,11 +186,15 @@ void app_main(void){
     pcf8523_read_time(&rtc_time);
     timeDisplay(buffer);
     */
-    //adjustDatabase();
+    adjustDatabase();
     while(1){
         vTaskDelay(pdMS_TO_TICKS(10)); 
         //pcf8523_read_time(&rtc_time);
-        //timeDisplay(buffer); //update time on 
+        //timeDisplay(buffer); //update time
+        //if updated task, event or habit recieved, call corresponding function to update:
+        //updateTaskBuff();
+        //drawTasks();
+
         lv_timer_handler(); //update screen
     }
     //CloseSQL(&db);

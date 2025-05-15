@@ -37,7 +37,7 @@ static uint32_t k; //LVGL keyboard key
 
 /*
 char * convertTime(time_t * value){
-    struct tm * timeinfo = gmtime(value);
+    struct tm * timeinfo = localtime(value);
     char timestr[40];
     strftime(timestr, sizeof(timestr), "%D %r", timeinfo);
     return timestr;
@@ -196,13 +196,13 @@ static void eventTile_create(lv_obj_t * parent, event_t * event){
     
     label = lv_label_create(cont);
     lv_obj_set_style_text_font(label, &lv_font_montserrat_18, 0);
-    struct tm * timeinfo = gmtime(&(event->start_time));
+    struct tm * timeinfo = localtime(&(event->start_time));
     char timestr[40];
     strftime(timestr, sizeof(timestr), "%D %r", timeinfo);
     lv_label_set_text_fmt(label, "Date: %s", timestr);
 
     label = lv_label_create(cont);
-    timeinfo = gmtime(&(event->duration));
+    timeinfo = localtime(&(event->duration));
     strftime(timestr, sizeof(timestr), "%I:%M:%S", timeinfo);
     lv_label_set_text_fmt(label, "Duration: %s", timestr);
 
@@ -288,7 +288,7 @@ static void taskTile_create(lv_obj_t * parent, task_t * task){
     
     label = lv_label_create(cont);
     lv_obj_set_style_text_font(label, &lv_font_montserrat_18, 0);
-    struct tm * timeinfo = gmtime(&(task->time));
+    struct tm * timeinfo = localtime(&(task->time));
     char timestr[40];
     strftime(timestr, sizeof(timestr), "%D %r", timeinfo);
     lv_label_set_text_fmt(label, "Due date: %s", timestr);
@@ -402,7 +402,7 @@ void create_task(task_t * task){
 
     //label for due date
     label = lv_label_create(cont);
-    struct tm * timeinfo = gmtime(&(task->time));
+    struct tm * timeinfo = localtime(&(task->time));
     char timestr[40];
     strftime(timestr, sizeof(timestr), "%D %r", timeinfo);
     lv_label_set_text(label, timestr);
@@ -440,7 +440,7 @@ void create_event(event_t * event){
 
     //label for due date
     label = lv_label_create(cont);
-    struct tm * timeinfo = gmtime(&(event->start_time));
+    struct tm * timeinfo = localtime(&(event->start_time));
     char timestr[40];
     strftime(timestr, sizeof(timestr), "%D %r", timeinfo);
     lv_label_set_text(label, timestr);
@@ -666,14 +666,20 @@ void createHabit(habit_t * habit){
     //trying out button matrix
     lv_obj_t * buttons = lv_btnmatrix_create(habitlist);
     lv_gridnav_add(buttons, LV_GRIDNAV_CTRL_NONE);
-    lv_obj_add_event_cb(buttons, buttonmatrix_cb, LV_EVENT_KEY, NULL);
+    lv_obj_add_event_cb(buttons, buttonmatrix_cb, LV_EVENT_KEY, habit);
     lv_obj_set_style_bg_color(tile3, lv_palette_lighten(LV_PALETTE_BLUE, 4), LV_STATE_FOCUSED);
     lv_obj_set_style_pad_all(buttons, 5, LV_PART_MAIN);
     lv_group_add_obj(lv_group_get_default(), buttons);
     lv_btnmatrix_set_map(buttons, btnm_map);
     lv_obj_set_size(buttons, LCD_H_RES-50, LCD_V_RES/5.5);
-    for(uint8_t i = 0; i < 7; i++){
-        lv_btnmatrix_set_btn_ctrl(buttons, i, LV_BTNMATRIX_CTRL_CHECKABLE);
+    lv_btnmatrix_set_btn_ctrl_all(buttons, i, LV_BTNMATRIX_CTRL_CHECKABLE);
+    time_t currtime;
+    struct tm * timeinfo = localtime(currtime);
+    //timeinfo.tm_wday
+    for(uint8_t i = 7; i > 0; i++){
+        if(HabitEntryCompletedDB(database, habit->habit_id, datetime)){
+            lv_btnmatrix_set_btn_ctrl(buttons, i, LV_BTNMATRIX_CTRL_CHECKED);
+        }
         //TODO: disable button if not necessary for that day or toggle based off of habit list
         //lv_obj_add_state(btn, LV_STATE_DISABLED);
         //habit functionality for each button to have a cb funciton is also necessary
