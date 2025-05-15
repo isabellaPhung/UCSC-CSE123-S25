@@ -19,20 +19,20 @@ Demonstrate the different types of task modification possible on the web interfa
 
 - Add a new task
   1. In a web browser, navigate to the web interface and log-in with the user credentials:
-    - Username: FIXME
-    - Password: FIXME
+    - Username: bob
+    - Password: password
   2. Once logged in, create a new task with the following fields:
-    - Name: FIXME
-    - Description: FIXME
+    - Name: Mechatronics final project
+    - Description: Attend team meeting
     - Priority: Medium
-    - Due date: FIXME Put ISO time here
-  3. Save the task TODO do we want to verify to the audience that S3 sees this change?
+    - Due date: May 29th, 2025 23:59
+  3. Save the task
   4. From the device, manually request a refresh of the local tasks list through the UI.
   5. Navigate to the tasks page in the device UI. The new task should pop up corresponding to the due date.
 
 - Modify an existing task
   1. In the web interface, select the task added in the previous step.
-  2. Edit the name field of the task to FIXME
+  2. Edit the name field of the task to "Mechatronics presentation"
   3. Manually refresh on the device, and verify to the audience that the name has changed, while the other fields remain the same.
 
 - Remove a task
@@ -45,7 +45,7 @@ Demonstrate the different types of task modification possible on the web interfa
   2. Manually refresh on the device.
   3. On the device, mark the task as complete.
   4. In the web interface, mark the task as deleted.
-  5. Show on the web interface (or S3 bucket) that the task has been deleted. FIXME what's the easiest way of showing a deleted task?
+  5. Show on the web interface (or S3 bucket) that the task has been deleted.
 
 ### Part 3: Setup procedure {-}
 
