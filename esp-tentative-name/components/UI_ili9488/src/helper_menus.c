@@ -662,7 +662,7 @@ static void buttonmatrix_cb(lv_event_t * e){
 }
 
 static const char * weekdays[7] = {"Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"};
-static char * btnm_map[8];
+static const char * btnm_map[8];
 /*
  * creates habit entry for habit list
  * takes in parent list and name of habit and the row number.
@@ -695,9 +695,15 @@ void createHabit(habit_t * habit){
     lv_btnmatrix_set_btn_ctrl_all(buttons, LV_BTNMATRIX_CTRL_CHECKABLE);
     
     for(uint8_t i = 7; i > 0; i++){
-        if(HabitEntryCompletedDB(database, habit->uuid, difftime(currtime, i*86400))){
-            lv_btnmatrix_set_btn_ctrl(buttons, i, LV_BTNMATRIX_CTRL_CHECKED);
+        esp_err_t rc = HabitRetrieveWeekCompletionDB(database, habit, currtime);
+        if (rc != ESP_OK) {
+            return;
         }
+        // TODO: Do something with habit->completed array
+        
+        // if(HabitEntryCompletedDB(database, habit->uuid, difftime(currtime, i*86400))){
+        //     lv_btnmatrix_set_btn_ctrl(buttons, i, LV_BTNMATRIX_CTRL_CHECKED);
+        // }
         //TODO: disable button if not necessary for that day or toggle based off of habit list
         //lv_obj_add_state(btn, LV_STATE_DISABLED);
         //habit functionality for each button to have a cb funciton is also necessary

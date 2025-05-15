@@ -5,8 +5,6 @@
 #include <cJSON.h>
 #include <string.h>
 
-uint8_t GetDayFlag(int tm_wday);
-
 int RetrieveHabitsDB(sqlite3 *db, habit_t *habitBuffer, int count, int offset)
 {
     const char *TAG = "habit::RetrieveHabitsDB";
@@ -164,15 +162,7 @@ esp_err_t HabitAddEntryDB(sqlite3 *db, const char *habit_id, time_t datetime)
 {
     const char *TAG = "habit::HabitAddEntryDB";
 
-    // Convert time to date
-    struct tm day_tm;
-    if (!localtime_r(&datetime, &day_tm))
-    {
-        ESP_LOGE(TAG, "Invalid datetime parameter!");
-        return -1;
-    }
-    char date[11];
-    strftime(date, sizeof(date), "%Y-%m-%d", &day_tm);
+    time_t date = datetime - (datetime % 86400); // UTC truncation
 
     const char *sql = "INSERT OR IGNORE INTO habit_entries (habit_id, date) VALUES (?, ?);";
     sqlite3_stmt *stmt;
@@ -184,7 +174,7 @@ esp_err_t HabitAddEntryDB(sqlite3 *db, const char *habit_id, time_t datetime)
     }
 
     sqlite3_bind_text(stmt, 1, habit_id, -1, SQLITE_STATIC);
-    sqlite3_bind_text(stmt, 2, date, -1, SQLITE_STATIC);
+    sqlite3_bind_int64(stmt, 2, date);
 
     esp_err_t result = (sqlite3_step(stmt) == SQLITE_DONE) ? ESP_OK : ESP_FAIL;
 
@@ -201,15 +191,7 @@ esp_err_t HabitRemoveEntryDB(sqlite3 *db, const char *habit_id, time_t datetime)
 {
     const char *TAG = "habit::HabitRemoveEntryDB";
 
-    // Convert time to date
-    struct tm day_tm;
-    if (!localtime_r(&datetime, &day_tm))
-    {
-        ESP_LOGE(TAG, "Invalid datetime parameter!");
-        return -1;
-    }
-    char date[11];
-    strftime(date, sizeof(date), "%Y-%m-%d", &day_tm);
+    time_t date = datetime - (datetime % 86400); // UTC truncation
 
     const char *sql = "DELETE FROM habit_entries WHERE habit_id = ? AND date = ?;";
     sqlite3_stmt *stmt;
@@ -221,7 +203,7 @@ esp_err_t HabitRemoveEntryDB(sqlite3 *db, const char *habit_id, time_t datetime)
     }
 
     sqlite3_bind_text(stmt, 1, habit_id, -1, SQLITE_STATIC);
-    sqlite3_bind_text(stmt, 2, date, -1, SQLITE_STATIC);
+    sqlite3_bind_int64(stmt, 2, date);
 
     esp_err_t result = (sqlite3_step(stmt) == SQLITE_DONE) ? ESP_OK : ESP_FAIL;
 
@@ -234,194 +216,58 @@ esp_err_t HabitRemoveEntryDB(sqlite3 *db, const char *habit_id, time_t datetime)
     return result;
 }
 
-int HabitEntryCompletedDB(sqlite3 *db, const char *habit_id, time_t datetime)
+esp_err_t HabitRetrieveWeekCompletionDB(sqlite3 *db, habit_t *habit, time_t date)
 {
-    const char *TAG = "habit::HabitCheckEntryDB";
+    const char *TAG = "habit::HabitRetrieveWeekCompletionDB";
 
-    // Convert time to date
-    struct tm day_tm;
-    if (!localtime_r(&datetime, &day_tm))
+    // Check if day should be done
     {
-        ESP_LOGE(TAG, "Invalid datetime parameter!");
-        return -1;
+        struct tm day_tm;
+        if (!localtime_r(&date, &day_tm))
+        {
+            ESP_LOGE(TAG, "Invalid datetime parameter!");
+            return ESP_ERR_INVALID_ARG;
+        }
+
+        // Check if this day should be done
+        for (int i = 0; i < 7; i++)
+        {
+            // I love bit operators
+            // Checks for day of the week i days ago and determines if that day was due
+            habit->completed[i] = ((habit->goal >> (6 - (day_tm.tm_wday - i))) & 1) ? 2 : 0;
+        }
     }
-    char date[11];
-    strftime(date, sizeof(date), "%Y-%m-%d", &day_tm);
 
-    const char *sql = "SELECT 1 FROM habit_entries WHERE habit_id = ? AND date = ? LIMIT 1;";
+    time_t today = date - (date % 86400); // UTC truncation
+
     sqlite3_stmt *stmt;
-
+    const char *sql = "SELECT date FROM habit_entries WHERE habit_id = ? AND date IN (?, ?, ?, ?, ?, ?, ?)";
     if (sqlite3_prepare_v2(db, sql, -1, &stmt, NULL) != SQLITE_OK)
     {
         ESP_LOGE(TAG, "Prepare failed: %s", sqlite3_errmsg(db));
         return ESP_FAIL;
     }
 
-    sqlite3_bind_text(stmt, 1, habit_id, -1, SQLITE_STATIC);
-    sqlite3_bind_text(stmt, 2, date, -1, SQLITE_STATIC);
-
-    int rc = sqlite3_step(stmt);
-    sqlite3_finalize(stmt);
-
-    return (rc == SQLITE_ROW);
-}
-
-int HabitEntryDueDB(sqlite3 *db, const char *habit_id, time_t datetime)
-{
-    const char *TAG = "habit::HabitCheckDueEntryDB";
-
-    struct tm day_tm;
-    if (!localtime_r(&datetime, &day_tm))
+    for (int i = 0; i < 7; i++)
     {
-        ESP_LOGE(TAG, "Invalid datetime parameter!");
-        return -1;
+        // Insert today and 6 prior days to test
+        sqlite3_bind_int64(stmt, i + 1, today - i * 86400);
     }
 
-    const char *sql = "SELECT day_goals FROM habits WHERE id = ?";
-    sqlite3_stmt *stmt;
-
-    if (sqlite3_prepare_v2(db, sql, -1, &stmt, NULL) != SQLITE_OK)
+    // Check which days are valid
+    while (sqlite3_step(stmt) == SQLITE_ROW)
     {
-        ESP_LOGE(TAG, "Prepare failed: %s", sqlite3_errmsg(db));
-        return -1;
-    }
+        time_t found_day = sqlite3_column_int64(stmt, 0);
 
-    sqlite3_bind_text(stmt, 1, habit_id, -1, SQLITE_STATIC);
-
-    int day_goal = 0;
-    if (sqlite3_step(stmt) == SQLITE_ROW)
-    {
-        day_goal = sqlite3_column_int(stmt, 0);
-    }
-    else
-    {
-        ESP_LOGE(TAG, "Habit with id: %s not found!", habit_id);
-        return -1;
-    }
-
-    sqlite3_finalize(stmt);
-
-    // Check if today is a valid day
-    uint8_t today_flag = GetDayFlag(day_tm.tm_wday);
-    return (day_goal & today_flag) != 0;
-}
-
-uint8_t GetDayFlag(int tm_wday)
-{
-    switch (tm_wday)
-    {
-    case 0:
-        return SUNDAY_FLAG;
-    case 1:
-        return MONDAY_FLAG;
-    case 2:
-        return TUESDAY_FLAG;
-    case 3:
-        return WEDNESDAY_FLAG;
-    case 4:
-        return THURSDAY_FLAG;
-    case 5:
-        return FRIDAY_FLAG;
-    case 6:
-        return SATURDAY_FLAG;
-    default:
-        return 0;
-    }
-}
-
-// ----------------------------------------- TEST SCRIPT ------------------------------------------
-/*
-esp_err_t TestHabitFunctions(sqlite3 *db)
-{
-    const char *TAG = "habit::TestHabitFunctions";
-
-    time_t now = time(NULL);
-    struct tm tm_day;
-
-    // Generate two test days: today and yesterday
-    time_t date_today = now;
-    time_t date_yesterday = now - 86400;
-
-    const char *TEST_UUID = "123e4567-e89b-12d3-a456-426614174000";
-    const char *TEST_NAME = "Touch Grass";
-    int TEST_GOAL_MASK = 0b0111110;
-
-    ESP_LOGI(TAG, "=== Testing Habit Functions ===");
-
-    ESP_LOGI(TAG, "Adding test habit...");
-    if (HabitAddDB(db, TEST_UUID, TEST_NAME, TEST_GOAL_MASK) != ESP_OK)
-    {
-        ESP_LOGE(TAG, "Failed to add habit table");
-        return ESP_FAIL;
-    }
-
-    ESP_LOGI(TAG, "Adding entry for today...");
-    if (HabitAddEntryDB(db, TEST_UUID, date_today) != ESP_OK)
-    {
-        ESP_LOGE(TAG, "Failed to add today's entry");
-        return ESP_FAIL;
-    }
-
-    ESP_LOGI(TAG, "Adding entry for yesterday...");
-    if (HabitAddEntryDB(db, TEST_UUID, date_yesterday) != ESP_OK)
-    {
-        ESP_LOGE(TAG, "Failed to add yesterday's entry");
-        return ESP_FAIL;
-    }
-
-    ESP_LOGI(TAG, "Checking if today's entry exists...");
-    int result = HabitEntryCompletedDB(db, TEST_UUID, date_today);
-    if (result != 1)
-    {
-        ESP_LOGE(TAG, "Expected today's entry to exist, got %d", result);
-        return ESP_FAIL;
-    }
-
-    ESP_LOGI(TAG, "Checking if yesterday's entry exists...");
-    result = HabitEntryCompletedDB(db, TEST_UUID, date_yesterday);
-    if (result != 1)
-    {
-        ESP_LOGE(TAG, "Expected yesterday's entry to exist, got %d", result);
-        return ESP_FAIL;
-    }
-
-    ESP_LOGI(TAG, "Removing yesterday's entry...");
-    if (HabitRemoveEntryDB(db, TEST_UUID, date_yesterday) != ESP_OK)
-    {
-        ESP_LOGE(TAG, "Failed to remove yesterday's entry");
-        return ESP_FAIL;
-    }
-
-    ESP_LOGI(TAG, "Verifying yesterday's entry is removed...");
-    result = HabitEntryCompletedDB(db, TEST_UUID, date_yesterday);
-    if (result != 0)
-    {
-        ESP_LOGE(TAG, "Expected yesterday's entry to be gone, got %d", result);
-        return ESP_FAIL;
-    }
-
-    // Check if task is due today based on goal mask
-    localtime_r(&date_today, &tm_day);
-    int due = HabitEntryDueDB(db, TEST_UUID, date_today);
-
-    if ((TEST_GOAL_MASK >> tm_day.tm_wday) & 1)
-    {
-        if (!due)
+        for (int i = 0; i < 7; i++)
         {
-            ESP_LOGE(TAG, "Habit is due today but HabitEntryDueDB returned false");
-            return ESP_FAIL;
+            if ((today - i * 86400) == found_day)
+            {
+                habit->completed[i] = 1;
+                break;
+            }
         }
     }
-    else
-    {
-        if (due)
-        {
-            ESP_LOGE(TAG, "Habit is not due today but HabitEntryDueDB returned true");
-            return ESP_FAIL;
-        }
-    }
-
-    ESP_LOGI(TAG, "=== All habit DB tests passed! ===");
+    sqlite3_finalize(stmt);
     return ESP_OK;
 }
-*/

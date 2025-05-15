@@ -14,6 +14,9 @@ typedef struct
     char uuid[UUID_LENGTH];
     char name[MAX_NAME_SIZE];
     uint8_t goal;
+
+    // Status of the last 7 days; 0 on incomplete, 1 on complete, 2 on due
+    int completed[7];
 } habit_t;
 
 int RetrieveHabitsDB(sqlite3 *db, habit_t *habitBuffer, int count, int offset);
@@ -39,16 +42,11 @@ esp_err_t HabitRemoveEntryDB(sqlite3 *db, const char *habit_id, time_t datetime)
 
 // --------------------------------- Check if Habit is Relavent -----------------------------------
 
-/// @brief Determines if an entry exists on the inculded date
-/// @returns 1 on found, 0 on not found, -1 on error
-int HabitEntryCompletedDB(sqlite3 *db, const char *habit_id, time_t datetime);
-
-/// @brief Checks if the user needs to complete a task on a weekday
-/// @param wday Day of the week starting on Sunday (0-6)
-///             Defined in tm struct
-int HabitEntryDueDB(sqlite3 *db, const char *habit_id, time_t datetime);
-
-// DEBUG FUNCTION
-//esp_err_t TestHabitFunctions(sqlite3 *db);
+/// @brief Configures a habit's completion array with not complete (0), completed (1), and to-do (2) flags
+///        Inserted based on relative date from today (i.e. completed[4] is the status of the day 4 days ago)
+/// @param db Database to retrieve entry information from
+/// @param habit A habit that was sent through RetrieveHabitsDB
+/// @param date Date to reference from
+esp_err_t HabitRetrieveWeekCompletionDB(sqlite3 *db, habit_t *habit, time_t date);
 
 #endif
