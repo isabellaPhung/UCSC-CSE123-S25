@@ -9,7 +9,8 @@
 #include "nvs_flash.h"
 #include "esp_event.h"
 #include "esp_netif.h"
-#include "protocol_examples_common.h"
+
+#include "wifi_setup.h"
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -64,9 +65,9 @@ void app_main() {
   ESP_ERROR_CHECK(esp_netif_init());
   ESP_ERROR_CHECK(esp_event_loop_create_default());
 
-  ESP_ERROR_CHECK(example_connect());
+  setup_wifi();
 
-  char payload[] = "{\"id\":\"c72572d0-8c8c-4f37-8ff6-829cac2eabec\",\"action\":\"refresh\"}";
+  char payload[] = "{\"id\":\"55\",\"action\":\"refresh\",\"type\":\"task\"}";
   size_t payload_length = sizeof(payload) - 1;
 
   struct callback_data cb_data;

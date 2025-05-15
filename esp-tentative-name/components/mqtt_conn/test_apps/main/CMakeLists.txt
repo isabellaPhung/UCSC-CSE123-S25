@@ -6,7 +6,7 @@ idf_component_register(
     "nvs_flash"
     "esp_event"
     "esp_netif"
-    "protocol_examples_common"
     "json"
+    "wifi_setup"
   INCLUDE_DIRS "."
 )

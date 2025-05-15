@@ -5,9 +5,6 @@ cmake_minimum_required(VERSION 3.16)
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 
 set(EXTRA_COMPONENT_DIRS
-  # required for main
-  "$ENV{IDF_PATH}/examples/common_components/protocol_examples_common"
-
   # required for mqtt_conn
   "${CMAKE_CURRENT_LIST_DIR}/../../esp-aws-iot/libraries/backoffAlgorithm"
   "${CMAKE_CURRENT_LIST_DIR}/../../esp-aws-iot/libraries/coreMQTT"
@@ -15,6 +12,8 @@ set(EXTRA_COMPONENT_DIRS
 
   # mqtt_conn
   "${CMAKE_CURRENT_LIST_DIR}/.."
+  "${CMAKE_CURRENT_LIST_DIR}/../../wifi_setup"
+  "${CMAKE_CURRENT_LIST_DIR}/../../wifi_setup/components"
 )
 
 project(mqtt-conn-test)

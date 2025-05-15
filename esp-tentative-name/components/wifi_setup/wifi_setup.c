@@ -15,6 +15,8 @@
 
 #include "esp_http_server.h"
 
+#include "wifi_setup.h"
+
 #ifdef CONFIG_CAPTIVE_SERVER
 #include "dns_server.h"
 #endif
@@ -220,7 +222,7 @@ static httpd_handle_t start_webserver(void)
 {
     httpd_handle_t server = NULL;
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-    config.max_open_sockets = 13;
+    config.max_open_sockets = 4;
     config.lru_purge_enable = true;
 
     ESP_LOGI(TAG, "Starting server on port: '%d'", config.server_port);
