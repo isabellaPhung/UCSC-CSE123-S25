@@ -53,6 +53,13 @@ esp_err_t ParseTasksJSON(sqlite3 *db, const cJSON *taskItem)
         return ESP_ERR_INVALID_ARG;
     }
 
+    if ((TASK_STATUS)completion->valueint == MFD)
+    {
+        ESP_LOGW(TAG, "Entry is marked for deletion, ignoring");
+        free(task);
+        return ESP_ERR_INVALID_ARG;
+    }
+
     // Check lengths
     if (strlen(id->valuestring) >= UUID_LENGTH)
     {
@@ -70,14 +77,6 @@ esp_err_t ParseTasksJSON(sqlite3 *db, const cJSON *taskItem)
     strncpy(task->name, name->valuestring, MAX_NAME_SIZE - 1);
     task->time = (time_t)duedate->valueint;
     task->priority = (char)priority->valueint;
-
-    if ((TASK_STATUS)completion->valueint == MFD)
-    {
-        ESP_LOGE(TAG, "Cannot add an entry marked for deletion!");
-        free(task);
-        return ESP_ERR_INVALID_ARG;
-    }
-
     task->completion = (TASK_STATUS)completion->valueint;
 
     if (cJSON_IsString(description) && strlen(description->valuestring) < MAX_DESC_SIZE)
