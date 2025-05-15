@@ -452,7 +452,8 @@
             fetch('https://scheduleapp.click/api/today_habits', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': getCookie('csrf_access_token')
                 },
                 body: JSON.stringify({today: todayStr})
             })
@@ -543,7 +544,8 @@
             fetch('https://scheduleapp.click/api/update_habit', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': getCookie('csrf_access_token')
                 },
                 body: JSON.stringify({id: habitId, today: todayStr, completed: completed})
             })
@@ -605,7 +607,8 @@
                 fetch('https://scheduleapp.click/api/add_habit', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': getCookie('csrf_access_token')
                     },
                     body: JSON.stringify({name: habitName, goal: scheduledDays})
                 })
@@ -647,7 +650,8 @@
             fetch('https://scheduleapp.click/api/delete_habit', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': getCookie('csrf_access_token')
                 },
                 body: JSON.stringify({id: habitId})
             })
@@ -696,6 +700,13 @@
             // Remove last habit button
             document.getElementById('remove-last-habit-btn').addEventListener('click', removeLastHabit);
         });
+
+        // Get access token
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
     </script>
 </body>
 </html>

@@ -468,7 +468,7 @@
             fetch('https://localhost/api/get_devices', {
                 method: 'GET',
                 headers: {
-                    'X-CSRF-TOKEN': getCookie('csrf_access_token'),
+                    'X-CSRF-TOKEN': getCookie('csrf_access_token')
                 }
             })
             .then(response => {

@@ -72,6 +72,7 @@ def api_signup():
 
 
 @app.route("/api/add_task", methods=["POST"])
+@jwt_required()
 def api_add_task():
     name = request.json.get("name")
     description = request.json.get("description")
@@ -85,6 +86,7 @@ def api_add_task():
 
 
 @app.route("/api/today_tasks", methods=["POST"])
+@jwt_required()
 def api_today_tasks():
     start = request.json.get("start")
     end = request.json.get("end")
@@ -94,6 +96,7 @@ def api_today_tasks():
 
 
 @app.route("/api/add_event", methods=["POST"])
+@jwt_required()
 def api_add_event():
     name = request.json.get("name")
     description = request.json.get("description")
@@ -106,6 +109,7 @@ def api_add_event():
 
 
 @app.route("/api/delete_event", methods=["POST"])
+@jwt_required()
 def api_delete_event():
     id = request.json.get("id")
 
@@ -115,6 +119,7 @@ def api_delete_event():
 
 
 @app.route("/api/today_events", methods=["POST"])
+@jwt_required()
 def api_today_events():
     start = request.json.get("start")
     end = request.json.get("end")
@@ -124,6 +129,7 @@ def api_today_events():
 
 
 @app.route("/api/add_habit", methods=["POST"])
+@jwt_required()
 def api_add_habit():
     name = request.json.get("name")
     goal = request.json.get("goal")
@@ -134,6 +140,7 @@ def api_add_habit():
 
 
 @app.route("/api/update_habit", methods=["POST"])
+@jwt_required()
 def api_update_habit():
     id = request.json.get("id")
     today = request.json.get("today")
@@ -145,6 +152,7 @@ def api_update_habit():
 
 
 @app.route("/api/delete_habit", methods=["POST"])
+@jwt_required()
 def api_delete_habit():
     id = request.json.get("id")
 
@@ -154,6 +162,7 @@ def api_delete_habit():
 
 
 @app.route("/api/today_habits", methods=["POST"])
+@jwt_required()
 def api_today_habits():
     today = request.json.get("today")
 
@@ -168,15 +177,16 @@ def api_get_devices():
     return devices, 200
 
 
-@app.route("/api/get_users")
-def api_get_users():
-    users = s3_conn.get_users(data_only=True)
+@app.route("/api/get_all_tasks")
+@jwt_required()
+def api_get_all_tasks():
+    users = s3_conn.get_all_tasks()
     return users, 200
 
 
-@app.route("/api/get_all_tasks")
-def api_get_all_tasks():
-    users = s3_conn.get_all_tasks()
+@app.route("/api/get_users")
+def api_get_users():
+    users = s3_conn.get_users(data_only=True)
     return users, 200
 
 
