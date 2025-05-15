@@ -13,7 +13,8 @@
 #include "lwip/err.h"
 #include "lwip/sys.h"
 
-#include "esp_http_server.h"
+#include "esp_https_server.h"
+#include "esp_tls.h"
 
 #include "wifi_setup.h"
 
@@ -221,16 +222,26 @@ esp_err_t http_404_error_handler(httpd_req_t *req, httpd_err_code_t err)
 static httpd_handle_t start_webserver(void)
 {
     httpd_handle_t server = NULL;
-    httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-    config.max_open_sockets = 4;
-    config.lru_purge_enable = true;
+    httpd_ssl_config_t conf = HTTPD_SSL_CONFIG_DEFAULT();
 
-    ESP_LOGI(TAG, "Starting server on port: '%d'", config.server_port);
-    if (httpd_start(&server, &config) == ESP_OK) {
+    extern const unsigned char servercert_start[] asm("_binary_servercert_pem_start");
+    extern const unsigned char servercert_end[]   asm("_binary_servercert_pem_end");
+    conf.servercert = servercert_start;
+    conf.servercert_len = servercert_end - servercert_start;
+
+    extern const unsigned char prvtkey_pem_start[] asm("_binary_prvtkey_pem_start");
+    extern const unsigned char prvtkey_pem_end[]   asm("_binary_prvtkey_pem_end");
+    conf.prvtkey_pem = prvtkey_pem_start;
+    conf.prvtkey_len = prvtkey_pem_end - prvtkey_pem_start;
+
+    esp_err_t ret = httpd_ssl_start(&server, &conf);
+
+    if (ret == ESP_OK) {
         ESP_LOGI(TAG, "Registering URI handlers");
         httpd_register_uri_handler(server, &root);
         httpd_register_uri_handler(server, &login);
     }
+    ESP_LOGI(TAG, "Completed https server setup");
     return server;
 }
 
@@ -313,7 +324,7 @@ void setup_wifi(void){
 
   xEventGroupWaitBits(s_wifi_event_group, WIFI_CONNECTED_BIT, pdFALSE, pdFALSE, portMAX_DELAY);
 
-  httpd_stop(webserver);
+  httpd_ssl_stop(webserver);
   ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
   esp_netif_destroy_default_wifi(ap_netif);
   ESP_LOGI(TAG, "changing to sta only mode");

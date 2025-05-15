@@ -5,9 +5,12 @@ idf_component_register(
     "esp_event"
     "nvs_flash"
     "esp_wifi"
-    "esp_http_server"
+    "esp_https_server"
     "dns_server"
+    "esp-tls"
   INCLUDE_DIRS "."
   EMBED_TXTFILES
     "${CMAKE_CURRENT_LIST_DIR}/root.html"
+    "${CMAKE_CURRENT_LIST_DIR}/certs/prvtkey.pem"
+    "${CMAKE_CURRENT_LIST_DIR}/certs/servercert.pem"
 )
