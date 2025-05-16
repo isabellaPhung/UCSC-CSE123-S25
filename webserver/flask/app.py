@@ -190,6 +190,16 @@ def api_add_device():
     return {"message": outcome[1]}, 200
 
 
+@app.route("/api/delete_device", methods=["POST"])
+@jwt_required()
+def api_delete_device():
+    id = request.json.get("id")
+
+    if not s3_conn.delete_device(get_jwt_identity(), id):
+        return {"delete_device": False}, 400
+    return {"delete_device": True}, 200
+
+
 @app.route("/api/get_devices")
 @jwt_required()
 def api_get_devices():
