@@ -1,4 +1,4 @@
-menu "Example Configuration"
+menu "Wifi login portal setup"
 
     config ESP_WIFI_SSID
         string "SoftAP SSID"
@@ -17,6 +17,7 @@ menu "Example Configuration"
         default 4
         help
             Max number of the STA connects to AP.
+
    choice ESP_WIFI_SAE_MODE
         prompt "WPA3 SAE mode selection"
         default ESP_STATION_EXAMPLE_WPA3_SAE_PWE_BOTH
@@ -73,6 +74,7 @@ menu "Example Configuration"
 
     config CAPTIVE_SERVER
         bool "Enable the captive server"
+        default y
         help
             When the user connects to the access point, they will automatically be prompted to connect to the configuration page.
 endmenu
