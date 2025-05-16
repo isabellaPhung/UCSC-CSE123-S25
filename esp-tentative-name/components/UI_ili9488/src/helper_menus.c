@@ -266,13 +266,13 @@ static void exit_task_cb(){
 
 static void complete_task_cb(lv_event_t * e){
     task_t * task = lv_event_get_user_data(e);
-    UpdateTaskStatusDB(database, task->uuid, COMPLETE);
+    UpdateTaskStatus(database, task->uuid, COMPLETE);
     exit_task_cb();
 }
 
 static void incomplete_task_cb(lv_event_t * e){
     task_t * task = lv_event_get_user_data(e);
-    UpdateTaskStatusDB(database, task->uuid, INCOMPLETE);
+    UpdateTaskStatus(database, task->uuid, INCOMPLETE);
     exit_task_cb();
 }
 
@@ -284,7 +284,7 @@ static void focus_task_cb(lv_event_t * e){
 
 static void delete_task_cb(lv_event_t * e){
     task_t * task = lv_event_get_user_data(e);
-    UpdateTaskStatusDB(database, task->uuid, MFD);
+    UpdateTaskStatus(database, task->uuid, MFD);
     exit_task_cb();
 }
 

@@ -6,10 +6,8 @@
 #include "lvgl__lvgl/lvgl.h"
 
 #include "definitions.h"
+#include "messenger.h"
 #include "database.h"
-#include "task.h"
-#include "event.h"
-#include "habit.h"
 
 //initializes necessary fonts
 void initFonts();
