@@ -14,6 +14,8 @@ set(EXTRA_COMPONENT_DIRS
   "${CMAKE_CURRENT_LIST_DIR}/components/esp-aws-iot/libraries/backoffAlgorithm"
   "${CMAKE_CURRENT_LIST_DIR}/components/esp-aws-iot/libraries/coreMQTT"
   "${CMAKE_CURRENT_LIST_DIR}/components/esp-aws-iot/libraries/common/posix_compat"
+
+  "${CMAKE_CURRENT_LIST_DIR}/components/wifi_setup/components/dns_server"
 )
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)

@@ -1,7 +1,6 @@
 idf_component_register(
   SRCS
     "app_main.c"
-    "sender.c"
   REQUIRES
     "mqtt_conn"
     "UI_ili9488"
@@ -12,10 +11,11 @@ idf_component_register(
     "atanisoft__esp_lcd_ili9488"
     "espressif__button"
     "database"
+    "messenger"
+    "wifi_setup"
     "nvs_flash"
     "esp_event"
     "esp_netif"
-    "protocol_examples_common"
     "json"
 
   INCLUDE_DIRS "."

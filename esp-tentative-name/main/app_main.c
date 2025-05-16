@@ -9,7 +9,7 @@
 #include "nvs_flash.h"
 #include "esp_event.h"
 #include "esp_netif.h"
-#include "protocol_examples_common.h"
+#include "wifi_setup.h"
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -17,7 +17,7 @@
 
 #include "pcf8523.h"
 
-#include "sender.h"
+#include "messenger.h"
 #include "database.h"
 
 #include "display_init.h" //initalizes LVGL and display hardware
@@ -139,20 +139,17 @@ void app_main()
 
     // ------------------------------------- Set Up Wifi ------------------------------------------
     ESP_LOGI("main::Setting up Wifi", "Free heap total: %lu bytes", esp_get_free_heap_size());
-    esp_log_level_set("*", ESP_LOG_WARN);
+    esp_log_level_set("*", ESP_LOG_INFO);
 
-    esp_err_t ret = nvs_flash_init();
-    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
-    {
-        ESP_ERROR_CHECK(nvs_flash_erase());
-
-        ESP_ERROR_CHECK(nvs_flash_init());
-    }
+    esp_log_level_set("httpd_uri", ESP_LOG_ERROR);
+    esp_log_level_set("httpd_txrx", ESP_LOG_ERROR);
+    esp_log_level_set("httpd_parse", ESP_LOG_ERROR);
 
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
+    ESP_ERROR_CHECK(nvs_flash_init());
 
-    ESP_ERROR_CHECK(example_connect());
+    setup_wifi();
 
     // -------------------------------- Create new database object --------------------------------
     ESP_LOGI("main::Create new database object", "Free heap total: %lu bytes", esp_get_free_heap_size());
@@ -210,6 +207,9 @@ void app_main()
 
     assert(mqtt_init(&callback, (void *)&cb_data) == EXIT_SUCCESS);
 
+    // Send outgoing requests
+    SyncTaskRequests(&cb_data, DEVICE_ID);
+
     // Populate database
     ESP_LOGI("main::Initialize LCD", "Largest free block seen by request_backup: %d", heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
     request_backup(&cb_data);
@@ -229,7 +229,7 @@ void app_main()
 
     app_main_display();
 
-    long frame_timer = 0;
+    long int frame_timer = 0;
     while (1)
     {
         vTaskDelay(pdMS_TO_TICKS(10));
@@ -237,8 +237,10 @@ void app_main()
         frame_timer++;
 
         // Request from server
-        if (frame_timer >= 900000) // ~900 seconds
+        if (frame_timer >= 3000) // ~30 seconds
         {
+            ESP_LOGI(TAG, "Preforming Server Sync!");
+
             SyncTaskRequests(&cb_data, DEVICE_ID);
 
             request_backup(&cb_data);
