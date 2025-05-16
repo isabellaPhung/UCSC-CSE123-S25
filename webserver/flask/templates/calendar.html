@@ -435,7 +435,7 @@
             const today = new Date();
 
             // Load tasks from S3
-            fetch('https://scheduleapp.click/api/get_all_tasks', {
+            fetch('/api/get_all_tasks', {
                 method: 'GET',
                 headers: {
                     'X-CSRF-TOKEN': getCookie('csrf_access_token')
@@ -608,7 +608,7 @@
             const endTimestamp = Math.floor(dayEnd.getTime() / 1000);
 
             // Get user's tasks
-            fetch('https://scheduleapp.click/api/today_tasks', {
+            fetch('/api/today_tasks', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -326,7 +326,7 @@
             function loadUsers() {
                 let users;
 
-                fetch('https://scheduleapp.click/api/get_users', {
+                fetch('/api/get_users', {
                     method: 'GET'
                 })
                 .then(response => {
