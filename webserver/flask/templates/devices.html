@@ -488,8 +488,7 @@
                     return response.json();
                 })
                 .then(data => {
-                    console.log(data);
-                    const devices = data.devices || [];
+                    const devices = data.devices;
                     
                     // Clear loading message
                     deviceList.innerHTML = '';
@@ -685,20 +684,20 @@
             
             // Prepare device data
             const deviceData = {
-                name: deviceName,
-                id: deviceId
+                id: deviceId,
+                name: deviceName
             };
             
             // Determine if this is an add or edit
             const isEdit = editDeviceId !== '';
             const endpoint = isEdit ? `/api/update_device/${editDeviceId}` : '/api/add_device';
-            const method = isEdit ? 'PUT' : 'POST';
             
             // Send to backend
             fetch(endpoint, {
-                method: method,
+                method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': getCookie('csrf_access_token')
                 },
                 body: JSON.stringify(deviceData)
             })
@@ -775,6 +774,13 @@
                 console.error('Error during logout:', error);
                 window.location.href = 'login';
             });
+        }
+
+        // Get access token
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
         }
     </script>
 </body>

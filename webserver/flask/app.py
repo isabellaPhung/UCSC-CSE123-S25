@@ -22,7 +22,7 @@ jwt = JWTManager(app)
 
 @app.route("/test")
 def test():
-    return s3_conn.get_habits("2025-05-13"), 200
+    return s3_conn.get_all_devices()
 
 
 @app.route("/token/login", methods=["POST"])
@@ -93,6 +93,13 @@ def api_today_tasks():
 
     tasks = s3_conn.get_tasks(start, end)
     return tasks, 200
+
+
+@app.route("/api/get_all_tasks")
+@jwt_required()
+def api_get_all_tasks():
+    users = s3_conn.get_all_tasks()
+    return users, 200
 
 
 @app.route("/api/add_event", methods=["POST"])
@@ -170,18 +177,24 @@ def api_today_habits():
     return habits, 200
 
 
+@app.route("/api/add_device", methods=["POST"])
+@jwt_required()
+def api_add_device():
+    id = request.json.get("id")
+    name = request.json.get("name")
+
+    outcome = s3_conn.add_device(get_jwt_identity(), id, name)
+
+    if not outcome[0]:
+        return {"message": outcome[1]}, 400
+    return {"message": outcome[1]}, 200
+
+
 @app.route("/api/get_devices")
 @jwt_required()
 def api_get_devices():
-    devices = s3_conn.get_devices(get_jwt_identity())
+    devices = s3_conn.get_user_devices(get_jwt_identity())
     return devices, 200
-
-
-@app.route("/api/get_all_tasks")
-@jwt_required()
-def api_get_all_tasks():
-    users = s3_conn.get_all_tasks()
-    return users, 200
 
 
 @app.route("/api/get_users")

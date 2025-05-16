@@ -75,12 +75,38 @@ class AwsS3:
         )
         return True
 
-    def get_devices(self, username):
+    def get_user_devices(self, username):
         obj, data = self.get_users()
 
-        devices = [user["devices"] for user in data["users"] if user["username"] == username]
+        for user in data["users"]:
+            if user["username"] == username:
+                return {"devices": user["devices"]}
+
+    def get_all_devices(self):
+        obj = self.s3.Object(self.user_bucket, self.device_file)
+        data = json.loads(obj.get()["Body"].read().decode('utf-8'))
+
+        devices = [device["id"] for device in data["devices"]]
 
         return devices
+
+    def add_device(self, username, device_id, name):
+        if device_id not in self.get_all_devices():
+            return False, "Device ID not found"
+
+        obj, data = self.get_users()
+
+        for user in data["users"]:
+            if user["username"] == username:
+                if device_id in [device["id"] for device in user["devices"]]:
+                    return False, "Device already added"
+                user["devices"].append({"id": device_id, "name": name})
+
+        obj.put(
+            Body=(bytes(json.dumps(data, indent=2).encode("utf-8"))),
+            ContentType="application/json"
+        )
+        return True, "Success"
 
     def add_task(self, name, description, completion, priority, duedate):
         obj, data = self.load_info("task")
