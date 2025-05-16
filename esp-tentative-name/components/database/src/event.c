@@ -163,12 +163,44 @@ esp_err_t AddEventDB(sqlite3 *db, const event_t *event)
     const char *TAG = "event::AddEventDB";
     ESP_LOGI(TAG, "Free heap: %lu bytes", esp_get_free_heap_size());
 
-    const char *sql = "INSERT INTO events (id, name, starttime, duration, description) VALUES (?, ?, ?, ?, ?);";
+    // Try to UPDATE first
+    const char *update_sql =
+        "UPDATE events SET name = ?, starttime = ?, duration = ?, description = ? WHERE id = ?;";
     sqlite3_stmt *stmt;
-    int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+    int rc = sqlite3_prepare_v2(db, update_sql, -1, &stmt, NULL);
     if (rc != SQLITE_OK)
     {
-        ESP_LOGE(TAG, "Failed to prepare INSERT statement: %s", sqlite3_errmsg(db));
+        ESP_LOGE(TAG, "Prepare update failed: %s", sqlite3_errmsg(db));
+        return ESP_FAIL;
+    }
+
+    sqlite3_bind_text(stmt, 1, event->name, -1, SQLITE_STATIC);
+    sqlite3_bind_int64(stmt, 2, event->start_time);
+    sqlite3_bind_int64(stmt, 3, event->duration);
+    sqlite3_bind_text(stmt, 4, event->description, -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 5, event->uuid, -1, SQLITE_STATIC);
+
+    rc = sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+    if (rc != SQLITE_DONE)
+    {
+        ESP_LOGE(TAG, "Update failed: %s", sqlite3_errmsg(db));
+        return ESP_FAIL;
+    }
+
+    if (sqlite3_changes(db) > 0)
+    {
+        ESP_LOGI(TAG, "Updated event with ID: %s", event->uuid);
+        return ESP_OK;
+    }
+
+    // Insert if no update occurred
+    const char *insert_sql =
+        "INSERT INTO events (id, name, starttime, duration, description) VALUES (?, ?, ?, ?, ?);";
+    rc = sqlite3_prepare_v2(db, insert_sql, -1, &stmt, NULL);
+    if (rc != SQLITE_OK)
+    {
+        ESP_LOGE(TAG, "Prepare insert failed: %s", sqlite3_errmsg(db));
         return ESP_FAIL;
     }
 
@@ -179,18 +211,15 @@ esp_err_t AddEventDB(sqlite3 *db, const event_t *event)
     sqlite3_bind_text(stmt, 5, event->description, -1, SQLITE_STATIC);
 
     rc = sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
     if (rc != SQLITE_DONE)
     {
-        ESP_LOGE(TAG, "Failed to execute INSERT statement: %s", sqlite3_errmsg(db));
-        ESP_LOGI(TAG, "Free heap: %lu bytes", esp_get_free_heap_size());
-    }
-    else
-    {
-        ESP_LOGI(TAG, "Inserted event with ID: %s", event->uuid);
+        ESP_LOGE(TAG, "Insert failed: %s", sqlite3_errmsg(db));
+        return ESP_FAIL;
     }
 
-    sqlite3_finalize(stmt);
-    return (rc == SQLITE_DONE) ? ESP_OK : ESP_FAIL;
+    ESP_LOGI(TAG, "Inserted new event with ID: %s", event->uuid);
+    return ESP_OK;
 }
 
 esp_err_t RemoveEventDB(sqlite3 *db, const char *uuid)

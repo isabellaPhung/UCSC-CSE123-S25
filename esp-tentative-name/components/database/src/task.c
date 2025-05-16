@@ -237,13 +237,45 @@ esp_err_t AddTaskDB(sqlite3 *db, task_t *ent)
     static const char *TAG = "task::AddTaskDB";
     ESP_LOGI(TAG, "Free heap: %lu bytes", esp_get_free_heap_size());
 
-    static const char *sql = "INSERT INTO tasks (id, name, datetime, priority, completed, description) "
-                             "VALUES (?, ?, ?, ?, ?, ?);";
+    // First, try to UPDATE
+    const char *update_sql =
+        "UPDATE tasks SET name = ?, datetime = ?, priority = ?, completed = ?, description = ? WHERE id = ?;";
     sqlite3_stmt *stmt;
-    int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+    int rc = sqlite3_prepare_v2(db, update_sql, -1, &stmt, NULL);
     if (rc != SQLITE_OK)
     {
-        ESP_LOGE(TAG, "Cannot prepare statement: %s", sqlite3_errmsg(db));
+        ESP_LOGE(TAG, "Cannot prepare update statement: %s", sqlite3_errmsg(db));
+        return ESP_FAIL;
+    }
+
+    sqlite3_bind_text(stmt, 1, ent->name, -1, SQLITE_STATIC);
+    sqlite3_bind_int64(stmt, 2, (sqlite3_int64)ent->time);
+    sqlite3_bind_int(stmt, 3, (int)ent->priority);
+    sqlite3_bind_int(stmt, 4, (int)ent->completion);
+    sqlite3_bind_text(stmt, 5, ent->description, -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 6, ent->uuid, -1, SQLITE_STATIC);
+
+    rc = sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+    if (rc != SQLITE_DONE)
+    {
+        ESP_LOGE(TAG, "Update failed: %s", sqlite3_errmsg(db));
+        return ESP_FAIL;
+    }
+
+    if (sqlite3_changes(db) > 0)
+    {
+        ESP_LOGI(TAG, "Updated task with UUID <%s>", ent->uuid);
+        return ESP_OK;
+    }
+
+    // No update happened, try to INSERT
+    const char *insert_sql =
+        "INSERT INTO tasks (id, name, datetime, priority, completed, description) VALUES (?, ?, ?, ?, ?, ?);";
+    rc = sqlite3_prepare_v2(db, insert_sql, -1, &stmt, NULL);
+    if (rc != SQLITE_OK)
+    {
+        ESP_LOGE(TAG, "Cannot prepare insert statement: %s", sqlite3_errmsg(db));
         return ESP_FAIL;
     }
 
@@ -255,16 +287,14 @@ esp_err_t AddTaskDB(sqlite3 *db, task_t *ent)
     sqlite3_bind_text(stmt, 6, ent->description, -1, SQLITE_STATIC);
 
     rc = sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
     if (rc != SQLITE_DONE)
     {
-        ESP_LOGE(TAG, "Execution failed: %s", sqlite3_errmsg(db));
-        ESP_LOGI(TAG, "Free heap: %lu bytes", esp_get_free_heap_size());
-        sqlite3_finalize(stmt);
+        ESP_LOGE(TAG, "Insert failed: %s", sqlite3_errmsg(db));
         return ESP_FAIL;
     }
 
-    sqlite3_finalize(stmt);
-    ESP_LOGI(TAG, "Added <%s> with UUID <%s>", ent->name, ent->uuid);
+    ESP_LOGI(TAG, "Inserted new task <%s> with UUID <%s>", ent->name, ent->uuid);
     return ESP_OK;
 }
 
