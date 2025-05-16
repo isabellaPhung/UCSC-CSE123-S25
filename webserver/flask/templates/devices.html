@@ -335,6 +335,14 @@
         .active-device-name {
             font-weight: bold;
         }
+        
+        .error-message {
+            color: #f44336;
+            margin-top: 10px;
+            text-align: center;
+            font-size: 14px;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -364,6 +372,7 @@
         
         <div class="device-list" id="device-list">
             <!-- Devices will be dynamically loaded here -->
+            <div class="no-devices">Loading devices...</div>
         </div>
         
         <div class="setup-instructions">
@@ -408,17 +417,19 @@
             </div>
             
             <form id="device-form">
-                <input type="hidden" id="edit-device-id">
+                <input type="hidden" id="edit-device-id" name="edit-device-id">
                 
                 <div class="form-group">
                     <label for="device-name">Device Name</label>
-                    <input type="text" id="device-name" placeholder="e.g., Kitchen Tablet" required>
+                    <input type="text" id="device-name" name="device-name" placeholder="e.g., Kitchen Tablet" required>
                 </div>
                 
                 <div class="form-group">
                     <label for="device-id">Device ID</label>
-                    <input type="text" id="device-id" placeholder="Enter the device ID" required>
+                    <input type="text" id="device-id" name="device-id" placeholder="Enter the device ID" required>
                 </div>
+                
+                <div class="error-message" id="device-error-message"></div>
                 
                 <div class="modal-actions">
                     <button type="button" class="cancel-btn" id="cancel-btn">Cancel</button>
@@ -430,17 +441,8 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Get the current user from localStorage
-            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-            
-            // Set username
-            document.getElementById('username-display').textContent = currentUser.username;
-            
-            // Get the active device if any
-            const activeDeviceId = localStorage.getItem('activeDeviceId');
-            if (activeDeviceId) {
-                showActiveDeviceBanner(activeDeviceId);
-            }
+            // Fetch current user information
+            fetchUserInfo();
             
             // Event Listeners
             document.getElementById('logout-btn').addEventListener('click', logout);
@@ -452,161 +454,200 @@
                 window.location.href = 'index';
             });
             
-            // Load devices
+            // Check for active device and load user's devices
+            checkActiveDevice();
             loadUserDevices();
         });
         
-        // Load user's devices
+        // Fetch current user information
+        function fetchUserInfo() {
+            // Get JWT token identity to retrieve username
+            fetch('/api/current_user')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Not authenticated');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById('username-display').textContent = data.username;
+                })
+                .catch(error => {
+                    console.error('Error fetching user info:', error);
+                    window.location.href = 'login';
+                });
+        }
+        
+        // Check if there's an active device
+        function checkActiveDevice() {
+            fetch('/api/active_device')
+                .then(response => {
+                    if (!response.ok) {
+                        return null;
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data && data.device) {
+                        showActiveDeviceBanner(data.device);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking active device:', error);
+                });
+        }
+        
+        // Load user's devices from the backend
         function loadUserDevices() {
             const deviceList = document.getElementById('device-list');
-            deviceList.innerHTML = '';
+            deviceList.innerHTML = '<div class="no-devices">Loading devices...</div>';
             
-            // Get current user
-            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-            
-            // Get user's devices from the backend
-            fetch('https://localhost/api/get_devices', {
-                method: 'GET',
-                headers: {
-                    'X-CSRF-TOKEN': getCookie('csrf_access_token')
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to fetch devices');
-                }
-                return response.json();
-            })
-            .then(data => {
-                const devices = data.devices || [];
-                
-                // Check if user has any devices
-                if (devices.length === 0) {
-                    const noDevicesMsg = document.createElement('div');
-                    noDevicesMsg.className = 'no-devices';
-                    noDevicesMsg.textContent = 'You don\'t have any devices yet. Add a device to get started.';
-                    deviceList.appendChild(noDevicesMsg);
-                    return;
-                }
-                
-                // Get active device ID
-                const activeDeviceId = localStorage.getItem('activeDeviceId');
-                
-                // Display each device
-                devices.forEach(device => {
-                    const deviceCard = document.createElement('div');
-                    deviceCard.className = 'device-card';
-                    if (device.id === activeDeviceId) {
-                        deviceCard.classList.add('active');
+            fetch('/api/get_devices')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch devices');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const devices = data.devices || [];
+                    
+                    // Clear loading message
+                    deviceList.innerHTML = '';
+                    
+                    // Check if user has any devices
+                    if (devices.length === 0) {
+                        const noDevicesMsg = document.createElement('div');
+                        noDevicesMsg.className = 'no-devices';
+                        noDevicesMsg.textContent = 'You don\'t have any devices yet. Add a device to get started.';
+                        deviceList.appendChild(noDevicesMsg);
+                        return;
                     }
                     
-                    const deviceInfo = document.createElement('div');
-                    deviceInfo.className = 'device-info';
-                    
-                    const deviceName = document.createElement('div');
-                    deviceName.className = 'device-name';
-                    deviceName.textContent = device.name;
-                    
-                    const deviceId = document.createElement('div');
-                    deviceId.className = 'device-id';
-                    deviceId.textContent = `ID: ${device.id}`;
-                    
-                    // Optional status (if available)
-                    if (device.status) {
-                        const deviceStatus = document.createElement('div');
-                        deviceStatus.className = `device-status status-${device.status.toLowerCase()}`;
-                        deviceStatus.textContent = device.status;
-                        deviceInfo.appendChild(deviceStatus);
-                    }
-                    
-                    deviceInfo.appendChild(deviceName);
-                    deviceInfo.appendChild(deviceId);
-                    
-                    const deviceActions = document.createElement('div');
-                    deviceActions.className = 'device-actions';
-                    
-                    // Select button
-                    const selectBtn = document.createElement('button');
-                    selectBtn.className = 'action-btn select-btn';
-                    selectBtn.innerHTML = device.id === activeDeviceId ? 'Selected' : 'Select';
-                    selectBtn.title = 'Select this device to manage';
-                    selectBtn.addEventListener('click', function() {
-                        selectDevice(device.id, device.name);
-                    });
-                    
-                    // Edit button
-                    const editBtn = document.createElement('button');
-                    editBtn.className = 'action-btn edit-btn';
-                    editBtn.innerHTML = '✏️';
-                    editBtn.title = 'Edit device details';
-                    editBtn.addEventListener('click', function() {
-                        showEditDeviceModal(device);
-                    });
-                    
-                    // Delete button
-                    const deleteBtn = document.createElement('button');
-                    deleteBtn.className = 'action-btn delete-btn';
-                    deleteBtn.innerHTML = '🗑️';
-                    deleteBtn.title = 'Remove this device';
-                    deleteBtn.addEventListener('click', function() {
-                        deleteDevice(device.id);
-                    });
-                    
-                    deviceActions.appendChild(selectBtn);
-                    deviceActions.appendChild(editBtn);
-                    deviceActions.appendChild(deleteBtn);
-                    
-                    deviceCard.appendChild(deviceInfo);
-                    deviceCard.appendChild(deviceActions);
-                    
-                    deviceList.appendChild(deviceCard);
+                    // Get active device info
+                    fetch('/api/active_device')
+                        .then(response => response.ok ? response.json() : { device: null })
+                        .then(activeData => {
+                            const activeDeviceId = activeData.device ? activeData.device.id : null;
+                            
+                            // Display each device
+                            devices.forEach(device => {
+                                const deviceCard = document.createElement('div');
+                                deviceCard.className = 'device-card';
+                                if (device.id === activeDeviceId) {
+                                    deviceCard.classList.add('active');
+                                }
+                                
+                                const deviceInfo = document.createElement('div');
+                                deviceInfo.className = 'device-info';
+                                
+                                const deviceName = document.createElement('div');
+                                deviceName.className = 'device-name';
+                                deviceName.textContent = device.name;
+                                
+                                const deviceId = document.createElement('div');
+                                deviceId.className = 'device-id';
+                                deviceId.textContent = `ID: ${device.id}`;
+                                
+                                // Optional status (if available)
+                                if (device.status) {
+                                    const deviceStatus = document.createElement('div');
+                                    deviceStatus.className = `device-status status-${device.status.toLowerCase()}`;
+                                    deviceStatus.textContent = device.status;
+                                    deviceInfo.appendChild(deviceStatus);
+                                }
+                                
+                                deviceInfo.appendChild(deviceName);
+                                deviceInfo.appendChild(deviceId);
+                                
+                                const deviceActions = document.createElement('div');
+                                deviceActions.className = 'device-actions';
+                                
+                                // Select button
+                                const selectBtn = document.createElement('button');
+                                selectBtn.className = 'action-btn select-btn';
+                                selectBtn.innerHTML = device.id === activeDeviceId ? 'Selected' : 'Select';
+                                selectBtn.title = 'Select this device to manage';
+                                selectBtn.addEventListener('click', function() {
+                                    selectDevice(device.id, device.name);
+                                });
+                                
+                                // Edit button
+                                const editBtn = document.createElement('button');
+                                editBtn.className = 'action-btn edit-btn';
+                                editBtn.innerHTML = '✏️';
+                                editBtn.title = 'Edit device details';
+                                editBtn.addEventListener('click', function() {
+                                    showEditDeviceModal(device);
+                                });
+                                
+                                // Delete button
+                                const deleteBtn = document.createElement('button');
+                                deleteBtn.className = 'action-btn delete-btn';
+                                deleteBtn.innerHTML = '🗑️';
+                                deleteBtn.title = 'Remove this device';
+                                deleteBtn.addEventListener('click', function() {
+                                    deleteDevice(device.id);
+                                });
+                                
+                                deviceActions.appendChild(selectBtn);
+                                deviceActions.appendChild(editBtn);
+                                deviceActions.appendChild(deleteBtn);
+                                
+                                deviceCard.appendChild(deviceInfo);
+                                deviceCard.appendChild(deviceActions);
+                                
+                                deviceList.appendChild(deviceCard);
+                            });
+                        });
+                })
+                .catch(error => {
+                    console.error('Error loading devices:', error);
+                    deviceList.innerHTML = `
+                        <div class="no-devices">
+                            Failed to load devices. Please try again later.
+                        </div>
+                    `;
                 });
-            })
-            .catch(error => {
-                console.error('Error loading devices:', error);
-                deviceList.innerHTML = `
-                    <div class="no-devices">
-                        Failed to load devices. Please try again later.
-                    </div>
-                `;
-            });
         }
         
         // Show active device banner
-        function showActiveDeviceBanner(deviceId) {
-            // Find device details
-            fetch(`https://localhost/api/device/${deviceId}`, {
-                method: 'GET'
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to fetch device details');
-                }
-                return response.json();
-            })
-            .then(data => {
-                const device = data.device;
-                if (device) {
-                    document.getElementById('active-device-name').textContent = device.name;
-                    document.getElementById('active-device-banner').style.display = 'flex';
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching device details:', error);
-            });
+        function showActiveDeviceBanner(device) {
+            if (device && device.name) {
+                document.getElementById('active-device-name').textContent = device.name;
+                document.getElementById('active-device-banner').style.display = 'flex';
+            }
         }
         
         // Select a device to manage
         function selectDevice(deviceId, deviceName) {
-            // Store the active device ID in localStorage
-            localStorage.setItem('activeDeviceId', deviceId);
-            localStorage.setItem('activeDeviceName', deviceName);
-            
-            // Show confirmation
-            alert(`You are now managing "${deviceName}"`);
-            
-            // Refresh the page
-            window.location.reload();
+            // Send selection to backend
+            fetch('/api/select_device', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    device_id: deviceId
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to select device');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Show confirmation
+                alert(`You are now managing "${deviceName}"`);
+                
+                // Refresh the page
+                window.location.reload();
+            })
+            .catch(error => {
+                console.error('Error selecting device:', error);
+                alert('Failed to select device. Please try again.');
+            });
         }
         
         // Show add device modal
@@ -614,6 +655,7 @@
             // Reset form
             document.getElementById('device-form').reset();
             document.getElementById('edit-device-id').value = '';
+            document.getElementById('device-error-message').style.display = 'none';
             
             // Set modal title
             document.getElementById('modal-title').textContent = 'Add New Device';
@@ -628,6 +670,7 @@
             document.getElementById('device-name').value = device.name;
             document.getElementById('device-id').value = device.id;
             document.getElementById('edit-device-id').value = device.id;
+            document.getElementById('device-error-message').style.display = 'none';
             
             // Set modal title
             document.getElementById('modal-title').textContent = 'Edit Device';
@@ -641,6 +684,13 @@
             document.getElementById('device-modal').style.display = 'none';
         }
         
+        // Show error message in modal
+        function showModalError(message) {
+            const errorElement = document.getElementById('device-error-message');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+        
         // Save device (add or edit)
         function saveDevice(e) {
             e.preventDefault();
@@ -650,7 +700,7 @@
             const deviceId = document.getElementById('device-id').value;
             
             if (!deviceName || !deviceId) {
-                alert('Please fill in all fields');
+                showModalError('Please fill in all fields');
                 return;
             }
             
@@ -662,7 +712,7 @@
             
             // Determine if this is an add or edit
             const isEdit = editDeviceId !== '';
-            const endpoint = isEdit ? `https://localhost/api/update_device/${editDeviceId}` : 'https://localhost/api/add_device';
+            const endpoint = isEdit ? `/api/update_device/${editDeviceId}` : '/api/add_device';
             const method = isEdit ? 'PUT' : 'POST';
             
             // Send to backend
@@ -675,6 +725,11 @@
             })
             .then(response => {
                 if (!response.ok) {
+                    if (response.status === 400) {
+                        return response.json().then(data => {
+                            throw new Error(data.message || 'Device operation failed');
+                        });
+                    }
                     throw new Error(isEdit ? 'Failed to update device' : 'Failed to add device');
                 }
                 return response.json();
@@ -683,32 +738,29 @@
                 // Close modal
                 closeModal();
                 
-                // If there are no active devices, set this as active
-                if (!localStorage.getItem('activeDeviceId')) {
-                    localStorage.setItem('activeDeviceId', deviceId);
-                    localStorage.setItem('activeDeviceName', deviceName);
-                }
-                
                 // Show success message
                 alert(isEdit ? 'Device updated successfully!' : 'Device added successfully!');
+                
+                // If there are no active devices, automatically select this one
+                checkActiveDevice();
                 
                 // Reload devices
                 loadUserDevices();
             })
             .catch(error => {
                 console.error('Error saving device:', error);
-                alert(error.message);
+                showModalError(error.message);
             });
         }
         
         // Delete a device
         function deleteDevice(deviceId) {
-            if (!confirm('Are you sure you want to remove this device? All associated data will be lost.')) {
+            if (!confirm('Are you sure you want to remove this device? This will not remove the physical device from the system, only from your account.')) {
                 return;
             }
             
             // Send delete request to backend
-            fetch(`https://localhost/api/delete_device/${deviceId}`, {
+            fetch(`/api/delete_device/${deviceId}`, {
                 method: 'DELETE'
             })
             .then(response => {
@@ -718,17 +770,11 @@
                 return response.json();
             })
             .then(data => {
-                // Check if the deleted device was the active device
-                const activeDeviceId = localStorage.getItem('activeDeviceId');
-                if (activeDeviceId === deviceId) {
-                    localStorage.removeItem('activeDeviceId');
-                    localStorage.removeItem('activeDeviceName');
-                }
-                
                 // Show success message
                 alert('Device removed successfully!');
                 
-                // Reload devices
+                // Reload devices and check active device status
+                checkActiveDevice();
                 loadUserDevices();
             })
             .catch(error => {
@@ -739,12 +785,8 @@
         
         // Logout function
         function logout() {
-            localStorage.removeItem('currentUser');
-            localStorage.removeItem('activeDeviceId');
-            localStorage.removeItem('activeDeviceName');
-            
             // Send logout request to backend
-            fetch('https://localhost/token/remove', {
+            fetch('/token/remove', {
                 method: 'POST'
             })
             .then(() => {
@@ -754,13 +796,6 @@
                 console.error('Error during logout:', error);
                 window.location.href = 'login';
             });
-        }
-
-        // Get access token
-        function getCookie(name) {
-            const value = `; ${document.cookie}`;
-            const parts = value.split(`; ${name}=`);
-            if (parts.length === 2) return parts.pop().split(';').shift();
         }
     </script>
 </body>
