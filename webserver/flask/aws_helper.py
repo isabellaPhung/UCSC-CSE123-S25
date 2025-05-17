@@ -108,6 +108,20 @@ class AwsS3:
         )
         return True, "Success"
 
+    def delete_device(self, username, device_id):
+        obj, data = self.get_users()
+
+        for user in data["users"]:
+            if user["username"] == username:
+                user["devices"] = [device for device in user["devices"]
+                                   if device["id"] != device_id]
+
+        obj.put(
+            Body=(bytes(json.dumps(data, indent=2).encode("utf-8"))),
+            ContentType="application/json"
+        )
+        return True
+
     def add_task(self, name, description, completion, priority, duedate):
         obj, data = self.load_info("task")
 

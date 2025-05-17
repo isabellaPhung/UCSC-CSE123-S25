@@ -738,8 +738,13 @@
             }
             
             // Send delete request to backend
-            fetch(`/api/delete_device/${deviceId}`, {
-                method: 'DELETE'
+            fetch('/api/delete_device', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': getCookie('csrf_access_token')
+                },
+                body: JSON.stringify({"id": deviceId})
             })
             .then(response => {
                 if (!response.ok) {
