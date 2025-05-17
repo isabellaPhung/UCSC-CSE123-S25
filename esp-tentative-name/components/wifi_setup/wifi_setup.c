@@ -13,14 +13,18 @@
 #include "lwip/err.h"
 #include "lwip/sys.h"
 
+#ifdef CONFIG_HTTPS_SERVER
 #include "esp_https_server.h"
 #include "esp_tls.h"
-
-#include "wifi_setup.h"
+#else
+#include "esp_http_server.h"
+#endif
 
 #ifdef CONFIG_CAPTIVE_SERVER
 #include "dns_server.h"
 #endif
+
+#include "wifi_setup.h"
 
 #define EXAMPLE_ESP_WIFI_SSID CONFIG_ESP_WIFI_SSID
 #define EXAMPLE_ESP_WIFI_PASS CONFIG_ESP_WIFI_PASSWORD
@@ -72,6 +76,10 @@ static int s_retry_num = 0;
 
 static bool connected = false;
 
+#ifdef CONFIG_CAPTIVE_SERVER
+    static dns_server_handle_t dns_server;
+#endif
+
 #define WIFI_CONNECTED_BIT BIT0
 #define WIFI_FAIL_BIT      BIT1
 
@@ -117,35 +125,6 @@ esp_err_t init_wifi_sta(const char ssid[32], const char pswd[64]){
     ret = ESP_FAIL;
   }
   return ret;
-}
-
-static void init_wifi_ap(void){
-  wifi_config_t wifi_config = {
-    .ap = {
-      .ssid = EXAMPLE_ESP_WIFI_SSID,
-      .ssid_len = strlen(EXAMPLE_ESP_WIFI_SSID),
-      .password = EXAMPLE_ESP_WIFI_PASS,
-      .max_connection = EXAMPLE_MAX_STA_CONN,
-      .authmode = WIFI_AUTH_WPA_WPA2_PSK
-    },
-  };
-  if (strlen(EXAMPLE_ESP_WIFI_PASS) == 0) {
-    wifi_config.ap.authmode = WIFI_AUTH_OPEN;
-  }
-
-  ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
-  ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_AP, &wifi_config));
-  ESP_ERROR_CHECK(esp_wifi_start());
-
-  esp_netif_ip_info_t ip_info;
-  esp_netif_get_ip_info(esp_netif_get_handle_from_ifkey("WIFI_AP_DEF"), &ip_info);
-
-  char ip_addr[16];
-  inet_ntoa_r(ip_info.ip.addr, ip_addr, 16);
-  ESP_LOGI(TAG, "Set up softAP with IP: %s", ip_addr);
-
-  ESP_LOGI(TAG, "wifi_init_softap finished. SSID:'%s' password:'%s'",
-      EXAMPLE_ESP_WIFI_SSID, EXAMPLE_ESP_WIFI_PASS);
 }
 
 static esp_err_t root_get_handler(httpd_req_t *req)
@@ -222,6 +201,8 @@ esp_err_t http_404_error_handler(httpd_req_t *req, httpd_err_code_t err)
 static httpd_handle_t start_webserver(void)
 {
     httpd_handle_t server = NULL;
+
+#ifdef CONFIG_HTTPS_SERVER
     httpd_ssl_config_t conf = HTTPD_SSL_CONFIG_DEFAULT();
 
     extern const unsigned char servercert_start[] asm("_binary_servercert_pem_start");
@@ -235,14 +216,73 @@ static httpd_handle_t start_webserver(void)
     conf.prvtkey_len = prvtkey_pem_end - prvtkey_pem_start;
 
     esp_err_t ret = httpd_ssl_start(&server, &conf);
+#else
+    httpd_config_t config = HTTPD_DEFAULT_CONFIG();
+    config.max_open_sockets = 13;
+    config.lru_purge_enable = true;
+
+    esp_err_t ret = httpd_start(&server, &config);
+#endif
 
     if (ret == ESP_OK) {
         ESP_LOGI(TAG, "Registering URI handlers");
         httpd_register_uri_handler(server, &root);
         httpd_register_uri_handler(server, &login);
+#ifdef CONFIG_CAPTIVE_SERVER
+        httpd_register_err_handler(server, HTTPD_404_NOT_FOUND, http_404_error_handler);
+#endif
     }
     ESP_LOGI(TAG, "Completed https server setup");
     return server;
+}
+
+static void init_wifi_ap(void){
+  wifi_config_t wifi_config = {
+    .ap = {
+      .ssid = EXAMPLE_ESP_WIFI_SSID,
+      .ssid_len = strlen(EXAMPLE_ESP_WIFI_SSID),
+      .password = EXAMPLE_ESP_WIFI_PASS,
+      .max_connection = EXAMPLE_MAX_STA_CONN,
+      .authmode = WIFI_AUTH_WPA_WPA2_PSK
+    },
+  };
+  if (strlen(EXAMPLE_ESP_WIFI_PASS) == 0) {
+    wifi_config.ap.authmode = WIFI_AUTH_OPEN;
+  }
+
+  ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
+  ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_AP, &wifi_config));
+  ESP_ERROR_CHECK(esp_wifi_start());
+
+  esp_netif_ip_info_t ip_info;
+  esp_netif_get_ip_info(esp_netif_get_handle_from_ifkey("WIFI_AP_DEF"), &ip_info);
+
+  char ip_addr[16];
+  inet_ntoa_r(ip_info.ip.addr, ip_addr, 16);
+  ESP_LOGI(TAG, "Set up softAP with IP: %s", ip_addr);
+
+  ESP_LOGI(TAG, "wifi_init_softap finished. SSID:'%s' password:'%s'",
+      EXAMPLE_ESP_WIFI_SSID, EXAMPLE_ESP_WIFI_PASS);
+
+  webserver = start_webserver();
+#ifdef CONFIG_CAPTIVE_SERVER
+  // Start the DNS server that will redirect all queries to the softAP IP
+  dns_server_config_t dns_conf = DNS_SERVER_CONFIG_SINGLE("*" /* all A queries */, "WIFI_AP_DEF" /* softAP netif ID */);
+  dns_server = start_dns_server(&dns_conf);
+#endif
+}
+
+static void stop_wifi_ap(void) {
+#ifdef CONFIG_CAPTIVE_SERVER
+  stop_dns_server(dns_server);
+#endif
+#ifdef CONFIG_HTTPS_SERVER
+  httpd_ssl_stop(webserver);
+#else
+  httpd_stop(webserver);
+#endif
+  ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
+  esp_netif_destroy_default_wifi(ap_netif);
 }
 
 static void wifi_event_handler(void *arg,
@@ -279,7 +319,6 @@ static void wifi_event_handler(void *arg,
         if (connected){
           // if wifi dies after a successful connection
           init_wifi_ap();
-          webserver = start_webserver();
           connected = false;
         }
         xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
@@ -290,10 +329,12 @@ static void wifi_event_handler(void *arg,
 
     case IP_EVENT_STA_GOT_IP:
       {
+      connected = true;
+      xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
       ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
       ESP_LOGI(TAG, "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
       s_retry_num = 0;
-      xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
+      stop_wifi_ap();
       break;
       }
   }
@@ -314,19 +355,4 @@ void setup_wifi(void){
   sta_netif = esp_netif_create_default_wifi_sta();
 
   init_wifi_ap();
-
-  webserver = start_webserver();
-#ifdef CONFIG_CAPTIVE_SERVER
-  // Start the DNS server that will redirect all queries to the softAP IP
-  dns_server_config_t config = DNS_SERVER_CONFIG_SINGLE("*" /* all A queries */, "WIFI_AP_DEF" /* softAP netif ID */);
-  start_dns_server(&config);
-#endif
-
-  xEventGroupWaitBits(s_wifi_event_group, WIFI_CONNECTED_BIT, pdFALSE, pdFALSE, portMAX_DELAY);
-
-  httpd_ssl_stop(webserver);
-  ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
-  esp_netif_destroy_default_wifi(ap_netif);
-  ESP_LOGI(TAG, "changing to sta only mode");
-  connected = true;
 }

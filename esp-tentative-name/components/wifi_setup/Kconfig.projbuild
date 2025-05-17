@@ -72,9 +72,15 @@ menu "Wifi login portal setup"
             bool "WAPI PSK"
     endchoice
 
-    config CAPTIVE_SERVER
-        bool "Enable the captive server"
-        default y
-        help
-            When the user connects to the access point, they will automatically be prompted to connect to the configuration page.
+    choice CAPTIVE_OR_SSL
+        prompt "Use captive portal or https secured wifi-prompt"
+        default CAPTIVE_SERVER
+
+        config CAPTIVE_SERVER
+          bool "Enable the captive server"
+
+        config HTTPS_SERVER
+          bool "Enable the https server"
+          select ESP_HTTPS_SERVER_ENABLE
+    endchoice
 endmenu
