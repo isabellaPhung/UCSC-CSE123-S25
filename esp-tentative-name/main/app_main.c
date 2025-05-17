@@ -91,8 +91,6 @@ int request_backup(struct callback_data_t *cb_data)
 {
     int return_status = EXIT_SUCCESS;
     size_t retries = 4;
-    mqtt_connect();
-    mqtt_subscribe();
 
     // Request payloads for all 3 entry types
     static const char *backup_payload[3] = {"{\"id\":\"" DEVICE_ID "\",\"action\":\"refresh\",\"type\":\"task\"}",
@@ -132,6 +130,35 @@ int request_backup(struct callback_data_t *cb_data)
     mqtt_unsubscribe();
     mqtt_disconnect();
     return return_status;
+}
+
+int sync_database(struct callback_data_t* cb_data)
+{
+    // Establish connection
+    if (mqtt_connect() != EXIT_SUCCESS)
+    {
+        ESP_LOGE(TAG, "MQTT connect failed. Aborting backup request.");
+        return EXIT_FAILURE;
+    }
+
+    if (mqtt_subscribe() != EXIT_SUCCESS)
+    {
+        ESP_LOGE(TAG, "MQTT subscribe failed. Disconnecting and aborting.");
+        mqtt_disconnect();
+        return EXIT_FAILURE;
+    }
+    // Send outgoing requests
+    UploadTaskRequests(cb_data, DEVICE_ID);
+
+    // Populate database
+    ESP_LOGI("main::Initialize LCD", "Largest free block seen by request_backup: %d", heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
+    request_backup(cb_data);
+
+    // Disconnect
+    mqtt_unsubscribe();
+    mqtt_disconnect();
+
+    return EXIT_SUCCESS;
 }
 
 void app_main()
@@ -205,14 +232,10 @@ void app_main()
     cb_data.cur_index = -1;
     cb_data.db_ptr = db;
 
+    // Initialize mqtt library
     assert(mqtt_init(&callback, (void *)&cb_data) == EXIT_SUCCESS);
 
-    // Send outgoing requests
-    SyncTaskRequests(&cb_data, DEVICE_ID);
-
-    // Populate database
-    ESP_LOGI("main::Initialize LCD", "Largest free block seen by request_backup: %d", heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
-    request_backup(&cb_data);
+    sync_database(&cb_data);
 
     // ------------------------------------- Initialize LCD ---------------------------------------
     ESP_LOGI("main::Initialize LCD", "Largest free block after database init: %d", heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
@@ -241,9 +264,7 @@ void app_main()
         {
             ESP_LOGI(TAG, "Preforming Server Sync!");
 
-            SyncTaskRequests(&cb_data, DEVICE_ID);
-
-            request_backup(&cb_data);
+            sync_database(&cb_data);
             frame_timer = 0;
         }
     }

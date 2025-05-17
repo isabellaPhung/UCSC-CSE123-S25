@@ -65,7 +65,7 @@ esp_err_t UpdateTaskStatus(sqlite3 *db, const char *uuid, TASK_STATUS new_status
     return ESP_OK;
 }
 
-esp_err_t SyncTaskRequests(struct callback_data_t *cb_data, const char *device_id)
+esp_err_t UploadTaskRequests(struct callback_data_t *cb_data, const char *device_id)
 {
     static const char *TAG = "sender::UpdateTaskStatus";
 
@@ -140,8 +140,6 @@ esp_err_t SyncTaskRequests(struct callback_data_t *cb_data, const char *device_i
     char *msg = cJSON_PrintUnformatted(root);
     cJSON_Delete(root);
 
-    mqtt_connect();
-    mqtt_subscribe();
     mqtt_publish(msg, strlen(msg));
     size_t i = 0;
     for (; i < MAX_RETRIES; i++)
@@ -160,8 +158,6 @@ esp_err_t SyncTaskRequests(struct callback_data_t *cb_data, const char *device_i
         }
     }
 
-    mqtt_unsubscribe();
-    mqtt_disconnect();
     free(msg);
 
     if (i < MAX_RETRIES)

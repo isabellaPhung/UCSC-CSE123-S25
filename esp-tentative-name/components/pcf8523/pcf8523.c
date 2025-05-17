@@ -22,7 +22,7 @@
 
 #define SNTP_TIMEOUT_SEC 10 // Max time (seconds) to wait for NTP sync
 
-#define CTRL1 0x08
+#define CTRL1 0x00
 #define CTRL2 0x00
 
 // Global I2C handles
