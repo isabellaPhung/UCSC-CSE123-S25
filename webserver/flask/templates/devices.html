@@ -466,8 +466,8 @@
                     return response.json();
                 })
                 .then(data => {
-                    if (data && data.device) {
-                        showActiveDeviceBanner(data.device);
+                    if (data && data.id) {
+                        showActiveDeviceBanner(data);
                     }
                 })
                 .catch(error => {
@@ -603,11 +603,10 @@
             fetch('/api/select_device', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': getCookie('csrf_access_token')
                 },
-                body: JSON.stringify({
-                    device_id: deviceId
-                })
+                body: JSON.stringify({id: deviceId})
             })
             .then(response => {
                 if (!response.ok) {

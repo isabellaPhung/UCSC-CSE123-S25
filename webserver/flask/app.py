@@ -200,6 +200,33 @@ def api_delete_device():
     return {"delete_device": True}, 200
 
 
+@app.route("/api/select_device", methods=["POST"])
+@jwt_required()
+def api_select_device():
+    id = request.json.get("id")
+
+    # TODO: need to connect backend encryption
+    resp = jsonify({"select_device": True})
+    resp.set_cookie("device_id", id, secure=True)
+    return resp, 200
+
+
+@app.route("/api/active_device")
+@jwt_required()
+def api_active_device():
+    id = request.cookies.get("device_id")
+
+    if not id:
+        return {"id": False}, 200
+
+    # TODO: need to connect backend decryption
+    device = s3_conn.active_device(get_jwt_identity(), id)
+
+    if not device:
+        return {"id": False}, 400
+    return device, 200
+
+
 @app.route("/api/get_devices")
 @jwt_required()
 def api_get_devices():

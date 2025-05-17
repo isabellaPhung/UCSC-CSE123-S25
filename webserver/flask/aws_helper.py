@@ -122,6 +122,17 @@ class AwsS3:
         )
         return True
 
+    def select_device(self, username):
+        pass
+
+    def active_device(self, username, id):
+        data = self.get_user_devices(username)
+
+        for device in data["devices"]:
+            if device["id"] == id:
+                return device
+        return False
+
     def add_task(self, name, description, completion, priority, duedate):
         obj, data = self.load_info("task")
 
