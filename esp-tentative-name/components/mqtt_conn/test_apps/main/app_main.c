@@ -75,6 +75,10 @@ void app_main() {
   cb_data.cur_index = -1;
 
   int return_status;
+  while (!is_wifi_connected()){
+    ESP_LOGI(TAG, "Wifi not connected, waiting 5s");
+    vTaskDelay(5000 / portTICK_PERIOD_MS);
+  }
   return_status = mqtt_init(&demo_callback, (void *) &cb_data);
 
   mqtt_connect();
