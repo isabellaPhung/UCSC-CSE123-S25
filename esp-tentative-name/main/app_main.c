@@ -134,6 +134,12 @@ int request_backup(struct callback_data_t *cb_data)
 
 int sync_database(struct callback_data_t* cb_data)
 {
+    if (!is_wifi_connected())
+    {
+        ESP_LOGW(TAG, "Unable to sync database: Device not connected to access point");
+        return EXIT_FAILURE;
+    }
+
     // Establish connection
     if (mqtt_connect() != EXIT_SUCCESS)
     {
@@ -152,7 +158,9 @@ int sync_database(struct callback_data_t* cb_data)
 
     // Populate database
     ESP_LOGI("main::Initialize LCD", "Largest free block seen by request_backup: %d", heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
+    sqlite3_memory_highwater(1); // Reset highwater
     request_backup(cb_data);
+    ESP_LOGI(TAG, "Max SQLite memory: %lld bytes", sqlite3_memory_highwater(0));
 
     // Disconnect
     mqtt_unsubscribe();
