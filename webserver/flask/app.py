@@ -239,6 +239,20 @@ def api_get_users():
     users = s3_conn.get_users(data_only=True)
     return users, 200
 
+"""
+added update_task endpoint
+"""
+@app.route("/api/update_task", methods=["POST"])
+@jwt_required()
+def api_update_task():
+    id = request.json.get("id")
+    completion = request.json.get("completion")
+    
+    if not s3_conn.update_task(id, completion):
+        return {"update_task": False}, 400
+    return {"update_task": True}, 200
+
+
 
 @app.route("/login")
 def login():
@@ -291,7 +305,6 @@ def events():
 def habits():
     return render_template("habits.html")
 
-
 @jwt.expired_token_loader
 def expired_jwt_token(jwt_header, jwt_payload):
     endpoint = request.path
@@ -308,6 +321,7 @@ def expired_jwt_token(jwt_header, jwt_payload):
 @jwt.unauthorized_loader
 def no_jwt_token(_err):
     return redirect(url_for("login"))
+    
 
 
 if __name__ == "__main__":
