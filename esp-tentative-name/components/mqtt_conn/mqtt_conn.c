@@ -592,7 +592,7 @@ static int connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContext
                                               bool * pClientSessionPresent,
                                               bool * pBrokerSessionPresent )
 {
-    int returnStatus = EXIT_SUCCESS;
+    int returnStatus = EXIT_FAILURE;
     BackoffAlgorithmStatus_t backoffAlgStatus = BackoffAlgorithmSuccess;
     TlsTransportStatus_t tlsStatus = TLS_TRANSPORT_SUCCESS;
     BackoffAlgorithmContext_t reconnectParams;
@@ -1536,7 +1536,7 @@ int mqtt_init(publish_cb_t callback_func, void *callback_data){
 int mqtt_connect(void){
   assert(mqtt_status == MQTT_IDLE);
   assert(&mqttContext != NULL );
-  int retval = EXIT_SUCCESS;
+  int retval;
 
   bool clientSessionPresent = false, brokerSessionPresent = false;
   retval = connectToServerWithBackoffRetries

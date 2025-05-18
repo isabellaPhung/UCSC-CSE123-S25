@@ -65,9 +65,8 @@ void app_main() {
   ESP_ERROR_CHECK(esp_netif_init());
   ESP_ERROR_CHECK(esp_event_loop_create_default());
 
-  setup_wifi();
 
-  char payload[] = "{\"id\":\"55\",\"action\":\"refresh\",\"type\":\"task\"}";
+  char payload[] = "{\"id\":\"55\",\"action\":\"refresh\",\"type\":\"event\"}";
   size_t payload_length = sizeof(payload) - 1;
 
   struct callback_data cb_data;
@@ -75,13 +74,16 @@ void app_main() {
   cb_data.cur_index = -1;
 
   int return_status;
-  while (!is_wifi_connected()){
-    ESP_LOGI(TAG, "Wifi not connected, waiting 5s");
-    vTaskDelay(5000 / portTICK_PERIOD_MS);
-  }
   return_status = mqtt_init(&demo_callback, (void *) &cb_data);
 
-  mqtt_connect();
+  setup_wifi();
+
+  return_status = mqtt_connect();
+  while (return_status != EXIT_SUCCESS){
+    ESP_LOGI(TAG, "Not able to connect");
+    vTaskDelay(5000 / portTICK_PERIOD_MS);
+    return_status = mqtt_connect();
+  }
   mqtt_subscribe();
 
   mqtt_publish(payload, payload_length);
