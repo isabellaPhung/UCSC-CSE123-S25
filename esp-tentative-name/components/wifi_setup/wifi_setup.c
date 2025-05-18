@@ -74,14 +74,14 @@ static httpd_handle_t webserver;
 static EventGroupHandle_t s_wifi_event_group;
 static int s_retry_num = 0;
 
-static bool connected = false;
-
 #ifdef CONFIG_CAPTIVE_SERVER
     static dns_server_handle_t dns_server;
 #endif
 
 #define WIFI_CONNECTED_BIT BIT0
 #define WIFI_FAIL_BIT      BIT1
+#define WIFI_SERVER_UP     BIT2
+#define WIFI_RESP_SENT     BIT3
 
 esp_err_t init_wifi_sta(const char ssid[32], const char pswd[64]){
   // reset previous retry status
@@ -171,6 +171,8 @@ static esp_err_t login_post_handler(httpd_req_t *req) {
     httpd_resp_send(req, "<h1>OK</h1>", HTTPD_RESP_USE_STRLEN);
   }
 
+  xEventGroupSetBits(s_wifi_event_group, WIFI_RESP_SENT);
+
   return ESP_OK;
 }
 
@@ -217,7 +219,7 @@ static httpd_handle_t start_webserver(void)
     esp_err_t ret = httpd_ssl_start(&server, &conf);
 #else
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-    config.max_open_sockets = 13;
+    config.max_open_sockets = 4;
     config.lru_purge_enable = true;
 
     esp_err_t ret = httpd_start(&server, &config);
@@ -234,6 +236,14 @@ static httpd_handle_t start_webserver(void)
     ESP_LOGI(TAG, "Completed https server setup");
     return server;
 }
+
+#ifdef CONFIG_CAPTIVE_SERVER
+static void ap_dns_start(void){ 
+  // Start the DNS server that will redirect all queries to the softAP IP
+  dns_server_config_t dns_conf = DNS_SERVER_CONFIG_SINGLE("*" /* all A queries */, "WIFI_AP_DEF" /* softAP netif ID */);
+  dns_server = start_dns_server(&dns_conf);
+}
+#endif
 
 static void init_wifi_ap(void){
   wifi_config_t wifi_config = {
@@ -261,13 +271,6 @@ static void init_wifi_ap(void){
 
   ESP_LOGI(TAG, "wifi_init_softap finished. SSID:'%s' password:'%s'",
       EXAMPLE_ESP_WIFI_SSID, EXAMPLE_ESP_WIFI_PASS);
-
-  webserver = start_webserver();
-#ifdef CONFIG_CAPTIVE_SERVER
-  // Start the DNS server that will redirect all queries to the softAP IP
-  dns_server_config_t dns_conf = DNS_SERVER_CONFIG_SINGLE("*" /* all A queries */, "WIFI_AP_DEF" /* softAP netif ID */);
-  dns_server = start_dns_server(&dns_conf);
-#endif
 }
 
 static void wifi_event_handler(void *arg,
@@ -295,22 +298,20 @@ static void wifi_event_handler(void *arg,
       break;
 
     case WIFI_EVENT_STA_DISCONNECTED:
-      connected = false;
+      xEventGroupClearBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
       if (s_retry_num < EXAMPLE_ESP_MAXIMUM_RETRY) {
         esp_wifi_connect();
         s_retry_num++;
         ESP_LOGI(TAG, "Retry connecting to the AP");
       } else {
-        if (xEventGroupGetBits(s_wifi_event_group) & WIFI_CONNECTED_BIT){
+        if (xEventGroupGetBits(s_wifi_event_group) ^ WIFI_SERVER_UP){
           // if wifi dies after a successful connection
-          xEventGroupClearBits(s_wifi_event_group, WIFI_CONNECTED_BIT | WIFI_FAIL_BIT);
           ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
           webserver = start_webserver();
 #ifdef CONFIG_CAPTIVE_SERVER
-          // Start the DNS server that will redirect all queries to the softAP IP
-          dns_server_config_t dns_conf = DNS_SERVER_CONFIG_SINGLE("*" /* all A queries */, "WIFI_AP_DEF" /* softAP netif ID */);
-          dns_server = start_dns_server(&dns_conf);
+          ap_dns_start(); 
 #endif
+          xEventGroupSetBits(s_wifi_event_group, WIFI_SERVER_UP);
 
           ESP_LOGI(TAG, "Wifi connection lost, restarting softAP");
         }
@@ -321,11 +322,11 @@ static void wifi_event_handler(void *arg,
 
     case IP_EVENT_STA_GOT_IP:
       {
-      connected = true;
-      xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
       ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
       ESP_LOGI(TAG, "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
       s_retry_num = 0;
+      xEventGroupSync(s_wifi_event_group, 
+          WIFI_CONNECTED_BIT, WIFI_RESP_SENT, portMAX_DELAY);
 #ifdef CONFIG_CAPTIVE_SERVER
       stop_dns_server(dns_server);
 #endif
@@ -334,6 +335,8 @@ static void wifi_event_handler(void *arg,
 #else
       httpd_stop(webserver);
 #endif
+      xEventGroupClearBits(s_wifi_event_group, WIFI_SERVER_UP);
+      ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
       break;
       }
   }
@@ -341,7 +344,7 @@ static void wifi_event_handler(void *arg,
 
 // Returns true if connected
 bool is_wifi_connected(void){
-  return connected;
+  return WIFI_CONNECTED_BIT & xEventGroupGetBits(s_wifi_event_group);
 }
 
 /* The wifi setup
@@ -367,5 +370,11 @@ void setup_wifi(void){
   sta_netif = esp_netif_create_default_wifi_sta();
 
   init_wifi_ap();
+  webserver = start_webserver();
+#ifdef CONFIG_CAPTIVE_SERVER
+  ap_dns_start();
+#endif
+  xEventGroupSetBits(s_wifi_event_group, WIFI_SERVER_UP);
+
   ESP_ERROR_CHECK(esp_wifi_start());
 }
