@@ -61,6 +61,7 @@ struct dns_server_handle {
     bool started;
     TaskHandle_t task;
     int num_of_entries;
+    int sock;
     dns_entry_pair_t entry[];
 };
 
@@ -210,6 +211,10 @@ void dns_server_task(void *pvParameters)
             ESP_LOGE(TAG, "Unable to create socket: errno %d", errno);
             break;
         }
+
+        int n = 1;
+        setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &n, sizeof(n));
+
         ESP_LOGI(TAG, "Socket created");
 
         int err = bind(sock, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
@@ -263,6 +268,7 @@ void dns_server_task(void *pvParameters)
             shutdown(sock, 0);
             close(sock);
         }
+        handle->sock = sock;
     }
     vTaskDelete(NULL);
 }
@@ -284,6 +290,8 @@ void stop_dns_server(dns_server_handle_t handle)
 {
     if (handle) {
         handle->started = false;
+        shutdown(handle->sock, 0);
+        close(handle->sock);
         vTaskDelete(handle->task);
         free(handle);
     }
