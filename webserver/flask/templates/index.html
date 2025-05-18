@@ -53,6 +53,20 @@
             userPanel.appendChild(usernameDisplay);
             userPanel.appendChild(logoutButton);
 
+            const deviceLink = document.createElement('a');
+            deviceLink.href = 'devices';
+            deviceLink.className = 'device-link';
+            deviceLink.textContent = 'Manage Devices';
+            deviceLink.style.backgroundColor = '#673AB7';
+            deviceLink.style.color = 'white';
+            deviceLink.style.padding = '5px 10px';
+            deviceLink.style.borderRadius = '4px';
+            deviceLink.style.textDecoration = 'none';
+            deviceLink.style.display = 'inline-block';
+            deviceLink.style.marginLeft = '10px';
+            deviceLink.style.fontSize = '0.9em';
+            userPanel.appendChild(deviceLink);
+
             // Insert user panel at the top of the left section
             leftSection.insertBefore(userPanel, leftSection.firstChild);
         });
@@ -297,12 +311,28 @@
             font-size: 0.8em;
             margin-top: 5px;
         }
+        .device-link {
+            background-color: #673AB7;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            text-decoration: none;
+            display: inline-block;
+            margin-left: 10px;
+            font-size: 0.9em;
+        }
+
+        .device-link:hover {
+            background-color: #5E35B1;
+        }
 
         .task-item {
             display: flex;
-            justify-content: space-between;
-            padding: 8px;
+            align-items: center;
+            padding: 10px;
+            border-left: 4px solid transparent;
             border-bottom: 1px solid #eee;
+            transition: background-color 0.2s;
             cursor: pointer;
         }
 
@@ -312,6 +342,53 @@
 
         .task-name {
             font-weight: bold;
+        }
+        .priority-1 {
+            border-left-color: #f44336; /* Red for high priority */
+        }
+        .priority-2 {
+            border-left-color: #ff9800; /* Orange for medium priority */
+        }
+        .priority-3 {
+            border-left-color: #4CAF50; /* Green for low priority */
+        }
+
+        .task-checkbox {
+            margin-right: 12px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        .task-completed {
+            opacity: 0.7;
+            background-color: #f9f9f9;
+        }
+        .task-info {
+            flex-grow: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .priority-text.priority-1 {
+            color: #f44336;
+            font-weight: bold;
+        }
+
+        .priority-text.priority-2 {
+            color: #ff9800;
+            font-weight: bold;
+        }
+
+        .priority-text.priority-3 {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        .task-meta-info {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
         }
 
         .no-tasks-message {
@@ -569,26 +646,27 @@
         }
 
         // Load today's tasks from S3
+        // Replace the existing loadTodaysTasks function with this version
         function loadTodaysTasks() {
             const tasksContainer = document.getElementById('today-tasks-container');
             tasksContainer.innerHTML = '';
 
             fetch('/api/today_tasks', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': getCookie('csrf_access_token')
-                    },
-                    body: JSON.stringify({start: startTimestamp, end: endTimestamp})
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        console.error("Failed to get tasks");
-                    }
-                    return response.json()
-                })
-                .then(data => {
-                    const todaysTasks = data.task;
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': getCookie('csrf_access_token')
+                },
+                body: JSON.stringify({start: startTimestamp, end: endTimestamp})
+            })
+            .then(response => {
+                if (!response.ok) {
+                    console.error("Failed to get tasks");
+                }
+                return response.json()
+            })
+            .then(data => {
+                const todaysTasks = data.task;
 
                 // Check if there are any tasks for today
                 if (todaysTasks.length === 0) {
@@ -599,11 +677,58 @@
                     return;
                 }
 
+                // Sort tasks by completion status first (incomplete tasks first, excluding deleted)
+                // Then sort by priority (lower number = higher priority)
+                todaysTasks.sort((a, b) => {
+                    // Sort by completion status first
+                    if (a.completion !== b.completion) {
+                        // Sort deleted tasks (0) last, completed tasks (2) second, incomplete tasks (1) first
+                        if (a.completion === 0) return 1;
+                        if (b.completion === 0) return -1;
+                        return a.completion - b.completion;
+                    }
+                    // Then sort by priority (lower number = higher priority)
+                    return a.priority - b.priority;
+                });
+
                 // Display today's tasks
                 todaysTasks.forEach((task, index) => {
+                    // Skip deleted tasks (completion=0)
+                    if (task.completion === 0) {
+                        return;
+                    }
+                    
                     const taskItem = document.createElement('div');
                     taskItem.className = 'task-item';
                     taskItem.dataset.index = index;
+                    taskItem.dataset.id = task.id;
+
+                    // Add priority class based on task priority
+                    taskItem.classList.add(`priority-${task.priority}`);
+                    
+                    // Add completed class if task is completed
+                    if (task.completion === 2) {
+                        taskItem.classList.add('task-completed');
+                    }
+
+                    // Create checkbox for completion
+                    const taskCheckbox = document.createElement('input');
+                    taskCheckbox.type = 'checkbox';
+                    taskCheckbox.className = 'task-checkbox';
+                    taskCheckbox.checked = task.completion === 2;
+                    taskCheckbox.addEventListener('change', function(e) {
+                        e.stopPropagation(); // Prevent task details from toggling
+                        updateTaskCompletion(task.id, this.checked ? 2 : 1);
+                    });
+
+                    // Create priority indicator
+                    const priorityIndicator = document.createElement('div');
+                    priorityIndicator.className = 'priority-indicator';
+                    priorityIndicator.innerHTML = getPriorityIcon(task.priority);
+                    priorityIndicator.title = getPriorityText(task.priority);
+
+                    const taskInfo = document.createElement('div');
+                    taskInfo.className = 'task-info';
 
                     const taskName = document.createElement('div');
                     taskName.className = 'task-name';
@@ -611,26 +736,41 @@
 
                     const taskTime = document.createElement('div');
                     taskTime.className = 'task-time';
-                    taskTime.textContent = task.displayTime;
+                    taskTime.textContent = unixToDate(task.duedate);
 
-                    taskItem.appendChild(taskName);
-                    taskItem.appendChild(taskTime);
+                    taskInfo.appendChild(taskName);
+                    taskInfo.appendChild(taskTime);
+
+                    taskItem.appendChild(taskCheckbox);
+                    taskItem.appendChild(priorityIndicator);
+                    taskItem.appendChild(taskInfo);
 
                     // Create task details section
                     const taskDetails = document.createElement('div');
                     taskDetails.className = 'task-details';
 
                     // Add description
-                    const description = document.createElement('div');
-                    description.className = 'task-description';
-                    description.textContent = task.description || 'No description provided';
-                    taskDetails.appendChild(description);
+                    if (task.description) {
+                        const description = document.createElement('div');
+                        description.className = 'task-description';
+                        description.textContent = task.description || 'No description provided';
+                        taskDetails.appendChild(description);
+                    }
 
                     // Add due date/time
                     const dueDate = document.createElement('div');
                     dueDate.className = 'task-due-date';
                     dueDate.textContent = `Due: ${new Date(task.duedate * 1000).toLocaleString()}`;
                     taskDetails.appendChild(dueDate);
+
+                    // Add priority and completion info
+                    const metaInfo = document.createElement('div');
+                    metaInfo.className = 'task-meta-info';
+                    metaInfo.innerHTML = `
+                        <div>Priority: <span class="priority-text priority-${task.priority}">${getPriorityText(task.priority)}</span></div>
+                        <div>Status: ${task.completion === 2 ? 'Completed' : 'Incomplete'}</div>
+                    `;
+                    taskDetails.appendChild(metaInfo);
 
                     // Add timestamp
                     const timestamp = document.createElement('div');
@@ -639,8 +779,11 @@
                     taskDetails.appendChild(timestamp);
 
                     // Toggle details visibility on click
-                    taskItem.addEventListener('click', function() {
-                        taskDetails.classList.toggle('task-details-visible');
+                    taskItem.addEventListener('click', function(e) {
+                        // Don't toggle if checkbox was clicked
+                        if (e.target !== taskCheckbox) {
+                            taskDetails.classList.toggle('task-details-visible');
+                        }
                     });
 
                     // Append to task container
@@ -809,6 +952,7 @@
                 }
             }
         });
+
         
         // Event management
         document.querySelector('.add-event').addEventListener('click', function() {
@@ -861,10 +1005,17 @@
 
         // Convert Unix timestamp to start time
         function unixToDate(unixTimestamp) {
-            const startTime = new Date(unixTimestamp * 1000);
-            hour = startTime.getHours().toString()
-            minute = startTime.getMinutes().toString()
-            return `${hour.padStart(2, '0')}:${minute.padStart(2, '0')}`;
+            const date = new Date(unixTimestamp * 1000);
+            let hours = date.getHours();
+            let minutes = date.getMinutes();
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            
+            // Convert to 12-hour format
+            hours = hours % 12;
+            hours = hours ? hours : 12; // Convert 0 to 12
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            
+            return `${hours}:${minutes} ${ampm}`;
         }
 
         // Get access token
@@ -872,6 +1023,48 @@
             const value = `; ${document.cookie}`;
             const parts = value.split(`; ${name}=`);
             if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+        function getPriorityIcon(priority) {
+            switch(priority) {
+                case 1: return '<span style="color: #f44336; font-size: 1.2em;">●</span>'; // High priority red
+                case 2: return '<span style="color: #ff9800; font-size: 1.2em;">●</span>'; // Medium priority orange
+                case 3: return '<span style="color: #4CAF50; font-size: 1.2em;">●</span>'; // Low priority green
+                default: return '<span style="color: #888; font-size: 1.2em;">●</span>';   // Unknown priority white
+            }
+        }
+        function getPriorityText(priority) {
+            switch(priority) {
+                case 1: return 'High Priority';
+                case 2: return 'Medium Priority';
+                case 3: return 'Low Priority';
+                default: return 'Unknown Priority';
+            }
+        }
+        function updateTaskCompletion(taskId, completionValue) {
+            fetch('/api/update_task', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': getCookie('csrf_access_token')
+                },
+                body: JSON.stringify({
+                    id: taskId,
+                    completion: completionValue
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    console.error('Failed to update task completion');
+                } else {
+                    // Reload tasks to show updated state
+                    setTimeout(() => {
+                        loadTodaysTasks();
+                    }, 500);
+                }
+            })
+            .catch(error => {
+                console.error('Error updating task completion:', error);
+            });
         }
     </script>
 </body>
