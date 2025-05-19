@@ -12,7 +12,6 @@ struct callback_data_t
     int expected;
     int cur_index;
     int update_ack;
-    sqlite3 *db_ptr;
 };
 
 // Max amount of entries sent to the server on publish
@@ -28,7 +27,7 @@ struct callback_data_t
 /// @param db Database
 /// @param uuid Unique ID
 /// @param new_status Status to change. MFD deletes the task object from the database.
-esp_err_t UpdateTaskStatus(sqlite3 *db, const char *uuid, TASK_STATUS new_status);
+esp_err_t UpdateTaskStatus(const char *uuid, TASK_STATUS new_status);
 
 /// @brief Sends cached data to the server
 /// @return ESP_OK if server acknowledged the request, clearing the cache

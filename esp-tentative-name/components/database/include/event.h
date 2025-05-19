@@ -23,16 +23,16 @@ typedef struct
 /// @param eventBuffer Buffer the events are put into
 /// @param count Number of events to put into the buffer
 /// @param offset Offset of entries in the sorting function
-int RetrieveEventsSortedDB(sqlite3 *db, event_t *eventBuffer, int count, int offset);
+int RetrieveEventsSortedDB(event_t *eventBuffer, int count, int offset);
 
 /// @brief Parses entries from a JSON file to
 /// @param db 
 /// @param json 
 /// @return 
-esp_err_t ParseEventsJSON(sqlite3 *db, const cJSON *event);
+esp_err_t ParseEventsJSON(cJSON *event);
 
 /// @brief Deletes entry from database that shares the uuid
-esp_err_t RemoveEventDB(sqlite3 *db, const char *uuid);
+esp_err_t RemoveEventDB(const char *uuid);
 
 // DEBUG FUNCTION
 //esp_err_t TestEventFunctions(sqlite3 *db);

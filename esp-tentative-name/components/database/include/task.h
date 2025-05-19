@@ -35,7 +35,7 @@ typedef struct
 /// @param db SQLite database object
 /// @param json JSON text
 /// @return Error code
-int ParseTasksJSON(sqlite3 *db, const cJSON *taskItem);
+int ParseTasksJSON(cJSON *taskItem);
 
 // --- Entry modification ---
 
@@ -45,7 +45,7 @@ int ParseTasksJSON(sqlite3 *db, const cJSON *taskItem);
 /// @param uuid Task's unique ID
 /// @param new_status New status. If this is MFD the object is deleted
 /// @returns ESP Error Code
-esp_err_t UpdateTaskStatusDB(sqlite3 *db, const char *uuid, TASK_STATUS new_status);
+esp_err_t UpdateTaskStatusDB(const char *uuid, TASK_STATUS new_status);
 
 // --- Entry Recovery ---
 
@@ -55,11 +55,11 @@ esp_err_t UpdateTaskStatusDB(sqlite3 *db, const char *uuid, TASK_STATUS new_stat
 /// @param taskBuffer Array of objects used to store the retrieved tasks
 /// @param count Number of objects to store on the buffer
 /// @param offset Offset
-int RetrieveTasksSortedDB(sqlite3 *db, task_t *taskBuffer, int count, int offset);
+int RetrieveTasksSortedDB(task_t *taskBuffer, int count, int offset);
 
 // --- Utility ---
-esp_err_t AddTaskDB(sqlite3 *db, task_t *ent);
+esp_err_t AddTaskDB(task_t *ent);
 void PrintTask(task_t ent);
-int PrintTaskDB(sqlite3 *db, const char *id);
+int PrintTaskDB(const char *id);
 
 #endif
