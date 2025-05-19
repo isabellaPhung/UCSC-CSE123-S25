@@ -92,13 +92,6 @@ static void taskevent_cb(lv_event_t * e){
     */
 }
 
-typedef struct
-{
-    habit_t * habit;
-    uint8_t number;
-} habitDay;
-static habitDay * habitDayptrs[7];
-
 /*
  * callback function for habit menu for menu navigation
  * takes in keypress event 
@@ -107,9 +100,6 @@ static void habit_cb(lv_event_t * e){
     k = lv_event_get_key(e);
     if(k == LV_KEY_UP) {
         lv_obj_clean(tile3);
-        for(uint8_t i = 0; i < 7; i++){
-            free(habitDayptrs[i]);
-        }
         loadTile2();
         lv_obj_del(tile3);
         ESP_LOGW(TAG, "Free heap: %lu bytes", esp_get_free_heap_size());
@@ -668,35 +658,110 @@ static const char * weekdays[7] = {"Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"};
  * creates callback function for habit buttons
  * takes in event which is the keypress
  */
-static void buttonmatrix_cb(lv_event_t * e){
+static void buttonmatrix_cb6(lv_event_t * e){
     k = lv_event_get_key(e);
-    obj = lv_event_get_target(e);
-    habitDay * day = lv_event_get_user_data(e);
-    habit_t * habit = day->habit;
-    uint8_t number = day->number;
-    
     time_t currtime = time(NULL);
-    /*
-    struct tm * timeinfo = localtime(&currtime);
-    char timestr[40];
-    strftime(timestr, sizeof(timestr), "%D %r", timeinfo);
-    ESP_LOGI(TAG, "Current time: %s\n", timestr);
+    habit_t * habit = lv_event_get_user_data(e);
+    lv_obj_t * obj = lv_event_get_target(e);
     
-    time_t difference = (time_t)difftime(currtime, number * 86400);
-    timeinfo = localtime(&difference);
-    strftime(timestr, sizeof(timestr), "%D %r", timeinfo);
-    */
     if(k == LV_KEY_ENTER) {
         if (!lv_obj_has_state(obj, LV_STATE_CHECKED)){ //if toggled
-            //ESP_LOGI(TAG, "Habit done on: %s\n", timestr);
-            HabitAddEntryDB(database, habit->uuid, difftime(currtime, number * 86400));
+            HabitAddEntryDB(database, habit->uuid, currtime);
         }else if(lv_obj_has_state(obj, LV_STATE_CHECKED)){ //if untoggled
-            //ESP_LOGI(TAG, "Habit undone on: %s\n", timestr);
-            HabitRemoveEntryDB(database, habit->uuid, difftime(currtime, number * 86400));
+            HabitRemoveEntryDB(database, habit->uuid, currtime);
         }
     }
 }
 
+static void buttonmatrix_cb5(lv_event_t * e){
+    k = lv_event_get_key(e);
+    time_t currtime = time(NULL);
+    habit_t * habit = lv_event_get_user_data(e);
+    lv_obj_t * obj = lv_event_get_target(e);
+    
+    if(k == LV_KEY_ENTER) {
+        if (!lv_obj_has_state(obj, LV_STATE_CHECKED)){ //if toggled
+            HabitAddEntryDB(database, habit->uuid, difftime(currtime, 86400));
+        }else if(lv_obj_has_state(obj, LV_STATE_CHECKED)){ //if untoggled
+            HabitRemoveEntryDB(database, habit->uuid, difftime(currtime, 86400));
+        }
+    }
+}
+
+static void buttonmatrix_cb4(lv_event_t * e){
+    k = lv_event_get_key(e);
+    time_t currtime = time(NULL);
+    habit_t * habit = lv_event_get_user_data(e);
+    lv_obj_t * obj = lv_event_get_target(e);
+    
+    if(k == LV_KEY_ENTER) {
+        if (!lv_obj_has_state(obj, LV_STATE_CHECKED)){ //if toggled
+            HabitAddEntryDB(database, habit->uuid, difftime(currtime, 2*86400));
+        }else if(lv_obj_has_state(obj, LV_STATE_CHECKED)){ //if untoggled
+            HabitRemoveEntryDB(database, habit->uuid, difftime(currtime, 2*86400));
+        }
+    }
+}
+
+static void buttonmatrix_cb3(lv_event_t * e){
+    k = lv_event_get_key(e);
+    time_t currtime = time(NULL);
+    habit_t * habit = lv_event_get_user_data(e);
+    lv_obj_t * obj = lv_event_get_target(e);
+    
+    if(k == LV_KEY_ENTER) {
+        if (!lv_obj_has_state(obj, LV_STATE_CHECKED)){ //if toggled
+            HabitAddEntryDB(database, habit->uuid, difftime(currtime, 3*86400));
+        }else if(lv_obj_has_state(obj, LV_STATE_CHECKED)){ //if untoggled
+            HabitRemoveEntryDB(database, habit->uuid, difftime(currtime, 3*86400));
+        }
+    }
+}
+
+static void buttonmatrix_cb2(lv_event_t * e){
+    k = lv_event_get_key(e);
+    time_t currtime = time(NULL);
+    habit_t * habit = lv_event_get_user_data(e);
+    lv_obj_t * obj = lv_event_get_target(e);
+    
+    if(k == LV_KEY_ENTER) {
+        if (!lv_obj_has_state(obj, LV_STATE_CHECKED)){ //if toggled
+            HabitAddEntryDB(database, habit->uuid, difftime(currtime, 4*86400));
+        }else if(lv_obj_has_state(obj, LV_STATE_CHECKED)){ //if untoggled
+            HabitRemoveEntryDB(database, habit->uuid, difftime(currtime, 4*86400));
+        }
+    }
+}
+
+static void buttonmatrix_cb1(lv_event_t * e){
+    k = lv_event_get_key(e);
+    time_t currtime = time(NULL);
+    habit_t * habit = lv_event_get_user_data(e);
+    lv_obj_t * obj = lv_event_get_target(e);
+    
+    if(k == LV_KEY_ENTER) {
+        if (!lv_obj_has_state(obj, LV_STATE_CHECKED)){ //if toggled
+            HabitAddEntryDB(database, habit->uuid, difftime(currtime, 5*86400));
+        }else if(lv_obj_has_state(obj, LV_STATE_CHECKED)){ //if untoggled
+            HabitRemoveEntryDB(database, habit->uuid, difftime(currtime, 5*86400));
+        }
+    }
+}
+
+static void buttonmatrix_cb0(lv_event_t * e){
+    k = lv_event_get_key(e);
+    time_t currtime = time(NULL);
+    habit_t * habit = lv_event_get_user_data(e);
+    lv_obj_t * obj = lv_event_get_target(e);
+    
+    if(k == LV_KEY_ENTER) {
+        if (!lv_obj_has_state(obj, LV_STATE_CHECKED)){ //if toggled
+            HabitAddEntryDB(database, habit->uuid, difftime(currtime, 6*86400));
+        }else if(lv_obj_has_state(obj, LV_STATE_CHECKED)){ //if untoggled
+            HabitRemoveEntryDB(database, habit->uuid, difftime(currtime, 6*86400));
+        }
+    }
+}
 /*
  * creates habit entry for habit list
  * takes in parent list and name of habit and the row number.
@@ -738,11 +803,32 @@ void createHabit(habit_t * habit){
         }else if(habit->completed[i]==1){ //completed, set checked
             lv_obj_add_state(button, LV_STATE_CHECKED); 
         }
-        habitDay* day = (habitDay*)calloc(1, sizeof(habitDay));
-        day->habit = habit;
-        day->number = 6-i;
-        habitDayptrs[i] = day;
-        lv_obj_add_event_cb(button, buttonmatrix_cb, LV_EVENT_KEY, day);
+        switch(i){ //maybe this is a dumb way of doing it idk lol
+        case 0:
+            lv_obj_add_event_cb(button, buttonmatrix_cb0, LV_EVENT_KEY, habit);
+            break;
+        case 1:
+            lv_obj_add_event_cb(button, buttonmatrix_cb1, LV_EVENT_KEY, habit);
+            break;
+
+        case 2:
+            lv_obj_add_event_cb(button, buttonmatrix_cb2, LV_EVENT_KEY, habit);
+            break;
+        case 3:
+            lv_obj_add_event_cb(button, buttonmatrix_cb3, LV_EVENT_KEY, habit);
+            break;
+        case 4:
+            lv_obj_add_event_cb(button, buttonmatrix_cb4, LV_EVENT_KEY, habit);
+            break;
+        case 5:
+            lv_obj_add_event_cb(button, buttonmatrix_cb5, LV_EVENT_KEY, habit);
+            break;
+        case 6:
+            lv_obj_add_event_cb(button, buttonmatrix_cb6, LV_EVENT_KEY, habit);
+            break;
+        default:
+            break;
+        }
     }
 }
 
