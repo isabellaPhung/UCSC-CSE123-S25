@@ -34,12 +34,12 @@ FILE * fopen_mkdir(const char *path, const char *mode)
     return fopen(path, mode);
 }
 
-esp_err_t UpdateTaskStatus(sqlite3 *db, const char *uuid, TASK_STATUS new_status)
+esp_err_t UpdateTaskStatus(const char *uuid, TASK_STATUS new_status)
 {
     static const char *TAG = "sender::UpdateTaskStatus";
 
     // --- Update database ---
-    esp_err_t ret = UpdateTaskStatusDB(db, uuid, new_status);
+    esp_err_t ret = UpdateTaskStatusDB(uuid, new_status);
     if (ret != ESP_OK)
     {
         return ret;
