@@ -1,6 +1,7 @@
 #include "database.h"
 
 #include <sqlite3.h>
+#include <semaphore.h>
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -30,6 +31,8 @@ static bool sdcard_mounted = false;
 void DeleteDatabaseIfExists(char *database_path);
 esp_err_t TestSDCard();
 
+/*======================================================= Hardware Initialzation =======================================================*/
+
 // Initialize SPI Protocol
 esp_err_t init_shared_spi_bus()
 {
@@ -43,7 +46,7 @@ esp_err_t init_shared_spi_bus()
         .sclk_io_num = PIN_NUM_CLK,
         .quadwp_io_num = -1,
         .quadhd_io_num = -1,
-        .max_transfer_sz = 4096, // Big enough for both SD and LCD, adjust if needed
+        .max_transfer_sz = 1024, // Big enough for both SD and LCD, adjust if needed
     };
     esp_err_t ret = spi_bus_initialize(SPI_HOST, &buscfg, SPI_DMA_CH_AUTO);
     if (ret == ESP_OK)
@@ -74,7 +77,7 @@ esp_err_t MountSDCard()
     esp_vfs_fat_sdmmc_mount_config_t mount_config = {
         .max_files = 2, // Maximum number of files that can be open at the same time
         .format_if_mount_failed = true,
-        .allocation_unit_size = 2 * 512,
+        .allocation_unit_size = 512,
     };
 
     sdmmc_host_t host = SDSPI_HOST_DEFAULT();
@@ -98,6 +101,56 @@ esp_err_t MountSDCard()
     return ESP_OK;
 }
 
+/*======================================================= Database Initialzation =======================================================*/
+
+/*
+static uint8_t *sqlite_memory = NULL;
+int sqlite_initialized = false;
+
+// Creates a static heap for sqlite3 execution
+esp_err_t init_sqlite_memory(void)
+{
+    const char *TAG = "database::init_sqlite_memory";
+
+    if (sqlite_initialized)
+    {
+        ESP_LOGI(TAG, "SQLite already initialized");
+        return ESP_OK;
+    }
+
+    // Check current free heap
+    size_t free_heap = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+    ESP_LOGI(TAG, "Available heap before SQLite memory allocation: %u bytes", free_heap);
+
+    if (free_heap < SQLITE_MEMORY_SIZE + 8192) // keep headroom
+    {
+        ESP_LOGW(TAG, "Not enough heap to safely allocate SQLite memory (%d requested)", SQLITE_MEMORY_SIZE);
+        return ESP_ERR_NO_MEM;
+    }
+
+    sqlite_memory = heap_caps_malloc(SQLITE_MEMORY_SIZE, MALLOC_CAP_8BIT | MALLOC_CAP_INTERNAL);
+    if (sqlite_memory == NULL)
+    {
+        ESP_LOGE(TAG, "Failed to allocate SQLite memory pool");
+        return ESP_ERR_NO_MEM;
+    }
+
+    // Configure SQLite to use our memory pool - MUST BE DONE BEFORE ANY OTHER SQLITE CALLS
+    int rc = sqlite3_config(SQLITE_CONFIG_HEAP, sqlite_memory, SQLITE_MEMORY_SIZE, 64); // 64-byte alignment
+    if (rc != SQLITE_OK)
+    {
+        ESP_LOGE(TAG, "sqlite3_config failed with code %d: %s", rc, sqlite3_errstr(rc));
+        heap_caps_free(sqlite_memory);
+        sqlite_memory = NULL;
+        return ESP_FAIL;
+    }
+
+    sqlite_initialized = true;
+    ESP_LOGI(TAG, "Allocated %d bytes for SQLite memory pool and initialized SQLite", SQLITE_MEMORY_SIZE);
+    return ESP_OK;
+}
+*/
+
 /// @brief Initializes the database and ensures the tasks table exists
 /// @param db Database to be initialized. DATABASE MUST BE CLOSED MANUALLY.
 /// @return SQLITE error code
@@ -110,78 +163,105 @@ int InitSQL(sqlite3 **db)
         ESP_LOGE(TAG, "Failed to mount SD card.");
         return SQLITE_CANTOPEN;
     }
-// Test SD card
+
 #ifdef CONFIG_TEST_SD_CARD
     if (TestSDCard() != ESP_OK)
     {
-        ESP_LOGE(TAG, "Failed to mount SD card.");
+        ESP_LOGE(TAG, "Failed SD card test.");
         return SQLITE_CANTOPEN;
     }
 #endif
 
-    sqlite3_initialize();
-
-    // Build full path to database file
-    char db_path[128];
+    // Build database path
+    char db_path[32]; // increased buffer for safety
     snprintf(db_path, sizeof(db_path), MOUNT_POINT "/calendar.db");
-// DELETE FILE FOR DEBUGGING
+
 #ifdef CONFIG_CLEAN_DATABASE
     DeleteDatabaseIfExists(db_path);
 #endif
 
-    ESP_LOGI(TAG, "Free heap: %lu bytes", esp_get_free_heap_size());
-    // Open for read/write, create if not exists
-    int rc = sqlite3_open_v2(db_path, db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
+    ESP_LOGW(TAG, "Free heap before opening database: %lu bytes", esp_get_free_heap_size());
 
-    if (rc)
+    // Initialize SQLite only after configuring memory
+    int rc = sqlite3_initialize();
+    if (rc != SQLITE_OK)
     {
-        ESP_LOGE(TAG, "Can't open database: %s", sqlite3_errmsg(*db) ? sqlite3_errmsg(*db) : "No error code available");
+        ESP_LOGE(TAG, "sqlite3_initialize failed with code %d: %s", rc, sqlite3_errstr(rc));
+        return ESP_FAIL;
+    }
+
+    // Open SQLite database with NOMUTEX for reduced overhead
+    rc = sqlite3_open_v2(db_path, db,
+                         SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_NOMUTEX, NULL);
+
+    if (rc != SQLITE_OK)
+    {
+        ESP_LOGE(TAG, "Can't open database: %s", sqlite3_errmsg(*db));
         return rc;
     }
 
-    sqlite3_soft_heap_limit64(4096);    // Set heap limit
+    {
+        // Configure SQLite with optimized memory settings for ESP32
+        char *pragma_cmds[] = {
+            "PRAGMA page_size=512;",          // Smaller page size
+            "PRAGMA cache_size=-20;",         // 40 pages (around 20KB)
+            "PRAGMA temp_store=MEMORY;",      // Store temp tables in memory
+            "PRAGMA journal_mode=MEMORY;",    // In-memory journal
+            "PRAGMA synchronous=OFF;",        // Less safe but much faster
+            "PRAGMA locking_mode=EXCLUSIVE;", // Better for single-connection usage
+            NULL};
 
-    // -------------------------------------- Task Table ------------------------------------------
+        for (int i = 0; pragma_cmds[i] != NULL; i++)
+        {
+            rc = sqlite3_exec(*db, pragma_cmds[i], NULL, NULL, NULL);
+            if (rc != SQLITE_OK)
+            {
+                ESP_LOGW(TAG, "Failed to set pragma: %s", pragma_cmds[i]);
+            }
+        }
+    }
+
+    // ---------- Task Table ----------
     ESP_LOGI(TAG, "Creating Task Table...");
-    char *sql = "CREATE TABLE IF NOT EXISTS tasks ("
-                "id TEXT PRIMARY KEY,"
-                "name TEXT NOT NULL,"
-                "datetime INTEGER NOT NULL,"
-                "priority INTEGER NOT NULL,"
-                "completed INTEGER NOT NULL,"
-                "description TEXT);";
-    char *zErrMsg;
+    const char *sql_task =
+        "CREATE TABLE IF NOT EXISTS tasks ("
+        "id TEXT PRIMARY KEY,"
+        "name TEXT NOT NULL,"
+        "datetime INTEGER NOT NULL,"
+        "priority INTEGER NOT NULL,"
+        "completed INTEGER NOT NULL,"
+        "description TEXT);";
 
-    rc = sqlite3_exec(*db, sql, 0, 0, &zErrMsg);
+    rc = sqlite3_exec(*db, sql_task, NULL, NULL, NULL);
     if (rc != SQLITE_OK)
     {
-        ESP_LOGE(TAG, " SQL error: %s", zErrMsg);
-        sqlite3_free(zErrMsg);
+        ESP_LOGE(TAG, "Failed to create task table: %s", sqlite3_errmsg(*db));
         return rc;
     }
 
-    // -------------------------------------- Event Table -----------------------------------------
+    // ---------- Event Table ----------
     ESP_LOGI(TAG, "Creating Event Table...");
-    sql = "CREATE TABLE IF NOT EXISTS events ("
-          "id TEXT PRIMARY KEY,"
-          "name TEXT NOT NULL,"
-          "starttime INTEGER NOT NULL,"
-          "duration INTEGER NOT NULL,"
-          "description TEXT);";
+    const char *sql_event =
+        "CREATE TABLE IF NOT EXISTS events ("
+        "id TEXT PRIMARY KEY,"
+        "name TEXT NOT NULL,"
+        "starttime INTEGER NOT NULL,"
+        "duration INTEGER NOT NULL,"
+        "description TEXT);";
 
-    rc = sqlite3_exec(*db, sql, 0, 0, &zErrMsg);
+    rc = sqlite3_exec(*db, sql_event, NULL, NULL, NULL);
     if (rc != SQLITE_OK)
     {
-        ESP_LOGE(TAG, "SQL error: %s", zErrMsg);
-        sqlite3_free(zErrMsg);
+        ESP_LOGE(TAG, "Failed to create event table: %s", sqlite3_errmsg(*db));
         return rc;
     }
 
-    // ------------------------------------- Habit Tables -----------------------------------------
+    // ---------- Habit Tables ----------
+    ESP_LOGI(TAG, "Creating Habit Tables...");
     const char *sql_habits =
         "CREATE TABLE IF NOT EXISTS habits ("
         "id TEXT PRIMARY KEY, "
-        "name TEXT UNIQUE NOT NULL,"
+        "name TEXT UNIQUE NOT NULL, "
         "day_goals INT NOT NULL);";
 
     const char *sql_entries =
@@ -191,13 +271,18 @@ int InitSQL(sqlite3 **db)
         "PRIMARY KEY (habit_id, date), "
         "FOREIGN KEY (habit_id) REFERENCES habits(id) ON DELETE CASCADE);";
 
-    char *err_msg = NULL;
-    if (sqlite3_exec(*db, sql_habits, 0, 0, &err_msg) != SQLITE_OK ||
-        sqlite3_exec(*db, sql_entries, 0, 0, &err_msg) != SQLITE_OK)
+    rc = sqlite3_exec(*db, sql_habits, NULL, NULL, NULL);
+    if (rc != SQLITE_OK)
     {
-        ESP_LOGE(TAG, "SQL error: %s", err_msg);
-        sqlite3_free(err_msg);
-        return ESP_FAIL;
+        ESP_LOGE(TAG, "Failed to create habits table: %s", sqlite3_errmsg(*db));
+        return rc;
+    }
+
+    rc = sqlite3_exec(*db, sql_entries, NULL, NULL, NULL);
+    if (rc != SQLITE_OK)
+    {
+        ESP_LOGE(TAG, "Failed to create habit entries table: %s", sqlite3_errmsg(*db));
+        return rc;
     }
 
     return SQLITE_OK;
@@ -218,6 +303,55 @@ int CloseSQL(sqlite3 **db)
 
     return SQLITE_OK;
 }
+
+//*======================================================= Safe connection and Disconnection Logic =======================================================*/
+
+static sqlite3 *shared_db = NULL;
+static int connection_users = 0;
+static SemaphoreHandle_t db_mutex = NULL;
+
+sqlite3 *get_db_connection(void)
+{
+    if (db_mutex == NULL)
+    {
+        db_mutex = xSemaphoreCreateMutex();
+    }
+
+    xSemaphoreTake(db_mutex, portMAX_DELAY);
+
+    if (shared_db == NULL)
+    {
+        InitSQL(&shared_db);
+    }
+
+    connection_users++;
+    xSemaphoreGive(db_mutex);
+
+    return shared_db;
+}
+
+void release_db_connection(void)
+{
+    if (db_mutex == NULL || shared_db == NULL)
+    {
+        return;
+    }
+
+    xSemaphoreTake(db_mutex, portMAX_DELAY);
+    connection_users--;
+
+    // Only close when no users left and low-memory conditions
+    if (connection_users <= 0 && esp_get_free_heap_size() < 10000)
+    {
+        CloseSQL(&shared_db);
+        shared_db = NULL;
+        connection_users = 0;
+    }
+
+    xSemaphoreGive(db_mutex);
+}
+
+/*======================================================= Initialzation Debug Functions =======================================================*/
 
 void DeleteDatabaseIfExists(char *database_path)
 {
@@ -271,5 +405,111 @@ esp_err_t TestSDCard()
 
     fclose(f);
     ESP_LOGI(TAG, "Test file written successfully!");
+    return ESP_OK;
+}
+
+/*======================================================= Database Tools =======================================================*/
+
+esp_err_t append_json_to_file(const char *filepath, cJSON *json)
+{
+    const char *TAG = "append_json_to_file";
+
+    if (json == NULL)
+    {
+        ESP_LOGE(TAG, "Cannot write NULL cJSON object");
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    // Convert cJSON object to a string
+    char *json_string = cJSON_PrintUnformatted(json); // Compact format
+    if (json_string == NULL)
+    {
+        ESP_LOGE(TAG, "Failed to serialize cJSON object");
+        return ESP_FAIL;
+    }
+
+    // Open file for appending
+    FILE *fp = fopen(filepath, "a");
+    if (fp == NULL)
+    {
+        ESP_LOGE(TAG, "Failed to open file: %s", filepath);
+        cJSON_free(json_string);
+        return ESP_FAIL;
+    }
+
+    // Write the JSON string followed by newline
+    fprintf(fp, "%s\n", json_string);
+    fclose(fp);
+    cJSON_free(json_string); // Free string after writing
+
+    ESP_LOGI(TAG, "Appended JSON object to file: %s", filepath);
+    return ESP_OK;
+}
+
+esp_err_t ParseJSONFileToDatabase(const char *filepath)
+{
+    const char *TAG = "ParseJSONFileToDatabase";
+    FILE *fp = fopen(filepath, "r");
+
+    if (!fp)
+    {
+        ESP_LOGE(TAG, "Failed to open JSON file: %s", filepath);
+        return ESP_FAIL;
+    }
+
+    char line[1024];
+    while (fgets(line, sizeof(line), fp))
+    {
+        cJSON *root = cJSON_Parse(line);
+        if (!root)
+        {
+            ESP_LOGW(TAG, "Skipping invalid JSON line");
+            continue;
+        }
+
+        cJSON *task = cJSON_GetObjectItem(root, "task");
+        cJSON *habit = cJSON_GetObjectItem(root, "habit");
+        cJSON *event = cJSON_GetObjectItem(root, "event");
+
+        esp_err_t err = ESP_FAIL;
+
+        if (task)
+        {
+            err = ParseTasksJSON(task);
+        }
+        else if (habit)
+        {
+            err = ParseHabitsJSON(habit);
+        }
+        else if (event)
+        {
+            err = ParseEventsJSON(event);
+        }
+        else
+        {
+            ESP_LOGW(TAG, "Unrecognized object type in JSON line");
+        }
+
+        if (err != ESP_OK)
+        {
+            ESP_LOGW(TAG, "Parse function returned error");
+        }
+
+        cJSON_Delete(root);
+    }
+    ESP_LOGI(TAG, "Finished processing JSON file.");
+
+
+    // Attempt to delete the file now that parsing is complete
+    if (unlink(filepath) == 0)
+    {
+        ESP_LOGI(TAG, "Deleted file after successful parsing: %s", filepath);
+    }
+    else
+    {
+        ESP_LOGW(TAG, "Failed to delete file: %s (errno: %d - %s)", filepath, errno, strerror(errno));
+    }
+
+    fclose(fp);
     return ESP_OK;
 }

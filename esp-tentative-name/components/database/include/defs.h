@@ -4,6 +4,8 @@
 // SPI Initialization
 #define SPI_HOST SPI2_HOST
 
+#define SQLITE_MEMORY_SIZE 52 * 1024
+
 #define MAX_NAME_SIZE 128
 #define MAX_DESC_SIZE 32
 
@@ -16,6 +18,7 @@
 #define UUID_LENGTH 37 // 36 characters + null terminator
 
 #define MOUNT_POINT "/sdcard"
+#define MESSAGE_BUFFER_NAME MOUNT_POINT "/responses.json"
 
 // Habit Flags
 #define SATURDAY_FLAG 0x01

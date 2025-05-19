@@ -32,56 +32,69 @@ static const char *TAG = "MAIN";
 void callback(const char *payload, size_t payload_length, void *cb_data)
 {
     struct callback_data_t *data = (struct callback_data_t *)cb_data;
-    cJSON *root = cJSON_ParseWithLength(payload, payload_length);
-    cJSON *item;
-    item = cJSON_GetObjectItem(root, "id");
-    if (item && (strcmp(item->valuestring, "server") == 0))
-    {
-        item = cJSON_GetObjectItem(root, "action");
-        if (item && (strcmp(item->valuestring, "length") == 0))
-        {
-            item = cJSON_GetObjectItem(root, "length");
-            if (item && cJSON_IsNumber(item))
-            {
-                data->expected = item->valueint;
-                data->cur_index = 0;
-                ESP_LOGI(TAG, "Expecting %d tasks", data->expected);
-            }
-        }
-        else if (item && (strcmp(item->valuestring, "response") == 0))
-        {
-            ESP_LOGI(TAG, "Server response index %d", data->cur_index);
-            cJSON *task = cJSON_GetObjectItem(root, "task");
-            cJSON *event = cJSON_GetObjectItem(root, "event");
-            cJSON *habit = cJSON_GetObjectItem(root, "habit");
-            if (task)
-            {
-                // Add task information to database
-                ParseTasksJSON(data->db_ptr, task);
-            }
-            else if (event)
-            {
-                ParseEventsJSON(data->db_ptr, event);
-            }
-            else if (habit)
-            {
-                ParseHabitsJSON(data->db_ptr, habit);
-            }
-            else
-            {
-                ESP_LOGE(TAG, "Missing entry information!");
-            }
 
-            data->cur_index++;
-        }
-        else if (item && (strcmp(item->valuestring, "ack") == 0))
-        {
-            ESP_LOGI(TAG, "Server acknowledged update!");
-            data->update_ack = 1;
-        }
+    ESP_LOGW(TAG, "Heap before callback's JSON parse: %lu", esp_get_free_heap_size());
+    cJSON *root = cJSON_ParseWithLength(payload, payload_length);
+    if (!root)
+    {
+        ESP_LOGE(TAG, "Failed to parse JSON payload.");
+        return;
     }
+
+    cJSON *id = cJSON_GetObjectItem(root, "id");
+    if (!id || strcmp(id->valuestring, "server") != 0)
+    {
+        cJSON_Delete(root);
+        return;
+    }
+
+    cJSON *action = cJSON_GetObjectItem(root, "action");
+    if (!action || !cJSON_IsString(action))
+    {
+        cJSON_Delete(root);
+        return;
+    }
+
+    if (strcmp(action->valuestring, "length") == 0)
+    {
+        cJSON *length = cJSON_GetObjectItem(root, "length");
+        if (length && cJSON_IsNumber(length))
+        {
+            data->expected = length->valueint;
+            data->cur_index = 0;
+            ESP_LOGI(TAG, "Expecting %d tasks", data->expected);
+        }
+        cJSON_Delete(root);
+        return;
+    }
+
+    if (strcmp(action->valuestring, "response") == 0)
+    {
+        ESP_LOGI(TAG, "Server response index %d", data->cur_index);
+
+        // Save json to file for later parsing
+        esp_err_t rc = append_json_to_file(MESSAGE_BUFFER_NAME, root);
+
+        if (rc != ESP_OK)
+        {
+            ESP_LOGE(TAG, "Failed to save reponse to disk!");
+        }
+
+        data->cur_index++;
+        cJSON_Delete(root);
+        return;
+    }
+
+    if (strcmp(action->valuestring, "ack") == 0)
+    {
+        ESP_LOGI(TAG, "Server acknowledged update!");
+        data->update_ack = 1;
+        cJSON_Delete(root);
+        return;
+    }
+
+    // Clean up by default if nothing matched
     cJSON_Delete(root);
-    ESP_LOGI(TAG, "Callback function called\n");
 }
 
 #define DEVICE_ID "55"
@@ -99,7 +112,11 @@ int request_backup(struct callback_data_t *cb_data)
 
     for (int ent_itr = 0; ent_itr < 3; ent_itr++)
     {
+        heap_caps_monitor_local_minimum_free_size_start();
+
         mqtt_publish(backup_payload[ent_itr], strlen(backup_payload[ent_itr]));
+        ESP_LOGW(TAG, "Min heap during publish: %d bytes",
+                 heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT));
         while (1)
         {
             mqtt_loop(5000);
@@ -127,13 +144,13 @@ int request_backup(struct callback_data_t *cb_data)
         }
     }
 
-    mqtt_unsubscribe();
-    mqtt_disconnect();
     return return_status;
 }
 
-int sync_database(struct callback_data_t* cb_data)
+int sync_database(struct callback_data_t *cb_data)
 {
+    heap_caps_monitor_local_minimum_free_size_start();
+
     if (!is_wifi_connected())
     {
         ESP_LOGW(TAG, "Unable to sync database: Device not connected to access point");
@@ -144,8 +161,12 @@ int sync_database(struct callback_data_t* cb_data)
     if (mqtt_connect() != EXIT_SUCCESS)
     {
         ESP_LOGE(TAG, "MQTT connect failed. Aborting backup request.");
+        ESP_LOGW(TAG, "Min heap during connect: %d bytes",
+                 heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT));
         return EXIT_FAILURE;
     }
+    ESP_LOGW(TAG, "Min heap during connect: %d bytes",
+             heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT));
 
     if (mqtt_subscribe() != EXIT_SUCCESS)
     {
@@ -153,11 +174,16 @@ int sync_database(struct callback_data_t* cb_data)
         mqtt_disconnect();
         return EXIT_FAILURE;
     }
+    ESP_LOGW(TAG, "Min heap during subscribe: %d bytes",
+             heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT));
+
     // Send outgoing requests
     UploadTaskRequests(cb_data, DEVICE_ID);
+    ESP_LOGW(TAG, "Min heap during request push: %d bytes",
+             heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT));
 
     // Populate database
-    ESP_LOGI("main::Initialize LCD", "Largest free block seen by request_backup: %d", heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
+    ESP_LOGI(TAG, "Largest free block seen by request_backup: %d", heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
     sqlite3_memory_highwater(1); // Reset highwater
     request_backup(cb_data);
     ESP_LOGI(TAG, "Max SQLite memory: %lld bytes", sqlite3_memory_highwater(0));
@@ -166,15 +192,28 @@ int sync_database(struct callback_data_t* cb_data)
     mqtt_unsubscribe();
     mqtt_disconnect();
 
+    ESP_LOGI(TAG, "Parsing retrieved responses to database...");
+    ParseJSONFileToDatabase(MESSAGE_BUFFER_NAME);
+
     return EXIT_SUCCESS;
 }
 
 void app_main()
 {
+    heap_caps_monitor_local_minimum_free_size_start();
+    esp_log_level_set("*", ESP_LOG_INFO);
+
+    // Set up for database
+    /*
+    if (init_sqlite_memory() != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to allocate memory for SQLite! aborting...");
+        return;
+    }
+    */
 
     // ------------------------------------- Set Up Wifi ------------------------------------------
-    ESP_LOGI("main::Setting up Wifi", "Free heap total: %lu bytes", esp_get_free_heap_size());
-    esp_log_level_set("*", ESP_LOG_INFO);
+    ESP_LOGW("main::Setting up Wifi", "Free heap total: %lu bytes", esp_get_free_heap_size());
 
     esp_log_level_set("httpd_uri", ESP_LOG_ERROR);
     esp_log_level_set("httpd_txrx", ESP_LOG_ERROR);
@@ -186,59 +225,25 @@ void app_main()
 
     setup_wifi();
 
-    // -------------------------------- Create new database object --------------------------------
-    ESP_LOGI("main::Create new database object", "Free heap total: %lu bytes", esp_get_free_heap_size());
-
-    sqlite3 *db;
-    int db_res = InitSQL(&db);
-    if (db_res != SQLITE_OK)
-    {
-        ESP_LOGE(TAG, "Failed to initialize database!");
-        return;
-    }
-
-    // ----------------------------------- Create Task ------------------------------------
-    ESP_LOGI(TAG, "Adding a Task...");
-    // Define a task
-
-    // current time
-    time_t t = time(NULL);
-
-    task_t newTask = {
-        .uuid = "12345",
-        .name = "Capstone Project",
-        .description = "Complete Capstone Project",
-        .completion = INCOMPLETE,
-        .priority = 5,
-        .time = t,
-    };
-
-    // Add task
-    int rc = AddTaskDB(db, &newTask);
-    if (rc != SQLITE_OK)
-    {
-        ESP_LOGE(TAG, "Failed to add task!");
-        return;
-    }
-    ESP_LOGI(TAG, "Created Task!\n");
-
     // -------------------------------- Configure Clock (PCF8523) ---------------------------------
-    ESP_LOGI("main::Configure Clock", "Free heap total: %lu bytes", esp_get_free_heap_size());
+    ESP_LOGW("main::Configure Clock", "Free heap total: %lu bytes", esp_get_free_heap_size());
 
     // Establish R2C connection
     ESP_ERROR_CHECK(InitRTC());
     ESP_ERROR_CHECK(RebootRTC()); // RECONFIGURE RTC configuration (optional)
 
     // Get the current time from NTP server
-    SetTime();
+    if (is_wifi_connected())
+    {
+        SetTime();
+    }
 
     // ------------------------------- Initialize Server Connection -------------------------------
-    ESP_LOGI("main::Initialize Server Connection", "Free heap total: %lu bytes", esp_get_free_heap_size());
+    ESP_LOGW("main::Initialize Server Connection", "Free heap total: %lu bytes", esp_get_free_heap_size());
 
     struct callback_data_t cb_data;
     cb_data.expected = 0;
     cb_data.cur_index = -1;
-    cb_data.db_ptr = db;
 
     // Initialize mqtt library
     assert(mqtt_init(&callback, (void *)&cb_data) == EXIT_SUCCESS);
@@ -253,7 +258,35 @@ void app_main()
 
     /* LVGL initialization */
     ESP_ERROR_CHECK(app_lvgl_init());
-    initDatabase(db);
+
+    // --------------------------------- Create Task Under Load -----------------------------------
+    {
+        ESP_LOGI(TAG, "Adding a Task Under Load of LCD...");
+
+        // Define a task
+
+        // current time
+        time_t t;
+        pcf8523_read_time(&t);
+
+        task_t newTask = {
+            .uuid = "67890",
+            .name = "Pet a dog",
+            .description = "It's great for you",
+            .completion = INCOMPLETE,
+            .priority = 3,
+            .time = t,
+        };
+
+        // Add task
+        int rc = AddTaskDB(&newTask);
+        if (rc != SQLITE_OK)
+        {
+            ESP_LOGE(TAG, "Failed to add task!");
+            return;
+        }
+        ESP_LOGI(TAG, "Created Task!\n");
+    }
 
     // --------------------------------------- Runtime --------------------------------------------
     ESP_LOGI("main::Entering Runtime", "Free heap total: %lu bytes", esp_get_free_heap_size());
@@ -276,7 +309,4 @@ void app_main()
             frame_timer = 0;
         }
     }
-
-    // Close database
-    CloseSQL(&db);
 }
