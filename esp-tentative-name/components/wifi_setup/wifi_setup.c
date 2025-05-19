@@ -85,8 +85,6 @@ esp_err_t init_wifi_sta(const char ssid[32], const char pswd[64]) {
 
   // reset previous config
   ESP_ERROR_CHECK(esp_wifi_set_storage(WIFI_STORAGE_FLASH));
-  esp_netif_destroy_default_wifi(sta_netif);
-  sta_netif = esp_netif_create_default_wifi_sta();
 
   wifi_config_t wifi_config = {
     .sta = {
