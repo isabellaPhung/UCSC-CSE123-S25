@@ -249,15 +249,15 @@ class AwsS3:
         )
         return True
 
-    def update_habit(self, id, current_date, completed):
+    def update_habit(self, id, date, completed):
         obj, data = self.load_info("habit")
 
         for habit in data["habit"]:
             if habit["id"] == id:
                 if completed:
-                    habit["completed"].append(current_date)
+                    habit["completed"].append(date)
                 else:
-                    habit["completed"].remove(current_date)
+                    habit["completed"].remove(date)
                 break
 
         obj.put(

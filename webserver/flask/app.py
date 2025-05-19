@@ -162,10 +162,10 @@ def api_add_habit():
 @jwt_required()
 def api_update_habit():
     id = request.json.get("id")
-    today = request.json.get("today")
+    date = request.json.get("date")
     completed = request.json.get("completed")
 
-    if not s3_conn.update_habit(id, today, completed):
+    if not s3_conn.update_habit(id, date, completed):
         return {"update_habit": False}, 400
     return {"update_habit": True}, 200
 

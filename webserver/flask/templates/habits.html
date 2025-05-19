@@ -540,6 +540,14 @@
         
         // Update a habit's completion status for a specific day
         function updateHabitDay(habitId, dayIndex, completed) {
+            // Number of days before/after current date
+            const offset = dayIndex - adjustedDayIndex
+
+            // Get specific date
+            const habitDate = new Date();
+            habitDate.setDate(today.getDate() + offset);
+            const habitStr = habitDate.toISOString("%Y-%m-%d").split("T")[0];
+
             // Send the habit to S3
             fetch('/api/update_habit', {
                 method: 'POST',
@@ -547,7 +555,7 @@
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': getCookie('csrf_access_token')
                 },
-                body: JSON.stringify({id: habitId, today: todayStr, completed: completed})
+                body: JSON.stringify({id: habitId, date: habitStr, completed: completed})
             })
             .then(response => {
                 if (!response.ok) {
