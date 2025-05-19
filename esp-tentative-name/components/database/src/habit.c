@@ -40,7 +40,7 @@ int RetrieveHabitsDB(habit_t *habitBuffer, int count, int offset)
         const unsigned char *name = sqlite3_column_text(stmt, 1);
         int goal = sqlite3_column_int(stmt, 2);
 
-        if (!id || !name)
+        if (!id || !name || !goal)
         {
             ESP_LOGW(TAG, "Null field detected at row %d", idx);
             continue;
@@ -292,7 +292,8 @@ esp_err_t HabitRetrieveWeekCompletionDB(habit_t *habit, time_t date)
     sqlite3 *db = get_db_connection();
 
     sqlite3_stmt *stmt;
-    const char *sql = "SELECT date FROM habit_entries WHERE habit_id = ? AND date IN (?, ?, ?, ?, ?, ?, ?)";
+    const char *sql = "SELECT date FROM habit_entries "
+                      "WHERE habit_id = ? AND date IN (?, ?, ?, ?, ?, ?, ?)";
     if (sqlite3_prepare_v2(db, sql, -1, &stmt, NULL) != SQLITE_OK)
     {
         ESP_LOGE(TAG, "Prepare failed: %s", sqlite3_errmsg(db));
@@ -300,10 +301,12 @@ esp_err_t HabitRetrieveWeekCompletionDB(habit_t *habit, time_t date)
         return ESP_FAIL;
     }
 
+    sqlite3_bind_text(stmt, 1, habit->uuid, -1, SQLITE_STATIC);
+
     for (int i = 0; i < 7; i++)
     {
         // Insert today and 6 prior days to test
-        sqlite3_bind_int64(stmt, i + 1, today - i * 86400);
+        sqlite3_bind_int64(stmt, i + 2, today - i * 86400);
     }
 
     // Check which days are valid
