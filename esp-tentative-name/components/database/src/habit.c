@@ -19,7 +19,8 @@ int RetrieveHabitsDB(habit_t *habitBuffer, int count, int offset)
 
     sqlite3 *db = get_db_connection();
 
-    const char *sql = "SELECT id, name FROM habits LIMIT ? OFFSET ?;";
+    const char *sql = "SELECT id, name, day_goals "
+                      "FROM habits LIMIT ? OFFSET ?;";
     sqlite3_stmt *stmt;
     int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
     if (rc != SQLITE_OK)
