@@ -177,13 +177,19 @@ extern const char root_cert_auth_end[]   asm("_binary_root_cert_auth_crt_end");
  */
 #define CONNACK_RECV_TIMEOUT_MS                  ( 1000U )
 
+#ifndef CONFIG_DEVICE_ID
+#define CONFIG_DEVICE_ID "55"
+#endif
+
+#define DEVICE_TOPIC(ID) "iotdevice/" ID "/datas3"
+
 /**
  * @brief The topic to subscribe and publish to in the example.
  *
  * The topic name starts with the client identifier to ensure that each demo
  * interacts with a unique topic name.
  */
-#define MQTT_TOPIC                  "iotdevice/55/datas3"
+#define MQTT_TOPIC DEVICE_TOPIC(CONFIG_DEVICE_ID)
 
 /**
  * @brief Length of client MQTT topic.
