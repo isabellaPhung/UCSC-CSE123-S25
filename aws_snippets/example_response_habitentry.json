@@ -1,0 +1,11 @@
+{
+  "id":"server",
+  "action":"response",
+  "index":"0",
+  "habit_entries":
+  {
+    "id":"37a9b0d4-e523-43d5-b24a-38c5ce7f4bf5",
+    "ref_date": 1747686513,
+    "dates": 15
+  }
+}
