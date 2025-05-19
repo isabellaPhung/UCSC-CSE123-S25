@@ -1,19 +1,23 @@
 #include "habit.h"
+#include "database.h"
+
 #include "esp_log.h"
 #include "esp_system.h"
 
 #include <cJSON.h>
 #include <string.h>
 
-int RetrieveHabitsDB(sqlite3 *db, habit_t *habitBuffer, int count, int offset)
+int RetrieveHabitsDB(habit_t *habitBuffer, int count, int offset)
 {
     const char *TAG = "habit::RetrieveHabitsDB";
 
-    if (!db || !habitBuffer || count <= 0 || offset < 0)
+    if (!habitBuffer || count <= 0 || offset < 0)
     {
         ESP_LOGE(TAG, "Invalid arguments");
         return -1;
     }
+
+    sqlite3 *db = get_db_connection();
 
     const char *sql = "SELECT id, name FROM habits LIMIT ? OFFSET ?;";
     sqlite3_stmt *stmt;
@@ -21,6 +25,7 @@ int RetrieveHabitsDB(sqlite3 *db, habit_t *habitBuffer, int count, int offset)
     if (rc != SQLITE_OK)
     {
         ESP_LOGE(TAG, "Failed to prepare statement: %s", sqlite3_errmsg(db));
+        release_db_connection();
         return -1;
     }
 
@@ -51,21 +56,25 @@ int RetrieveHabitsDB(sqlite3 *db, habit_t *habitBuffer, int count, int offset)
         idx++;
     }
 
+    // Clean up
+    sqlite3_finalize(stmt);
+    release_db_connection();
+
     if (rc != SQLITE_DONE && rc != SQLITE_ROW)
     {
         ESP_LOGE(TAG, "Error during stepping: %s", sqlite3_errmsg(db));
-        sqlite3_finalize(stmt);
         return -1;
     }
 
-    sqlite3_finalize(stmt);
     return idx;
 }
 
-esp_err_t HabitAddDB(sqlite3 *db, const char *uuid, const char *name, uint8_t goal_flags)
+esp_err_t HabitAddDB(const char *uuid, const char *name, uint8_t goal_flags)
 {
     const char *TAG = "habit::HabitAddDB";
     ESP_LOGI(TAG, "Free heap: %lu bytes", esp_get_free_heap_size());
+
+    sqlite3 *db = get_db_connection();
 
     // Try to UPDATE first
     const char *update_sql =
@@ -87,12 +96,14 @@ esp_err_t HabitAddDB(sqlite3 *db, const char *uuid, const char *name, uint8_t go
     if (rc != SQLITE_DONE)
     {
         ESP_LOGE(TAG, "Update failed: %s", sqlite3_errmsg(db));
+        release_db_connection();
         return ESP_FAIL;
     }
 
     if (sqlite3_changes(db) > 0)
     {
         ESP_LOGI(TAG, "Updated habit <%s> with UUID <%s>", name, uuid);
+        release_db_connection();
         return ESP_OK;
     }
 
@@ -103,6 +114,7 @@ esp_err_t HabitAddDB(sqlite3 *db, const char *uuid, const char *name, uint8_t go
     if (rc != SQLITE_OK)
     {
         ESP_LOGE(TAG, "Prepare insert failed: %s", sqlite3_errmsg(db));
+        release_db_connection();
         return ESP_FAIL;
     }
 
@@ -111,7 +123,11 @@ esp_err_t HabitAddDB(sqlite3 *db, const char *uuid, const char *name, uint8_t go
     sqlite3_bind_int(stmt, 3, (int)goal_flags);
 
     rc = sqlite3_step(stmt);
+
+    // Clean up
     sqlite3_finalize(stmt);
+    release_db_connection();
+
     if (rc != SQLITE_DONE)
     {
         ESP_LOGE(TAG, "Insert failed: %s", sqlite3_errmsg(db));
@@ -122,15 +138,9 @@ esp_err_t HabitAddDB(sqlite3 *db, const char *uuid, const char *name, uint8_t go
     return ESP_OK;
 }
 
-esp_err_t ParseHabitsJSON(sqlite3 *db, const cJSON *habitItem)
+esp_err_t ParseHabitsJSON(cJSON *habitItem)
 {
     const char *TAG = "habit::ParseHabitJSON";
-
-    if (!db)
-    {
-        ESP_LOGE(TAG, "Invalid input: Missing database");
-        return ESP_ERR_INVALID_ARG;
-    }
 
     if (!cJSON_IsObject(habitItem))
     {
@@ -175,7 +185,7 @@ esp_err_t ParseHabitsJSON(sqlite3 *db, const cJSON *habitItem)
     }
 
     // Add habit to DB
-    esp_err_t result = HabitAddDB(db, id->valuestring, name->valuestring, (uint8_t)goal_flags->valueint);
+    esp_err_t result = HabitAddDB(id->valuestring, name->valuestring, (uint8_t)goal_flags->valueint);
     if (result != ESP_OK)
     {
         ESP_LOGE(TAG, "Failed to add habit to DB");
@@ -184,11 +194,13 @@ esp_err_t ParseHabitsJSON(sqlite3 *db, const cJSON *habitItem)
     return result;
 }
 
-esp_err_t HabitAddEntryDB(sqlite3 *db, const char *habit_id, time_t datetime)
+esp_err_t HabitAddEntryDB(const char *habit_id, time_t datetime)
 {
     const char *TAG = "habit::HabitAddEntryDB";
 
     time_t date = datetime - (datetime % 86400); // UTC truncation
+
+    sqlite3 *db = get_db_connection();
 
     const char *sql = "INSERT OR IGNORE INTO habit_entries (habit_id, date) VALUES (?, ?);";
     sqlite3_stmt *stmt;
@@ -196,6 +208,7 @@ esp_err_t HabitAddEntryDB(sqlite3 *db, const char *habit_id, time_t datetime)
     if (sqlite3_prepare_v2(db, sql, -1, &stmt, NULL) != SQLITE_OK)
     {
         ESP_LOGE(TAG, "Prepare failed: %s", sqlite3_errmsg(db));
+        release_db_connection();
         return ESP_FAIL;
     }
 
@@ -209,15 +222,20 @@ esp_err_t HabitAddEntryDB(sqlite3 *db, const char *habit_id, time_t datetime)
         ESP_LOGE(TAG, "Failed to add entry: %s", sqlite3_errmsg(db));
     }
 
+    // Clean up
     sqlite3_finalize(stmt);
+    release_db_connection();
+
     return result;
 }
 
-esp_err_t HabitRemoveEntryDB(sqlite3 *db, const char *habit_id, time_t datetime)
+esp_err_t HabitRemoveEntryDB(const char *habit_id, time_t datetime)
 {
     const char *TAG = "habit::HabitRemoveEntryDB";
 
     time_t date = datetime - (datetime % 86400); // UTC truncation
+
+    sqlite3 *db = get_db_connection();
 
     const char *sql = "DELETE FROM habit_entries WHERE habit_id = ? AND date = ?;";
     sqlite3_stmt *stmt;
@@ -225,6 +243,7 @@ esp_err_t HabitRemoveEntryDB(sqlite3 *db, const char *habit_id, time_t datetime)
     if (sqlite3_prepare_v2(db, sql, -1, &stmt, NULL) != SQLITE_OK)
     {
         ESP_LOGE(TAG, "Prepare failed: %s", sqlite3_errmsg(db));
+        release_db_connection();
         return ESP_FAIL;
     }
 
@@ -238,11 +257,14 @@ esp_err_t HabitRemoveEntryDB(sqlite3 *db, const char *habit_id, time_t datetime)
         ESP_LOGE(TAG, "Failed to remove entry: %s", sqlite3_errmsg(db));
     }
 
+    // Clean up
     sqlite3_finalize(stmt);
+    release_db_connection();
+
     return result;
 }
 
-esp_err_t HabitRetrieveWeekCompletionDB(sqlite3 *db, habit_t *habit, time_t date)
+esp_err_t HabitRetrieveWeekCompletionDB(habit_t *habit, time_t date)
 {
     const char *TAG = "habit::HabitRetrieveWeekCompletionDB";
 
@@ -266,11 +288,14 @@ esp_err_t HabitRetrieveWeekCompletionDB(sqlite3 *db, habit_t *habit, time_t date
 
     time_t today = date - (date % 86400); // UTC truncation
 
+    sqlite3 *db = get_db_connection();
+
     sqlite3_stmt *stmt;
     const char *sql = "SELECT date FROM habit_entries WHERE habit_id = ? AND date IN (?, ?, ?, ?, ?, ?, ?)";
     if (sqlite3_prepare_v2(db, sql, -1, &stmt, NULL) != SQLITE_OK)
     {
         ESP_LOGE(TAG, "Prepare failed: %s", sqlite3_errmsg(db));
+        release_db_connection();
         return ESP_FAIL;
     }
 
@@ -294,6 +319,10 @@ esp_err_t HabitRetrieveWeekCompletionDB(sqlite3 *db, habit_t *habit, time_t date
             }
         }
     }
+
+    // Clena up
     sqlite3_finalize(stmt);
+    release_db_connection();
+
     return ESP_OK;
 }

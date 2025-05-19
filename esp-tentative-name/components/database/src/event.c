@@ -1,12 +1,14 @@
 #include "event.h"
+#include "database.h"
+
 #include <string.h>
 
 #include "esp_system.h"
 #include "esp_log.h"
 
-esp_err_t AddEventDB(sqlite3 *db, const event_t *event);
+esp_err_t AddEventDB(event_t *event);
 
-int RetrieveEventsSortedDB(sqlite3 *db, event_t *eventBuffer, int count, int offset)
+int RetrieveEventsSortedDB(event_t *eventBuffer, int count, int offset)
 {
     const char *TAG = "event::RetrieveEventsSortedDB";
 
@@ -15,6 +17,8 @@ int RetrieveEventsSortedDB(sqlite3 *db, event_t *eventBuffer, int count, int off
         ESP_LOGE(TAG, "Invalid buffer or count");
         return -1;
     }
+
+    sqlite3 *db = get_db_connection();
 
     const char *sql = "SELECT id, name, starttime, duration, description "
                       "FROM events "
@@ -25,6 +29,7 @@ int RetrieveEventsSortedDB(sqlite3 *db, event_t *eventBuffer, int count, int off
     if (rc != SQLITE_OK)
     {
         ESP_LOGE(TAG, "Failed to prepare SELECT statement: %s", sqlite3_errmsg(db));
+        release_db_connection();
         return -1;
     }
 
@@ -60,27 +65,23 @@ int RetrieveEventsSortedDB(sqlite3 *db, event_t *eventBuffer, int count, int off
         i++;
     }
 
+    // Clean up
+    sqlite3_finalize(stmt);
+    release_db_connection();
+
     if (rc != SQLITE_DONE)
     {
         ESP_LOGE(TAG, "Error retrieving events: %s", sqlite3_errmsg(db));
-        sqlite3_finalize(stmt);
         return -1;
     }
 
-    sqlite3_finalize(stmt);
     ESP_LOGI(TAG, "Retrieved %d event(s) starting at offset %d", i, offset);
     return i;
 }
 
-esp_err_t ParseEventsJSON(sqlite3 *db, const cJSON *eventItem)
+esp_err_t ParseEventsJSON(cJSON *eventItem)
 {
     const char *TAG = "event::ParseEventsJSON";
-
-    if (!db)
-    {
-        ESP_LOGE(TAG, "Invalid input: Missing database");
-        return ESP_ERR_INVALID_ARG;
-    }
 
     if (!cJSON_IsObject(eventItem))
     {
@@ -146,22 +147,20 @@ esp_err_t ParseEventsJSON(sqlite3 *db, const cJSON *eventItem)
     }
     event->duration = (time_t)duration->valuedouble;
 
-    // Call AddEventDB
-    esp_err_t result = AddEventDB(db, event);
-    if (result != ESP_OK)
-    {
-        ESP_LOGE(TAG, "Failed to add event to DB");
-    }
+    int rc = AddEventDB(event);
+    free(event);
 
-    return result;
+    return rc;
 }
 
 // -------------------------------------- Helper Scripts ------------------------------------------
 
-esp_err_t AddEventDB(sqlite3 *db, const event_t *event)
+esp_err_t AddEventDB(event_t *event)
 {
     const char *TAG = "event::AddEventDB";
     ESP_LOGI(TAG, "Free heap: %lu bytes", esp_get_free_heap_size());
+
+    sqlite3 *db = get_db_connection();
 
     // Try to UPDATE first
     const char *update_sql =
@@ -171,6 +170,7 @@ esp_err_t AddEventDB(sqlite3 *db, const event_t *event)
     if (rc != SQLITE_OK)
     {
         ESP_LOGE(TAG, "Prepare update failed: %s", sqlite3_errmsg(db));
+        release_db_connection();
         return ESP_FAIL;
     }
 
@@ -185,12 +185,14 @@ esp_err_t AddEventDB(sqlite3 *db, const event_t *event)
     if (rc != SQLITE_DONE)
     {
         ESP_LOGE(TAG, "Update failed: %s", sqlite3_errmsg(db));
+        release_db_connection();
         return ESP_FAIL;
     }
 
     if (sqlite3_changes(db) > 0)
     {
         ESP_LOGI(TAG, "Updated event with ID: %s", event->uuid);
+        release_db_connection();
         return ESP_OK;
     }
 
@@ -201,6 +203,7 @@ esp_err_t AddEventDB(sqlite3 *db, const event_t *event)
     if (rc != SQLITE_OK)
     {
         ESP_LOGE(TAG, "Prepare insert failed: %s", sqlite3_errmsg(db));
+        release_db_connection();
         return ESP_FAIL;
     }
 
@@ -211,7 +214,11 @@ esp_err_t AddEventDB(sqlite3 *db, const event_t *event)
     sqlite3_bind_text(stmt, 5, event->description, -1, SQLITE_STATIC);
 
     rc = sqlite3_step(stmt);
+
+    // Clean up
     sqlite3_finalize(stmt);
+    release_db_connection();
+
     if (rc != SQLITE_DONE)
     {
         ESP_LOGE(TAG, "Insert failed: %s", sqlite3_errmsg(db));
@@ -222,9 +229,11 @@ esp_err_t AddEventDB(sqlite3 *db, const event_t *event)
     return ESP_OK;
 }
 
-esp_err_t RemoveEventDB(sqlite3 *db, const char *uuid)
+esp_err_t RemoveEventDB(const char *uuid)
 {
     const char *TAG = "event::RemoveEventDB";
+
+    sqlite3 *db = get_db_connection();
 
     const char *sql = "DELETE FROM events WHERE id = ?;";
     sqlite3_stmt *stmt;
@@ -232,105 +241,25 @@ esp_err_t RemoveEventDB(sqlite3 *db, const char *uuid)
     if (rc != SQLITE_OK)
     {
         ESP_LOGE(TAG, "Failed to prepare DELETE statement: %s", sqlite3_errmsg(db));
+        release_db_connection();
         return ESP_FAIL;
     }
 
     sqlite3_bind_text(stmt, 1, uuid, -1, SQLITE_STATIC);
 
     rc = sqlite3_step(stmt);
+
+    sqlite3_finalize(stmt);
+
     if (rc != SQLITE_DONE)
     {
         ESP_LOGE(TAG, "Failed to execute DELETE statement: %s", sqlite3_errmsg(db));
-        sqlite3_finalize(stmt);
+        release_db_connection();
         return ESP_FAIL;
     }
+
+    release_db_connection();
 
     ESP_LOGI(TAG, "Deleted event with ID: %s", uuid);
-    sqlite3_finalize(stmt);
     return ESP_OK;
 }
-
-// ----------------------------------------- TEST SCRIPT ------------------------------------------
-/*
-esp_err_t TestEventFunctions(sqlite3 *db)
-{
-    const char *TAG = "event::TestEventFunctions";
-
-    if (!db)
-    {
-        ESP_LOGE(TAG, "Invalid database handle");
-        return ESP_ERR_INVALID_ARG;
-    }
-
-    // Define JSON strings with unique UUIDs
-    const char *json_events[3] = {
-        "{\"event\": {\"id\": \"uuid-001\", \"name\": \"Event One\", \"description\": \"First Event\", \"starttime\": 1762266000, \"duration\": 3600}}",
-        "{\"event\": {\"id\": \"uuid-002\", \"name\": \"Event Two\", \"description\": \"Second Event\", \"starttime\": 1762270000, \"duration\": 1800}}",
-        "{\"event\": {\"id\": \"uuid-003\", \"name\": \"Event Three\", \"description\": \"Third Event\", \"starttime\": 1762280000, \"duration\": 7200}}"};
-
-    // Insert each JSON event
-    for (int i = 0; i < 3; i++)
-    {
-        ESP_LOGI(TAG, "Parsing and inserting event %d", i + 1);
-        esp_err_t err = ParseEventsJSON(db, json_events[i]);
-        if (err != ESP_OK)
-        {
-            ESP_LOGE(TAG, "Failed to insert event %d", i + 1);
-            return err;
-        }
-    }
-
-    // Retrieve events sorted
-    event_t buffer[3] = {0};
-    ESP_LOGI(TAG, "Retrieving sorted events...");
-    int res = RetrieveEventsSortedDB(db, buffer, 3, 0);
-    if (res < 3)
-    {
-        ESP_LOGE(TAG, "Failed to retrieve sorted events");
-        return ESP_FAIL;
-    }
-
-    // Log events
-    for (int i = 0; i < 3; i++)
-    {
-        ESP_LOGI(TAG, "Event %d:", i + 1);
-        ESP_LOGI(TAG, " UUID: %s", buffer[i].uuid);
-        ESP_LOGI(TAG, " Name: %s", buffer[i].name);
-        ESP_LOGI(TAG, " Description: %s", buffer[i].description);
-        ESP_LOGI(TAG, " Start Time: %lld", buffer[i].start_time);
-        ESP_LOGI(TAG, " Duration: %lld", buffer[i].duration);
-    }
-
-    // Remove all inserted events
-    for (int i = 0; i < 3; i++)
-    {
-        cJSON *root = cJSON_Parse(json_events[i]);
-        if (!root)
-        {
-            ESP_LOGE(TAG, "Failed to parse JSON again for cleanup");
-            return ESP_FAIL;
-        }
-        cJSON *event = cJSON_GetObjectItem(root, "event");
-        cJSON *id = cJSON_GetObjectItem(event, "id");
-        if (!cJSON_IsString(id))
-        {
-            cJSON_Delete(root);
-            ESP_LOGE(TAG, "Failed to extract UUID during cleanup");
-            return ESP_FAIL;
-        }
-
-        ESP_LOGI(TAG, "Removing event with UUID: %s", id->valuestring);
-        esp_err_t err = RemoveEventDB(db, id->valuestring);
-        cJSON_Delete(root);
-
-        if (err != ESP_OK)
-        {
-            ESP_LOGE(TAG, "Failed to remove event %d", i + 1);
-            return err;
-        }
-    }
-
-    ESP_LOGI(TAG, "All event tests passed and cleaned up.");
-    return ESP_OK;
-}
-*/
