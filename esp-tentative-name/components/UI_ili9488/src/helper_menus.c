@@ -1,8 +1,8 @@
 #include "helper_menus.h"
-#include "esp_log.h"
-#include "esp_system.h"
+//#include "esp_log.h"
+//#include "esp_system.h"
 
-sqlite3 *database;
+//sqlite3 *database;
 static uint32_t taskCursor = 0;
 static uint32_t eventCursor = 0;
 static uint32_t habitCursor = 0;
@@ -43,7 +43,7 @@ uint8_t eventBuffSize;
 habit_t habitBuffer[3];
 uint8_t habitBuffSize;
 
-static const char *TAG = "UI"; //for esp_log
+//static const char *TAG = "UI"; //for esp_log
 
 /*
 char * convertTime(time_t * value){
@@ -52,11 +52,11 @@ char * convertTime(time_t * value){
     strftime(timestr, sizeof(timestr), "%D %r", timeinfo);
     return timestr;
 }
-*/
 
 void initDatabase(sqlite3 * db){
     database = db;
 }
+*/
 
 /*
  * callback function for focus menu for menu navigation
@@ -82,7 +82,7 @@ static void taskevent_cb(lv_event_t * e){
         lv_obj_clean(tile2);
         loadTile3();
         lv_obj_del(tile2);
-        ESP_LOGW(TAG, "Free heap: %lu bytes", esp_get_free_heap_size());
+        //ESP_LOGW(TAG, "Free heap: %lu bytes", esp_get_free_heap_size());
     }
     /*
     else if(k == LV_KEY_UP) {
@@ -102,7 +102,7 @@ static void habit_cb(lv_event_t * e){
         lv_obj_clean(tile3);
         loadTile2();
         lv_obj_del(tile3);
-        ESP_LOGW(TAG, "Free heap: %lu bytes", esp_get_free_heap_size());
+        //ESP_LOGW(TAG, "Free heap: %lu bytes", esp_get_free_heap_size());
     }else if(k == LV_KEY_LEFT){
         child = lv_obj_get_child(lv_event_get_target(e), 0);
         lv_group_focus_obj(child);
@@ -194,7 +194,7 @@ static void exit_event_cb(){
 
 static void delete_event_cb(lv_event_t * e){
     event_t * event = lv_event_get_user_data(e);
-    RemoveEventDB(database, event->uuid);
+    RemoveEventDB(event->uuid);
     exit_event_cb();
 }
 
@@ -270,13 +270,13 @@ static void exit_task_cb(){
 
 static void complete_task_cb(lv_event_t * e){
     task_t * task = lv_event_get_user_data(e);
-    UpdateTaskStatus(database, task->uuid, COMPLETE);
+    UpdateTaskStatus(task->uuid, COMPLETE);
     exit_task_cb();
 }
 
 static void incomplete_task_cb(lv_event_t * e){
     task_t * task = lv_event_get_user_data(e);
-    UpdateTaskStatus(database, task->uuid, INCOMPLETE);
+    UpdateTaskStatus(task->uuid, INCOMPLETE);
     exit_task_cb();
 }
 
@@ -288,7 +288,7 @@ static void focus_task_cb(lv_event_t * e){
 
 static void delete_task_cb(lv_event_t * e){
     task_t * task = lv_event_get_user_data(e);
-    UpdateTaskStatus(database, task->uuid, MFD);
+    UpdateTaskStatus(task->uuid, MFD);
     exit_task_cb();
 }
 
@@ -467,11 +467,11 @@ void create_event(event_t * event){
 
 
 void updateTaskBuff(){
-    taskBuffSize = RetrieveTasksSortedDB(database, taskBuffer, 4, taskCursor);
+    taskBuffSize = RetrieveTasksSortedDB(taskBuffer, 4, taskCursor);
 }
 
 void updateEventBuff(){
-    eventBuffSize = RetrieveEventsSortedDB(database, eventBuffer, 4, eventCursor);
+    eventBuffSize = RetrieveEventsSortedDB(eventBuffer, 4, eventCursor);
 }
 
 void drawTasks(){
@@ -513,7 +513,7 @@ void drawEvents(){
 static void tasks_left_cb(){
     if(taskCursor >= 4){
         taskCursor = taskCursor - 4;
-        taskBuffSize = RetrieveTasksSortedDB(database, taskBuffer, 4, taskCursor);
+        taskBuffSize = RetrieveTasksSortedDB(taskBuffer, 4, taskCursor);
         drawTasks();
     }
 }
@@ -521,7 +521,7 @@ static void tasks_left_cb(){
 static void tasks_right_cb(){
     if(taskBuffSize == 4){
         taskCursor += 4;
-        taskBuffSize = RetrieveTasksSortedDB(database, taskBuffer, 4, taskCursor);
+        taskBuffSize = RetrieveTasksSortedDB(taskBuffer, 4, taskCursor);
         if(taskBuffSize != 0){
             drawTasks();
         }else{
@@ -533,7 +533,7 @@ static void tasks_right_cb(){
 static void events_left_cb(){
     if(eventCursor >= 4){
         eventCursor = eventCursor - 4;
-        eventBuffSize = RetrieveEventsSortedDB(database, eventBuffer, 4, eventCursor);
+        eventBuffSize = RetrieveEventsSortedDB(eventBuffer, 4, eventCursor);
         drawEvents();
     }
 }
@@ -541,7 +541,7 @@ static void events_left_cb(){
 static void events_right_cb(){
     if(eventBuffSize == 4){
         eventCursor += 4;
-        eventBuffSize = RetrieveEventsSortedDB(database, eventBuffer, 4, eventCursor);
+        eventBuffSize = RetrieveEventsSortedDB(eventBuffer, 4, eventCursor);
         if(eventBuffSize != 0){
             drawEvents();
         }else{
@@ -666,9 +666,9 @@ static void buttonmatrix_cb6(lv_event_t * e){
     
     if(k == LV_KEY_ENTER) {
         if (!lv_obj_has_state(obj, LV_STATE_CHECKED)){ //if toggled
-            HabitAddEntryDB(database, habit->uuid, currtime);
+            HabitAddEntryDB(habit->uuid, currtime);
         }else if(lv_obj_has_state(obj, LV_STATE_CHECKED)){ //if untoggled
-            HabitRemoveEntryDB(database, habit->uuid, currtime);
+            HabitRemoveEntryDB(habit->uuid, currtime);
         }
     }
 }
@@ -681,9 +681,9 @@ static void buttonmatrix_cb5(lv_event_t * e){
     
     if(k == LV_KEY_ENTER) {
         if (!lv_obj_has_state(obj, LV_STATE_CHECKED)){ //if toggled
-            HabitAddEntryDB(database, habit->uuid, difftime(currtime, 86400));
+            HabitAddEntryDB(habit->uuid, difftime(currtime, 86400));
         }else if(lv_obj_has_state(obj, LV_STATE_CHECKED)){ //if untoggled
-            HabitRemoveEntryDB(database, habit->uuid, difftime(currtime, 86400));
+            HabitRemoveEntryDB(habit->uuid, difftime(currtime, 86400));
         }
     }
 }
@@ -696,9 +696,9 @@ static void buttonmatrix_cb4(lv_event_t * e){
     
     if(k == LV_KEY_ENTER) {
         if (!lv_obj_has_state(obj, LV_STATE_CHECKED)){ //if toggled
-            HabitAddEntryDB(database, habit->uuid, difftime(currtime, 2*86400));
+            HabitAddEntryDB(habit->uuid, difftime(currtime, 2*86400));
         }else if(lv_obj_has_state(obj, LV_STATE_CHECKED)){ //if untoggled
-            HabitRemoveEntryDB(database, habit->uuid, difftime(currtime, 2*86400));
+            HabitRemoveEntryDB(habit->uuid, difftime(currtime, 2*86400));
         }
     }
 }
@@ -711,9 +711,9 @@ static void buttonmatrix_cb3(lv_event_t * e){
     
     if(k == LV_KEY_ENTER) {
         if (!lv_obj_has_state(obj, LV_STATE_CHECKED)){ //if toggled
-            HabitAddEntryDB(database, habit->uuid, difftime(currtime, 3*86400));
+            HabitAddEntryDB(habit->uuid, difftime(currtime, 3*86400));
         }else if(lv_obj_has_state(obj, LV_STATE_CHECKED)){ //if untoggled
-            HabitRemoveEntryDB(database, habit->uuid, difftime(currtime, 3*86400));
+            HabitRemoveEntryDB(habit->uuid, difftime(currtime, 3*86400));
         }
     }
 }
@@ -726,9 +726,9 @@ static void buttonmatrix_cb2(lv_event_t * e){
     
     if(k == LV_KEY_ENTER) {
         if (!lv_obj_has_state(obj, LV_STATE_CHECKED)){ //if toggled
-            HabitAddEntryDB(database, habit->uuid, difftime(currtime, 4*86400));
+            HabitAddEntryDB(habit->uuid, difftime(currtime, 4*86400));
         }else if(lv_obj_has_state(obj, LV_STATE_CHECKED)){ //if untoggled
-            HabitRemoveEntryDB(database, habit->uuid, difftime(currtime, 4*86400));
+            HabitRemoveEntryDB(habit->uuid, difftime(currtime, 4*86400));
         }
     }
 }
@@ -741,9 +741,9 @@ static void buttonmatrix_cb1(lv_event_t * e){
     
     if(k == LV_KEY_ENTER) {
         if (!lv_obj_has_state(obj, LV_STATE_CHECKED)){ //if toggled
-            HabitAddEntryDB(database, habit->uuid, difftime(currtime, 5*86400));
+            HabitAddEntryDB(habit->uuid, difftime(currtime, 5*86400));
         }else if(lv_obj_has_state(obj, LV_STATE_CHECKED)){ //if untoggled
-            HabitRemoveEntryDB(database, habit->uuid, difftime(currtime, 5*86400));
+            HabitRemoveEntryDB(habit->uuid, difftime(currtime, 5*86400));
         }
     }
 }
@@ -756,9 +756,9 @@ static void buttonmatrix_cb0(lv_event_t * e){
     
     if(k == LV_KEY_ENTER) {
         if (!lv_obj_has_state(obj, LV_STATE_CHECKED)){ //if toggled
-            HabitAddEntryDB(database, habit->uuid, difftime(currtime, 6*86400));
+            HabitAddEntryDB(habit->uuid, difftime(currtime, 6*86400));
         }else if(lv_obj_has_state(obj, LV_STATE_CHECKED)){ //if untoggled
-            HabitRemoveEntryDB(database, habit->uuid, difftime(currtime, 6*86400));
+            HabitRemoveEntryDB(habit->uuid, difftime(currtime, 6*86400));
         }
     }
 }
@@ -786,7 +786,7 @@ void createHabit(habit_t * habit){
     lv_group_add_obj(lv_group_get_default(), buttonCont);
     lv_obj_set_size(buttonCont, LCD_H_RES-50, LCD_V_RES/5.5);
     
-    HabitRetrieveWeekCompletionDB(database, habit, currtime);
+    HabitRetrieveWeekCompletionDB(habit, currtime);
     for(int i = 0; i < 7; i++){
         button = lv_btn_create(buttonCont);
         lv_group_remove_obj(button);
@@ -833,7 +833,7 @@ void createHabit(habit_t * habit){
 }
 
 void updateHabitBuff(){
-    habitBuffSize = RetrieveHabitsDB(database, habitBuffer, 3, habitCursor);
+    habitBuffSize = RetrieveHabitsDB(habitBuffer, 3, habitCursor);
 }
 
 void drawHabits(){
@@ -847,7 +847,7 @@ void drawHabits(){
 static void habits_left_cb(){
     if(habitCursor >= 3){
         habitCursor = habitCursor - 3;
-        habitBuffSize = RetrieveHabitsDB(database, habitBuffer, 3, habitCursor);
+        habitBuffSize = RetrieveHabitsDB(habitBuffer, 3, habitCursor);
         drawHabits();
     }
 }
@@ -855,7 +855,7 @@ static void habits_left_cb(){
 static void habits_right_cb(){
     if(habitBuffSize == 3){
         habitCursor += 3;
-        habitBuffSize = RetrieveHabitsDB(database, habitBuffer, 3, habitCursor);
+        habitBuffSize = RetrieveHabitsDB(habitBuffer, 3, habitCursor);
         if(habitBuffSize != 0){
             drawHabits();
         }else{

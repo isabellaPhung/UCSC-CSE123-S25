@@ -5,18 +5,17 @@
  */
 #include "database.h" //for database purposes
 #include "display_init.h"  //initalizes LVGL and display hardware
-#include "pcf8523.h" //for RTC
 #include "helper_menus.h"
 #include <time.h>
 #include <stdio.h>
 #include <string.h>
-//#include "esp_netif.h"
-//#include "esp_event.h"
+
 /*
-create_task(tasklist, "Capstone Project", "3/25/2025");
-create_task(tasklist, "Figure out Prototype", "3/29/2025");
-create_task(tasklist, "Learn PCB Design", "3/30/2025");
-create_task(tasklist, "Learn Computer Aided Design", "4/1/2025");
+#include "pcf8523.h" //for RTC
+#include "nvs_flash.h"
+#include "esp_netif.h"
+#include "esp_event.h"
+#include "wifi_setup.h"
 */
 
 static const char *TAG = "SQL_DEMO";
@@ -37,16 +36,14 @@ void initdb(){
         return;
     }
     ESP_LOGI(TAG, "Database initialized!\n");
-    
     // ----------------------------------- Create Task ------------------------------------
     ESP_LOGI(TAG, "Adding a Task...");
     // Define a task
 
     // current time
     time_t t = time(NULL);
-    
     task_t newTask = {
-        .uuid = "12345",
+        .uuid = "help",
         .name = "Capstone Project",
         .description = "Complete Capstone Project",
         .completion = INCOMPLETE,
@@ -55,52 +52,280 @@ void initdb(){
     };
 
     // Add task
-    int rc = AddTaskDB(db, &newTask);
-    if (rc != SQLITE_OK){
-        ESP_LOGE(TAG, "Failed to add task!");
-        return;
-    }
-    ESP_LOGI(TAG, "Created Task!\n");
+    AddTaskDB(&newTask);
     
+    ESP_LOGI(TAG, "Created Task!\n");
+    task_t newTask1 = {
+        .uuid = "help1",
+        .name = "Capstone Project1",
+        .description = "Complete Capstone Project1",
+        .completion = INCOMPLETE,
+        .priority = 5,
+        .time = t,
+    };
+
+    // Add task
+    AddTaskDB(&newTask1);
+    
+    task_t newTask2 = {
+        .uuid = "help2",
+        .name = "Capstone Project2",
+        .description = "Complete Capstone Project2",
+        .completion = INCOMPLETE,
+        .priority = 5,
+        .time = t,
+    };
+
+    // Add task
+    AddTaskDB(&newTask2);
+    
+    task_t newTask3 = {
+        .uuid = "help3",
+        .name = "Capstone Project3",
+        .description = "Complete Capstone Project3",
+        .completion = INCOMPLETE,
+        .priority = 5,
+        .time = t,
+    };
+
+    // Add task
+    AddTaskDB(&newTask3);
+    
+    task_t newTask4 = {
+        .uuid = "help4",
+        .name = "Capstone Project4",
+        .description = "Complete Capstone Project4",
+        .completion = INCOMPLETE,
+        .priority = 5,
+        .time = t,
+    };
+    // Add task
+    AddTaskDB(&newTask4);
+
+    task_t newTask5 = {
+        .uuid = "help5",
+        .name = "Capstone Project5",
+        .description = "Complete Capstone Project5",
+        .completion = INCOMPLETE,
+        .priority = 5,
+        .time = t,
+    };
+    // Add task
+    AddTaskDB(&newTask5);
+
+    task_t newTask6 = {
+        .uuid = "help6",
+        .name = "Capstone Project6",
+        .description = "Complete Capstone Project6",
+        .completion = INCOMPLETE,
+        .priority = 5,
+        .time = t,
+    };
+    
+    // Add task
+    AddTaskDB(&newTask6);
+    
+    task_t newTask7 = {
+        .uuid = "help7",
+        .name = "Capstone Project7",
+        .description = "Complete Capstone Project7",
+        .completion = INCOMPLETE,
+        .priority = 5,
+        .time = t,
+    };
+    
+    // Add task
+    AddTaskDB(&newTask7);
+    
+    task_t newTask8 = {
+        .uuid = "help8",
+        .name = "Capstone Project8",
+        .description = "Complete Capstone Project8",
+        .completion = INCOMPLETE,
+        .priority = 5,
+        .time = t,
+    };
+    
+    // Add task
+    AddTaskDB(&newTask8);
+
     // ----------------------------------- Create Event ------------------------------------
-    /* 
+    
     ESP_LOGI(TAG, "Adding an Event...");
     // Define a task
 
     event_t newEvent = {
-        .uuid = "toes",
-        .name = "Meet with Capstone Team",
-        .description = "Meeting with Capstone Team at Engineering 2",
+        .uuid = "event0",
+        .name = "Meet with Capstone Team0",
+        .description = "Capstone Meeting0",
         .start_time = t,
         .duration = 7200,
     };
 
     // Add event
-    rc = AddEventDB(db, &newEvent);
-    if (rc != SQLITE_OK){
-        ESP_LOGE(TAG, "Failed to add event!");
-        return;
-    }
+    AddEventDB(&newEvent);
+    
     ESP_LOGI(TAG, "Created Event!\n");
-    */ 
-    /*
+    
+    ESP_LOGI(TAG, "Adding an Event...");
+    // Define a task
+
+    event_t newEvent1 = {
+        .uuid = "event1",
+        .name = "Meet with Capstone Team1",
+        .description = "Capstone Meeting1",
+        .start_time = t,
+        .duration = 7200,
+    };
+
+    // Add event
+    AddEventDB(&newEvent1);
+   
+    ESP_LOGI(TAG, "Created Event!\n");
+    
+    ESP_LOGI(TAG, "Adding an Event...");
+    // Define a task
+
+    event_t newEvent2 = {
+        .uuid = "event2",
+        .name = "Meet with Capstone Team2",
+        .description = "Capstone Meeting2",
+        .start_time = t,
+        .duration = 7200,
+    };
+
+    // Add event
+    AddEventDB(&newEvent2);
+   
+    ESP_LOGI(TAG, "Created Event!\n");
+    
+    ESP_LOGI(TAG, "Adding an Event...");
+    // Define a task
+
+    event_t newEvent3 = {
+        .uuid = "event3",
+        .name = "Meet with Capstone Team3",
+        .description = "Capstone Meeting3",
+        .start_time = t,
+        .duration = 7200,
+    };
+
+    // Add event
+    AddEventDB(&newEvent3);
+    
+    ESP_LOGI(TAG, "Created Event!\n");
+
+    ESP_LOGI(TAG, "Adding an Event...");
+    // Define a task
+
+    event_t newEvent4 = {
+        .uuid = "event4",
+        .name = "Meet with Capstone Team4",
+        .description = "Capstone Meeting4",
+        .start_time = t,
+        .duration = 7200,
+    };
+
+    // Add event
+    AddEventDB(&newEvent4);
+        ESP_LOGI(TAG, "Created Event!\n");
+
+    ESP_LOGI(TAG, "Adding an Event...");
+    // Define a task
+
+    event_t newEvent5 = {
+        .uuid = "event5",
+        .name = "Meet with Capstone Team5",
+        .description = "Capstone Meeting5",
+        .start_time = t,
+        .duration = 7200,
+    };
+
+    // Add event
+    AddEventDB(&newEvent5);
+    
+    ESP_LOGI(TAG, "Created Event!\n");
+    
+    ESP_LOGI(TAG, "Adding an Event...");
+    // Define a task
+
+    event_t newEvent6 = {
+        .uuid = "event6",
+        .name = "Meet with Capstone Team6",
+        .description = "Capstone Meeting6",
+        .start_time = t,
+        .duration = 7200,
+    };
+
+    // Add event
+    AddEventDB(&newEvent6);
+    
+    ESP_LOGI(TAG, "Created Event!\n");
+
+    ESP_LOGI(TAG, "Adding an Event...");
+    // Define a task
+
+    event_t newEvent7 = {
+        .uuid = "event7",
+        .name = "Meet with Capstone Team7",
+        .description = "Capstone Meeting7",
+        .start_time = t,
+        .duration = 7200,
+    };
+
+    // Add event
+    AddEventDB(&newEvent7);
+    
+    ESP_LOGI(TAG, "Created Event!\n");
+
+    ESP_LOGI(TAG, "Adding an Event...");
+    // Define a task
+
+    event_t newEvent8 = {
+        .uuid = "event8",
+        .name = "Meet with Capstone Team8",
+        .description = "Capstone Meeting8",
+        .start_time = t,
+        .duration = 7200,
+    };
+
+    // Add event
+    AddEventDB(&newEvent8);
+    
+    ESP_LOGI(TAG, "Created Event!\n");
+
+    // ----------------------------------- Create Habit ------------------------------------
+    ESP_LOGI(TAG, "Adding a Habit...");
+    // Define a habit
+    
+    HabitAddDB("23456", "Walk the Dog", 8);
+    
+    ESP_LOGI(TAG, "Created Habit!\n");
+    
     // ----------------------------------- Create Habit ------------------------------------
     ESP_LOGI(TAG, "Adding a Habit...");
     // Define a habit
 
-    event_t newHabit = {
-        .uuid = "23456",
-        .name = "Walk the Dog",
-    };
-
-    // Add event
-    rc = AddHabitDB(db, &newHabit);
-    if (rc != SQLITE_OK){
-        ESP_LOGE(TAG, "Failed to add habit!");
-        return;
-    }
+    HabitAddDB("habhab", "Study Electronics", 1);
+    
     ESP_LOGI(TAG, "Created Habit!\n");
-    */
+    
+    // ----------------------------------- Create Habit ------------------------------------
+    ESP_LOGI(TAG, "Adding a Habit...");
+    // Define a habit
+
+    HabitAddDB("habby", "Eat vegetables", 8);
+    
+    ESP_LOGI(TAG, "Created Habit!\n");
+    
+    // ----------------------------------- Create Habit ------------------------------------
+    ESP_LOGI(TAG, "Adding a Habit...");
+    // Define a habit
+
+    HabitAddDB("hub", "Practice LEETcode", 8);
+    
+    ESP_LOGI(TAG, "Created Habit!\n");
+
 }
 
 void adjustDatabase(){
@@ -121,11 +346,8 @@ void adjustDatabase(){
     };
 
     // Add task
-    int rc = AddTaskDB(db, &newTask);
-    if (rc != SQLITE_OK){
-        ESP_LOGE(TAG, "Failed to add task!");
-        return;
-    }
+    AddTaskDB(&newTask);
+    
     ESP_LOGI(TAG, "Created 2nd Task!\n");
 
     ESP_LOGI(TAG, "Adding an Event...");
@@ -134,17 +356,14 @@ void adjustDatabase(){
     event_t newEvent = {
         .uuid = "toes",
         .name = "Meet with Capstone Team",
-        .description = "Meeting with Capstone Team at Engineering 2",
+        .description = "Meeting with Capstone Team",
         .start_time = t,
         .duration = 7200,
     };
 
     // Add event
-    rc = AddEventDB(db, &newEvent);
-    if (rc != SQLITE_OK){
-        ESP_LOGE(TAG, "Failed to add event!");
-        return;
-    }
+    AddEventDB(&newEvent);
+    
     ESP_LOGI(TAG, "Created Event!\n");
 
 }
@@ -162,13 +381,26 @@ void app_main(void){
     /* LVGL initialization */
     ESP_ERROR_CHECK(app_lvgl_init());
 
-    initDatabase(db);
+    //initDatabase(db);
     /* All the GUI drawing */
     app_main_display();
     ESP_LOGI(HEPLE, "largest free block after LVGL: %d", heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
     //heap_caps_print_heap_info(MALLOC_CAP_DEFAULT); //heap info
-    
-    /* 
+   
+    /*
+    //wifi setup
+    esp_log_level_set("*", ESP_LOG_INFO);
+
+    esp_log_level_set("httpd_uri", ESP_LOG_ERROR);
+    esp_log_level_set("httpd_txrx", ESP_LOG_ERROR);
+    esp_log_level_set("httpd_parse", ESP_LOG_ERROR);
+
+    ESP_ERROR_CHECK(esp_netif_init());
+    ESP_ERROR_CHECK(esp_event_loop_create_default());
+    ESP_ERROR_CHECK(nvs_flash_init());
+
+    setup_wifi();
+
     // RTC initialization
     if (!i2c_scan()){
         ESP_LOGE(RTCTAG, "No I2C devices found!");
@@ -176,7 +408,7 @@ void app_main(void){
     }
     ESP_ERROR_CHECK(InitRTC());
     ESP_ERROR_CHECK(RebootRTC());
-    //set time, but needs internet connection. tried to get it working but it wouldn't cooperate.
+    SetTime();
     ESP_LOGI(HEPLE, "largest free block after RTC init: %d", heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
     
     time_t rtc_time;
@@ -186,7 +418,7 @@ void app_main(void){
     pcf8523_read_time(&rtc_time);
     timeDisplay(buffer);
     */
-    adjustDatabase();
+    //adjustDatabase();
     while(1){
         vTaskDelay(pdMS_TO_TICKS(10)); 
         //pcf8523_read_time(&rtc_time);
