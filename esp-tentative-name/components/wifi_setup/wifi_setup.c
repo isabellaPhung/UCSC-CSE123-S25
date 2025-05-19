@@ -55,12 +55,35 @@
 #define ESP_WIFI_SCAN_AUTH_MODE_THRESHOLD WIFI_AUTH_WAPI_PSK
 #endif
 
-static esp_netif_t *sta_netif = NULL;
-static esp_event_handler_instance_t instance_any_id;
-static esp_event_handler_instance_t instance_got_ip;
+#ifndef CONFIG_DEVICE_ID
+#define CONFIG_DEVICE_ID "55"
+#endif
 
-extern const char root_start[] asm("_binary_root_html_start");
-extern const char root_end[] asm("_binary_root_html_end");
+static const char root_html[] =
+  "<!DOCTYPE html>\n"
+  "<html>\n"
+  "  <head>\n"
+  "    <style>\n"
+  "      body {\n"
+  "        background-color: #ffffff;\n"
+  "      }\n"
+  "    </style>\n"
+  "    <title>Device Config Portal</title>\n"
+  "  </head>\n"
+  "  <body>\n"
+  "    <h1>Device Config Portal</h1>\n"
+  "    <p>Device ID: " CONFIG_DEVICE_ID "</p>\n"
+  "    <p>Wi-Fi configuration</p>\n"
+  "    <form action=\"/config\" method=\"post\" target=\"response\">\n"
+  "      <label for=\"ssid\">SSID:</label>\n"
+  "      <input type=\"text\" id=\"ssid\" name=\"ssid\"><br><br>\n"
+  "      <label for=\"pswd\">Password:</label>\n"
+  "      <input type=\"password\" id=\"pswd\" name=\"pswd\"><br><br>\n"
+  "      <input type=\"submit\" value=\"Submit\">\n"
+  "    </form>\n"
+  "    <iframe name=\"response\" style=\"border:none;\"></iframe>\n"
+  "  </body>\n"
+  "</html>";
 
 static char *TAG = "wifi_setup";
 
@@ -125,10 +148,9 @@ esp_err_t init_wifi_sta(const char ssid[32], const char pswd[64]) {
 }
 
 static esp_err_t root_get_handler(httpd_req_t *req) {
-    const uint32_t root_len = root_end - root_start;
 
     httpd_resp_set_type(req, "text/html");
-    httpd_resp_send(req, root_start, root_len);
+    httpd_resp_send(req, root_html, HTTPD_RESP_USE_STRLEN);
 
     return ESP_OK;
 }
@@ -249,7 +271,6 @@ static void close_server(void) {
 }
 
 static void init_wifi_ap(void) {
-  esp_netif_create_default_wifi_ap();
   wifi_config_t wifi_config = {
     .ap = {
       .ssid = CONFIG_ESP_WIFI_SSID,
@@ -326,11 +347,13 @@ void setup_wifi(void) {
   s_wifi_event_group = xEventGroupCreate();
 
   ESP_ERROR_CHECK(esp_event_handler_instance_register(
-        WIFI_EVENT, ESP_EVENT_ANY_ID, &wifi_event_handler, NULL, &instance_any_id));
+        WIFI_EVENT, ESP_EVENT_ANY_ID, &wifi_event_handler, NULL, NULL));
   ESP_ERROR_CHECK(esp_event_handler_instance_register(
-        IP_EVENT, IP_EVENT_STA_GOT_IP, &wifi_event_handler, NULL, &instance_got_ip));
+        IP_EVENT, IP_EVENT_STA_GOT_IP, &wifi_event_handler, NULL, NULL));
 
-  sta_netif = esp_netif_create_default_wifi_sta();
+  esp_netif_create_default_wifi_sta();
+  esp_netif_create_default_wifi_ap();
+
   ESP_ERROR_CHECK(esp_wifi_start());
   ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
   init_wifi_ap();

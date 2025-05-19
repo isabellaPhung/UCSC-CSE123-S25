@@ -1,4 +1,4 @@
-set(embed_files "${CMAKE_CURRENT_LIST_DIR}/root.html")
+set(embed_files "")
 
 if(CONFIG_HTTPS_SERVER)
   list(APPEND embed_files
