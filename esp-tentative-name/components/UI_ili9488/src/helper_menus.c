@@ -107,11 +107,9 @@ static void habit_cb(lv_event_t * e){
     k = lv_event_get_key(e);
     if(k == LV_KEY_UP) {
         lv_obj_clean(tile3);
-        /*
         for(uint8_t i = 0; i < 7; i++){
             free(habitDayptrs[i]);
         }
-        */
         loadTile2();
         lv_obj_del(tile3);
         ESP_LOGW(TAG, "Free heap: %lu bytes", esp_get_free_heap_size());
