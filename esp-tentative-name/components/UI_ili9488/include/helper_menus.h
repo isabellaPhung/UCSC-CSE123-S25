@@ -25,7 +25,6 @@ void loadTile2();
 //loads habit menu
 void loadTile3();
 
-//TODO?
 void loadPrevTasks();
 void loadNextTasks();
 void loadPrevEvents();

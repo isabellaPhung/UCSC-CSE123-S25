@@ -11,8 +11,8 @@
 #define LCD_PARAM_BITS      (8)
 #define LCD_COLOR_SPACE     (ESP_LCD_COLOR_SPACE_RGB)
 #define LCD_BITS_PER_PIXEL  (18)
-#define LCD_DRAW_BUFF_DOUBLE (1) //enables double buffering which reduces screen tearing
-#define LCD_DRAW_BUFF_SIZE  ((LCD_H_RES * LCD_V_RES)/10) //LCD buffer size
+#define LCD_DRAW_BUFF_DOUBLE (0) //enables double buffering which reduces screen tearing
+#define LCD_DRAW_BUFF_SIZE  ((LCD_H_RES * LCD_V_RES)/100) //LCD buffer size
 #define LCD_BL_ON_LEVEL     (1) //backlight on level
                                         
 /* LCD pins */
