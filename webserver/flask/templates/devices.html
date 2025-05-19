@@ -689,7 +689,7 @@
             
             // Determine if this is an add or edit
             const isEdit = editDeviceId !== '';
-            const endpoint = isEdit ? `/api/update_device/${editDeviceId}` : '/api/add_device';
+            const endpoint = isEdit ? '/api/update_device' : '/api/add_device';
             
             // Send to backend
             fetch(endpoint, {

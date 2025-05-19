@@ -101,6 +101,30 @@ class AwsS3:
                 if device_id in [device["id"] for device in user["devices"]]:
                     return False, "Device already added"
                 user["devices"].append({"id": device_id, "name": name})
+                break
+
+        obj.put(
+            Body=(bytes(json.dumps(data, indent=2).encode("utf-8"))),
+            ContentType="application/json"
+        )
+        return True, "Success"
+
+    def update_device(self, username, device_id, name):
+        if device_id not in self.get_all_devices():
+            return False, "Device ID not found"
+
+        obj, data = self.get_users()
+
+        found = False
+        for user in data["users"]:
+            if user["username"] == username:
+                for device in user["devices"]:
+                    if device["id"] == device_id:
+                        found = True
+                        device["name"] = name
+                        break
+                if not found:
+                    user["devices"].append({"id": device_id, "name": name})
 
         obj.put(
             Body=(bytes(json.dumps(data, indent=2).encode("utf-8"))),
@@ -115,6 +139,7 @@ class AwsS3:
             if user["username"] == username:
                 user["devices"] = [device for device in user["devices"]
                                    if device["id"] != device_id]
+                break
 
         obj.put(
             Body=(bytes(json.dumps(data, indent=2).encode("utf-8"))),
@@ -224,6 +249,7 @@ class AwsS3:
                     habit["completed"].append(current_date)
                 else:
                     habit["completed"].remove(current_date)
+                break
 
         obj.put(
             Body=(bytes(json.dumps(data, indent=2).encode("utf-8"))),
