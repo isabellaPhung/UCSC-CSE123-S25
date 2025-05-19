@@ -85,6 +85,17 @@ def api_add_task():
     return {"add_task": True}, 200
 
 
+@app.route("/api/update_task", methods=["POST"])
+@jwt_required()
+def api_update_task():
+    id = request.json.get("id")
+    completion = request.json.get("completion")
+
+    if not s3_conn.update_task(id, completion):
+        return {"update_task": False}, 400
+    return {"update_task": True}, 200
+
+
 @app.route("/api/today_tasks", methods=["POST"])
 @jwt_required()
 def api_today_tasks():
@@ -238,20 +249,6 @@ def api_get_devices():
 def api_get_users():
     users = s3_conn.get_users(data_only=True)
     return users, 200
-
-"""
-added update_task endpoint
-"""
-@app.route("/api/update_task", methods=["POST"])
-@jwt_required()
-def api_update_task():
-    id = request.json.get("id")
-    completion = request.json.get("completion")
-    
-    if not s3_conn.update_task(id, completion):
-        return {"update_task": False}, 400
-    return {"update_task": True}, 200
-
 
 
 @app.route("/login")

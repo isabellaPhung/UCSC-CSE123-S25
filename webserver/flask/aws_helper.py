@@ -255,34 +255,35 @@ class AwsS3:
             habit["days"] = [day in habit["completed"] for day in week]
 
         return data
+
     def update_task(self, id, completion):
-    """
-    Update a task's completion status
-    
-    Args:
-        id (str): Task ID
-        completion (int): Task completion status (0=deleted, 1=incomplete, 2=complete)
-        
-    Returns:
-        bool: True if successful, False otherwise
-    """
-    obj, data = self.load_info("task")
-    
-    # Find and update the task
-    found = False
-    for task in data["task"]:
-        if task["id"] == id:
-            task["completion"] = completion
-            found = True
-            break
-    
-    # If task not found, return False
-    if not found:
-        return False
-    
-    # Save updated data back to S3
-    obj.put(
-        Body=(bytes(json.dumps(data, indent=2).encode("utf-8"))),
-        ContentType="application/json"
-    )
-    return True
+        """
+        Update a task's completion status
+
+        Args:
+            id (str): Task ID
+            completion (int): Task completion status (0=deleted, 1=incomplete, 2=complete)
+
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        obj, data = self.load_info("task")
+
+        # Find and update the task
+        found = False
+        for task in data["task"]:
+            if task["id"] == id:
+                task["completion"] = completion
+                found = True
+                break
+
+        # If task not found, return False
+        if not found:
+            return False
+
+        # Save updated data back to S3
+        obj.put(
+            Body=(bytes(json.dumps(data, indent=2).encode("utf-8"))),
+            ContentType="application/json"
+        )
+        return True
