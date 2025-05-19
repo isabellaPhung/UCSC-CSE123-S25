@@ -29,6 +29,9 @@
 
 static const char *TAG = "MAIN";
 
+int wifi_connected = false;
+int RTC_updated = false;
+
 void callback(const char *payload, size_t payload_length, void *cb_data)
 {
     struct callback_data_t *data = (struct callback_data_t *)cb_data;
@@ -151,20 +154,22 @@ int sync_database(struct callback_data_t *cb_data)
 {
     heap_caps_monitor_local_minimum_free_size_start();
 
-    if (!is_wifi_connected())
-    {
-        ESP_LOGW(TAG, "Unable to sync database: Device not connected to access point");
-        return EXIT_FAILURE;
-    }
+    // if (!is_wifi_connected())
+    // {
+    //     ESP_LOGW(TAG, "Unable to sync database: Device not connected to access point");
+    //     return EXIT_FAILURE;
+    // }
 
     // Establish connection
     if (mqtt_connect() != EXIT_SUCCESS)
     {
+        wifi_connected = false;
         ESP_LOGE(TAG, "MQTT connect failed. Aborting backup request.");
         ESP_LOGW(TAG, "Min heap during connect: %d bytes",
                  heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT));
         return EXIT_FAILURE;
     }
+    wifi_connected = true;
     ESP_LOGW(TAG, "Min heap during connect: %d bytes",
              heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT));
 
@@ -219,24 +224,18 @@ void app_main()
     esp_log_level_set("httpd_txrx", ESP_LOG_ERROR);
     esp_log_level_set("httpd_parse", ESP_LOG_ERROR);
 
+    esp_err_t ret = nvs_flash_init();
+    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
+    {
+        ESP_ERROR_CHECK(nvs_flash_erase());
+
+        ESP_ERROR_CHECK(nvs_flash_init());
+    }
+
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
-    ESP_ERROR_CHECK(nvs_flash_init());
 
     setup_wifi();
-
-    // -------------------------------- Configure Clock (PCF8523) ---------------------------------
-    ESP_LOGW("main::Configure Clock", "Free heap total: %lu bytes", esp_get_free_heap_size());
-
-    // Establish R2C connection
-    ESP_ERROR_CHECK(InitRTC());
-    ESP_ERROR_CHECK(RebootRTC()); // RECONFIGURE RTC configuration (optional)
-
-    // Get the current time from NTP server
-    if (is_wifi_connected())
-    {
-        SetTime();
-    }
 
     // ------------------------------- Initialize Server Connection -------------------------------
     ESP_LOGW("main::Initialize Server Connection", "Free heap total: %lu bytes", esp_get_free_heap_size());
@@ -249,6 +248,25 @@ void app_main()
     assert(mqtt_init(&callback, (void *)&cb_data) == EXIT_SUCCESS);
 
     sync_database(&cb_data);
+
+    // -------------------------------- Configure Clock (PCF8523) ---------------------------------
+    ESP_LOGW("main::Configure Clock", "Free heap total: %lu bytes", esp_get_free_heap_size());
+
+    // Establish R2C connection
+    ESP_ERROR_CHECK(InitRTC());
+    ESP_ERROR_CHECK(RebootRTC()); // RECONFIGURE RTC configuration (optional)
+
+    int return_status = mqtt_connect();
+    if (return_status == EXIT_SUCCESS)
+    {
+        wifi_connected = true;
+
+        int rc = SetTime();
+        if (rc == ESP_OK)
+        {
+            RTC_updated = true;
+        }
+    }
 
     // ------------------------------------- Initialize LCD ---------------------------------------
     ESP_LOGI("main::Initialize LCD", "Largest free block after database init: %d", heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
@@ -266,8 +284,7 @@ void app_main()
         // Define a task
 
         // current time
-        time_t t;
-        pcf8523_read_time(&t);
+        time_t t = time(NULL);
 
         task_t newTask = {
             .uuid = "67890",
@@ -300,12 +317,33 @@ void app_main()
         lv_timer_handler(); // update screen
         frame_timer++;
 
+        // Update time
+        if (frame_timer % 2)
+        {
+            struct tm currTime;
+            pcf8523_read_time(&currTime);
+            char timeBuffer[64];
+            strftime(timeBuffer, sizeof(timeBuffer), "%H:%M:%S %m-%d-%y %a", &currTime);
+            timeDisplay(timeBuffer);
+        }
+
         // Request from server
         if (frame_timer >= 3000) // ~30 seconds
         {
             ESP_LOGI(TAG, "Preforming Server Sync!");
 
+            // Sync time if not done yet
+            if (!RTC_updated && wifi_connected)
+            {
+                int rc = SetTime();
+                if (rc == ESP_OK)
+                {
+                    RTC_updated = true;
+                }
+            }
+
             sync_database(&cb_data);
+
             frame_timer = 0;
         }
     }

@@ -219,11 +219,11 @@ esp_err_t RebootRTC()
 }
 
 // ---------------------------------------- Read From Device --------------------------------------
-esp_err_t pcf8523_read_time(time_t *out_time)
+esp_err_t pcf8523_read_time(struct tm *time)
 {
     static const char *TAG = "PCF8523::pcf8523_read_time";
 
-    if (!out_time || !rtc_dev)
+    if (!time || !rtc_dev)
     {
         return ESP_ERR_INVALID_ARG;
     }
@@ -264,31 +264,20 @@ esp_err_t pcf8523_read_time(time_t *out_time)
             continue;
         }
 
-        // Check VL bit (bit 7 of seconds register)
         if ((data[0] & 0x80) == 0)
         {
             // VL bit not set, time is valid
-            struct tm timeinfo = {0};
-            timeinfo.tm_sec = bcdToInt(data[3] & 0x7F);
-            timeinfo.tm_min = bcdToInt(data[4]);
-            timeinfo.tm_hour = bcdToInt(data[5]);
-            timeinfo.tm_mday = bcdToInt(data[6]);
-            timeinfo.tm_mon = bcdToInt(data[8]) - 1;
-            timeinfo.tm_year = bcdToInt(data[9]) + 100;
+            time->tm_sec = bcdToInt(data[3] & 0x7F);
+            time->tm_min = bcdToInt(data[4]);
+            time->tm_hour = bcdToInt(data[5]);
+            time->tm_mday = bcdToInt(data[6]);
+            time->tm_mon = bcdToInt(data[8]) - 1;    // tm_mon is 0-indexed
+            time->tm_year = bcdToInt(data[9]) + 100; // 2000 + YY -> 1900 + (2000 - 1900) + YY
 
-            *out_time = mktime(&timeinfo);
-            if (*out_time == (time_t)-1)
-            {
-                ESP_LOGE(TAG, "mktime failed");
-                return ESP_FAIL;
-            }
+            time->tm_isdst = -1; // Let mktime() figure it out
+            mktime(time);        // Normalizes and fills in tm_wday, tm_yday, etc.
 
             return ESP_OK;
-        }
-        else
-        {
-            ESP_LOGW(TAG, "VL bit set, retrying read (%d/%d)...", attempt + 1, MAX_RETRIES);
-            vTaskDelay(pdMS_TO_TICKS(RETRY_DELAY_MS));
         }
     }
 
@@ -317,13 +306,12 @@ esp_err_t SetTime()
     struct tm timeinfo;
     int retry = 0;
 
-    if (pcf8523_read_time(&now) == ESP_OK)
-    {
-        struct tm *tm_info = localtime(&now);
-        char buffer[64];
-        strftime(buffer, sizeof(buffer), "%Y-%m-%d %I:%M:%S %p", tm_info);
-        ESP_LOGI(TAG, "Current RTC Time: %s\n", buffer);
-    }
+    // if (pcf8523_read_time(&timeinfo) == ESP_OK)
+    // {
+    //     char buffer[64];
+    //     strftime(buffer, sizeof(buffer), "%Y-%m-%d %I:%M:%S %p", timeinfo);
+    //     ESP_LOGI(TAG, "Current RTC Time: %s\n", buffer);
+    // }
 
     do
     {
@@ -356,9 +344,8 @@ esp_err_t SetTime()
     buf[6] = intToBCD(timeinfo.tm_mon + 1);
     buf[7] = intToBCD(timeinfo.tm_year % 100);
 
-    return i2c_master_transmit(
-        rtc_dev,
-        buf,
-        sizeof(buf),
-        pdMS_TO_TICKS(I2C_MASTER_TIMEOUT_MS));
+    return i2c_master_transmit(rtc_dev,
+                               buf,
+                               sizeof(buf),
+                               pdMS_TO_TICKS(I2C_MASTER_TIMEOUT_MS));
 }
