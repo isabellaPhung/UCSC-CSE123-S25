@@ -139,27 +139,24 @@ static const httpd_uri_t root = {
     .handler = root_get_handler
 };
 
+#define MAX_SSID_LEN 32
+#define MAX_PSWD_LEN 64
+#define BUF_LEN MAX_SSID_LEN + MAX_PSWD_LEN + 5 + 1 + 5
+
 static esp_err_t login_post_handler(httpd_req_t *req) {
   xEventGroupClearBits(s_wifi_event_group, WIFI_RESP_SENT);
   int length = req->content_len;
-  char buf[100];
+  // max ssid+password is 32+64 = 96 chars
+  // including "ssid=" "&" "pswd=" makes the buffer need 107
+  char buf[BUF_LEN];
 
-  httpd_req_recv(req, buf, MIN(length, sizeof(buf)));
+  httpd_req_recv(req, buf, MIN(length, BUF_LEN));
 
-  char *start = buf;
-  char *req_ampersand = strstr(buf, "&");
-  char *req_password = strstr(buf, "pswd");
-  char *end = buf + length;
+  char ssid[MAX_SSID_LEN] = {0};
+  char pswd[MAX_PSWD_LEN] = {0};
 
-  size_t ssid_len = req_ampersand - start - 5;
-  size_t pswd_len = end - req_password - 5;
-
-  // Set lengths for the SSID and Password based on wifi_config_t
-  char ssid[32] = {0};
-  char pswd[64] = {0};
-
-  memcpy(ssid, start + 5, ssid_len);
-  memcpy(pswd, req_password + 5, pswd_len);
+  httpd_query_key_value(buf, "ssid", ssid, MAX_SSID_LEN);
+  httpd_query_key_value(buf, "pswd", pswd, MAX_PSWD_LEN);
 
   ESP_LOGI(TAG, "SSID:%s Password:%s", ssid, pswd);
 
