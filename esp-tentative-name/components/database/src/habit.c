@@ -235,7 +235,7 @@ esp_err_t HabitRemoveEntryDB(const char *habit_id, time_t datetime)
     const char *TAG = "habit::HabitRemoveEntryDB";
 
     time_t date = datetime - (datetime % 86400); // UTC truncation
-
+    
     sqlite3 *db = get_db_connection();
 
     const char *sql = "DELETE FROM habit_entries WHERE habit_id = ? AND date = ?;";
@@ -283,7 +283,9 @@ esp_err_t HabitRetrieveWeekCompletionDB(habit_t *habit, time_t date)
         {
             // I love bit operators
             // Checks for day of the week i days ago and determines if that day was due
-            habit->completed[i] = ((habit->goal >> (6 - (day_tm.tm_wday - i))) & 1) ? 2 : 0;
+            int weekday = (day_tm.tm_wday - i + 7) % 7;
+            habit->completed[i] = ((habit->goal >> (6 - weekday)) & 1) ? 2 : 0;
+             
         }
     }
 
