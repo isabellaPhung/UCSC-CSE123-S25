@@ -16,11 +16,11 @@
 
 // ------------------------------------------ Tasks -----------------------------------------------
 
-FILE * fopen_mkdir(const char *path, const char *mode)
+FILE *fopen_mkdir(const char *path, const char *mode)
 {
     char *p = strdup(path);
-    char *sep = strchr(p+1, '/');
-    while(sep != NULL)
+    char *sep = strchr(p + 1, '/');
+    while (sep != NULL)
     {
         *sep = '\0';
         if (mkdir(p, 0777) && errno != EEXIST)
@@ -28,7 +28,7 @@ FILE * fopen_mkdir(const char *path, const char *mode)
             fprintf(stderr, "error while trying to create %s\n", p);
         }
         *sep = '/';
-        sep = strchr(sep+1, '/');
+        sep = strchr(sep + 1, '/');
     }
     free(p);
     return fopen(path, mode);
@@ -36,7 +36,7 @@ FILE * fopen_mkdir(const char *path, const char *mode)
 
 esp_err_t UpdateTaskStatus(const char *uuid, TASK_STATUS new_status)
 {
-    static const char *TAG = "sender::UpdateTaskStatus";
+    static const char *TAG = "messenger::UpdateTaskStatus";
 
     // --- Update database ---
     esp_err_t ret = UpdateTaskStatusDB(uuid, new_status);
@@ -67,7 +67,7 @@ esp_err_t UpdateTaskStatus(const char *uuid, TASK_STATUS new_status)
 
 esp_err_t UploadTaskRequests(struct callback_data_t *cb_data, const char *device_id)
 {
-    static const char *TAG = "sender::UpdateTaskStatus";
+    static const char *TAG = "messenger::UpdateTaskStatus";
 
     DIR *dir = opendir(MOUNT_POINT TASK_REQUESTS_DIR);
     if (!dir)
@@ -181,3 +181,33 @@ esp_err_t UploadTaskRequests(struct callback_data_t *cb_data, const char *device
 }
 
 // ------------------------------------------ Habits ----------------------------------------------
+
+esp_err_t HabitAddEntry(const char *habit_id, time_t datetime)
+{
+    static const char *TAG = "messenger::UpdateTaskStatus";
+
+    esp_err_t rc = HabitAddEntryDB(habit_id, datetime);
+    if (rc != ESP_OK)
+    {
+        return rc;
+    }
+
+    // --- Write to disk ---
+
+    // Set path name to UUID to be changed, this both makes the file contents apparent,
+    // but also results put in the new requests file will be overwritten.
+    char path[PATH_LENGTH];
+    snprintf(path, PATH_LENGTH, MOUNT_POINT HABIT_REQUESTS_DIR "/%s.txt", habit_id); // Ensure full path
+
+    FILE *file = fopen_mkdir(path, "w");
+    if (!file)
+    {
+        ESP_LOGE(TAG, "Failed to open file %s for writing: %s", path, strerror(errno));
+        return ESP_FAIL;
+    }
+
+    fprintf(file, "%lld\n", datetime);
+    fclose(file);
+    ESP_LOGI(TAG, "Wrote request: %s with datetime %lld", habit_id, datetime);
+    return ESP_OK;
+}

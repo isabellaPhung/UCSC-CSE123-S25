@@ -33,4 +33,8 @@ esp_err_t UpdateTaskStatus(const char *uuid, TASK_STATUS new_status);
 /// @return ESP_OK if server acknowledged the request, clearing the cache
 esp_err_t UploadTaskRequests(struct callback_data_t *cb_data, const char* device_id);
 
+// ----------------------------------------- Habits -----------------------------------------------
+
+esp_err_t HabitAddEntry(const char *habit_id, time_t datetime);
+
 #endif
