@@ -1,3 +1,4 @@
+from cryptography.fernet import Fernet
 from datetime import datetime, timedelta
 import json
 import os
@@ -15,6 +16,16 @@ class AwsS3:
         self.task_file = os.getenv("TASK_FILE")
         self.event_file = os.getenv("EVENT_FILE")
         self.habit_file = os.getenv("HABIT_FILE")
+        self.secret_key = os.getenv("COOKIE_SECRET_KEY")
+        self.fernet = Fernet(self.secret_key)
+
+    def encrypt_id(self, username, device_id):
+        user = {"username": username, "device_id": device_id}
+        return self.fernet.encrypt(json.dumps(user).encode()).decode()
+
+    def decrypt_id(self, encrypted_data):
+        user = json.loads(self.fernet.decrypt(encrypted_data.encode()).decode())
+        return user["device_id"]
 
     def load_info(self, elem):
         device_id = "55"
@@ -147,11 +158,9 @@ class AwsS3:
         )
         return True
 
-    def select_device(self, username):
-        pass
-
-    def active_device(self, username, id):
+    def active_device(self, username, encrypted_id):
         data = self.get_user_devices(username)
+        id = self.decrypt_id(encrypted_id)
 
         for device in data["devices"]:
             if device["id"] == id:

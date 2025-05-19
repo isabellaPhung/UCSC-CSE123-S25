@@ -22,7 +22,8 @@ jwt = JWTManager(app)
 
 @app.route("/test")
 def test():
-    return s3_conn.get_all_devices()
+    device_id = request.cookies.get("device_id")
+    return s3_conn.active_device("test", device_id), 200
 
 
 @app.route("/token/login", methods=["POST"])
@@ -229,9 +230,10 @@ def api_delete_device():
 def api_select_device():
     id = request.json.get("id")
 
-    # TODO: need to connect backend encryption
+    encrypted_id = s3_conn.encrypt_id(get_jwt_identity(), id)
+
     resp = jsonify({"select_device": True})
-    resp.set_cookie("device_id", id, secure=True)
+    resp.set_cookie("device_id", encrypted_id, secure=True, httponly=True)
     return resp, 200
 
 
@@ -243,7 +245,6 @@ def api_active_device():
     if not id:
         return {"id": False}, 200
 
-    # TODO: need to connect backend decryption
     device = s3_conn.active_device(get_jwt_identity(), id)
 
     if not device:
