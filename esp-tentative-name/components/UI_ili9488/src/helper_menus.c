@@ -1,5 +1,6 @@
 #include "helper_menus.h"
 #include "esp_log.h"
+#include "esp_system.h"
 
 sqlite3 *database;
 static uint32_t taskCursor = 0;
@@ -42,7 +43,7 @@ uint8_t eventBuffSize;
 habit_t habitBuffer[3];
 uint8_t habitBuffSize;
 
-//static const char *TAG = "UI"; //for esp_log
+static const char *TAG = "UI"; //for esp_log
 
 /*
 char * convertTime(time_t * value){
@@ -81,6 +82,7 @@ static void taskevent_cb(lv_event_t * e){
         lv_obj_clean(tile2);
         loadTile3();
         lv_obj_del(tile2);
+        ESP_LOGW(TAG, "Free heap: %lu bytes", esp_get_free_heap_size());
     }
     /*
     else if(k == LV_KEY_UP) {
@@ -89,6 +91,14 @@ static void taskevent_cb(lv_event_t * e){
     }
     */
 }
+
+typedef struct
+{
+    habit_t * habit;
+    uint8_t number;
+} habitDay;
+static habitDay * habitDayptrs[7];
+
 /*
  * callback function for habit menu for menu navigation
  * takes in keypress event 
@@ -97,8 +107,14 @@ static void habit_cb(lv_event_t * e){
     k = lv_event_get_key(e);
     if(k == LV_KEY_UP) {
         lv_obj_clean(tile3);
+        /*
+        for(uint8_t i = 0; i < 7; i++){
+            free(habitDayptrs[i]);
+        }
+        */
         loadTile2();
         lv_obj_del(tile3);
+        ESP_LOGW(TAG, "Free heap: %lu bytes", esp_get_free_heap_size());
     }else if(k == LV_KEY_LEFT){
         child = lv_obj_get_child(lv_event_get_target(e), 0);
         lv_group_focus_obj(child);
@@ -499,9 +515,9 @@ void drawEvents(){
         }
         time_t currTime = time(NULL);
         for(int i = 0; i < eventBuffSize; i++){
-            //if(difftime(eventBuffer[i].start_time, currTime) < 0){ //checks if event has past current time, doesn't draw it otherwise
+            if(difftime(eventBuffer[i].start_time, currTime) < 0){ //checks if event has past current time, doesn't draw it otherwise
                 create_event(&eventBuffer[i]);
-            //}
+            }
         }
     }
 }
@@ -647,6 +663,9 @@ static void taskEvent_create(lv_obj_t * parent){
     drawEvents();
 }
 
+
+static const char * weekdays[7] = {"Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"};
+
 /*
  * creates callback function for habit buttons
  * takes in event which is the keypress
@@ -654,12 +673,32 @@ static void taskEvent_create(lv_obj_t * parent){
 static void buttonmatrix_cb(lv_event_t * e){
     k = lv_event_get_key(e);
     obj = lv_event_get_target(e);
+    habitDay * day = lv_event_get_user_data(e);
+    habit_t * habit = day->habit;
+    uint8_t number = day->number;
+    
+    time_t currtime = time(NULL);
+    /*
+    struct tm * timeinfo = localtime(&currtime);
+    char timestr[40];
+    strftime(timestr, sizeof(timestr), "%D %r", timeinfo);
+    ESP_LOGI(TAG, "Current time: %s\n", timestr);
+    
+    time_t difference = (time_t)difftime(currtime, number * 86400);
+    timeinfo = localtime(&difference);
+    strftime(timestr, sizeof(timestr), "%D %r", timeinfo);
+    */
     if(k == LV_KEY_ENTER) {
-        //TODO: set habit day as updated
+        if (!lv_obj_has_state(obj, LV_STATE_CHECKED)){ //if toggled
+            //ESP_LOGI(TAG, "Habit done on: %s\n", timestr);
+            HabitAddEntryDB(database, habit->uuid, difftime(currtime, number * 86400));
+        }else if(lv_obj_has_state(obj, LV_STATE_CHECKED)){ //if untoggled
+            //ESP_LOGI(TAG, "Habit undone on: %s\n", timestr);
+            HabitRemoveEntryDB(database, habit->uuid, difftime(currtime, number * 86400));
+        }
     }
 }
 
-static const char * weekdays[7] = {"Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"};
 /*
  * creates habit entry for habit list
  * takes in parent list and name of habit and the row number.
@@ -678,7 +717,7 @@ void createHabit(habit_t * habit){
     buttonCont = lv_obj_create(habitlist);
     lv_gridnav_add(buttonCont, LV_GRIDNAV_CTRL_NONE);
     lv_obj_set_flex_flow(buttonCont, LV_FLEX_FLOW_ROW); //sets button to flex flow column form so it'll expand as needed
-    lv_obj_add_event_cb(buttonCont, buttonmatrix_cb, LV_EVENT_KEY, habit);
+    //lv_obj_add_event_cb(buttonCont, buttonmatrix_cb, LV_EVENT_KEY, habit);
     lv_obj_set_style_bg_color(buttonCont, lv_palette_lighten(LV_PALETTE_BLUE, 4), LV_STATE_FOCUSED);
     lv_obj_set_style_pad_all(buttonCont, 5, LV_PART_MAIN);
     lv_group_add_obj(lv_group_get_default(), buttonCont);
@@ -701,6 +740,13 @@ void createHabit(habit_t * habit){
         }else if(habit->completed[i]==1){ //completed, set checked
             lv_obj_add_state(button, LV_STATE_CHECKED); 
         }
+        /*
+        habitDay* day = (habitDay*)calloc(1, sizeof(habitDay));
+        day->habit = habit;
+        day->number = 6-i;
+        habitDayptrs[i] = day;
+        lv_obj_add_event_cb(button, buttonmatrix_cb, LV_EVENT_KEY, day);
+        */
     }
 }
 
@@ -717,8 +763,8 @@ void drawHabits(){
     }
 }
 static void habits_left_cb(){
-    if(habitCursor > 3){
-        habitCursor = habitCursor - 6;
+    if(habitCursor >= 3){
+        habitCursor = habitCursor - 3;
         habitBuffSize = RetrieveHabitsDB(database, habitBuffer, 3, habitCursor);
         drawHabits();
     }
