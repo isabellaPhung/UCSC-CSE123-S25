@@ -740,13 +740,11 @@ void createHabit(habit_t * habit){
         }else if(habit->completed[i]==1){ //completed, set checked
             lv_obj_add_state(button, LV_STATE_CHECKED); 
         }
-        /*
         habitDay* day = (habitDay*)calloc(1, sizeof(habitDay));
         day->habit = habit;
         day->number = 6-i;
         habitDayptrs[i] = day;
         lv_obj_add_event_cb(button, buttonmatrix_cb, LV_EVENT_KEY, day);
-        */
     }
 }
 
