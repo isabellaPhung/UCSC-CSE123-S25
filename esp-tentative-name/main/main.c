@@ -419,8 +419,12 @@ void app_main(void){
     timeDisplay(buffer);
     */
     //adjustDatabase();
+    wifiDisplay(false);
+    //timerInit();
     while(1){
-        vTaskDelay(pdMS_TO_TICKS(10)); 
+        vTaskDelay(pdMS_TO_TICKS(1000)); 
+        wifiDisplay(true);
+        //readTimer();
         //pcf8523_read_time(&rtc_time);
         //timeDisplay(buffer); //update time
         //if updated task, event or habit recieved, call corresponding function to update:

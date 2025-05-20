@@ -10,14 +10,15 @@ static uint32_t habitCursor = 0;
 /* Text settings */
 static lv_style_t style_text_muted;
 static lv_style_t style_title;
-//static lv_style_t style_timer;
+static lv_style_t style_timer;
 static const lv_font_t * font_large;
-//static const lv_font_t * font_giant;
+static const lv_font_t * font_giant;
 
-//static lv_obj_t * tile1;
 static lv_obj_t * tile2;
 static lv_obj_t * tile3;
 static lv_obj_t * taskTile;
+static lv_obj_t * focusTile;
+static lv_obj_t * wifiTile;
 static lv_obj_t * eventTile;
 static lv_obj_t * tasklist;
 static lv_obj_t * eventlist;
@@ -30,6 +31,7 @@ static lv_obj_t * button;
 static lv_obj_t * buttonCont;
 static lv_obj_t * title;
 static lv_obj_t * label;
+static lv_obj_t * wifiSymbol;
 static lv_obj_t * dateTime;
 static lv_obj_t * cont;
 static lv_obj_t * child;
@@ -43,7 +45,7 @@ uint8_t eventBuffSize;
 habit_t habitBuffer[3];
 uint8_t habitBuffSize;
 
-static const char *TAG = "UI"; //for esp_log
+//static const char *TAG = "UI"; //for esp_log
 
 /*
 char * convertTime(time_t * value){
@@ -58,18 +60,15 @@ void initDatabase(sqlite3 * db){
 }
 */
 
+
 /*
  * callback function for focus menu for menu navigation
  * takes in keypress event 
  */
-/*
 static void focus_cb(lv_event_t * e){
     k = lv_event_get_key(e);
-    if(k == LV_KEY_DOWN) {
-        loadTile2();
-    }
+    //TODO
 }
-*/
 
 /*
  * callback function for taskevent menu for menu navigation
@@ -81,11 +80,6 @@ static void taskevent_cb(lv_event_t * e){
         lv_obj_clean(tile2);
         loadTile3();
     }
-    /*
-    else if(k == LV_KEY_UP) {
-        loadTile1();
-    }
-    */
 }
 
 /*
@@ -116,11 +110,11 @@ void initFonts(){
     lv_style_init(&style_title);
     font_large     = &lv_font_montserrat_24;
     lv_style_set_text_font(&style_title, font_large);
-    /*
+    
     lv_style_init(&style_timer);
     font_giant     = &lv_font_montserrat_48;
     lv_style_set_text_font(&style_timer, font_giant);
-    */
+    
     lv_style_init(&style_text_muted);
     lv_style_set_text_opa(&style_text_muted, LV_OPA_50);
 }
@@ -143,43 +137,110 @@ void timeDisplay(char * entry){
 }
 
 /*
+ * updates clock display
+ */
+void wifiDisplay(bool hasWifi){
+    if(lv_obj_is_valid(wifiSymbol)){
+        if(hasWifi){
+            lv_obj_clear_flag(wifiSymbol, LV_OBJ_FLAG_HIDDEN);
+        }else{
+            lv_obj_add_flag(wifiSymbol, LV_OBJ_FLAG_HIDDEN);
+        }
+    }
+    
+}
+
+static void exit_task_cb(){
+    loadTile2();
+}
+
+static void complete_task_cb(lv_event_t * e){
+    task_t * task = lv_event_get_user_data(e);
+    UpdateTaskStatus(task->uuid, COMPLETE);
+    exit_task_cb();
+}
+
+/*
+static void timer_callback(void* arg){
+    //TODO
+}
+
+esp_timer_handle_t timer;
+void timerInit(){
+    const esp_timer_create_args_t timer_args = {
+            .callback = &timer_callback,
+            // argument specified here will be passed to timer callback function
+            //.arg = (void*) periodic_timer,
+            .name = "focusTimer"
+    };
+    ESP_ERROR_CHECK(esp_timer_create(&timer_args, &timer));
+    ESP_ERROR_CHECK(esp_timer_start_once(timer, 1000000 * 1800));
+}
+
+void readTimer(){
+    double time;
+    timer_get_counter_time_sec(timer, 0, &time);
+    ESP_LOGW(TAG, "%d:%d", ((int)time)/60, ((int)time)%60);
+}
+*/
+
+/*
  * creates focus menu, takes in parent lv_obj
  */
-/*
-static void focusMenu_create(lv_obj_t * parent){
+static void focusTile_create(lv_obj_t * parent, task_t * task){
     //adding gridnav and focus colors to the taskevent menu
-    lv_obj_set_style_bg_color(parent, lv_palette_lighten(LV_PALETTE_BLUE, 4), LV_STATE_FOCUSED);
-    lv_gridnav_add(parent, LV_GRIDNAV_CTRL_VERTICAL_MOVE_ONLY);
-    lv_group_add_obj(lv_group_get_default(), parent);
-    lv_group_focus_obj(parent);
     lv_obj_add_event_cb(parent, focus_cb, LV_EVENT_KEY, NULL);
+    lv_gridnav_add(parent, LV_GRIDNAV_CTRL_HORIZONTAL_MOVE_ONLY);
+    lv_group_add_obj(lv_group_get_default(), parent);
 
     //displays current task timer
-    //TODO: what does it display if theres no current task? does it default to task tile?
     lv_obj_t * timer = lv_label_create(parent);
     lv_label_set_text(timer, "23:24");
     lv_obj_center(timer);
     lv_obj_add_style(timer, &style_timer, 0);
 
     //displays current task
-    //TODO: how does the logic for displaying current task work?? need to ask Mason
-    lv_obj_t * task = lv_label_create(parent);
-    lv_label_set_text(task, "current task");
-    lv_obj_center(task);
-    lv_obj_add_style(task, &style_title, 0);
-    lv_obj_align(task, LV_ALIGN_CENTER, 0 , -75);
+    lv_obj_t * taskName = lv_label_create(parent);
+    lv_label_set_text(taskName, task->name);
+    lv_obj_center(taskName);
+    lv_obj_add_style(taskName, &style_title, 0);
+    lv_obj_align(taskName, LV_ALIGN_CENTER, 0 , -75);
     
     //adds time to focus tile
     dateTime = lv_label_create(parent);
     lv_obj_set_style_text_font(dateTime, &lv_font_montserrat_18, 0);
     lv_obj_align(dateTime, LV_ALIGN_BOTTOM_LEFT, 5, -5);
 
-    //arrow to indicate scroll down
-    arrowDown = lv_label_create(parent);
-    lv_label_set_text(arrowDown, LV_SYMBOL_DOWN);
-    lv_obj_align(arrowDown, LV_ALIGN_BOTTOM_RIGHT, -5, -5);
+    obj = lv_btn_create(parent);
+    lv_group_remove_obj(obj);
+    lv_obj_add_event_cb(obj, complete_task_cb, LV_EVENT_CLICKED, task);
+    label = lv_label_create(obj);
+    lv_label_set_text(label, "Task Complete");
+    lv_obj_center(label);
+    lv_obj_align(obj, LV_ALIGN_BOTTOM_RIGHT, -5, -5);
+
+    button = lv_btn_create(parent);
+    lv_group_remove_obj(button);
+    lv_obj_add_event_cb(button, exit_task_cb, LV_EVENT_CLICKED, NULL);
+    label = lv_label_create(button);
+    lv_label_set_text(label, "Exit");
+    lv_obj_center(label);
+    lv_group_focus_obj(button);
+    lv_obj_align_to(button, obj, LV_ALIGN_OUT_BOTTOM_LEFT, -5, -5);
 }
-*/
+
+/*
+ * loads 1st tile, Focus
+ */
+void loadFocusTile(task_t * task){
+    focusTile = lv_obj_create(NULL);
+    lv_scr_load(focusTile); 
+    focusTile_create(focusTile, task);
+}
+
+static void focus_task_cb(lv_event_t * e){
+    loadFocusTile(lv_event_get_user_data(e));
+}
 
 static void exit_event_cb(){
     loadTile2();
@@ -242,6 +303,31 @@ static void eventTile_create(lv_obj_t * parent, event_t * event){
 
 }
 
+void wifiTile_create(lv_obj_t * parent){
+    label = lv_label_create(parent);
+    lv_label_set_text_fmt(label, "Please connect to the device hotspot and set up the Wifi SSID and password!\nAccess Point Name: %s\nAccess Point Password: %s", CONFIG_ESP_WIFI_SSID, CONFIG_ESP_WIFI_PASSWORD);
+    //lv_label_set_text_fmt(label, "Please connect to the device hotspot and set up the Wifi SSID and password!");
+    lv_obj_add_style(label, &style_title, 0);
+    lv_obj_align(label, LV_ALIGN_CENTER, 0 , -50);
+    lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP);
+    lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN);
+    lv_obj_set_width(label, LCD_H_RES-100);
+
+    wifiSymbol = lv_label_create(parent);
+    lv_label_set_text(wifiSymbol, LV_SYMBOL_WIFI);
+    lv_obj_add_style(wifiSymbol, &style_timer, 0);
+    lv_obj_align_to(wifiSymbol, label, LV_ALIGN_OUT_BOTTOM_MID, 0 , 20);
+}
+
+/*
+ * Displays wifi info if not connected
+ */
+void loadWifiTile(){
+    wifiTile = lv_obj_create(NULL);
+    lv_scr_load(wifiTile); 
+    wifiTile_create(wifiTile);
+}
+
 /*
  * loads new screen for event
  */
@@ -255,27 +341,11 @@ static void event_desc_cb(lv_event_t * e){
     loadEventTile(lv_event_get_user_data(e));
 }
 
-static void exit_task_cb(){
-    loadTile2();
-}
-
-static void complete_task_cb(lv_event_t * e){
-    task_t * task = lv_event_get_user_data(e);
-    UpdateTaskStatus(task->uuid, COMPLETE);
-    exit_task_cb();
-}
-
 static void incomplete_task_cb(lv_event_t * e){
     task_t * task = lv_event_get_user_data(e);
     UpdateTaskStatus(task->uuid, INCOMPLETE);
     exit_task_cb();
 }
-
-/*
-static void focus_task_cb(lv_event_t * e){
-    //TODO: focus task implementation
-}
-*/
 
 static void delete_task_cb(lv_event_t * e){
     task_t * task = lv_event_get_user_data(e);
@@ -330,18 +400,16 @@ static void taskTile_create(lv_obj_t * parent, task_t * task){
     lv_obj_center(label);
     lv_group_focus_obj(button);
    
-    /*
-    button = lv_btn_create(cont1);
-    lv_group_remove_obj(button);
-    lv_obj_add_event_cb(button, focus_task_cb, LV_EVENT_CLICKED, task);
-    label = lv_label_create(button);
-    lv_label_set_text(label, "Focus Task");
-    lv_obj_center(label);
-    */
-
     button = lv_btn_create(cont1);
     lv_group_remove_obj(button);
     if(task->completion == INCOMPLETE){
+        lv_obj_add_event_cb(button, focus_task_cb, LV_EVENT_CLICKED, task);
+        label = lv_label_create(button);
+        lv_label_set_text(label, "Focus Task");
+        lv_obj_center(label);
+
+        button = lv_btn_create(cont1);
+        lv_group_remove_obj(button);
         lv_obj_add_event_cb(button, complete_task_cb, LV_EVENT_CLICKED, task);
         label = lv_label_create(button);
         lv_label_set_text(label, "Task Complete");
@@ -561,6 +629,13 @@ static void taskEvent_create(lv_obj_t * parent){
     arrowUp = lv_label_create(parent);
     lv_label_set_text(arrowUp, LV_SYMBOL_UP);
     lv_obj_align(arrowUp, LV_ALIGN_TOP_RIGHT, -5, 5);
+    
+    //wifi symbol to taskevent tile
+    wifiSymbol = lv_label_create(parent);
+    lv_obj_set_style_text_font(wifiSymbol, &lv_font_montserrat_18, 0);
+    lv_label_set_text(wifiSymbol, LV_SYMBOL_WIFI);
+    lv_obj_align_to(wifiSymbol, arrowUp, LV_ALIGN_OUT_LEFT_MID, -5, 0);
+    lv_obj_add_flag(wifiSymbol, LV_OBJ_FLAG_HIDDEN);
     
     //left task list arrows
     button = lv_btn_create(parent);
@@ -889,7 +964,14 @@ static void habitMenu_create(lv_obj_t * parent){
     arrowUp = lv_label_create(parent);
     lv_label_set_text(arrowUp, LV_SYMBOL_UP);
     lv_obj_align(arrowUp, LV_ALIGN_TOP_RIGHT, -5, 5);
-
+    
+    //wifi symbol to habit tile
+    wifiSymbol = lv_label_create(parent);
+    lv_obj_set_style_text_font(wifiSymbol, &lv_font_montserrat_18, 0);
+    lv_label_set_text(wifiSymbol, LV_SYMBOL_WIFI);
+    lv_obj_align_to(wifiSymbol, arrowUp, LV_ALIGN_OUT_LEFT_MID, -5, 0);
+    lv_obj_add_flag(wifiSymbol, LV_OBJ_FLAG_HIDDEN);
+    
     //creates a title for the habits tile
     lv_obj_t * habits = lv_label_create(parent);
     lv_label_set_text(habits, "Habit Progress");
@@ -910,17 +992,6 @@ static void habitMenu_create(lv_obj_t * parent){
     updateHabitBuff();
     drawHabits();
 }
-
-/*
- * loads 1st tile, Focus
- */
-/*
-void loadTile1(){
-    tile1 = lv_obj_create(NULL);
-    lv_scr_load(tile1); 
-    focusMenu_create(tile1);
-}
-*/
 
 /*
  * loads 2nd tile, Task Tile
