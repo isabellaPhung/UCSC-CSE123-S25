@@ -36,5 +36,8 @@ esp_err_t UploadTaskRequests(struct callback_data_t *cb_data, const char* device
 // ----------------------------------------- Habits -----------------------------------------------
 
 esp_err_t HabitAddEntry(const char *habit_id, time_t datetime);
+esp_err_t HabitRemoveEntry(const char *habit_id, time_t datetime);
+
+esp_err_t UploadHabitRequests(struct callback_data_t *cb_data, const char* device_id);
 
 #endif

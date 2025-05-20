@@ -731,9 +731,9 @@ static void buttonmatrix_cb6(lv_event_t * e){
     
     if(k == LV_KEY_ENTER) {
         if (!lv_obj_has_state(obj, LV_STATE_CHECKED)){ //if toggled
-            HabitAddEntryDB(habit->uuid, difftime(currtime, 1*86400));
+            HabitAddEntry(habit->uuid, difftime(currtime, 1*86400));
         }else if(lv_obj_has_state(obj, LV_STATE_CHECKED)){ //if untoggled
-            HabitRemoveEntryDB(habit->uuid, difftime(currtime, 1*86400));
+            HabitRemoveEntry(habit->uuid, difftime(currtime, 1*86400));
         }
     }
 }
@@ -746,9 +746,9 @@ static void buttonmatrix_cb5(lv_event_t * e){
     
     if(k == LV_KEY_ENTER) {
         if (!lv_obj_has_state(obj, LV_STATE_CHECKED)){ //if toggled
-            HabitAddEntryDB(habit->uuid, difftime(currtime, 2*86400));
+            HabitAddEntry(habit->uuid, difftime(currtime, 2*86400));
         }else if(lv_obj_has_state(obj, LV_STATE_CHECKED)){ //if untoggled
-            HabitRemoveEntryDB(habit->uuid, difftime(currtime, 2*86400));
+            HabitRemoveEntry(habit->uuid, difftime(currtime, 2*86400));
         }
     }
 }
@@ -761,9 +761,9 @@ static void buttonmatrix_cb4(lv_event_t * e){
     
     if(k == LV_KEY_ENTER) {
         if (!lv_obj_has_state(obj, LV_STATE_CHECKED)){ //if toggled
-            HabitAddEntryDB(habit->uuid, difftime(currtime, 3*86400));
+            HabitAddEntry(habit->uuid, difftime(currtime, 3*86400));
         }else if(lv_obj_has_state(obj, LV_STATE_CHECKED)){ //if untoggled
-            HabitRemoveEntryDB(habit->uuid, difftime(currtime, 3*86400));
+            HabitRemoveEntry(habit->uuid, difftime(currtime, 3*86400));
         }
     }
 }
@@ -776,9 +776,9 @@ static void buttonmatrix_cb3(lv_event_t * e){
     
     if(k == LV_KEY_ENTER) {
         if (!lv_obj_has_state(obj, LV_STATE_CHECKED)){ //if toggled
-            HabitAddEntryDB(habit->uuid, difftime(currtime, 4*86400));
+            HabitAddEntry(habit->uuid, difftime(currtime, 4*86400));
         }else if(lv_obj_has_state(obj, LV_STATE_CHECKED)){ //if untoggled
-            HabitRemoveEntryDB(habit->uuid, difftime(currtime, 4*86400));
+            HabitRemoveEntry(habit->uuid, difftime(currtime, 4*86400));
         }
     }
 }
@@ -791,9 +791,9 @@ static void buttonmatrix_cb2(lv_event_t * e){
     
     if(k == LV_KEY_ENTER) {
         if (!lv_obj_has_state(obj, LV_STATE_CHECKED)){ //if toggled
-            HabitAddEntryDB(habit->uuid, difftime(currtime, 5*86400));
+            HabitAddEntry(habit->uuid, difftime(currtime, 5*86400));
         }else if(lv_obj_has_state(obj, LV_STATE_CHECKED)){ //if untoggled
-            HabitRemoveEntryDB(habit->uuid, difftime(currtime, 5*86400));
+            HabitRemoveEntry(habit->uuid, difftime(currtime, 5*86400));
         }
     }
 }
@@ -806,9 +806,9 @@ static void buttonmatrix_cb1(lv_event_t * e){
     
     if(k == LV_KEY_ENTER) {
         if (!lv_obj_has_state(obj, LV_STATE_CHECKED)){ //if toggled
-            HabitAddEntryDB(habit->uuid, difftime(currtime, 6*86400));
+            HabitAddEntry(habit->uuid, difftime(currtime, 6*86400));
         }else if(lv_obj_has_state(obj, LV_STATE_CHECKED)){ //if untoggled
-            HabitRemoveEntryDB(habit->uuid, difftime(currtime, 6*86400));
+            HabitRemoveEntry(habit->uuid, difftime(currtime, 6*86400));
         }
     }
 }
@@ -821,9 +821,9 @@ static void buttonmatrix_cb0(lv_event_t * e){
     
     if(k == LV_KEY_ENTER) {
         if (!lv_obj_has_state(obj, LV_STATE_CHECKED)){ //if toggled
-            HabitAddEntryDB(habit->uuid, difftime(currtime, 7*86400));
+            HabitAddEntry(habit->uuid, difftime(currtime, 7*86400));
         }else if(lv_obj_has_state(obj, LV_STATE_CHECKED)){ //if untoggled
-            HabitRemoveEntryDB(habit->uuid, difftime(currtime, 7*86400));
+            HabitRemoveEntry(habit->uuid, difftime(currtime, 7*86400));
         }
     }
 }

@@ -35,6 +35,7 @@ int RTC_updated = false;
 void callback(const char *payload, size_t payload_length, void *cb_data)
 {
     struct callback_data_t *data = (struct callback_data_t *)cb_data;
+    data->update_ack = 1;   // DEBUG: RESET THIS TO 0
 
     ESP_LOGW(TAG, "Heap before callback's JSON parse: %lu", esp_get_free_heap_size());
     cJSON *root = cJSON_ParseWithLength(payload, payload_length);
@@ -45,7 +46,7 @@ void callback(const char *payload, size_t payload_length, void *cb_data)
     }
 
     cJSON *id = cJSON_GetObjectItem(root, "id");
-    if (!id || strcmp(id->valuestring, "server") != 0)
+    if (!id || !cJSON_IsString(id) || strcmp(id->valuestring, "server") != 0)
     {
         cJSON_Delete(root);
         return;
@@ -77,7 +78,6 @@ void callback(const char *payload, size_t payload_length, void *cb_data)
 
         // Save json to file for later parsing
         esp_err_t rc = append_json_to_file(MESSAGE_BUFFER_NAME, root);
-
         if (rc != ESP_OK)
         {
             ESP_LOGE(TAG, "Failed to save reponse to disk!");
@@ -120,9 +120,11 @@ int request_backup(struct callback_data_t *cb_data)
         mqtt_publish(backup_payload[ent_itr], strlen(backup_payload[ent_itr]));
         ESP_LOGW(TAG, "Min heap during publish: %d bytes",
                  heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT));
+        mqtt_loop(5000);
+
+        /*
         while (1)
         {
-            mqtt_loop(5000);
             retries--;
             if (retries == 0)
             {
@@ -145,6 +147,7 @@ int request_backup(struct callback_data_t *cb_data)
                 break;
             }
         }
+        */
     }
 
     return return_status;
@@ -184,6 +187,8 @@ int sync_database(struct callback_data_t *cb_data)
 
     // Send outgoing requests
     UploadTaskRequests(cb_data, DEVICE_ID);
+    UploadHabitRequests(cb_data, DEVICE_ID);
+
     ESP_LOGW(TAG, "Min heap during request push: %d bytes",
              heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT));
 
