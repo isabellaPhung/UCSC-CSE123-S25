@@ -269,6 +269,7 @@ void app_main()
         {
             RTC_updated = true;
         }
+        mqtt_disconnect();
     }
 
     // ------------------------------------- Initialize LCD ---------------------------------------
@@ -321,6 +322,7 @@ void app_main()
         frame_timer++;
 
         // Update time
+        /*
         if (frame_timer % 2)
         {
             struct tm currTime;
@@ -329,6 +331,7 @@ void app_main()
             strftime(timeBuffer, sizeof(timeBuffer), "%H:%M:%S %m-%d-%y %a", &currTime);
             timeDisplay(timeBuffer);
         }
+        */
 
         // Request from server
         if (frame_timer >= 3000) // ~30 seconds
