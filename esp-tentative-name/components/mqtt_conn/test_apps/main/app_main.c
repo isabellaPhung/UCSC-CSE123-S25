@@ -20,11 +20,12 @@
 
 #include "esp_log.h"
 
+#define CONFIG_DEVICE_ID "c72572d0-8c8c-4f37-8ff6-829cac2eabec"
+
 static const char *TAG = "TEST_APP";
 
 struct callback_data {
-  int expected;
-  int cur_index;
+  void *placeholder;
 };
 
 void demo_callback(const char *payload, size_t payload_length, void *cb_data) {
@@ -38,14 +39,9 @@ void demo_callback(const char *payload, size_t payload_length, void *cb_data) {
     if (item && (strcmp(item->valuestring, "length") == 0)) {
       item = cJSON_GetObjectItem(root, "length");
       if (item && cJSON_IsNumber(item)) {
-        data->expected = item->valueint;
-        data->cur_index = 0;
-        ESP_LOGI(TAG, "Expecting %d tasks", data->expected);
       }
     }
     else if (item && (strcmp(item->valuestring, "response") == 0)){
-      ESP_LOGI(TAG, "Server response index %d", data->cur_index);
-      data->cur_index ++;
     }
   }
   cJSON_Delete(root);
@@ -66,42 +62,37 @@ void app_main() {
   ESP_ERROR_CHECK(esp_event_loop_create_default());
 
 
-  char payload[] = "{\"id\":\"55\",\"action\":\"refresh\",\"type\":\"event\"}";
+  char payload[] = "{\"id\":\"" CONFIG_DEVICE_ID "\",\"action\":\"refresh\",\"type\":\"event\"}";
   size_t payload_length = sizeof(payload) - 1;
 
+  ESP_LOGI(TAG, "Testeing device ID: %s", CONFIG_DEVICE_ID);
+
   struct callback_data cb_data;
-  cb_data.expected = 0;
-  cb_data.cur_index = -1;
 
   int return_status;
   return_status = mqtt_init(&demo_callback, (void *) &cb_data);
 
   setup_wifi();
 
-  return_status = mqtt_connect();
+  return_status = EXIT_FAILURE;
   while (return_status != EXIT_SUCCESS){
-    ESP_LOGI(TAG, "Not able to connect");
     vTaskDelay(5000 / portTICK_PERIOD_MS);
     return_status = mqtt_connect();
+    ESP_LOGI(TAG, "Not able to connect");
   }
   mqtt_subscribe();
 
+  // do once after booting
   mqtt_publish(payload, payload_length);
-  while (1) {
+  mqtt_loop(5000);
+
+  int seconds = 30;
+  if (seconds >= 30) {
+    // publish update as needed
     mqtt_loop(5000);
-    if (cb_data.expected == 0) {
-      ESP_LOGI(TAG, "Did not get back a length message from the server, re-publishing after a delay");
-      vTaskDelay(5000 / portTICK_PERIOD_MS);
-      mqtt_publish(payload, payload_length);
-    }
-    else if (cb_data.expected != cb_data.cur_index){
-      ESP_LOGI(TAG, "Did not get the expected amount, listening for some more time");
-    }
-    else{
-      break;
-    }
   }
 
+  // when shutting down
   mqtt_unsubscribe();
   mqtt_disconnect();
 
