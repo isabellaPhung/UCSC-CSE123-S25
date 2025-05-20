@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdbool.h>
 #include <sys/param.h>
 
 #include "esp_event.h"
@@ -91,6 +92,8 @@ static httpd_handle_t webserver;
 
 static EventGroupHandle_t s_wifi_event_group;
 static int s_retry_num = 0;
+
+static bool connected;
 
 #ifdef CONFIG_CAPTIVE_SERVER
     static dns_server_handle_t dns_server;
@@ -290,6 +293,7 @@ static void init_wifi_ap(void) {
 static void wifi_event_handler(void *arg,
     esp_event_base_t event_base, int32_t event_id, void *event_data) {
   if (event_id == WIFI_EVENT_STA_DISCONNECTED) {
+    connected = false;
     xEventGroupClearBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
     if (s_retry_num < CONFIG_ESP_MAXIMUM_RETRY) {
       esp_wifi_connect();
@@ -309,6 +313,7 @@ static void wifi_event_handler(void *arg,
     ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
     ESP_LOGI(TAG, "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
     s_retry_num = 0;
+    connected = true;
     if (xEventGroupGetBits(s_wifi_event_group) & WIFI_SERVER_UP){
       xEventGroupSync(s_wifi_event_group,
           WIFI_CONNECTED_BIT, WIFI_RESP_SENT, portMAX_DELAY);
@@ -332,6 +337,10 @@ bool check_nvs_sta_config(void) {
   return true;
 }
 
+bool is_wifi_connected(void){
+  return connected;
+}
+
 /* The wifi setup
  * 1. initialize callbacks and configs/memory for ap/sta
  * 2. Set-up softAP and start the dns (optional) and http(s) servers
@@ -345,6 +354,7 @@ void setup_wifi(void) {
   ESP_ERROR_CHECK(esp_wifi_init(&cfg));
 
   s_wifi_event_group = xEventGroupCreate();
+  connected = false;
 
   ESP_ERROR_CHECK(esp_event_handler_instance_register(
         WIFI_EVENT, ESP_EVENT_ANY_ID, &wifi_event_handler, NULL, NULL));

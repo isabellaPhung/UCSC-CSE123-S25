@@ -74,11 +74,17 @@ void app_main() {
 
   setup_wifi();
 
-  return_status = EXIT_FAILURE;
+  while (!is_wifi_connected()){
+    ESP_LOGI(TAG, "Wifi disconnected");
+    vTaskDelay(5000 / portTICK_PERIOD_MS);
+  }
+
+  return_status = mqtt_connect();
+
   while (return_status != EXIT_SUCCESS){
+    ESP_LOGI(TAG, "Not able to connect");
     vTaskDelay(5000 / portTICK_PERIOD_MS);
     return_status = mqtt_connect();
-    ESP_LOGI(TAG, "Not able to connect");
   }
   mqtt_subscribe();
 
