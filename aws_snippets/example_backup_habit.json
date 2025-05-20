@@ -3,12 +3,14 @@
     {
       "id":"37a9b0d4-e523-43d5-b24a-38c5ce7f4bf5",
       "name":"Drink water",
-      "goal":127
+      "goal":127,
+      "completed":[1747686513]
     },
     {
       "id":"3204eb54-399d-446a-815d-60d9f78dcb6a",
       "name":"Take out the trash",
-      "goal":2
+      "goal":2,
+      "completed":[]
     }
   ]
 }
