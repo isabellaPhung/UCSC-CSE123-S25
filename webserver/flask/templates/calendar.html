@@ -610,6 +610,7 @@
             dayStart.setHours(0, 0, 0, 0);
             const startTimestamp = Math.floor(dayStart.getTime() / 1000);
 
+            const dayEnd = new Date(year, month, day);
             dayEnd.setHours(23, 59, 59, 999);
             const endTimestamp = Math.floor(dayEnd.getTime() / 1000);
 
