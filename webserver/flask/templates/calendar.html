@@ -12,9 +12,6 @@
             // Get the current user from localStorage
             const currentUser = JSON.parse(localStorage.getItem('currentUser'));
             
-            // Store the current user ID for use throughout the page
-            window.currentUserId = currentUser.id;
-            
             // Add username display to the page
             const headerElement = document.querySelector('h1');
             
@@ -44,6 +41,7 @@
             padding: 0;
             display: flex;
             height: 100vh;
+            flex-direction: column;
         }
         
         body {
