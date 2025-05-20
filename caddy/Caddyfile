@@ -1,0 +1,17 @@
+{
+    # Global options
+    email youremail@example.com
+}
+
+localhost {
+    # Reverse proxy to Flask application
+    reverse_proxy app:8081
+    
+    # Enable automatic HTTPS
+    tls internal
+    
+    # Log settings
+    log {
+        output file /var/log/caddy/access.log
+    }
+}

@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Events</title>
+    
+    <!-- LOGIN CHECK CODE -->
+    <script>
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get the current user from localStorage
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Get the user ID for event creation (set by index.html)
+            const eventUserId = localStorage.getItem('eventUserId');
+            if (!eventUserId) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Store user ID for use in form submission
+            window.currentUserId = eventUserId;
+            
+            // Add username display to the page
+            const headerElement = document.querySelector('.page-header');
+            
+            const usernameDisplay = document.createElement('div');
+            usernameDisplay.textContent = `Logged in as: ${currentUser.username}`;
+            usernameDisplay.style.fontWeight = 'bold';
+            
+            headerElement.appendChild(usernameDisplay);
+        });
+    </script>
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .back-link {
+            background-color: #2196F3;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .form-container {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 1px solid #ddd;
+        }
+        
+        .form-row {
+            display: flex;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+        
+        .form-label {
+            width: 100px;
+            font-weight: bold;
+        }
+        
+        .form-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .time-selection {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .time-selection select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .button-container {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .add-btn, .clear-btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .add-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .clear-btn {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        .events-container {
+            margin-top: 30px;
+        }
+        
+        .events-header {
+            display: flex;
+            background-color: #f5f5f5;
+            padding: 10px;
+            font-weight: bold;
+            border-bottom: 2px solid #ddd;
+        }
+        
+        .event-name-header {
+            flex: 1;
+        }
+        
+        .event-time-header {
+            width: 100px;
+            text-align: center;
+        }
+        
+        .event-action-header {
+            width: 80px;
+            text-align: center;
+        }
+        
+        .event-row {
+            display: flex;
+            padding: 12px 10px;
+            border-bottom: 1px solid #eee;
+            align-items: center;
+        }
+        
+        .event-row:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .event-name {
+            flex: 1;
+            font-weight: bold;
+        }
+        
+        .event-time {
+            width: 100px;
+            text-align: center;
+        }
+        
+        .event-action {
+            width: 80px;
+            text-align: center;
+        }
+        
+        .delete-btn {
+            color: #f44336;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        
+        .delete-btn:hover {
+            color: #d32f2f;
+        }
+        
+        .no-events-message {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .current-date {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+        }
+        
+        /* ADDED STYLES FOR UNIX TIMESTAMP DISPLAY */
+        .unix-timestamp {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        
+        .event-details {
+            display: none;
+            padding: 10px;
+            margin-top: 5px;
+            background-color: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 5px;
+        }
+        
+        .event-details-visible {
+            display: block;
+        }
+        
+        .event-timestamp {
+            color: #888;
+            font-size: 0.8em;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-header">
+        <h1>Daily Events</h1>
+        <a href="index.html" class="back-link">Back to Dashboard</a>
+    </div>
+    
+    <div class="current-date" id="current-date"></div>
+    
+    <div class="form-container">
+        <h2>Add New Event</h2>
+        
+        <div class="form-row">
+            <div class="form-label">Event Name:</div>
+            <input type="text" id="event-name" class="form-input" placeholder="Enter event name...">
+        </div>
+        
+        <div class="form-row">
+            <div class="form-label">Start Time:</div>
+            <div class="time-selection">
+                <select id="hour-select">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9" selected>9</option>
+                    <option value="10">10</option>
+                    <option value="11">11</option>
+                    <option value="12">12</option>
+                </select>
+                
+                <select id="minute-select">
+                    <option value="00" selected>00</option>
+                    <option value="15">15</option>
+                    <option value="30">30</option>
+                    <option value="45">45</option>
+                </select>
+                
+                <select id="period-select">
+                    <option value="AM" selected>AM</option>
+                    <option value="PM">PM</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- ADDED UNIX TIMESTAMP DISPLAY -->
+        <div class="unix-timestamp" id="unix-timestamp">Unix Timestamp: </div>
+        
+        <div class="button-container">
+            <button class="clear-btn" id="clear-btn">Clear</button>
+            <button class="add-btn" id="add-btn">Add Event</button>
+        </div>
+    </div>
+    
+    <div class="events-container">
+        <h2>Today's Events</h2>
+        
+        <div class="events-header">
+            <div class="event-name-header">Event Name</div>
+            <div class="event-time-header">Time</div>
+            <div class="event-action-header">Action</div>
+        </div>
+        
+        <div id="events-list">
+            <!-- Events will be dynamically loaded here -->
+        </div>
+    </div>
+    
+    <script>
+        // Get current date
+        const today = new Date();
+        const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('current-date').textContent = today.toLocaleDateString(undefined, dateOptions);
+        
+        // Format today's date as YYYY-MM-DD for comparison
+        const todayStr = formatDateString(today);
+        
+        // Load events on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadEvents();
+            
+            // Set current time as default
+            setCurrentTimeAsDefault();
+            
+            // ADDED TIMESTAMP UPDATE CALL ON LOAD
+            updateUnixTimestamp();
+            
+            // Event listeners
+            document.getElementById('add-btn').addEventListener('click', addEvent);
+            document.getElementById('clear-btn').addEventListener('click', clearForm);
+            
+            // Handle Enter key in the event name input
+            document.getElementById('event-name').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    addEvent();
+                }
+            });
+            
+            // ADDED EVENT LISTENERS FOR TIMESTAMP UPDATES
+            document.getElementById('hour-select').addEventListener('change', updateUnixTimestamp);
+            document.getElementById('minute-select').addEventListener('change', updateUnixTimestamp);
+            document.getElementById('period-select').addEventListener('change', updateUnixTimestamp);
+        });
+        
+        // Format date as YYYY-MM-DD
+        function formatDateString(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        
+        // ADDED UNIX TIMESTAMP UPDATE FUNCTION
+        function updateUnixTimestamp() {
+            // Get current date (today)
+            const dateStr = todayStr;
+            
+            // Get time values
+            let hour = parseInt(document.getElementById('hour-select').value);
+            const minute = document.getElementById('minute-select').value;
+            const period = document.getElementById('period-select').value;
+            
+            // Convert to 24-hour format
+            if (period === "PM" && hour < 12) {
+                hour += 12;
+            } else if (period === "AM" && hour === 12) {
+                hour = 0;
+            }
+            
+            // Format time as HH:MM
+            const formattedHour = hour.toString().padStart(2, '0');
+            const timeStr = `${formattedHour}:${minute}`;
+            
+            // Create date object and get timestamp
+            const dateTimeStr = `${dateStr}T${timeStr}:00`;
+            const timestamp = Math.floor(new Date(dateTimeStr).getTime() / 1000);
+            
+            // Update display
+            document.getElementById('unix-timestamp').textContent = `Unix Timestamp: ${timestamp}`;
+            
+            // Return the timestamp (for use in other functions)
+            return timestamp;
+        }
+        
+        // Set current time as default in the form
+        function setCurrentTimeAsDefault() {
+            const now = new Date();
+            
+            // Get hours and convert to 12-hour format
+            let hours = now.getHours();
+            const period = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12 || 12; // Convert 0 to 12 for 12 AM
+            
+            // Round minutes to nearest 15
+            let minutes = now.getMinutes();
+            if (minutes < 8) minutes = "00";
+            else if (minutes < 23) minutes = "15";
+            else if (minutes < 38) minutes = "30";
+            else if (minutes < 53) minutes = "45";
+            else {
+                minutes = "00";
+                hours = (hours % 12) + 1;
+            }
+            
+            // Set form values
+            document.getElementById('hour-select').value = hours;
+            document.getElementById('minute-select').value = minutes;
+            document.getElementById('period-select').value = period;
+        }
+        
+        // Load events from localStorage
+        function loadEvents() {
+            // Get user-specific events
+            const allUserEvents = JSON.parse(localStorage.getItem('userEvents')) || {};
+            const userEvents = allUserEvents[window.currentUserId] || {};
+            
+            // Get today's events or initialize empty array
+            const todayEvents = userEvents[todayStr] || [];
+            
+            // Get events container
+            const eventsContainer = document.getElementById('events-list');
+            eventsContainer.innerHTML = '';
+            
+            // Check if there are any events
+            if (todayEvents.length === 0) {
+                const noEventsMsg = document.createElement('div');
+                noEventsMsg.className = 'no-events-message';
+                noEventsMsg.textContent = 'No events scheduled for today.';
+                eventsContainer.appendChild(noEventsMsg);
+                return;
+            }
+            
+            // Sort events by time
+            todayEvents.sort((a, b) => {
+                // UPDATED TO USE TIMESTAMP FOR SORTING IF AVAILABLE
+                if (a.timestamp && b.timestamp) {
+                    return a.timestamp - b.timestamp;
+                } else {
+                    // Fallback to string comparison
+                    const timeA = convertTo24Hour(a.time);
+                    const timeB = convertTo24Hour(b.time);
+                    return timeA.localeCompare(timeB);
+                }
+            });
+            
+            // Add each event to the container
+            todayEvents.forEach((event, index) => {
+                const eventRow = document.createElement('div');
+                eventRow.className = 'event-row';
+                
+                const eventName = document.createElement('div');
+                eventName.className = 'event-name';
+                eventName.textContent = event.name;
+                
+                const eventTime = document.createElement('div');
+                eventTime.className = 'event-time';
+                eventTime.textContent = event.time;
+                
+                const eventAction = document.createElement('div');
+                eventAction.className = 'event-action';
+                
+                const deleteBtn = document.createElement('span');
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.innerHTML = '&times;';
+                deleteBtn.title = 'Delete Event';
+                deleteBtn.addEventListener('click', function() {
+                    deleteEvent(index);
+                });
+                
+                eventAction.appendChild(deleteBtn);
+                
+                eventRow.appendChild(eventName);
+                eventRow.appendChild(eventTime);
+                eventRow.appendChild(eventAction);
+                
+                // ADDED EVENT DETAILS WITH TIMESTAMP
+                const eventDetails = document.createElement('div');
+                eventDetails.className = 'event-details';
+                
+                // Add timestamp if available
+                if (event.timestamp) {
+                    const timestamp = document.createElement('div');
+                    timestamp.className = 'event-timestamp';
+                    timestamp.textContent = `Unix Timestamp: ${event.timestamp}`;
+                    eventDetails.appendChild(timestamp);
+                    
+                    // Toggle details visibility on click
+                    eventRow.addEventListener('click', function(e) {
+                        // Only toggle if not clicking delete button
+                        if (!e.target.classList.contains('delete-btn')) {
+                            eventDetails.classList.toggle('event-details-visible');
+                        }
+                    });
+                }
+                
+                eventsContainer.appendChild(eventRow);
+                eventsContainer.appendChild(eventDetails);
+            });
+        }
+        
+        // Convert 12-hour time to 24-hour format for sorting
+        function convertTo24Hour(time12h) {
+            const [time, period] = time12h.split(' ');
+            let [hours, minutes] = time.split(':');
+            
+            hours = parseInt(hours);
+            
+            if (period === 'PM' && hours < 12) {
+                hours += 12;
+            } else if (period === 'AM' && hours === 12) {
+                hours = 0;
+            }
+            
+            return `${hours.toString().padStart(2, '0')}:${minutes}`;
+        }
+        
+        // UPDATED TO INCLUDE TIMESTAMP
+        // Add a new event
+        function addEvent() {
+            const eventNameInput = document.getElementById('event-name');
+            const eventName = eventNameInput.value.trim();
+            
+            // Validate event name
+            if (!eventName) {
+                alert('Please enter an event name');
+                return;
+            }
+            
+            // Get time values
+            const hour = document.getElementById('hour-select').value;
+            const minute = document.getElementById('minute-select').value;
+            const period = document.getElementById('period-select').value;
+            
+            // Format time for display
+            const time = `${hour}:${minute} ${period}`;
+            
+            // Get timestamp
+            const timestamp = updateUnixTimestamp();
+            
+            // Get user-specific events
+            const allUserEvents = JSON.parse(localStorage.getItem('userEvents')) || {};
+            const userEvents = allUserEvents[window.currentUserId] || {};
+            
+            // Initialize today's events array if it doesn't exist
+            if (!userEvents[todayStr]) {
+                userEvents[todayStr] = [];
+            }
+            
+            // Add new event with timestamp
+            userEvents[todayStr].push({
+                name: eventName,
+                time: time,
+                date: todayStr,
+                timestamp: timestamp
+            });
+            
+            // Update user events
+            allUserEvents[window.currentUserId] = userEvents;
+            
+            // Save to localStorage
+            localStorage.setItem('userEvents', JSON.stringify(allUserEvents));
+            
+            // Clear form and reload events
+            clearForm();
+            loadEvents();
+        }
+        
+        // Clear the add event form
+        function clearForm() {
+            document.getElementById('event-name').value = '';
+            setCurrentTimeAsDefault();
+            // Update timestamp after clearing
+            updateUnixTimestamp();
+        }
+        
+        // Delete an event
+        function deleteEvent(index) {
+            // Get user-specific events
+            const allUserEvents = JSON.parse(localStorage.getItem('userEvents')) || {};
+            const userEvents = allUserEvents[window.currentUserId] || {};
+            
+            // Get today's events
+            const todayEvents = userEvents[todayStr] || [];
+            
+            // Remove the event
+            if (index >= 0 && index < todayEvents.length) {
+                todayEvents.splice(index, 1);
+                
+                // Update localStorage
+                userEvents[todayStr] = todayEvents;
+                allUserEvents[window.currentUserId] = userEvents;
+                localStorage.setItem('userEvents', JSON.stringify(allUserEvents));
+                
+                // Reload events
+                loadEvents();
+            }
+        }
+    </script>
+</body>
+</html>
