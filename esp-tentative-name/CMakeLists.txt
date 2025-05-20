@@ -3,9 +3,6 @@
 cmake_minimum_required(VERSION 3.16)
 
 set(EXTRA_COMPONENT_DIRS
-  # required for main
-  "$ENV{IDF_PATH}/examples/common_components/protocol_examples_common"
-  
   "${CMAKE_CURRENT_LIST_DIR}/components/sqlite3/components/esp32-idf-sqlite3"
   "${CMAKE_CURRENT_LIST_DIR}/components/database"
   "${CMAKE_CURRENT_LIST_DIR}/components/UI_ili9488"
