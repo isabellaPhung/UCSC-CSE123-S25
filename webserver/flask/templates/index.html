@@ -529,12 +529,17 @@
 
         // Get current day of the week (0-6 where 0 is Sunday)
         const today = new Date();
-        const todayStr = today.toISOString("%Y-%m-%d").split("T")[0];
         const currentDayIndex = today.getDay();
         // Convert to our display order (0 = Monday, ... 6 = Sunday)
         const adjustedDayIndex = currentDayIndex === 0 ? 6 : currentDayIndex - 1;
         // Convert to our flag order (0 = Saturday, ... 6 = Sunday)
         const flagDayIndex = 6 - currentDayIndex;
+
+        // Get today's date in YYYY-MM-DD format
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        const todayStr = `${year}-${month}-${day}`;
 
         // Update date and time
         function updateDateTime() {
@@ -562,7 +567,7 @@
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': getCookie('csrf_access_token')
                 },
-                body: JSON.stringify({today: todayStr})
+                body: JSON.stringify({today: todayStr, start: startTimestamp})
             })
             .then(response => {
                 if (!response.ok) {

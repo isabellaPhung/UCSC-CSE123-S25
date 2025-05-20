@@ -164,8 +164,10 @@ def api_update_habit():
     id = request.json.get("id")
     date = request.json.get("date")
     completed = request.json.get("completed")
+    start = request.json.get("start")
+    end = request.json.get("end")
 
-    if not s3_conn.update_habit(id, date, completed):
+    if not s3_conn.update_habit(id, date, completed, start, end):
         return {"update_habit": False}, 400
     return {"update_habit": True}, 200
 
@@ -184,8 +186,9 @@ def api_delete_habit():
 @jwt_required()
 def api_today_habits():
     today = request.json.get("today")
+    start = request.json.get("start")
 
-    habits = s3_conn.get_habits(today)
+    habits = s3_conn.get_habits(today, start)
     return habits, 200
 
 

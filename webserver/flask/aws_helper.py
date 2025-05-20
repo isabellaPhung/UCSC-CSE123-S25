@@ -249,15 +249,16 @@ class AwsS3:
         )
         return True
 
-    def update_habit(self, id, date, completed):
+    def update_habit(self, id, timestamp, completed, start_timestamp, end_timestamp):
         obj, data = self.load_info("habit")
 
         for habit in data["habit"]:
             if habit["id"] == id:
                 if completed:
-                    habit["completed"].append(date)
+                    habit["completed"].append(timestamp)
                 else:
-                    habit["completed"].remove(date)
+                    habit["completed"] = [date for date in habit["completed"]
+                                          if date < start_timestamp or date > end_timestamp]
                 break
 
         obj.put(
@@ -277,17 +278,30 @@ class AwsS3:
         )
         return True
 
-    def get_habits(self, current_date):
+    def get_habits(self, current_date, start_timestamp):
         obj, data = self.load_info("habit")
 
         today = datetime.strptime(current_date, "%Y-%m-%d")
-        monday = today - timedelta(days=today.weekday())
-        week = [(monday + timedelta(days=i)).strftime("%Y-%m-%d") for i in range(7)]
+        offset = today.weekday()
+        monday_start = start_timestamp - offset * 86400
+        sunday_end = monday_start + 7 * 86400 - 1
+
+        week = [(monday_start + i * 86400, monday_start + 86399 + i * 86400)
+                for i in range(7)]
+        # monday = today - timedelta(days=today.weekday())
+        # week = [(monday + timedelta(days=i)).strftime("%Y-%m-%d") for i in range(7)]
 
         for habit in data["habit"]:
-            habit["completed"] = [date for date in habit["completed"] if date in week]
-            # For web app checkboxes
-            habit["days"] = [day in habit["completed"] for day in week]
+            habit["days"] = [False] * 7
+            for timestamp in habit["completed"]:
+                if monday_start <= timestamp <= sunday_end:
+                    for i in range(7):
+                        if week[i][0] <= timestamp <= week[i][1]:
+                            habit["days"][i] = True
+                            break
+            # habit["completed"] = [date for date in habit["completed"] if date in week]
+            # # For web app checkboxes
+            # habit["days"] = [day in habit["completed"] for day in week]
 
         return data
 
@@ -317,6 +331,19 @@ class AwsS3:
             return False
 
         # Save updated data back to S3
+        obj.put(
+            Body=(bytes(json.dumps(data, indent=2).encode("utf-8"))),
+            ContentType="application/json"
+        )
+        return True
+
+    def test(self):
+        obj, data = self.load_info("habit")
+
+        for habit in data["habit"]:
+            if habit["name"] == "class":
+                habit["completed"] = [1747686513, 1747686513]
+
         obj.put(
             Body=(bytes(json.dumps(data, indent=2).encode("utf-8"))),
             ContentType="application/json"

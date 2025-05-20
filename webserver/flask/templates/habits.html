@@ -425,10 +425,15 @@
         
         // Determine the current day of the week (0 = Sunday, 1 = Monday, etc.)
         const today = new Date();
-        const todayStr = today.toISOString("%Y-%m-%d").split("T")[0];
         const currentDayIndex = today.getDay(); // 0-6
         // Adjust to our display order (0 = Monday, ... 6 = Sunday)
         const adjustedDayIndex = currentDayIndex === 0 ? 6 : currentDayIndex - 1;
+
+        // Get today's date in YYYY-MM-DD format
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        const todayStr = `${year}-${month}-${day}`;
         
         // Function to check if a day is scheduled in the habit using bitwise operation
         function isDayScheduled(habitFlags, dayFlag) {
@@ -449,13 +454,17 @@
                 habitsContainer.removeChild(habitsContainer.lastChild);
             }
 
+            const dayStart = new Date();
+            dayStart.setHours(0, 0, 0, 0);
+            const startTimestamp = Math.floor(dayStart.getTime() / 1000);
+
             fetch('/api/today_habits', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': getCookie('csrf_access_token')
                 },
-                body: JSON.stringify({today: todayStr})
+                body: JSON.stringify({today: todayStr, start: startTimestamp})
             })
             .then(response => {
                 if (!response.ok) {
@@ -546,7 +555,15 @@
             // Get specific date
             const habitDate = new Date();
             habitDate.setDate(today.getDate() + offset);
-            const habitStr = habitDate.toISOString("%Y-%m-%d").split("T")[0];
+
+            // Get start and end timestamps of habit date
+            const dayStart = new Date(habitDate);
+            dayStart.setHours(0, 0, 0, 0);
+            const startTimestamp = Math.floor(dayStart.getTime() / 1000);
+
+            const dayEnd = new Date(habitDate);
+            dayEnd.setHours(23, 59, 59, 999);
+            const endTimestamp = Math.floor(dayEnd.getTime() / 1000);
 
             // Send the habit to S3
             fetch('/api/update_habit', {
@@ -555,7 +572,10 @@
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': getCookie('csrf_access_token')
                 },
-                body: JSON.stringify({id: habitId, date: habitStr, completed: completed})
+                body: JSON.stringify({
+                    id: habitId, date: Math.floor(habitDate.getTime() / 1000),
+                    completed: completed, start: startTimestamp, end: endTimestamp
+                })
             })
             .then(response => {
                 if (!response.ok) {
