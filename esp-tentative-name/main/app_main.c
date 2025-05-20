@@ -237,6 +237,9 @@ void app_main()
 
     setup_wifi();
 
+    // -------------------------------------- Initialize Storage ----------------------------------
+    ESP_ERROR_CHECK(MountSDCard());
+
     // ------------------------------- Initialize Server Connection -------------------------------
     ESP_LOGW("main::Initialize Server Connection", "Free heap total: %lu bytes", esp_get_free_heap_size());
 

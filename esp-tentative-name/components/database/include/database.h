@@ -14,6 +14,7 @@
 // Initializes the SPI protocol
 esp_err_t init_shared_spi_bus();
 //esp_err_t init_sqlite_memory(void);
+esp_err_t MountSDCard();
 
 // Database connection handling
 sqlite3 *get_db_connection(void);
