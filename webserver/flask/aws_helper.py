@@ -1,5 +1,5 @@
 from cryptography.fernet import Fernet
-from datetime import datetime, timedelta
+from datetime import datetime
 import json
 import os
 import uuid
@@ -27,9 +27,7 @@ class AwsS3:
         user = json.loads(self.fernet.decrypt(encrypted_data.encode()).decode())
         return user["device_id"]
 
-    def load_info(self, elem):
-        device_id = "55"
-
+    def load_info(self, elem, device_id):
         if elem == "task":
             obj = self.s3.Object(self.device_bucket, f"{device_id}/{self.task_file}")
         elif elem == "event":
@@ -168,7 +166,7 @@ class AwsS3:
         return False
 
     def add_task(self, name, description, completion, priority, duedate):
-        obj, data = self.load_info("task")
+        obj, data = self.load_info("task", "55")
 
         id = str(uuid.uuid4())
 
@@ -184,7 +182,7 @@ class AwsS3:
         return True
 
     def get_tasks(self, start_timestamp, end_timestamp):
-        obj, data = self.load_info("task")
+        obj, data = self.load_info("task", "55")
 
         today_data = [task for task in data["task"]
                       if start_timestamp <= task["duedate"] <= end_timestamp]
@@ -194,11 +192,11 @@ class AwsS3:
         return data
 
     def get_all_tasks(self):
-        obj, data = self.load_info("task")
+        obj, data = self.load_info("task", "55")
         return data
 
     def add_event(self, name, description, starttime, duration):
-        obj, data = self.load_info("event")
+        obj, data = self.load_info("event", "55")
 
         id = str(uuid.uuid4())
 
@@ -214,7 +212,7 @@ class AwsS3:
         return True
 
     def delete_event(self, id):
-        obj, data = self.load_info("event")
+        obj, data = self.load_info("event", "55")
 
         data["event"] = [event for event in data["event"] if event["id"] != id]
 
@@ -225,7 +223,7 @@ class AwsS3:
         return True
 
     def get_events(self, start_timestamp, end_timestamp):
-        obj, data = self.load_info("event")
+        obj, data = self.load_info("event", "55")
 
         today_data = [event for event in data["event"]
                       if start_timestamp <= event["starttime"] <= end_timestamp]
@@ -235,7 +233,7 @@ class AwsS3:
         return data
 
     def add_habit(self, name, goal):
-        obj, data = self.load_info("habit")
+        obj, data = self.load_info("habit", "55")
 
         id = str(uuid.uuid4())
 
@@ -250,7 +248,7 @@ class AwsS3:
         return True
 
     def update_habit(self, id, timestamp, completed, start_timestamp, end_timestamp):
-        obj, data = self.load_info("habit")
+        obj, data = self.load_info("habit", "55")
 
         for habit in data["habit"]:
             if habit["id"] == id:
@@ -268,7 +266,7 @@ class AwsS3:
         return True
 
     def delete_habit(self, id):
-        obj, data = self.load_info("habit")
+        obj, data = self.load_info("habit", "55")
 
         data["habit"] = [habit for habit in data["habit"] if habit["id"] != id]
 
@@ -279,7 +277,7 @@ class AwsS3:
         return True
 
     def get_habits(self, current_date, start_timestamp):
-        obj, data = self.load_info("habit")
+        obj, data = self.load_info("habit", "55")
 
         today = datetime.strptime(current_date, "%Y-%m-%d")
         offset = today.weekday()
@@ -288,8 +286,6 @@ class AwsS3:
 
         week = [(monday_start + i * 86400, monday_start + 86399 + i * 86400)
                 for i in range(7)]
-        # monday = today - timedelta(days=today.weekday())
-        # week = [(monday + timedelta(days=i)).strftime("%Y-%m-%d") for i in range(7)]
 
         for habit in data["habit"]:
             habit["days"] = [False] * 7
@@ -299,10 +295,6 @@ class AwsS3:
                         if week[i][0] <= timestamp <= week[i][1]:
                             habit["days"][i] = True
                             break
-            # habit["completed"] = [date for date in habit["completed"] if date in week]
-            # # For web app checkboxes
-            # habit["days"] = [day in habit["completed"] for day in week]
-
         return data
 
     def update_task(self, id, completion):
@@ -316,7 +308,7 @@ class AwsS3:
         Returns:
             bool: True if successful, False otherwise
         """
-        obj, data = self.load_info("task")
+        obj, data = self.load_info("task", "55")
 
         # Find and update the task
         found = False
@@ -331,19 +323,6 @@ class AwsS3:
             return False
 
         # Save updated data back to S3
-        obj.put(
-            Body=(bytes(json.dumps(data, indent=2).encode("utf-8"))),
-            ContentType="application/json"
-        )
-        return True
-
-    def test(self):
-        obj, data = self.load_info("habit")
-
-        for habit in data["habit"]:
-            if habit["name"] == "class":
-                habit["completed"] = [1747686513, 1747686513]
-
         obj.put(
             Body=(bytes(json.dumps(data, indent=2).encode("utf-8"))),
             ContentType="application/json"

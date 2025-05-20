@@ -682,24 +682,24 @@
                     return;
                 }
 
-                // Sort tasks by completion status first (incomplete tasks first, excluding deleted)
-                // Then sort by priority (lower number = higher priority)
-                todaysTasks.sort((a, b) => {
-                    // Sort by completion status first
-                    if (a.completion !== b.completion) {
-                        // Sort deleted tasks (0) last, completed tasks (2) second, incomplete tasks (1) first
-                        if (a.completion === 0) return 1;
-                        if (b.completion === 0) return -1;
-                        return a.completion - b.completion;
-                    }
-                    // Then sort by priority (lower number = higher priority)
-                    return a.priority - b.priority;
-                });
+<!--                // Sort tasks by completion status first (incomplete tasks first, excluding deleted)-->
+<!--                // Then sort by priority (lower number = higher priority)-->
+<!--                todaysTasks.sort((a, b) => {-->
+<!--                    // Sort by completion status first-->
+<!--                    if (a.completion !== b.completion) {-->
+<!--                        // Sort deleted tasks (2) last, completed tasks (1) second, incomplete tasks (0) first-->
+<!--                        if (a.completion === 2) return 1;-->
+<!--                        if (b.completion === 2) return -1;-->
+<!--                        return a.completion - b.completion;-->
+<!--                    }-->
+<!--                    // Then sort by priority (lower number = higher priority)-->
+<!--                    return a.priority - b.priority;-->
+<!--                });-->
 
                 // Display today's tasks
                 todaysTasks.forEach((task, index) => {
-                    // Skip deleted tasks (completion=0)
-                    if (task.completion === 0) {
+                    // Skip deleted tasks (completion=2)
+                    if (task.completion === 2) {
                         return;
                     }
                     
@@ -712,7 +712,7 @@
                     taskItem.classList.add(`priority-${task.priority}`);
                     
                     // Add completed class if task is completed
-                    if (task.completion === 2) {
+                    if (task.completion === 1) {
                         taskItem.classList.add('task-completed');
                     }
 
@@ -720,10 +720,10 @@
                     const taskCheckbox = document.createElement('input');
                     taskCheckbox.type = 'checkbox';
                     taskCheckbox.className = 'task-checkbox';
-                    taskCheckbox.checked = task.completion === 2;
+                    taskCheckbox.checked = task.completion === 1;
                     taskCheckbox.addEventListener('change', function(e) {
                         e.stopPropagation(); // Prevent task details from toggling
-                        updateTaskCompletion(task.id, this.checked ? 2 : 1);
+                        updateTaskCompletion(task.id, this.checked ? 1 : 0);
                     });
 
                     // Create priority indicator
@@ -773,7 +773,7 @@
                     metaInfo.className = 'task-meta-info';
                     metaInfo.innerHTML = `
                         <div>Priority: <span class="priority-text priority-${task.priority}">${getPriorityText(task.priority)}</span></div>
-                        <div>Status: ${task.completion === 2 ? 'Completed' : 'Incomplete'}</div>
+                        <div>Status: ${task.completion === 1 ? 'Completed' : 'Incomplete'}</div>
                     `;
                     taskDetails.appendChild(metaInfo);
 
