@@ -58,6 +58,9 @@ def refresh(endpoint):
 def logout():
     resp = jsonify({"logout": True})
     unset_jwt_cookies(resp)
+
+    if request.cookies.get("device_id"):
+        resp.set_cookie("device_id", "", expires=0)
     return resp, 200
 
 
@@ -75,13 +78,18 @@ def api_signup():
 @app.route("/api/add_task", methods=["POST"])
 @jwt_required()
 def api_add_task():
+    device_id = request.cookies.get("device_id")
+
+    if not device_id:
+        return {"message": "No device selected"}, 400
+
     name = request.json.get("name")
     description = request.json.get("description")
     completion = request.json.get("completion")
     priority = request.json.get("priority")
     duedate = request.json.get("duedate")
 
-    if not s3_conn.add_task(name, description, completion, priority, duedate):
+    if not s3_conn.add_task(name, description, completion, priority, duedate, device_id):
         return {"add_task": False}, 400
     return {"add_task": True}, 200
 
@@ -89,10 +97,15 @@ def api_add_task():
 @app.route("/api/update_task", methods=["POST"])
 @jwt_required()
 def api_update_task():
+    device_id = request.cookies.get("device_id")
+
+    if not device_id:
+        return {"message": "No device selected"}, 400
+
     id = request.json.get("id")
     completion = request.json.get("completion")
 
-    if not s3_conn.update_task(id, completion):
+    if not s3_conn.update_task(id, completion, device_id):
         return {"update_task": False}, 400
     return {"update_task": True}, 200
 
@@ -100,29 +113,44 @@ def api_update_task():
 @app.route("/api/today_tasks", methods=["POST"])
 @jwt_required()
 def api_today_tasks():
+    device_id = request.cookies.get("device_id")
+
+    if not device_id:
+        return {"message": "No device selected"}, 400
+
     start = request.json.get("start")
     end = request.json.get("end")
 
-    tasks = s3_conn.get_tasks(start, end)
+    tasks = s3_conn.get_tasks(start, end, device_id)
     return tasks, 200
 
 
 @app.route("/api/get_all_tasks")
 @jwt_required()
 def api_get_all_tasks():
-    users = s3_conn.get_all_tasks()
-    return users, 200
+    device_id = request.cookies.get("device_id")
+
+    if not device_id:
+        return {"message": "No device selected"}, 400
+
+    tasks = s3_conn.get_all_tasks(device_id)
+    return tasks, 200
 
 
 @app.route("/api/add_event", methods=["POST"])
 @jwt_required()
 def api_add_event():
+    device_id = request.cookies.get("device_id")
+
+    if not device_id:
+        return {"message": "No device selected"}, 400
+
     name = request.json.get("name")
     description = request.json.get("description")
     starttime = request.json.get("starttime")
     duration = request.json.get("duration")
 
-    if not s3_conn.add_event(name, description, starttime, duration):
+    if not s3_conn.add_event(name, description, starttime, duration, device_id):
         return {"add_event": False}, 400
     return {"add_event": True}, 200
 
@@ -130,9 +158,14 @@ def api_add_event():
 @app.route("/api/delete_event", methods=["POST"])
 @jwt_required()
 def api_delete_event():
+    device_id = request.cookies.get("device_id")
+
+    if not device_id:
+        return {"message": "No device selected"}, 400
+
     id = request.json.get("id")
 
-    if not s3_conn.delete_event(id):
+    if not s3_conn.delete_event(id, device_id):
         return {"delete_event": False}, 400
     return {"delete_event": True}, 200
 
@@ -140,20 +173,30 @@ def api_delete_event():
 @app.route("/api/today_events", methods=["POST"])
 @jwt_required()
 def api_today_events():
+    device_id = request.cookies.get("device_id")
+
+    if not device_id:
+        return {"message": "No device selected"}, 400
+
     start = request.json.get("start")
     end = request.json.get("end")
 
-    events = s3_conn.get_events(start, end)
+    events = s3_conn.get_events(start, end, device_id)
     return events, 200
 
 
 @app.route("/api/add_habit", methods=["POST"])
 @jwt_required()
 def api_add_habit():
+    device_id = request.cookies.get("device_id")
+
+    if not device_id:
+        return {"message": "No device selected"}, 400
+
     name = request.json.get("name")
     goal = request.json.get("goal")
 
-    if not s3_conn.add_habit(name, goal):
+    if not s3_conn.add_habit(name, goal, device_id):
         return {"add_habit": False}, 400
     return {"add_habit": True}, 200
 
@@ -161,13 +204,18 @@ def api_add_habit():
 @app.route("/api/update_habit", methods=["POST"])
 @jwt_required()
 def api_update_habit():
+    device_id = request.cookies.get("device_id")
+
+    if not device_id:
+        return {"message": "No device selected"}, 400
+
     id = request.json.get("id")
     date = request.json.get("date")
     completed = request.json.get("completed")
     start = request.json.get("start")
     end = request.json.get("end")
 
-    if not s3_conn.update_habit(id, date, completed, start, end):
+    if not s3_conn.update_habit(id, date, completed, start, end, device_id):
         return {"update_habit": False}, 400
     return {"update_habit": True}, 200
 
@@ -175,9 +223,14 @@ def api_update_habit():
 @app.route("/api/delete_habit", methods=["POST"])
 @jwt_required()
 def api_delete_habit():
+    device_id = request.cookies.get("device_id")
+
+    if not device_id:
+        return {"message": "No device selected"}, 400
+
     id = request.json.get("id")
 
-    if not s3_conn.delete_habit(id):
+    if not s3_conn.delete_habit(id, device_id):
         return {"delete_habit": False}, 400
     return {"delete_habit": True}, 200
 
@@ -185,10 +238,15 @@ def api_delete_habit():
 @app.route("/api/today_habits", methods=["POST"])
 @jwt_required()
 def api_today_habits():
+    device_id = request.cookies.get("device_id")
+
+    if not device_id:
+        return {"message": "No device selected"}, 400
+
     today = request.json.get("today")
     start = request.json.get("start")
 
-    habits = s3_conn.get_habits(today, start)
+    habits = s3_conn.get_habits(today, start, device_id)
     return habits, 200
 
 
@@ -319,6 +377,14 @@ def events():
 def habits():
     return render_template("habits.html")
 
+
+@app.before_request
+def before_request():
+    if not request.cookies.get("device_id") \
+            and request.endpoint in ["index", "add_task", "calendar", "events", "habits"]:
+        return redirect(url_for("devices"))
+
+
 @jwt.expired_token_loader
 def expired_jwt_token(jwt_header, jwt_payload):
     endpoint = request.path
@@ -329,13 +395,14 @@ def expired_jwt_token(jwt_header, jwt_payload):
     except:
         resp = redirect(url_for("login"))
         unset_jwt_cookies(resp)
+        if request.cookies.get("device_id"):
+            resp.set_cookie("device_id", "", expires=0)
         return resp, 302
 
 
 @jwt.unauthorized_loader
 def no_jwt_token(_err):
     return redirect(url_for("login"))
-    
 
 
 if __name__ == "__main__":

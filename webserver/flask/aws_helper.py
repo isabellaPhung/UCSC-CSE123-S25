@@ -165,8 +165,9 @@ class AwsS3:
                 return device
         return False
 
-    def add_task(self, name, description, completion, priority, duedate):
-        obj, data = self.load_info("task", "55")
+    def add_task(self, name, description, completion, priority, duedate, encrypted_id):
+        device_id = self.decrypt_id(encrypted_id)
+        obj, data = self.load_info("task", device_id)
 
         id = str(uuid.uuid4())
 
@@ -181,8 +182,9 @@ class AwsS3:
         )
         return True
 
-    def get_tasks(self, start_timestamp, end_timestamp):
-        obj, data = self.load_info("task", "55")
+    def get_tasks(self, start_timestamp, end_timestamp, encrypted_id):
+        device_id = self.decrypt_id(encrypted_id)
+        obj, data = self.load_info("task", device_id)
 
         today_data = [task for task in data["task"]
                       if start_timestamp <= task["duedate"] <= end_timestamp]
@@ -191,12 +193,14 @@ class AwsS3:
 
         return data
 
-    def get_all_tasks(self):
-        obj, data = self.load_info("task", "55")
+    def get_all_tasks(self, encrypted_id):
+        device_id = self.decrypt_id(encrypted_id)
+        obj, data = self.load_info("task", device_id)
         return data
 
-    def add_event(self, name, description, starttime, duration):
-        obj, data = self.load_info("event", "55")
+    def add_event(self, name, description, starttime, duration, encrypted_id):
+        device_id = self.decrypt_id(encrypted_id)
+        obj, data = self.load_info("event", device_id)
 
         id = str(uuid.uuid4())
 
@@ -211,8 +215,9 @@ class AwsS3:
         )
         return True
 
-    def delete_event(self, id):
-        obj, data = self.load_info("event", "55")
+    def delete_event(self, id, encrypted_id):
+        device_id = self.decrypt_id(encrypted_id)
+        obj, data = self.load_info("event", device_id)
 
         data["event"] = [event for event in data["event"] if event["id"] != id]
 
@@ -222,8 +227,9 @@ class AwsS3:
         )
         return True
 
-    def get_events(self, start_timestamp, end_timestamp):
-        obj, data = self.load_info("event", "55")
+    def get_events(self, start_timestamp, end_timestamp, encrypted_id):
+        device_id = self.decrypt_id(encrypted_id)
+        obj, data = self.load_info("event", device_id)
 
         today_data = [event for event in data["event"]
                       if start_timestamp <= event["starttime"] <= end_timestamp]
@@ -232,8 +238,9 @@ class AwsS3:
 
         return data
 
-    def add_habit(self, name, goal):
-        obj, data = self.load_info("habit", "55")
+    def add_habit(self, name, goal, encrypted_id):
+        device_id = self.decrypt_id(encrypted_id)
+        obj, data = self.load_info("habit", device_id)
 
         id = str(uuid.uuid4())
 
@@ -247,8 +254,9 @@ class AwsS3:
         )
         return True
 
-    def update_habit(self, id, timestamp, completed, start_timestamp, end_timestamp):
-        obj, data = self.load_info("habit", "55")
+    def update_habit(self, id, timestamp, completed, start_timestamp, end_timestamp, encrypted_id):
+        device_id = self.decrypt_id(encrypted_id)
+        obj, data = self.load_info("habit", device_id)
 
         for habit in data["habit"]:
             if habit["id"] == id:
@@ -265,8 +273,9 @@ class AwsS3:
         )
         return True
 
-    def delete_habit(self, id):
-        obj, data = self.load_info("habit", "55")
+    def delete_habit(self, id, encrypted_id):
+        device_id = self.decrypt_id(encrypted_id)
+        obj, data = self.load_info("habit", device_id)
 
         data["habit"] = [habit for habit in data["habit"] if habit["id"] != id]
 
@@ -276,8 +285,9 @@ class AwsS3:
         )
         return True
 
-    def get_habits(self, current_date, start_timestamp):
-        obj, data = self.load_info("habit", "55")
+    def get_habits(self, current_date, start_timestamp, encrypted_id):
+        device_id = self.decrypt_id(encrypted_id)
+        obj, data = self.load_info("habit", device_id)
 
         today = datetime.strptime(current_date, "%Y-%m-%d")
         offset = today.weekday()
@@ -297,7 +307,7 @@ class AwsS3:
                             break
         return data
 
-    def update_task(self, id, completion):
+    def update_task(self, id, completion, encrypted_id):
         """
         Update a task's completion status
 
@@ -308,7 +318,8 @@ class AwsS3:
         Returns:
             bool: True if successful, False otherwise
         """
-        obj, data = self.load_info("task", "55")
+        device_id = self.decrypt_id(encrypted_id)
+        obj, data = self.load_info("task", device_id)
 
         # Find and update the task
         found = False
