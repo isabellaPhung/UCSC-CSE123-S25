@@ -475,6 +475,9 @@
                             // Add the previous month's date for data attribute
                             const prevMonthDate = new Date(currentYear, currentMonth - 1, prevMonthDay);
                             cell.dataset.date = formatDateString(prevMonthDate);
+                            cell.dataset.year = currentYear;
+                            cell.dataset.month = currentMonth - 1;
+                            cell.dataset.day = prevMonthDay;
                         }
                         // Fill in current month's days
                         else if (date <= totalDays) {
@@ -486,6 +489,9 @@
                             // Add the current date for data attribute
                             const currentMonthDate = new Date(currentYear, currentMonth, date);
                             cell.dataset.date = formatDateString(currentMonthDate);
+                            cell.dataset.year = currentYear;
+                            cell.dataset.month = currentMonth;
+                            cell.dataset.day = date;
 
                             // Highlight current day
                             if (date === today.getDate() &&
@@ -499,7 +505,8 @@
 
                             // Add click event to show day view
                             cell.addEventListener('click', function() {
-                                showDayView(this.dataset.date);
+                                showDayView(this.dataset.date, this.dataset.year,
+                                            this.dataset.month, this.dataset.day);
                             });
 
                             date++;
@@ -515,6 +522,9 @@
                             // Add the next month's date for data attribute
                             const nextMonthDateObj = new Date(currentYear, currentMonth + 1, nextMonthDate);
                             cell.dataset.date = formatDateString(nextMonthDateObj);
+                            cell.dataset.year = currentYear;
+                            cell.dataset.month = currentMonth + 1;
+                            cell.dataset.day = nextMonthDate;
 
                             nextMonthDate++;
                         }
@@ -540,14 +550,11 @@
         
         // Add tasks to a calendar cell
         function addTasksToCell(cell, tasks, year, month, day) {
-            // Create date string to compare with task dueDate
-            const dateStr = formatDateString(new Date(year, month, day));
-
-            const dayStart = new Date(dateStr);
+            const dayStart = new Date(year, month, day);
             dayStart.setHours(0, 0, 0, 0);
             const startTimestamp = Math.floor(dayStart.getTime() / 1000);
 
-            const dayEnd = new Date(dateStr);
+            const dayEnd = new Date(year, month, day);
             dayEnd.setHours(23, 59, 59, 999);
             const endTimestamp = Math.floor(dayEnd.getTime() / 1000);
 
@@ -591,19 +598,18 @@
         
         // UPDATED TO WORK WITH USER-SPECIFIC TASKS
         // Show day view for a specific date
-        function showDayView(dateStr) {
+        function showDayView(dateStr, year, month, day) {
             selectedDate = dateStr;
             
             // Set the title with formatted date
-            const dateObj = new Date(dateStr);
+            const dateObj = new Date(year, month, day);
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             document.getElementById('day-view-title').textContent = `Tasks for ${dateObj.toLocaleDateString(undefined, options)}`;
 
-            const dayStart = new Date(dateStr);
+            const dayStart = new Date(year, month, day);
             dayStart.setHours(0, 0, 0, 0);
             const startTimestamp = Math.floor(dayStart.getTime() / 1000);
 
-            const dayEnd = new Date(dateStr);
             dayEnd.setHours(23, 59, 59, 999);
             const endTimestamp = Math.floor(dayEnd.getTime() / 1000);
 
