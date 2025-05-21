@@ -16,7 +16,7 @@ def lambda_handler(event, context):
         uuid = entry["id"]
         for entry_s3 in arr_s3:
             if entry_s3["id"] == uuid:
-                if data_type == "task" and entry_s3["completion"] != 0:
+                if data_type == "task" and entry_s3["completion"] != 2:
                     # do not allow modifying a deleted task
                     entry_s3["completion"] = entry["completion"]
                 elif data_type == "habit":
