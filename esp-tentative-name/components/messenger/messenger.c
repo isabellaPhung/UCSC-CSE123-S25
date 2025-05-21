@@ -263,7 +263,7 @@ esp_err_t UploadHabitRequests(struct callback_data_t *cb_data, const char *devic
     cJSON *root = cJSON_CreateObject();
     cJSON_AddStringToObject(root, "id", device_id);
     cJSON_AddStringToObject(root, "action", "update");
-    cJSON_AddStringToObject(root, "type", "task");
+    cJSON_AddStringToObject(root, "type", "habit");
     cJSON *entries = cJSON_CreateArray();
     cJSON_AddItemToObject(root, "habit", entries);
 
