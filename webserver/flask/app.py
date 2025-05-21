@@ -149,8 +149,9 @@ def api_add_event():
     description = request.json.get("description")
     starttime = request.json.get("starttime")
     duration = request.json.get("duration")
+    deleted = request.json.get("deleted")
 
-    if not s3_conn.add_event(name, description, starttime, duration, device_id):
+    if not s3_conn.add_event(name, description, starttime, duration, deleted, device_id):
         return {"add_event": False}, 400
     return {"add_event": True}, 200
 

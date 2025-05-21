@@ -392,7 +392,7 @@ class AwsS3:
         obj, data = self.load_info("task", device_id)
         return data
 
-    def add_event(self, name, description, starttime, duration, encrypted_id):
+    def add_event(self, name, description, starttime, duration, deleted, encrypted_id):
         """
         Add an event
 
@@ -401,6 +401,7 @@ class AwsS3:
             description (str): description of event
             starttime (int): timestamp of event start time (UTC timestamp)
             duration (int): duration of event (seconds)
+
             encrypted_id (str): encrypted string containing username, device_id
 
         Returns:
@@ -413,7 +414,7 @@ class AwsS3:
 
         data["event"].append(
             {"id": id, "name": name, "description": description,
-             "starttime": starttime, "duration": duration}
+             "starttime": starttime, "duration": duration, "deleted": deleted}
         )
 
         obj.put(
@@ -436,7 +437,9 @@ class AwsS3:
         device_id = self.decrypt_id(encrypted_id)
         obj, data = self.load_info("event", device_id)
 
-        data["event"] = [event for event in data["event"] if event["id"] != id]
+        for event in data["event"]:
+            if event["id"] == id:
+                event["deleted"] = 1
 
         obj.put(
             Body=(bytes(json.dumps(data, indent=2).encode("utf-8"))),
@@ -459,8 +462,10 @@ class AwsS3:
         device_id = self.decrypt_id(encrypted_id)
         obj, data = self.load_info("event", device_id)
 
+        # Get events due today that have not been deleted
         today_data = [event for event in data["event"]
-                      if start_timestamp <= event["starttime"] <= end_timestamp]
+                      if start_timestamp <= event["starttime"] <= end_timestamp
+                      and event["deleted"] != 1]
 
         data["event"] = sorted(today_data, key=lambda event: event["starttime"])
 

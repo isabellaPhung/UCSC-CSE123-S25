@@ -755,6 +755,7 @@
                 description: description,
                 starttime: timestamp,
                 duration: duration,
+                deleted: 0
             };
 
             uploadEventToS3(event);
@@ -816,7 +817,8 @@
                 name: event.name,
                 description: event.description,
                 starttime: event.starttime,
-                duration: event.duration
+                duration: event.duration,
+                deleted: event.deleted
             };
 
             // Send the task to your S3 bucket via API endpoint
