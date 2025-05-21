@@ -345,11 +345,9 @@ class AwsS3:
                 found = True
                 break
 
-        # If task not found, return False
         if not found:
             return False
 
-        # Save updated data back to S3
         obj.put(
             Body=(bytes(json.dumps(data, indent=2).encode("utf-8"))),
             ContentType="application/json"
@@ -358,7 +356,7 @@ class AwsS3:
 
     def get_tasks(self, start_timestamp, end_timestamp, encrypted_id):
         """
-        Get tasks for a user account
+        Get today's tasks for a user account
 
         Args:
             start_timestamp (str): timestamp for start of day (UTC timestamp)
@@ -371,8 +369,10 @@ class AwsS3:
         device_id = self.decrypt_id(encrypted_id)
         obj, data = self.load_info("task", device_id)
 
+        # Get tasks due today that have not been deleted
         today_data = [task for task in data["task"]
-                      if start_timestamp <= task["duedate"] <= end_timestamp]
+                      if start_timestamp <= task["duedate"] <= end_timestamp
+                      and task["completion"] != 2]
 
         data["task"] = sorted(today_data, key=lambda task: task["duedate"])
 
