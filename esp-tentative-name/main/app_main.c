@@ -34,14 +34,17 @@ int RTC_updated = false;
 
 void callback(const char *payload, size_t payload_length, void *cb_data)
 {
-    struct callback_data_t *data = (struct callback_data_t *)cb_data;
-    data->update_ack = 1;   // DEBUG: RESET THIS TO 0
+    const char *local_tag = "main::callback";
+    ESP_LOGW(local_tag, "Heap before callback: %lu", esp_get_free_heap_size());
 
-    ESP_LOGW(TAG, "Heap before callback's JSON parse: %lu", esp_get_free_heap_size());
+    struct callback_data_t *data = (struct callback_data_t *)cb_data;
+    data->update_ack = 0; // DEBUG: RESET THIS TO 0
+
     cJSON *root = cJSON_ParseWithLength(payload, payload_length);
     if (!root)
     {
-        ESP_LOGE(TAG, "Failed to parse JSON payload.");
+        ESP_LOGE(local_tag, "Failed to parse JSON payload.");
+        ESP_LOGW(local_tag, "Heap after callback: %lu", esp_get_free_heap_size());
         return;
     }
 
@@ -49,6 +52,7 @@ void callback(const char *payload, size_t payload_length, void *cb_data)
     if (!id || !cJSON_IsString(id) || strcmp(id->valuestring, "server") != 0)
     {
         cJSON_Delete(root);
+        ESP_LOGW(local_tag, "Heap after callback: %lu", esp_get_free_heap_size());
         return;
     }
 
@@ -56,6 +60,7 @@ void callback(const char *payload, size_t payload_length, void *cb_data)
     if (!action || !cJSON_IsString(action))
     {
         cJSON_Delete(root);
+        ESP_LOGW(local_tag, "Heap after callback: %lu", esp_get_free_heap_size());
         return;
     }
 
@@ -66,38 +71,42 @@ void callback(const char *payload, size_t payload_length, void *cb_data)
         {
             data->expected = length->valueint;
             data->cur_index = 0;
-            ESP_LOGI(TAG, "Expecting %d tasks", data->expected);
+            ESP_LOGI(local_tag, "Expecting %d tasks", data->expected);
         }
         cJSON_Delete(root);
+        ESP_LOGW(local_tag, "Heap after callback: %lu", esp_get_free_heap_size());
         return;
     }
 
     if (strcmp(action->valuestring, "response") == 0)
     {
-        ESP_LOGI(TAG, "Server response index %d", data->cur_index);
+        ESP_LOGI(local_tag, "Server response index %d", data->cur_index);
 
         // Save json to file for later parsing
-        esp_err_t rc = append_json_to_file(MESSAGE_BUFFER_NAME, root);
+        esp_err_t rc = append_payload_to_file(payload);
         if (rc != ESP_OK)
         {
-            ESP_LOGE(TAG, "Failed to save reponse to disk!");
+            ESP_LOGE(local_tag, "Failed to save reponse to disk!");
         }
 
         data->cur_index++;
         cJSON_Delete(root);
+        ESP_LOGW(local_tag, "Heap after callback: %lu", esp_get_free_heap_size());
         return;
     }
 
     if (strcmp(action->valuestring, "ack") == 0)
     {
-        ESP_LOGI(TAG, "Server acknowledged update!");
+        ESP_LOGI(local_tag, "Server acknowledged update!");
         data->update_ack = 1;
         cJSON_Delete(root);
+        ESP_LOGW(local_tag, "Heap after callback: %lu", esp_get_free_heap_size());
         return;
     }
 
     // Clean up by default if nothing matched
     cJSON_Delete(root);
+    ESP_LOGW(local_tag, "Heap after callback: %lu", esp_get_free_heap_size());
 }
 
 #define DEVICE_ID "55"
@@ -117,10 +126,10 @@ int request_backup(struct callback_data_t *cb_data)
     {
         heap_caps_monitor_local_minimum_free_size_start();
 
-        mqtt_publish(backup_payload[ent_itr], strlen(backup_payload[ent_itr]));
+        return_status = mqtt_publish(backup_payload[ent_itr], strlen(backup_payload[ent_itr]));
         ESP_LOGW(TAG, "Min heap during publish: %d bytes",
                  heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT));
-        mqtt_loop(5000);
+        mqtt_loop(100);
 
         /*
         while (1)
@@ -157,11 +166,11 @@ int sync_database(struct callback_data_t *cb_data)
 {
     heap_caps_monitor_local_minimum_free_size_start();
 
-    // if (!is_wifi_connected())
-    // {
-    //     ESP_LOGW(TAG, "Unable to sync database: Device not connected to access point");
-    //     return EXIT_FAILURE;
-    // }
+    if (!is_wifi_connected())
+    {
+        ESP_LOGW(TAG, "Unable to sync database: Device not connected to access point");
+        return EXIT_FAILURE;
+    }
 
     // Establish connection
     if (mqtt_connect() != EXIT_SUCCESS)
@@ -194,16 +203,17 @@ int sync_database(struct callback_data_t *cb_data)
 
     // Populate database
     ESP_LOGI(TAG, "Largest free block seen by request_backup: %d", heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
-    sqlite3_memory_highwater(1); // Reset highwater
     request_backup(cb_data);
-    ESP_LOGI(TAG, "Max SQLite memory: %lld bytes", sqlite3_memory_highwater(0));
 
     // Disconnect
     mqtt_unsubscribe();
     mqtt_disconnect();
 
     ESP_LOGI(TAG, "Parsing retrieved responses to database...");
+
+    sqlite3_memory_highwater(1); // Reset highwater
     ParseJSONFileToDatabase(MESSAGE_BUFFER_NAME);
+    ESP_LOGI(TAG, "Max SQLite memory used: %lld bytes", sqlite3_memory_highwater(0));
 
     return EXIT_SUCCESS;
 }
@@ -255,7 +265,7 @@ void app_main()
     // Initialize mqtt library
     assert(mqtt_init(&callback, (void *)&cb_data) == EXIT_SUCCESS);
 
-    sync_database(&cb_data);
+    // sync_database(&cb_data);
 
     // -------------------------------- Configure Clock (PCF8523) ---------------------------------
     ESP_LOGW("main::Configure Clock", "Free heap total: %lu bytes", esp_get_free_heap_size());
@@ -264,22 +274,25 @@ void app_main()
     ESP_ERROR_CHECK(InitRTC());
     ESP_ERROR_CHECK(RebootRTC()); // RECONFIGURE RTC configuration (optional)
 
-    int return_status = mqtt_connect();
-    if (return_status == EXIT_SUCCESS)
+    if (is_wifi_connected())
     {
-        wifi_connected = true;
-
-        int rc = SetTime();
-        if (rc == ESP_OK)
+        int return_status = mqtt_connect();
+        if (return_status == EXIT_SUCCESS)
         {
-            RTC_updated = true;
+            wifi_connected = true;
+
+            int rc = SetTime();
+            if (rc == ESP_OK)
+            {
+                RTC_updated = true;
+            }
         }
         mqtt_disconnect();
     }
 
     // ------------------------------------- Initialize LCD ---------------------------------------
-    ESP_LOGI("main::Initialize LCD", "Largest free block after database init: %d", heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
-    ESP_LOGI("main::Initialize LCD", "Free heap total: %lu bytes", esp_get_free_heap_size());
+    ESP_LOGI("main::Initialize LCD", "Largest free block after clock init: %d", heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
+    ESP_LOGW("main::Initialize LCD", "Free heap total: %lu bytes", esp_get_free_heap_size());
     /* LCD HW initialization */
     ESP_ERROR_CHECK(app_lcd_init());
 
@@ -315,7 +328,7 @@ void app_main()
     }
 
     // --------------------------------------- Runtime --------------------------------------------
-    ESP_LOGI("main::Entering Runtime", "Free heap total: %lu bytes", esp_get_free_heap_size());
+    ESP_LOGW("main::Entering Runtime", "Free heap total: %lu bytes", esp_get_free_heap_size());
 
     app_main_display();
 
@@ -341,6 +354,10 @@ void app_main()
         // Request from server
         if (frame_timer >= 3000) // ~30 seconds
         {
+            loadMsgCreate();
+            // suspend lvgl
+            lvgl_port_lock(0);
+
             ESP_LOGI(TAG, "Preforming Server Sync!");
 
             // Sync time if not done yet
@@ -356,6 +373,11 @@ void app_main()
             sync_database(&cb_data);
 
             frame_timer = 0;
+
+            // resume lvgl
+            lvgl_port_unlock();
+            loadMsgRemove();
+            
         }
     }
 }
