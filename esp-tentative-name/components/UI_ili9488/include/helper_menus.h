@@ -20,8 +20,10 @@ void initFonts();
 //initializes groups
 void initGroup();
 
-//loads loading screen, call app main display if u want to display the other menus
-void loadLoadingTile();
+//loads loading msg 
+void loadMsgCreate(void);
+//removes loading msg 
+void loadMsgRemove(void);
 //loads wifi screen
 void loadWifiTile();
 //loads task event menu
