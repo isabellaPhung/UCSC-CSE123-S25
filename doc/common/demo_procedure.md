@@ -31,9 +31,9 @@ Demonstrate the different types of task modification possible on the web interfa
   5. Navigate to the tasks page in the device UI. The new task should pop up corresponding to the due date.
 
 - Modify an existing task
-  1. In the web interface, select the task added in the previous step.
-  2. Edit the name field of the task to "Mechatronics presentation"
-  3. Manually refresh on the device, and verify to the audience that the name has changed, while the other fields remain the same.
+  1. On the device, mark the previously created task as "complete"
+  2. Allow the device to send the task update to the broker.
+  3. Verify that on the website, the task is marked as completed.
 
 - Remove a task
   1. In the web interface, select the task modified in the previous step.
@@ -43,19 +43,26 @@ Demonstrate the different types of task modification possible on the web interfa
 - Double edit
   1. In the web interface, create the same task from the first step.
   2. Manually refresh on the device.
-  3. On the device, mark the task as complete.
-  4. In the web interface, mark the task as deleted.
-  5. Show on the web interface (or S3 bucket) that the task has been deleted.
+  3. In the web interface, mark the task as deleted.
+  4. On the device, mark the task as complete.
+  5. Let the device send the new completion status.
+  6. Show on the web interface that the task has been deleted.
 
 ### Part 3: Setup procedure {-}
 
 Describe the procedure of setting up a new device after purchase.
 
-1. Once the user has received the device, they will find an instruction booklet enclosed together with the product.
-2. Once powered on for the first time, the device will look for configuration data in it's storage. If not found, the device enters setup mode and acts as https server.
-3. Login to the web interface, and click on the add device menu option. This will give the user an api key to give to the device.
-4. With a companion app or a web browser, access the device's web page and enter the api key.
-5. The device will attempt to connect to the cloud endpoint using the api key. Once the device has successfully received an updated tasks list, the device will enter normal operation.
+1. The user receives the device, with an instruction slip packaged together with the product.
+2. The user navigates to the website, and creates an account.
+  - Username: 
+  - Password: 
+3. Once logged in, the user is presented with the device setup page. The user then enters their device's ID, found on the device itself, into the menu.
+  - Device ID: 
+4. The device should be mapped to that user, and will be intractable once selected in the menu.
+5. The user can now enter the main menu of the linked device. This pulls from the data in the cloud storage of that ID.
+6. The user powers on the device, which looks for network configuration data in its storage. If not found, it enters access point mode and creates a https server.
+7. The user can connect to the device, and enter their wifi credentials.
+8. The device attempts a connection, if successful, will continue operations as normal.
 
 ### Part 4: Broken Product replacement {-}
 
