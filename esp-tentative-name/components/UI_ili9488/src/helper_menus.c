@@ -133,7 +133,7 @@ void initGroup(){
  */
 void timeDisplay(char * entry){
 	if(lv_obj_is_valid(dateTime)){
-    	lv_label_set_text(dateTime, entry);
+    	lv_label_set_text_static(dateTime, entry);
 	}
 }
 
@@ -202,7 +202,7 @@ static void focusTile_create(lv_obj_t * parent, task_t * task){
 
     //displays current task
     lv_obj_t * taskName = lv_label_create(parent);
-    lv_label_set_text(taskName, task->name);
+    lv_label_set_text_static(taskName, task->name);
     lv_obj_center(taskName);
     lv_obj_add_style(taskName, &style_title, 0);
     lv_obj_align(taskName, LV_ALIGN_CENTER, 0 , -75);
@@ -227,7 +227,7 @@ static void focusTile_create(lv_obj_t * parent, task_t * task){
     lv_label_set_text(label, "Exit");
     lv_obj_center(label);
     lv_group_focus_obj(button);
-    lv_obj_align_to(button, obj, LV_ALIGN_OUT_BOTTOM_LEFT, -5, -5);
+    lv_obj_align_to(button, obj, LV_ALIGN_OUT_BOTTOM_MID, -5, 0);
 }
 
 /*
@@ -261,7 +261,7 @@ static void eventTile_create(lv_obj_t * parent, event_t * event){
     lv_obj_set_size(cont, lv_pct(100), lv_pct(80));
 
     title = lv_label_create(cont);
-    lv_label_set_text(title, event->name);
+    lv_label_set_text_static(title, event->name);
     lv_obj_add_style(title, &style_title, 0);
     
     label = lv_label_create(cont);
@@ -277,7 +277,7 @@ static void eventTile_create(lv_obj_t * parent, event_t * event){
     lv_label_set_text_fmt(label, "Duration: %s", timestr);
 
     label = lv_label_create(cont);
-    lv_label_set_text(label, event->description);
+    lv_label_set_text_static(label, event->description);
     
     lv_obj_t * cont1 = lv_obj_create(parent);
     lv_obj_set_size(cont1, lv_pct(100), lv_pct(20));
@@ -383,7 +383,7 @@ static void taskTile_create(lv_obj_t * parent, task_t * task){
     lv_obj_set_size(cont, lv_pct(100), lv_pct(80));
 
     title = lv_label_create(cont);
-    lv_label_set_text(title, task->name);
+    lv_label_set_text_static(title, task->name);
     lv_obj_add_style(title, &style_title, 0);
     
     label = lv_label_create(cont);
@@ -404,7 +404,7 @@ static void taskTile_create(lv_obj_t * parent, task_t * task){
     lv_label_set_text_fmt(label, "Priority: %d", task->priority);
 
     label = lv_label_create(cont);
-    lv_label_set_text(label, task->description);
+    lv_label_set_text_static(label, task->description);
     
     lv_obj_t * cont1 = lv_obj_create(parent);
     lv_obj_set_size(cont1, lv_pct(100), lv_pct(20));
@@ -492,7 +492,7 @@ void create_task(task_t * task){
     //label for task name
     lv_obj_t * label;
     label = lv_label_create(cont);
-    lv_label_set_text(label, task->name);
+    lv_label_set_text_static(label, task->name);
     lv_obj_set_width(label, LCD_H_RES*0.4);
     lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP); 
     lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_END, 0, 1);
@@ -530,7 +530,7 @@ void create_event(event_t * event){
     //label for task name
     lv_obj_t * label;
     label = lv_label_create(cont);
-    lv_label_set_text(label, event->name);
+    lv_label_set_text_static(label, event->name);
     lv_obj_set_width(label, LCD_H_RES*0.4);
     lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP); 
     lv_obj_set_grid_cell(label, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_END, 0, 1);
@@ -856,7 +856,7 @@ static void buttonmatrix_cb0(lv_event_t * e){
 void createHabit(habit_t * habit){
     //creates habit title name
     lv_obj_t * habits = lv_label_create(habitlist);
-    lv_label_set_text(habits, habit->name);
+    lv_label_set_text_static(habits, habit->name);
     lv_obj_set_style_text_font(habits, &lv_font_montserrat_18, 0);
    
     //makes button map
