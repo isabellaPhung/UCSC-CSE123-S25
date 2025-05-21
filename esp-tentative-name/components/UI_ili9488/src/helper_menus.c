@@ -92,12 +92,6 @@ static void habit_cb(lv_event_t * e){
     if(k == LV_KEY_UP) {
         lv_obj_clean(tile3);
         loadTile2();
-    }else if(k == LV_KEY_LEFT){
-        child = lv_obj_get_child(lv_event_get_target(e), 0);
-        lv_group_focus_obj(child);
-    }else if(k == LV_KEY_RIGHT){
-        child = lv_obj_get_child(lv_event_get_target(e), 0);
-        lv_group_focus_obj(child);
     }
 }
 
@@ -132,7 +126,7 @@ void initGroup(){
  * updates clock display
  */
 void timeDisplay(char * entry){
-	if(lv_obj_is_valid(dateTime)){
+	if((lv_obj_is_valid(dateTime) && lv_scr_act() == tile2) || (lv_obj_is_valid(dateTime) && lv_scr_act() == focusTile)){
     	lv_label_set_text(dateTime, entry);
 	}
 }
@@ -193,6 +187,7 @@ static void focusTile_create(lv_obj_t * parent, task_t * task){
     lv_obj_add_event_cb(parent, focus_cb, LV_EVENT_KEY, NULL);
     lv_gridnav_add(parent, LV_GRIDNAV_CTRL_HORIZONTAL_MOVE_ONLY);
     lv_group_add_obj(lv_group_get_default(), parent);
+    lv_group_focus_obj(parent);
 
     //displays current task timer
     lv_obj_t * timer = lv_label_create(parent);
@@ -210,6 +205,7 @@ static void focusTile_create(lv_obj_t * parent, task_t * task){
     //adds time to focus tile
     dateTime = lv_label_create(parent);
     lv_obj_set_style_text_font(dateTime, &lv_font_montserrat_18, 0);
+    lv_label_set_text(dateTime, "loading...");
     lv_obj_align(dateTime, LV_ALIGN_BOTTOM_LEFT, 5, -5);
 
     obj = lv_btn_create(parent);
@@ -226,8 +222,7 @@ static void focusTile_create(lv_obj_t * parent, task_t * task){
     label = lv_label_create(button);
     lv_label_set_text(label, "Exit");
     lv_obj_center(label);
-    lv_group_focus_obj(button);
-    lv_obj_align_to(button, obj, LV_ALIGN_OUT_BOTTOM_MID, -5, 0);
+    lv_obj_align_to(button, obj, LV_ALIGN_OUT_LEFT_MID, -5, 0);
 }
 
 /*
@@ -284,6 +279,7 @@ static void eventTile_create(lv_obj_t * parent, event_t * event){
     lv_obj_set_style_pad_all(cont1, 10, LV_PART_MAIN);
     lv_obj_align_to(cont1, cont, LV_ALIGN_OUT_BOTTOM_MID, 0, 0);
     lv_gridnav_add(cont1, LV_GRIDNAV_CTRL_HORIZONTAL_MOVE_ONLY);
+    lv_group_focus_obj(cont1);
     lv_group_add_obj(lv_group_get_default(), cont1);
     lv_obj_set_flex_flow(cont1, LV_FLEX_FLOW_ROW);
 
@@ -293,7 +289,6 @@ static void eventTile_create(lv_obj_t * parent, event_t * event){
     label = lv_label_create(button);
     lv_label_set_text(label, "Exit");
     lv_obj_center(label);
-    lv_group_focus_obj(button);
 
     button = lv_btn_create(cont1);
     lv_group_remove_obj(button);
@@ -413,6 +408,7 @@ static void taskTile_create(lv_obj_t * parent, task_t * task){
     lv_gridnav_add(cont1, LV_GRIDNAV_CTRL_HORIZONTAL_MOVE_ONLY);
     lv_group_add_obj(lv_group_get_default(), cont1);
     lv_obj_set_flex_flow(cont1, LV_FLEX_FLOW_ROW);
+    lv_group_focus_obj(cont1);
 
     button = lv_btn_create(cont1);
     lv_group_remove_obj(button);
@@ -420,7 +416,6 @@ static void taskTile_create(lv_obj_t * parent, task_t * task){
     label = lv_label_create(button);
     lv_label_set_text(label, "Exit");
     lv_obj_center(label);
-    lv_group_focus_obj(button);
    
     button = lv_btn_create(cont1);
     lv_group_remove_obj(button);
@@ -645,6 +640,7 @@ static void taskEvent_create(lv_obj_t * parent){
     //adds time to taskevent tile
     dateTime = lv_label_create(parent);
     lv_obj_set_style_text_font(dateTime, &lv_font_montserrat_18, 0);
+    lv_label_set_text(dateTime, "loading...");
     lv_obj_align(dateTime, LV_ALIGN_TOP_LEFT, 5, 5);
 
     //arrow to indicate scroll up
