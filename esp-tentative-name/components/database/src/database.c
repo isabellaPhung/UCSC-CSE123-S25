@@ -410,6 +410,32 @@ esp_err_t TestSDCard()
 
 /*======================================================= Database Tools =======================================================*/
 
+esp_err_t append_payload_to_file(const char *payload)
+{
+    const char *TAG = "append_payload_to_file";
+
+    if (payload == NULL)
+    {
+        ESP_LOGE(TAG, "Invalid payload");
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    // Open file for appending
+    FILE *fp = fopen(MESSAGE_BUFFER_NAME, "a");
+    if (fp == NULL)
+    {
+        ESP_LOGE(TAG, "Failed to open file: %s", MESSAGE_BUFFER_NAME);
+        return ESP_FAIL;
+    }
+
+    // Write the JSON string followed by newline
+    fprintf(fp, "%s\n", payload);
+    fclose(fp);
+
+    ESP_LOGI(TAG, "Appended payload to file: %s", MESSAGE_BUFFER_NAME);
+    return ESP_OK;
+}
+
 esp_err_t append_json_to_file(const char *filepath, cJSON *json)
 {
     const char *TAG = "append_json_to_file";
@@ -498,7 +524,6 @@ esp_err_t ParseJSONFileToDatabase(const char *filepath)
         cJSON_Delete(root);
     }
     ESP_LOGI(TAG, "Finished processing JSON file.");
-
 
     // Attempt to delete the file now that parsing is complete
     if (unlink(filepath) == 0)

@@ -26,6 +26,7 @@ int CloseSQL(sqlite3 **db);
 
 // Saves json message to plaintext for later parsing
 esp_err_t append_json_to_file(const char *filepath, cJSON *json);
+esp_err_t append_payload_to_file(const char *payload);
 esp_err_t ParseJSONFileToDatabase(const char *filepath);
 
 #endif // DATABASE_H
