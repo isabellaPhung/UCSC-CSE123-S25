@@ -19,6 +19,7 @@ static lv_obj_t * tile3;
 static lv_obj_t * taskTile;
 static lv_obj_t * focusTile;
 static lv_obj_t * wifiTile;
+static lv_obj_t * loadingTile;
 static lv_obj_t * eventTile;
 static lv_obj_t * tasklist;
 static lv_obj_t * eventlist;
@@ -32,6 +33,7 @@ static lv_obj_t * buttonCont;
 static lv_obj_t * title;
 static lv_obj_t * label;
 static lv_obj_t * wifiSymbol;
+static lv_obj_t * refreshSymbol;
 static lv_obj_t * dateTime;
 static lv_obj_t * cont;
 static lv_obj_t * child;
@@ -301,6 +303,30 @@ static void eventTile_create(lv_obj_t * parent, event_t * event){
     lv_label_set_text(label, "Delete");
     lv_obj_center(label);
 
+}
+
+void loadingTile_create(lv_obj_t * parent){
+    label = lv_label_create(parent);
+    lv_label_set_text(label, "Loading, please wait.");
+    lv_obj_add_style(label, &style_title, 0);
+    lv_obj_align(label, LV_ALIGN_CENTER, 0 , -10);
+    lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP);
+    lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN);
+    lv_obj_set_width(label, LCD_H_RES-100);
+
+    refreshSymbol = lv_label_create(parent);
+    lv_label_set_text(refreshSymbol, LV_SYMBOL_REFRESH);
+    lv_obj_add_style(refreshSymbol, &style_timer, 0);
+    lv_obj_align_to(refreshSymbol, label, LV_ALIGN_OUT_BOTTOM_MID, 0 , 20);
+}
+
+/*
+ * Displays wifi info if not connected
+ */
+void loadLoadingTile(){
+    loadingTile = lv_obj_create(NULL);
+    lv_scr_load(loadingTile); 
+    loadingTile_create(loadingTile);
 }
 
 void wifiTile_create(lv_obj_t * parent){
