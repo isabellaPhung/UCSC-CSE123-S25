@@ -10,8 +10,8 @@
 #include <stdio.h>
 #include <string.h>
 
-/*
 #include "pcf8523.h" //for RTC
+/*
 #include "nvs_flash.h"
 #include "esp_netif.h"
 #include "esp_event.h"
@@ -400,7 +400,8 @@ void app_main(void){
     ESP_ERROR_CHECK(nvs_flash_init());
 
     setup_wifi();
-
+    */
+    
     // RTC initialization
     if (!i2c_scan()){
         ESP_LOGE(RTCTAG, "No I2C devices found!");
@@ -408,25 +409,29 @@ void app_main(void){
     }
     ESP_ERROR_CHECK(InitRTC());
     ESP_ERROR_CHECK(RebootRTC());
-    SetTime();
+    //SetTime();
     ESP_LOGI(HEPLE, "largest free block after RTC init: %d", heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
     
     time_t rtc_time;
+    pcf8523_read_time(&rtc_time);
+    
     struct tm *tm_info = localtime(&rtc_time);
     char buffer[64];
-    strftime(buffer, sizeof(buffer), "%D %r", tm_info);
-    pcf8523_read_time(&rtc_time);
+    strftime(buffer, sizeof(buffer), "%H:%M:%S %m-%d-%y %a", tm_info);
     timeDisplay(buffer);
-    */
     //adjustDatabase();
     wifiDisplay(false);
     //timerInit();
+    //loadMsgCreate();
     while(1){
         vTaskDelay(pdMS_TO_TICKS(1000)); 
+        //loadMsgRemove();
         wifiDisplay(true);
         //readTimer();
-        //pcf8523_read_time(&rtc_time);
-        //timeDisplay(buffer); //update time
+        pcf8523_read_time(&rtc_time);
+        tm_info = localtime(&rtc_time);
+        strftime(buffer, sizeof(buffer), "%H:%M:%S %m-%d-%y %a", tm_info);
+        timeDisplay(buffer); //update time
         //if updated task, event or habit recieved, call corresponding function to update:
         //updateTaskBuff();
         //drawTasks();
