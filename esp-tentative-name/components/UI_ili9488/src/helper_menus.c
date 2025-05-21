@@ -133,7 +133,7 @@ void initGroup(){
  */
 void timeDisplay(char * entry){
 	if(lv_obj_is_valid(dateTime)){
-    	lv_label_set_text_static(dateTime, entry);
+    	lv_label_set_text(dateTime, entry);
 	}
 }
 
