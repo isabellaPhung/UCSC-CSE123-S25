@@ -390,6 +390,9 @@ class AwsS3:
         """
         device_id = self.decrypt_id(encrypted_id)
         obj, data = self.load_info("task", device_id)
+
+        # Filter out tasks marked as deleted
+        data["task"] = [task for task in data["task"] if task["completion"] != 2]
         return data
 
     def add_event(self, name, description, starttime, duration, deleted, encrypted_id):
