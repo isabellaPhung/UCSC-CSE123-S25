@@ -14,7 +14,6 @@ make-pdf:
     name: pandoc/latex
     entrypoint: ["/bin/sh", "-c"]
   script:
-    - tlmgr option repository https://ftp.math.utah.edu/pub/tex/historic/systems/texlive/2024/tlnet-final/
     - tlmgr install fvextra lineno
     - apk --no-cache add make
     - cd doc/asgn1
@@ -35,12 +34,11 @@ make-design:
     - changes:
       - doc/common/**/*
       - doc/design/*
-      #- .gitlab-ci.yml
+      - .gitlab-ci.yml
   image:
     name: pandoc/latex
     entrypoint: ["/bin/sh", "-c"]
   script:
-    - tlmgr option repository https://ftp.math.utah.edu/pub/tex/historic/systems/texlive/2024/tlnet-final/
     - tlmgr install fvextra lineno
     - apk --no-cache add make
     - cd doc/design
@@ -60,7 +58,6 @@ make-presentation:
     name: pandoc/latex
     entrypoint: ["/bin/sh", "-c"]
   script:
-    - tlmgr option repository https://ftp.math.utah.edu/pub/tex/historic/systems/texlive/2024/tlnet-final/
     - tlmgr install fvextra lineno
     - apk --no-cache add make
     - cd doc/presentation
@@ -80,7 +77,6 @@ make-poster:
     name: pandoc/latex
     entrypoint: ["/bin/sh", "-c"]
   script:
-    - tlmgr option repository https://ftp.math.utah.edu/pub/tex/historic/systems/texlive/2024/tlnet-final/
     - tlmgr install fvextra lineno beamerposter xkeyval ragged2e pgfplots type1cm changepage anyfontsize roboto
     - apk --no-cache add make
     - cd doc/poster
