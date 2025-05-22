@@ -160,8 +160,7 @@ SD card pin | SPI pin | ESP32-C3 and other chips |
 The database will rely on [SQLite3 for the esp32](https://github.com/nopnop2002/esp32-idf-sqlite3) for database management. It is implemented as a submodule, if you haven't used `--recurse-submodules` flag you can use the following bash commands to download it:
 
 ```bash
-git submodule init
-git submodule update
+git submodule update --init --recursive
 ```
 
 **IMPORTANT**: This directory attempts to use flags that do not work with the riscv compiler. Current fix is to go into the `sqlite3/components/esp32-idf-sqlite3` directory, and remove all references to the flag "-mlongcalls" in `component.mk` and `CMakeLists.txt` . Doing this will allow the project to build.
