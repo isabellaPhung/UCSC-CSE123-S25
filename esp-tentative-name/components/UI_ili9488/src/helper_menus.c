@@ -35,7 +35,6 @@ static lv_obj_t * label;
 static lv_obj_t * wifiSymbol;
 static lv_obj_t * dateTime;
 static lv_obj_t * cont;
-static lv_obj_t * child;
 static lv_obj_t * obj;
 static uint32_t k; //LVGL keyboard key
 
@@ -307,10 +306,6 @@ void loadMsgCreate(void){
     lv_group_focus_freeze(lv_group_get_default(), true);
 
     lv_obj_align(loadingMsg, LV_ALIGN_CENTER, 0, 0);
-
-    lv_obj_t * bg = lv_obj_get_parent(loadingMsg);
-    lv_obj_set_style_bg_opa(bg, LV_OPA_70, 0);
-    lv_obj_set_style_bg_color(bg, lv_palette_main(LV_PALETTE_GREY), 0);
 }
 
 void loadMsgRemove(void){
@@ -881,7 +876,7 @@ void createHabit(habit_t * habit){
         lv_obj_set_style_bg_color(button, lv_palette_lighten(LV_PALETTE_GREY, 1), LV_PART_MAIN);
         lv_obj_set_style_bg_color(button, lv_palette_lighten(LV_PALETTE_BLUE, 2), LV_STATE_CHECKED);
         if(habit->completed[6-i]==2){ //if user's indicated habit days, color of button should be changed
-            lv_obj_set_style_bg_color(button, lv_palette_lighten(LV_PALETTE_GREEN, 1), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(button, lv_palette_lighten(LV_PALETTE_RED, 1), LV_PART_MAIN);
             lv_obj_set_style_bg_color(button, lv_palette_lighten(LV_PALETTE_BLUE, 2), LV_STATE_CHECKED);
         }else if(habit->completed[6-i]==1){ //completed, set checked
             lv_obj_add_state(button, LV_STATE_CHECKED); 
