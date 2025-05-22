@@ -1571,7 +1571,11 @@ int mqtt_connect(void){
 }
 
 int mqtt_disconnect(void){
-  assert(mqtt_status == MQTT_CONNECTED);
+  //assert(mqtt_status == MQTT_CONNECTED);
+  if (mqtt_status != MQTT_CONNECTED)
+  {
+    return EXIT_FAILURE;
+  }
   int retval = EXIT_SUCCESS;
   (void) disconnectMqttSession(&mqttContext);
 
