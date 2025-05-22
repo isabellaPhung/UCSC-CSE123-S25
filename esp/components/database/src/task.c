@@ -23,17 +23,6 @@ esp_err_t ParseTasksJSON(cJSON *taskItem)
         return ESP_ERR_INVALID_ARG;
     }
 
-    // Allocate task on heap
-    task_t *task = (task_t *)calloc(1, sizeof(task_t));
-    ESP_LOGW(TAG, "Min heap after task alloc: %d bytes",
-             heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT));
-    if (!task)
-    {
-        ESP_LOGE(TAG, "Failed to allocate memory for task");
-        ESP_LOGW(TAG, "Free heap: %lu bytes", esp_get_free_heap_size());
-        return ESP_ERR_NO_MEM;
-    }
-
     // Extract JSON fields
     const cJSON *id = cJSON_GetObjectItem(taskItem, "id");
     const cJSON *name = cJSON_GetObjectItem(taskItem, "name");
@@ -51,14 +40,6 @@ esp_err_t ParseTasksJSON(cJSON *taskItem)
         !cJSON_IsNumber(completion))
     {
         ESP_LOGE(TAG, "Missing or invalid task fields");
-        free(task);
-        return ESP_ERR_INVALID_ARG;
-    }
-
-    if ((TASK_STATUS)completion->valueint == MFD)
-    {
-        ESP_LOGW(TAG, "Entry is marked for deletion, ignoring");
-        free(task);
         return ESP_ERR_INVALID_ARG;
     }
 
@@ -66,13 +47,31 @@ esp_err_t ParseTasksJSON(cJSON *taskItem)
     if (strlen(id->valuestring) >= UUID_LENGTH)
     {
         ESP_LOGE(TAG, "UUID too long (max %d)", UUID_LENGTH - 1);
-        free(task);
         return ESP_ERR_INVALID_ARG;
+    }
+
+    if ((TASK_STATUS)completion->valueint == MFD)
+    {
+        ESP_LOGI(TAG, "Entry is marked for deletion, attempting to remove");
+        int rc = RemoveTaskDB(id->valuestring);
+
+        return rc;
     }
 
     if (strlen(name->valuestring) >= MAX_NAME_SIZE)
     {
         ESP_LOGW(TAG, "Name too long (max %d), truncating", MAX_NAME_SIZE - 1);
+    }
+
+    // Allocate task on heap
+    task_t *task = (task_t *)calloc(1, sizeof(task_t));
+    ESP_LOGW(TAG, "Min heap after task alloc: %d bytes",
+             heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT));
+    if (!task)
+    {
+        ESP_LOGE(TAG, "Failed to allocate memory for task");
+        ESP_LOGW(TAG, "Free heap: %lu bytes", esp_get_free_heap_size());
+        return ESP_ERR_NO_MEM;
     }
 
     strncpy(task->uuid, id->valuestring, UUID_LENGTH - 1);
