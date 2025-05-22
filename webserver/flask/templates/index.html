@@ -849,17 +849,18 @@
             // Format today's date as YYYY-MM-DD
             const today = new Date();
             const todayStr = formatDateString(today);
+            const todayTime = Math.floor(today.getTime() / 1000);
 
             const eventsList = document.getElementById('events');
             eventsList.innerHTML = '';
 
-            fetch('/api/today_events', {
+            fetch('/api/get_events', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': getCookie('csrf_access_token')
                     },
-                    body: JSON.stringify({start: startTimestamp, end: endTimestamp})
+                    body: JSON.stringify({current: todayTime})
                 })
                 .then(response => {
                     if (!response.ok) {
@@ -876,6 +877,9 @@
                     //store event id in dataset
                     eventContainer.dataset.id = event.id;
 
+                    if (event.active) {
+                        eventContainer.style.backgroundColor = '#e6f7ff';
+                    }
 
                     const eventName = document.createElement('div');
                     eventName.className = 'event-name';
@@ -894,8 +898,6 @@
                         deleteEvent(event.id);
                     });
 
-                    // eventContainer.appendChild(eventName);
-                    // eventContainer.appendChild(eventTime);
                      const eventInfo = document.createElement('div');
                      eventInfo.className = 'event-info';
                      eventInfo.appendChild(eventName);
@@ -925,10 +927,11 @@
                     }
 
                     // ADDED: Show end time if available
-                    if (event.endTime) {
+                    if (event.endtime) {
+                        const endDate = new Date(event.endtime * 1000);
                         const endTime = document.createElement('div');
                         endTime.className = 'event-end-time';
-                        endTime.textContent = `End: ${event.endTime}`;
+                        endTime.textContent = `End: ${formatDateString(endDate)}`;
                         details.appendChild(endTime);
                     }
 
@@ -939,11 +942,6 @@
                         timestamp.textContent = `Unix Timestamp: ${event.timestamp}`;
                         details.appendChild(timestamp);
                     }
-
-                    // // Toggle details on click
-                    // eventContainer.addEventListener('click', function() {
-                    //     details.classList.toggle('event-details-visible');
-                    // });
 
                     eventContainer.addEventListener('click', function(e) {
                         // Don't toggle if delete button was clicked
