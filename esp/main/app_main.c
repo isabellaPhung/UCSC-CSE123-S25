@@ -348,8 +348,10 @@ void app_main()
         frame_timer++;
 
         // Update time
-        if (frame_timer % 2)
+        if (frame_timer % 10 == 0)
         {
+            wifiDisplay(wifi_connected);    // Displays if connected to broker
+
             struct tm currTime;
             pcf8523_read_time(&currTime);
             char timeBuffer[64];
@@ -359,7 +361,7 @@ void app_main()
         }
 
         // Request from server
-        if (frame_timer >= 3000) // ~30 seconds
+        if (frame_timer >= 3000 && is_wifi_connected()) // ~30 seconds
         {
             loadMsgCreate();
             // suspend lvgl
