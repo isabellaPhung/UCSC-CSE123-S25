@@ -71,7 +71,7 @@ make-demo-presentation:
   rules:
     - changes:
       #- doc/common/**/*
-      - doc/presentation/*
+      - doc/demo_presentation/*
       #- .gitlab-ci.yml
   image:
     name: pandoc/latex
@@ -79,11 +79,11 @@ make-demo-presentation:
   script:
     - tlmgr install fvextra lineno
     - apk --no-cache add make
-    - cd doc/presentation
+    - cd doc/demo_presentation
     - make pdf
   artifacts:
     paths:
-      - doc/presentation/build/Demo_Presentation.pdf
+      - doc/demo_presentation/build/Demo_Presentation.pdf
     expire_in: 1 week
 
 make-poster:
