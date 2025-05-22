@@ -559,7 +559,7 @@ void updateEventBuff(){
 }
 
 void drawTasks(){
-	if(lv_obj_is_valid(tile2)){
+	if(lv_scr_act()==tile2){
         lv_obj_clean(tasklist);
         if(taskBuffSize == 0){
             lv_group_remove_obj(tasklist);
@@ -577,7 +577,7 @@ void drawTasks(){
 }
 
 void drawEvents(){
-	if(lv_obj_is_valid(tile2)){
+	if(lv_scr_act()==tile2){
         lv_obj_clean(eventlist);
         if(eventBuffSize == 0){
             lv_group_remove_obj(eventlist);
@@ -587,9 +587,7 @@ void drawEvents(){
         }
         time_t currTime = time(NULL);
         for(int i = 0; i < eventBuffSize; i++){
-            if(difftime(eventBuffer[i].start_time, currTime) < 0){ //checks if event has past current time, doesn't draw it otherwise
-                create_event(&eventBuffer[i]);
-            }
+            create_event(&eventBuffer[i]);
         }
     }
 }
@@ -929,7 +927,7 @@ void updateHabitBuff(){
 }
 
 void drawHabits(){
-	if(lv_obj_is_valid(tile3)){
+	if(lv_scr_act() == tile3){
         lv_obj_clean(habitlist);
         for(int i = 0; i < habitBuffSize; i++){
             createHabit(&habitBuffer[i]);

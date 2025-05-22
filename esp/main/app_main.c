@@ -131,7 +131,7 @@ int request_backup(struct callback_data_t *cb_data)
         return_status = mqtt_publish(backup_payload[ent_itr], strlen(backup_payload[ent_itr]));
         // ESP_LOGW(TAG, "Min heap during publish: %d bytes",
         // heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT));
-        mqtt_loop(100);
+        mqtt_loop(5000);
 
         /*
         while (1)
@@ -388,7 +388,7 @@ void app_main()
 
             // resume lvgl
             lvgl_port_unlock();
-
+            vTaskDelay(pdMS_TO_TICKS(10));
             //update draw content
             updateTaskBuff();
             drawTasks();
