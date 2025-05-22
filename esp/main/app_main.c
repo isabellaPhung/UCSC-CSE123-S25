@@ -124,11 +124,11 @@ int request_backup(struct callback_data_t *cb_data)
 
     for (int ent_itr = 0; ent_itr < 3; ent_itr++)
     {
-        //heap_caps_monitor_local_minimum_free_size_start();
+        // heap_caps_monitor_local_minimum_free_size_start();
 
         return_status = mqtt_publish(backup_payload[ent_itr], strlen(backup_payload[ent_itr]));
-        //ESP_LOGW(TAG, "Min heap during publish: %d bytes",
-                 //heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT));
+        // ESP_LOGW(TAG, "Min heap during publish: %d bytes",
+        // heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT));
         mqtt_loop(100);
 
         /*
@@ -164,7 +164,7 @@ int request_backup(struct callback_data_t *cb_data)
 
 int sync_database(struct callback_data_t *cb_data)
 {
-    //heap_caps_monitor_local_minimum_free_size_start();
+    // heap_caps_monitor_local_minimum_free_size_start();
 
     if (!is_wifi_connected())
     {
@@ -177,13 +177,13 @@ int sync_database(struct callback_data_t *cb_data)
     {
         wifi_connected = false;
         ESP_LOGE(TAG, "MQTT connect failed. Aborting backup request.");
-        //ESP_LOGW(TAG, "Min heap during connect: %d bytes",
-                 //heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT));
+        // ESP_LOGW(TAG, "Min heap during connect: %d bytes",
+        // heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT));
         return EXIT_FAILURE;
     }
     wifi_connected = true;
-    //ESP_LOGW(TAG, "Min heap during connect: %d bytes",
-             //heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT));
+    // ESP_LOGW(TAG, "Min heap during connect: %d bytes",
+    // heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT));
 
     if (mqtt_subscribe() != EXIT_SUCCESS)
     {
@@ -191,18 +191,18 @@ int sync_database(struct callback_data_t *cb_data)
         mqtt_disconnect();
         return EXIT_FAILURE;
     }
-    //ESP_LOGW(TAG, "Min heap during subscribe: %d bytes",
-             //heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT));
+    // ESP_LOGW(TAG, "Min heap during subscribe: %d bytes",
+    // heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT));
 
     // Send outgoing requests
     UploadTaskRequests(cb_data, DEVICE_ID);
     UploadHabitRequests(cb_data, DEVICE_ID);
 
-    //ESP_LOGW(TAG, "Min heap during request push: %d bytes",
-             //heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT));
+    // ESP_LOGW(TAG, "Min heap during request push: %d bytes",
+    // heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT));
 
     // Populate database
-    //ESP_LOGI(TAG, "Largest free block seen by request_backup: %d", //heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
+    // ESP_LOGI(TAG, "Largest free block seen by request_backup: %d", //heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
     request_backup(cb_data);
 
     // Disconnect
@@ -220,7 +220,7 @@ int sync_database(struct callback_data_t *cb_data)
 
 void app_main()
 {
-    //heap_caps_monitor_local_minimum_free_size_start();
+    // heap_caps_monitor_local_minimum_free_size_start();
     esp_log_level_set("*", ESP_LOG_INFO);
 
     // Set up for database
@@ -299,7 +299,7 @@ void app_main()
     }
 
     // ------------------------------------- Initialize LCD ---------------------------------------
-    //ESP_LOGI("main::Initialize LCD", "Largest free block after clock init: %d", //heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
+    // ESP_LOGI("main::Initialize LCD", "Largest free block after clock init: %d", //heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
     ESP_LOGW("main::Initialize LCD", "Free heap total: %lu bytes", esp_get_free_heap_size());
     /* LCD HW initialization */
     ESP_ERROR_CHECK(app_lcd_init());
@@ -308,32 +308,32 @@ void app_main()
     ESP_ERROR_CHECK(app_lvgl_init());
 
     // --------------------------------- Create Task Under Load -----------------------------------
-    {
-        ESP_LOGI(TAG, "Adding a Task Under Load of LCD...");
+    // {
+    //     ESP_LOGI(TAG, "Adding a Task Under Load of LCD...");
 
-        // Define a task
+    //     // Define a task
 
-        // current time
-        time_t t = time(NULL);
+    //     // current time
+    //     time_t t = time(NULL);
 
-        task_t newTask = {
-            .uuid = "67890",
-            .name = "Pet a dog",
-            .description = "It's great for you",
-            .completion = INCOMPLETE,
-            .priority = 3,
-            .time = t,
-        };
+    //     task_t newTask = {
+    //         .uuid = "67890",
+    //         .name = "Pet a dog",
+    //         .description = "It's great for you",
+    //         .completion = INCOMPLETE,
+    //         .priority = 3,
+    //         .time = t,
+    //     };
 
-        // Add task
-        int rc = AddTaskDB(&newTask);
-        if (rc != SQLITE_OK)
-        {
-            ESP_LOGE(TAG, "Failed to add task!");
-            return;
-        }
-        ESP_LOGI(TAG, "Created Task!\n");
-    }
+    //     // Add task
+    //     int rc = AddTaskDB(&newTask);
+    //     if (rc != SQLITE_OK)
+    //     {
+    //         ESP_LOGE(TAG, "Failed to add task!");
+    //         return;
+    //     }
+    //     ESP_LOGI(TAG, "Created Task!\n");
+    // }
 
     // --------------------------------------- Runtime --------------------------------------------
     ESP_LOGW("main::Entering Runtime", "Free heap total: %lu bytes", esp_get_free_heap_size());
@@ -350,7 +350,7 @@ void app_main()
         // Update time
         if (frame_timer % 10 == 0)
         {
-            wifiDisplay(wifi_connected);    // Displays if connected to broker
+            wifiDisplay(wifi_connected); // Displays if connected to broker
 
             struct tm currTime;
             pcf8523_read_time(&currTime);
