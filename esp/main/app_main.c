@@ -364,6 +364,7 @@ void app_main()
         if (frame_timer >= 3000 && is_wifi_connected()) // ~30 seconds
         {
             loadMsgCreate();
+            vTaskDelay(pdMS_TO_TICKS(10));
             // suspend lvgl
             lvgl_port_lock(0);
 
@@ -385,6 +386,14 @@ void app_main()
 
             // resume lvgl
             lvgl_port_unlock();
+
+            //update draw content
+            updateTaskBuff();
+            drawTasks();
+            updateEventBuff();
+            drawEvents();
+            updateHabitBuff();
+            drawHabits();
             loadMsgRemove();
         }
     }
