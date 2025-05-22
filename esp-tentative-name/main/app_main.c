@@ -109,7 +109,7 @@ void callback(const char *payload, size_t payload_length, void *cb_data)
     ESP_LOGW(local_tag, "Heap after callback: %lu", esp_get_free_heap_size());
 }
 
-#define DEVICE_ID "55"
+#define DEVICE_ID "54"
 #define RETRY_DELAY_MS 5000U
 
 int request_backup(struct callback_data_t *cb_data)
@@ -124,11 +124,11 @@ int request_backup(struct callback_data_t *cb_data)
 
     for (int ent_itr = 0; ent_itr < 3; ent_itr++)
     {
-        heap_caps_monitor_local_minimum_free_size_start();
+        //heap_caps_monitor_local_minimum_free_size_start();
 
         return_status = mqtt_publish(backup_payload[ent_itr], strlen(backup_payload[ent_itr]));
-        ESP_LOGW(TAG, "Min heap during publish: %d bytes",
-                 heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT));
+        //ESP_LOGW(TAG, "Min heap during publish: %d bytes",
+                 //heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT));
         mqtt_loop(100);
 
         /*
@@ -164,7 +164,7 @@ int request_backup(struct callback_data_t *cb_data)
 
 int sync_database(struct callback_data_t *cb_data)
 {
-    heap_caps_monitor_local_minimum_free_size_start();
+    //heap_caps_monitor_local_minimum_free_size_start();
 
     if (!is_wifi_connected())
     {
@@ -177,13 +177,13 @@ int sync_database(struct callback_data_t *cb_data)
     {
         wifi_connected = false;
         ESP_LOGE(TAG, "MQTT connect failed. Aborting backup request.");
-        ESP_LOGW(TAG, "Min heap during connect: %d bytes",
-                 heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT));
+        //ESP_LOGW(TAG, "Min heap during connect: %d bytes",
+                 //heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT));
         return EXIT_FAILURE;
     }
     wifi_connected = true;
-    ESP_LOGW(TAG, "Min heap during connect: %d bytes",
-             heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT));
+    //ESP_LOGW(TAG, "Min heap during connect: %d bytes",
+             //heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT));
 
     if (mqtt_subscribe() != EXIT_SUCCESS)
     {
@@ -191,18 +191,18 @@ int sync_database(struct callback_data_t *cb_data)
         mqtt_disconnect();
         return EXIT_FAILURE;
     }
-    ESP_LOGW(TAG, "Min heap during subscribe: %d bytes",
-             heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT));
+    //ESP_LOGW(TAG, "Min heap during subscribe: %d bytes",
+             //heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT));
 
     // Send outgoing requests
     UploadTaskRequests(cb_data, DEVICE_ID);
     UploadHabitRequests(cb_data, DEVICE_ID);
 
-    ESP_LOGW(TAG, "Min heap during request push: %d bytes",
-             heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT));
+    //ESP_LOGW(TAG, "Min heap during request push: %d bytes",
+             //heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT));
 
     // Populate database
-    ESP_LOGI(TAG, "Largest free block seen by request_backup: %d", heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
+    //ESP_LOGI(TAG, "Largest free block seen by request_backup: %d", //heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
     request_backup(cb_data);
 
     // Disconnect
@@ -220,7 +220,7 @@ int sync_database(struct callback_data_t *cb_data)
 
 void app_main()
 {
-    heap_caps_monitor_local_minimum_free_size_start();
+    //heap_caps_monitor_local_minimum_free_size_start();
     esp_log_level_set("*", ESP_LOG_INFO);
 
     // Set up for database
@@ -291,7 +291,7 @@ void app_main()
     }
 
     // ------------------------------------- Initialize LCD ---------------------------------------
-    ESP_LOGI("main::Initialize LCD", "Largest free block after clock init: %d", heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
+    //ESP_LOGI("main::Initialize LCD", "Largest free block after clock init: %d", //heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
     ESP_LOGW("main::Initialize LCD", "Free heap total: %lu bytes", esp_get_free_heap_size());
     /* LCD HW initialization */
     ESP_ERROR_CHECK(app_lcd_init());
@@ -340,7 +340,6 @@ void app_main()
         frame_timer++;
 
         // Update time
-        /*
         if (frame_timer % 2)
         {
             struct tm currTime;
@@ -348,8 +347,8 @@ void app_main()
             char timeBuffer[64];
             strftime(timeBuffer, sizeof(timeBuffer), "%H:%M:%S %m-%d-%y %a", &currTime);
             timeDisplay(timeBuffer);
+            updateFocusTimer();
         }
-        */
 
         // Request from server
         if (frame_timer >= 3000) // ~30 seconds
