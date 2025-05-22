@@ -188,7 +188,9 @@ esp_err_t HabitAddEntry(const char *habit_id, time_t datetime)
 {
     static const char *TAG = "messenger::HabitAddEntry";
 
-    esp_err_t rc = HabitAddEntryDB(habit_id, datetime);
+    time_t date = datetime - (datetime % 86400); // UTC truncation
+
+    esp_err_t rc = HabitAddEntryDB(habit_id, date);
     if (rc != ESP_OK)
     {
         return rc;
@@ -208,9 +210,9 @@ esp_err_t HabitAddEntry(const char *habit_id, time_t datetime)
         return ESP_FAIL;
     }
 
-    fprintf(file, "%lld\n", datetime);
+    fprintf(file, "%lld\n", date);
     fclose(file);
-    ESP_LOGI(TAG, "Wrote request: %s with datetime %lld", habit_id, datetime);
+    ESP_LOGI(TAG, "Wrote request: %s with datetime %lld", habit_id, date);
     return ESP_OK;
 }
 

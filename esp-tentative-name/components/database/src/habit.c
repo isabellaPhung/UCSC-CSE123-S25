@@ -199,8 +199,6 @@ esp_err_t HabitAddEntryDB(const char *habit_id, time_t datetime)
 {
     const char *TAG = "habit::HabitAddEntryDB";
 
-    time_t date = datetime - (datetime % 86400); // UTC truncation
-
     sqlite3 *db = get_db_connection();
 
     const char *sql = "INSERT OR IGNORE INTO habit_entries (habit_id, date) VALUES (?, ?);";
@@ -214,7 +212,7 @@ esp_err_t HabitAddEntryDB(const char *habit_id, time_t datetime)
     }
 
     sqlite3_bind_text(stmt, 1, habit_id, -1, SQLITE_STATIC);
-    sqlite3_bind_int64(stmt, 2, date);
+    sqlite3_bind_int64(stmt, 2, datetime);
 
     esp_err_t result = (sqlite3_step(stmt) == SQLITE_DONE) ? ESP_OK : ESP_FAIL;
 

@@ -270,6 +270,10 @@ void app_main()
     // -------------------------------- Configure Clock (PCF8523) ---------------------------------
     ESP_LOGW("main::Configure Clock", "Free heap total: %lu bytes", esp_get_free_heap_size());
 
+    // Set up timezone (global environment variable) (pst)
+    setenv("TZ", "PST8PDT,M3.2.0/2,M11.1.0/2", 1);
+    tzset();
+
     // Establish R2C connection
     ESP_ERROR_CHECK(InitRTC());
     ESP_ERROR_CHECK(RebootRTC()); // RECONFIGURE RTC configuration (optional)
@@ -288,6 +292,10 @@ void app_main()
             }
         }
         mqtt_disconnect();
+    }
+    else
+    {
+        ESP_LOGW(TAG, "Missing connection to server, skipping RTC sync...");
     }
 
     // ------------------------------------- Initialize LCD ---------------------------------------
@@ -340,7 +348,6 @@ void app_main()
         frame_timer++;
 
         // Update time
-        /*
         if (frame_timer % 2)
         {
             struct tm currTime;
@@ -349,7 +356,6 @@ void app_main()
             strftime(timeBuffer, sizeof(timeBuffer), "%H:%M:%S %m-%d-%y %a", &currTime);
             timeDisplay(timeBuffer);
         }
-        */
 
         // Request from server
         if (frame_timer >= 3000) // ~30 seconds
@@ -377,7 +383,6 @@ void app_main()
             // resume lvgl
             lvgl_port_unlock();
             loadMsgRemove();
-            
         }
     }
 }
