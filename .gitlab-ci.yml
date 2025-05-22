@@ -72,7 +72,7 @@ make-demo-presentation:
     - changes:
       #- doc/common/**/*
       - doc/demo_presentation/*
-      #- .gitlab-ci.yml
+      - .gitlab-ci.yml
   image:
     name: pandoc/latex
     entrypoint: ["/bin/sh", "-c"]
