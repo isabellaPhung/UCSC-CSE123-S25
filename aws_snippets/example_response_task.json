@@ -1,14 +1,15 @@
 {
-  "id":"server",
-  "action":"response",
-  "index":"0",
-  "task":
-  {
-    "id":"37a9b0d4-e523-43d5-b24a-38c5ce7f4bf5",
-    "name":"Walk the dog",
-    "description":"Walk the dog",
-    "completion":"incomplete",
-    "priority":"high",
-    "duedate":1744509600
-  }
+  "id": "server",
+  "action": "response",
+  "index": "0",
+  "task": [
+    {
+      "id": "37a9b0d4-e523-43d5-b24a-38c5ce7f4bf5",
+      "name": "Walk the dog",
+      "description": "Walk the dog",
+      "completion": "incomplete",
+      "priority": "high",
+      "duedate": 1744509600
+    }
+  ]
 }
