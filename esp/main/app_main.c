@@ -109,7 +109,7 @@ void callback(const char *payload, size_t payload_length, void *cb_data)
     ESP_LOGW(local_tag, "Heap after callback: %lu", esp_get_free_heap_size());
 }
 
-#define DEVICE_ID "54"
+#define DEVICE_ID "55"
 #define RETRY_DELAY_MS 5000U
 
 int request_backup(struct callback_data_t *cb_data)
