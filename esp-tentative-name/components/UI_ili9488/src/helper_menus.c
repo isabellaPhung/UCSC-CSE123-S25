@@ -36,7 +36,6 @@ static lv_obj_t * label;
 static lv_obj_t * wifiSymbol;
 static lv_obj_t * dateTime;
 static lv_obj_t * cont;
-static lv_obj_t * obj;
 static uint32_t k; //LVGL keyboard key
 
 task_t taskBuffer[4];
