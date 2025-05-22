@@ -109,7 +109,9 @@ void callback(const char *payload, size_t payload_length, void *cb_data)
     ESP_LOGW(local_tag, "Heap after callback: %lu", esp_get_free_heap_size());
 }
 
-#define DEVICE_ID "54"
+#ifndef CONFIG_DEVICE_ID
+#define CONFIG_DEVICE_ID "55"
+#endif
 #define RETRY_DELAY_MS 5000U
 
 int request_backup(struct callback_data_t *cb_data)
@@ -118,9 +120,9 @@ int request_backup(struct callback_data_t *cb_data)
     size_t retries = 4;
 
     // Request payloads for all 3 entry types
-    static const char *backup_payload[3] = {"{\"id\":\"" DEVICE_ID "\",\"action\":\"refresh\",\"type\":\"task\"}",
-                                            "{\"id\":\"" DEVICE_ID "\",\"action\":\"refresh\",\"type\":\"event\"}",
-                                            "{\"id\":\"" DEVICE_ID "\",\"action\":\"refresh\",\"type\":\"habit\"}"};
+    static const char *backup_payload[3] = {"{\"id\":\"" CONFIG_DEVICE_ID "\",\"action\":\"refresh\",\"type\":\"task\"}",
+                                            "{\"id\":\"" CONFIG_DEVICE_ID "\",\"action\":\"refresh\",\"type\":\"event\"}",
+                                            "{\"id\":\"" CONFIG_DEVICE_ID "\",\"action\":\"refresh\",\"type\":\"habit\"}"};
 
     for (int ent_itr = 0; ent_itr < 3; ent_itr++)
     {
@@ -195,8 +197,8 @@ int sync_database(struct callback_data_t *cb_data)
     // heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT));
 
     // Send outgoing requests
-    UploadTaskRequests(cb_data, DEVICE_ID);
-    UploadHabitRequests(cb_data, DEVICE_ID);
+    UploadTaskRequests(cb_data, CONFIG_DEVICE_ID);
+    UploadHabitRequests(cb_data, CONFIG_DEVICE_ID);
 
     // ESP_LOGW(TAG, "Min heap during request push: %d bytes",
     // heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT));

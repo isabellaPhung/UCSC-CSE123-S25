@@ -1,0 +1,5 @@
+menu "Test App Configuration"
+    config DEVICE_ID
+       string "The device ID used for various server interactions"
+       default "55"
+endmenu
