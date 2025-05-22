@@ -24,6 +24,7 @@ static lv_obj_t * eventTile;
 static lv_obj_t * tasklist;
 static lv_obj_t * eventlist;
 static lv_obj_t * habitlist;
+static lv_obj_t * timer;
 static lv_group_t * g1;
 
 static lv_obj_t * arrowUp;
@@ -35,8 +36,6 @@ static lv_obj_t * label;
 static lv_obj_t * wifiSymbol;
 static lv_obj_t * dateTime;
 static lv_obj_t * cont;
-static lv_obj_t * child;
-static lv_obj_t * obj;
 static uint32_t k; //LVGL keyboard key
 
 task_t taskBuffer[4];
@@ -45,6 +44,8 @@ event_t eventBuffer[4];
 uint8_t eventBuffSize;
 habit_t habitBuffer[3];
 uint8_t habitBuffSize;
+
+time_t startTime;
 
 //static const char *TAG = "UI"; //for esp_log
 
@@ -155,43 +156,40 @@ static void complete_task_cb(lv_event_t * e){
     exit_task_cb();
 }
 
-/*
-static void timer_callback(void* arg){
-    //TODO
+bool isFocusMode(){
+    return lv_scr_act() == focusTile;
 }
 
-esp_timer_handle_t timer;
-void timerInit(){
-    const esp_timer_create_args_t timer_args = {
-            .callback = &timer_callback,
-            // argument specified here will be passed to timer callback function
-            //.arg = (void*) periodic_timer,
-            .name = "focusTimer"
-    };
-    ESP_ERROR_CHECK(esp_timer_create(&timer_args, &timer));
-    ESP_ERROR_CHECK(esp_timer_start_once(timer, 1000000 * 1800));
+void resetTimer(){
+    startTime = time(NULL);
 }
 
-void readTimer(){
-    double time;
-    timer_get_counter_time_sec(timer, 0, &time);
-    ESP_LOGW(TAG, "%d:%d", ((int)time)/60, ((int)time)%60);
+void updateFocusTimer(){
+    if(lv_scr_act() == focusTile && lv_obj_is_valid(timer)){
+        time_t currTime = time(NULL);
+        time_t difference = (time_t)1800 - difftime(currTime, startTime);
+        int mins = 0;
+        int secs = 0;
+        if(difference > 0){ //while 30 mins haven't passed
+            mins = difference/60;
+            secs = difference%60;
+        }
+        //displays current task timer
+        lv_label_set_text_fmt(timer, "%02d:%02d", mins, secs);
+    }
 }
-*/
-
 /*
  * creates focus menu, takes in parent lv_obj
  */
 static void focusTile_create(lv_obj_t * parent, task_t * task){
     //adding gridnav and focus colors to the taskevent menu
     lv_obj_add_event_cb(parent, focus_cb, LV_EVENT_KEY, NULL);
-    lv_gridnav_add(parent, LV_GRIDNAV_CTRL_HORIZONTAL_MOVE_ONLY);
-    lv_group_add_obj(lv_group_get_default(), parent);
-    lv_group_focus_obj(parent);
 
+    updateFocusTimer();    
+    
     //displays current task timer
-    lv_obj_t * timer = lv_label_create(parent);
-    lv_label_set_text(timer, "23:24");
+    timer = lv_label_create(parent);
+    lv_label_set_text(timer, "00:00");
     lv_obj_center(timer);
     lv_obj_add_style(timer, &style_timer, 0);
 
@@ -206,23 +204,37 @@ static void focusTile_create(lv_obj_t * parent, task_t * task){
     dateTime = lv_label_create(parent);
     lv_obj_set_style_text_font(dateTime, &lv_font_montserrat_18, 0);
     lv_label_set_text(dateTime, "loading...");
-    lv_obj_align(dateTime, LV_ALIGN_BOTTOM_LEFT, 5, -5);
-
-    obj = lv_btn_create(parent);
-    lv_group_remove_obj(obj);
-    lv_obj_add_event_cb(obj, complete_task_cb, LV_EVENT_CLICKED, task);
-    label = lv_label_create(obj);
-    lv_label_set_text(label, "Task Complete");
-    lv_obj_center(label);
-    lv_obj_align(obj, LV_ALIGN_BOTTOM_RIGHT, -5, -5);
-
-    button = lv_btn_create(parent);
+    lv_obj_align(dateTime, LV_ALIGN_TOP_LEFT, 5, 5);
+    
+    lv_obj_t * cont1 = lv_obj_create(parent);
+    lv_obj_set_size(cont1, lv_pct(100), lv_pct(20));
+    lv_obj_set_style_pad_all(cont1, 10, LV_PART_MAIN);
+    lv_obj_align_to(cont1, cont, LV_ALIGN_OUT_BOTTOM_MID, 0, 0);
+    lv_gridnav_add(cont1, LV_GRIDNAV_CTRL_HORIZONTAL_MOVE_ONLY);
+    lv_group_add_obj(lv_group_get_default(), cont1);
+    lv_obj_set_flex_flow(cont1, LV_FLEX_FLOW_ROW);
+    lv_group_focus_obj(cont1);
+    
+    button = lv_btn_create(cont1);
     lv_group_remove_obj(button);
     lv_obj_add_event_cb(button, exit_task_cb, LV_EVENT_CLICKED, NULL);
     label = lv_label_create(button);
     lv_label_set_text(label, "Exit");
     lv_obj_center(label);
-    lv_obj_align_to(button, obj, LV_ALIGN_OUT_LEFT_MID, -5, 0);
+
+    button = lv_btn_create(cont1);
+    lv_group_remove_obj(button);
+    lv_obj_add_event_cb(button, resetTimer, LV_EVENT_CLICKED, task);
+    label = lv_label_create(button);
+    lv_label_set_text(label, "Reset Timer");
+    lv_obj_center(label);
+
+    button = lv_btn_create(cont1);
+    lv_group_remove_obj(button);
+    lv_obj_add_event_cb(button, complete_task_cb, LV_EVENT_CLICKED, task);
+    label = lv_label_create(button);
+    lv_label_set_text(label, "Task Complete");
+    lv_obj_center(label);
 }
 
 /*
@@ -235,6 +247,7 @@ void loadFocusTile(task_t * task){
 }
 
 static void focus_task_cb(lv_event_t * e){
+    resetTimer();
     loadFocusTile(lv_event_get_user_data(e));
 }
 
@@ -307,10 +320,6 @@ void loadMsgCreate(void){
     lv_group_focus_freeze(lv_group_get_default(), true);
 
     lv_obj_align(loadingMsg, LV_ALIGN_CENTER, 0, 0);
-
-    lv_obj_t * bg = lv_obj_get_parent(loadingMsg);
-    lv_obj_set_style_bg_opa(bg, LV_OPA_70, 0);
-    lv_obj_set_style_bg_color(bg, lv_palette_main(LV_PALETTE_GREY), 0);
 }
 
 void loadMsgRemove(void){
@@ -881,7 +890,7 @@ void createHabit(habit_t * habit){
         lv_obj_set_style_bg_color(button, lv_palette_lighten(LV_PALETTE_GREY, 1), LV_PART_MAIN);
         lv_obj_set_style_bg_color(button, lv_palette_lighten(LV_PALETTE_BLUE, 2), LV_STATE_CHECKED);
         if(habit->completed[6-i]==2){ //if user's indicated habit days, color of button should be changed
-            lv_obj_set_style_bg_color(button, lv_palette_lighten(LV_PALETTE_GREEN, 1), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(button, lv_palette_lighten(LV_PALETTE_RED, 1), LV_PART_MAIN);
             lv_obj_set_style_bg_color(button, lv_palette_lighten(LV_PALETTE_BLUE, 2), LV_STATE_CHECKED);
         }else if(habit->completed[6-i]==1){ //completed, set checked
             lv_obj_add_state(button, LV_STATE_CHECKED); 

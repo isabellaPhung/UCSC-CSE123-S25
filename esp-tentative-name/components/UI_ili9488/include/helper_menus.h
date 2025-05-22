@@ -39,6 +39,12 @@ void loadNextEvents();
 //updates time with given string
 void timeDisplay(char * entry);
 
+//updates focus timer if focus menu is up
+void updateFocusTimer();
+
+//returns true if in focus mode, false otherwise
+bool isFocusMode();
+
 //displays wifi symbol with given boolean
 void wifiDisplay(bool hasWifi);
 
