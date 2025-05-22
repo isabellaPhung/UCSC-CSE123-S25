@@ -171,6 +171,20 @@ def api_delete_event():
     return {"delete_event": True}, 200
 
 
+@app.route("/api/get_events", methods=["POST"])
+@jwt_required()
+def api_get_events():
+    device_id = request.cookies.get("device_id")
+
+    if not device_id:
+        return {"message": "No device selected"}, 400
+
+    current = request.json.get("current")
+
+    events = s3_conn.get_events(current, device_id)
+    return events, 200
+
+
 @app.route("/api/today_events", methods=["POST"])
 @jwt_required()
 def api_today_events():
@@ -182,7 +196,7 @@ def api_today_events():
     start = request.json.get("start")
     end = request.json.get("end")
 
-    events = s3_conn.get_events(start, end, device_id)
+    events = s3_conn.get_today_events(start, end, device_id)
     return events, 200
 
 

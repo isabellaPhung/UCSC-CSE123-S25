@@ -450,7 +450,7 @@ class AwsS3:
         )
         return True
 
-    def get_events(self, start_timestamp, end_timestamp, encrypted_id):
+    def get_today_events(self, start_timestamp, end_timestamp, encrypted_id):
         """
         Get events for a certain day from a user account
 
@@ -467,10 +467,40 @@ class AwsS3:
 
         # Get events due today that have not been deleted
         today_data = [event for event in data["event"]
-                      if start_timestamp <= event["starttime"] <= end_timestamp
+                      if event["starttime"] <= end_timestamp
+                      and event["starttime"] + event["duration"] >= start_timestamp
                       and event["deleted"] != 1]
 
         data["event"] = sorted(today_data, key=lambda event: event["starttime"])
+
+        return data
+
+    def get_events(self, current_timestamp, encrypted_id):
+        """
+        Get events for a certain day from a user account
+
+        Args:
+            current_timestamp (int): timestamp for current time (UTC timestamp)
+            encrypted_id (str): encrypted string containing username, device_id
+
+        Returns:
+            json: key = "event", value = list of events sorted by start time
+        """
+        device_id = self.decrypt_id(encrypted_id)
+        obj, data = self.load_info("event", device_id)
+
+        event_data = []
+        for event in data["event"]:
+            # Get events in the future that have not been deleted
+            if event["starttime"] + event["duration"] >= current_timestamp \
+                    and event["deleted"] != 1:
+                event["endtime"] = event["starttime"] + event["duration"]
+                # For web UI if task takes place today
+                if event["starttime"] <= current_timestamp:
+                    event["active"] = True
+                event_data.append(event)
+
+        data["event"] = sorted(event_data, key=lambda e: e["starttime"])
 
         return data
 
