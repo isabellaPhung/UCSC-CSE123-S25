@@ -119,7 +119,7 @@ esp_err_t ParseEventsJSON(cJSON *eventItem)
 
     // Description
     cJSON *desc = cJSON_GetObjectItem(eventItem, "description");
-    if (!cJSON_IsString(desc) || strlen(desc->valuestring) >= MAX_DESC_SIZE)
+    if (!cJSON_IsString(desc))
     {
         ESP_LOGE(TAG, "Invalid or missing 'description'");
         free(event);
