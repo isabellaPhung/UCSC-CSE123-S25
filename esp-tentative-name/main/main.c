@@ -150,7 +150,7 @@ void initdb(){
     AddTaskDB(&newTask8);
 
     // ----------------------------------- Create Event ------------------------------------
-    
+   /* 
     ESP_LOGI(TAG, "Adding an Event...");
     // Define a task
 
@@ -293,6 +293,7 @@ void initdb(){
     AddEventDB(&newEvent8);
     
     ESP_LOGI(TAG, "Created Event!\n");
+    */
 
     // ----------------------------------- Create Habit ------------------------------------
     ESP_LOGI(TAG, "Adding a Habit...");
@@ -420,18 +421,19 @@ void app_main(void){
     strftime(buffer, sizeof(buffer), "%H:%M:%S %m-%d-%y %a", tm_info);
     timeDisplay(buffer);
     //adjustDatabase();
-    wifiDisplay(false);
+    //wifiDisplay(false);
     //timerInit();
     //loadMsgCreate();
     while(1){
         vTaskDelay(pdMS_TO_TICKS(1000)); 
         //loadMsgRemove();
-        wifiDisplay(true);
+        //wifiDisplay(true);
         //readTimer();
         pcf8523_read_time(&rtc_time);
         tm_info = localtime(&rtc_time);
         strftime(buffer, sizeof(buffer), "%H:%M:%S %m-%d-%y %a", tm_info);
         timeDisplay(buffer); //update time
+        updateFocusTimer();
         //if updated task, event or habit recieved, call corresponding function to update:
         //updateTaskBuff();
         //drawTasks();
