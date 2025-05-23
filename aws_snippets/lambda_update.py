@@ -23,7 +23,9 @@ def lambda_handler(event, context):
                     for dates in entry_s3["completed"]:
                         if dates == entry["date"]:
                             skip = True
-                    if not skip:
+                            if entry["action"] == "del":
+                                entry_s3["completed"].remove(dates)
+                    if not skip and entry["action"] == "add":
                         entry_s3["completed"].append(entry["date"])
                 elif data_type == "event":
                     entry_s3["deleted"] = 1

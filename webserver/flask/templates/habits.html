@@ -573,7 +573,8 @@
                     'X-CSRF-TOKEN': getCookie('csrf_access_token')
                 },
                 body: JSON.stringify({
-                    id: habitId, date: Math.floor(habitDate.getTime() / 1000),
+                    id: habitId, date: startTimestamp
+                    ,
                     completed: completed, start: startTimestamp, end: endTimestamp
                 })
             })

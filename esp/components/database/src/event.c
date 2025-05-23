@@ -107,6 +107,16 @@ esp_err_t ParseEventsJSON(cJSON *eventItem)
     }
     strncpy(event->uuid, id->valuestring, UUID_LENGTH - 1);
 
+    cJSON *deleted = cJSON_GetObjectItem(eventItem, "deleted");
+    if (cJSON_IsNumber(deleted) && deleted->valuestring == 1)
+    {
+        ESP_LOGI(TAG, "Entry is marked for deletion, attempting to remove");
+        int rc = RemoveEventDB(event->uuid);
+
+        free(event);
+        return rc;
+    }
+
     // Name
     cJSON *name = cJSON_GetObjectItem(eventItem, "name");
     if (!cJSON_IsString(name) || strlen(name->valuestring) >= MAX_NAME_SIZE)

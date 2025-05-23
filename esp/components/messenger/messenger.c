@@ -201,7 +201,7 @@ esp_err_t HabitAddEntry(const char *habit_id, time_t datetime)
     // Set path name to UUID to be changed, this both makes the file contents apparent,
     // but also results put in the new requests file will be overwritten.
     char path[PATH_LENGTH];
-    snprintf(path, PATH_LENGTH, MOUNT_POINT HABIT_REQUESTS_DIR "/%s.txt", habit_id); // Ensure full path
+    snprintf(path, PATH_LENGTH, MOUNT_POINT HABIT_REQUESTS_DIR "/%s-%lld.txt", habit_id, datetime); // Ensure full path
 
     FILE *file = fopen_mkdir(path, "w");
     if (!file)
@@ -210,17 +210,19 @@ esp_err_t HabitAddEntry(const char *habit_id, time_t datetime)
         return ESP_FAIL;
     }
 
-    fprintf(file, "%lld\n", date);
+    fprintf(file, "add\n");
     fclose(file);
-    ESP_LOGI(TAG, "Wrote request: %s with datetime %lld", habit_id, date);
+    ESP_LOGI(TAG, "Wrote request: %s with datetime %lld to add", habit_id, date);
     return ESP_OK;
 }
 
 esp_err_t HabitRemoveEntry(const char *habit_id, time_t datetime)
 {
-    static const char *TAG = "messenger::HabitAddEntry";
+    static const char *TAG = "messenger::HabitRemoveEntry";
 
-    esp_err_t rc = HabitRemoveEntryDB(habit_id, datetime);
+    time_t date = datetime - (datetime % 86400); // UTC truncation
+
+    esp_err_t rc = HabitRemoveEntryDB(habit_id, date);
     if (rc != ESP_OK)
     {
         return rc;
@@ -231,18 +233,18 @@ esp_err_t HabitRemoveEntry(const char *habit_id, time_t datetime)
     // Set path name to UUID to be changed, this both makes the file contents apparent,
     // but also results put in the new requests file will be overwritten.
     char path[PATH_LENGTH];
-    snprintf(path, PATH_LENGTH, MOUNT_POINT HABIT_REQUESTS_DIR "/%s.txt", habit_id); // Ensure full path
+    snprintf(path, PATH_LENGTH, MOUNT_POINT HABIT_REQUESTS_DIR "/%s-%lld.txt", habit_id, datetime); // Ensure full path
 
-    if (remove(path) != 0)
+    FILE *file = fopen_mkdir(path, "w");
+    if (!file)
     {
-        ESP_LOGW(TAG, "Failed to delete %s", path);
-    }
-    else
-    {
-        ESP_LOGI(TAG, "Deleted: %s", path);
+        ESP_LOGE(TAG, "Failed to open file %s for writing: %s", path, strerror(errno));
+        return ESP_FAIL;
     }
 
-    ESP_LOGI(TAG, "Deleted request: %s with datetime %lld", habit_id, datetime);
+    fprintf(file, "del\n");
+    fclose(file);
+    ESP_LOGI(TAG, "Wrote request: %s with datetime %lld to delete", habit_id, date);
     return ESP_OK;
 }
 
@@ -285,8 +287,8 @@ esp_err_t UploadHabitRequests(struct callback_data_t *cb_data, const char *devic
             continue;
         }
 
-        time_t date;
-        if (fscanf(file, "%lld", &date) != 1)
+        char action[3];
+        if (fscanf(file, "%s", action) != 1)
         {
             ESP_LOGW(TAG, "Invalid status in file: %s", path);
             fclose(file);
@@ -294,16 +296,29 @@ esp_err_t UploadHabitRequests(struct callback_data_t *cb_data, const char *devic
         }
         fclose(file);
 
-        // Extract UUID from filename (strip ".txt")
+        // Extract UUID from filename
         char uuid[128];
-        strncpy(uuid, entry->d_name, sizeof(uuid));
-        char *ext = strrchr(uuid, '.');
-        if (ext)
-            *ext = '\0';
+        time_t date;
+        {
+            char temp[128];
+
+            strncpy(temp, entry->d_name, sizeof(temp));
+            // Parse: we assume format "uuid_timestamp"
+            if (sscanf(temp, "%[^_]_%lld", uuid, &date) == 2)
+            {
+                ESP_LOGI(TAG, "UUID: %s\n", uuid);
+                ESP_LOGI(TAG, "Timestamp: %lld\n", date);
+            }
+            else
+            {
+                ESP_LOGE(TAG, "Filename format invalid.\n");
+            }
+        }
 
         cJSON *habit_entry = cJSON_CreateObject();
         cJSON_AddStringToObject(habit_entry, "id", uuid);
         cJSON_AddNumberToObject(habit_entry, "date", date);
+        cJSON_AddStringToObject(habit_entry, "action", action);
         cJSON_AddItemToArray(entries, habit_entry);
 
         strncpy(filepaths[count], path, sizeof(filepaths[count]));

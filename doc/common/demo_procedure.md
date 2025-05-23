@@ -71,3 +71,17 @@ The user must set up the device as usual.
 Then, the user can select the copy data menu option in the web interface.
 After the server verifies that the user owns both devices, it gets the backup from the old device and overwrites the new device's backup.
 The new device can operate as normal without knowledge of the old device.
+
+### Part 5: Prototype versus Manufactured product {-}
+
+Caddy would be replaced with NGINX.
+S3 would be replaced with PostgreSQL.
+Flask would be replaced with Custom Framework.
+ESP32 would be replaced with Custom microcontroller PCB.
+MQTT would be replaced with HTTP.
+
+The justification for replacing the Caddy with NGINX in the large scale is that NGINX supports large scale optimization, handles concurrent connections, and supports the high-traffic intensity required for commercial products.
+S3 object storage must be replaced with PostgreSQL to accomadate for complex quiries, joins and relational data. Its essential for real timeoperations.
+Flask must be replaced in order to account specialized throughput and secruity requirments. 
+The Esp32 must be replaced for the Manufactured product with a costum microcontroller or PCB so that the product is designed with optimzed size, power consumtion and physical design.
+MQTT should be replaced with the HTTP protocol for universality and for the leveraging of exisiting web infastructure. 
