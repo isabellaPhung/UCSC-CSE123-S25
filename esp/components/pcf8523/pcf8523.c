@@ -285,6 +285,25 @@ esp_err_t pcf8523_read_time(struct tm *time)
     return ESP_ERR_INVALID_STATE;
 }
 
+esp_err_t pcf8523_read_localtime(struct tm *localtime)
+{
+    struct tm timestruct;
+    esp_err_t rc = pcf8523_read_time(&timestruct);
+    if (rc != ESP_OK)
+    {
+        return rc;
+    }
+
+    // Temporarily convert to global referenced time_t
+    time_t gtime = mktime(&timestruct);
+
+    if (localtime_r(&gtime, localtime) == NULL)
+    {
+        return ESP_FAIL;
+    }
+    return ESP_OK;
+}
+
 // ----------------------------- Get Current Time -------------------------------
 
 esp_err_t SetTime()
