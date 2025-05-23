@@ -199,6 +199,7 @@ int sync_database(struct callback_data_t *cb_data)
     // Send outgoing requests
     UploadTaskRequests(cb_data, CONFIG_DEVICE_ID);
     UploadHabitRequests(cb_data, CONFIG_DEVICE_ID);
+    UploadEventRequests(cb_data, CONFIG_DEVICE_ID);
 
     // ESP_LOGW(TAG, "Min heap during request push: %d bytes",
     // heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT));

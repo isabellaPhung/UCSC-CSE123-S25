@@ -20,6 +20,7 @@ struct callback_data_t
 // Request folders
 #define TASK_REQUESTS_DIR "/taskrequests"
 #define HABIT_REQUESTS_DIR "/habitrequests"
+#define EVENT_REQUESTS_DIR "/eventrequests"
 
 // ------------------------------------------ Tasks -----------------------------------------------
 
@@ -39,5 +40,10 @@ esp_err_t HabitAddEntry(const char *habit_id, time_t datetime);
 esp_err_t HabitRemoveEntry(const char *habit_id, time_t datetime);
 
 esp_err_t UploadHabitRequests(struct callback_data_t *cb_data, const char* device_id);
+
+// ------------------------------------------ Events ----------------------------------------------
+
+esp_err_t RemoveEvent(const char *uuid);
+esp_err_t UploadEventRequests(struct callback_data_t *cb_data, const char *device_id);
 
 #endif

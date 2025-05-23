@@ -257,7 +257,7 @@ static void exit_event_cb(){
 
 static void delete_event_cb(lv_event_t * e){
     event_t * event = lv_event_get_user_data(e);
-    RemoveEventDB(event->uuid);
+    RemoveEvent(event->uuid);
     exit_event_cb();
 }
 

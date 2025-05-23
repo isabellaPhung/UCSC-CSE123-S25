@@ -377,3 +377,135 @@ esp_err_t UploadHabitRequests(struct callback_data_t *cb_data, const char *devic
     ESP_LOGE(TAG, "Failed to get server acknowledgment after %d retries.", MAX_RETRIES);
     return ESP_FAIL;
 }
+
+// ------------------------------------------ Events ----------------------------------------------
+
+esp_err_t RemoveEvent(const char *uuid)
+{
+    static const char *TAG = "messenger::RemoveEvent";
+
+    // --- Update database ---
+    esp_err_t ret = RemoveEventDB(uuid);
+    if (ret != ESP_OK)
+    {
+        return ret;
+    }
+
+    // --- Write to disk ---
+
+    // Set path name to UUID to be changed, this both makes the file contents apparent,
+    // but also results put in the new requests file will be overwritten.
+    char path[PATH_LENGTH];
+    snprintf(path, PATH_LENGTH, MOUNT_POINT EVENT_REQUESTS_DIR "/%s.txt", uuid); // Ensure full path
+
+    FILE *file = fopen_mkdir(path, "w");
+    if (!file)
+    {
+        ESP_LOGE(TAG, "Failed to open file %s for writing: %s", path, strerror(errno));
+        return ESP_FAIL;
+    }
+
+    fclose(file);
+    ESP_LOGI(TAG, "Wrote deletion request for: %s", uuid);
+    return ESP_OK;
+}
+
+esp_err_t UploadEventRequests(struct callback_data_t *cb_data, const char *device_id)
+{
+    static const char *TAG = "messenger::UploadTaskRequests";
+
+    DIR *dir = opendir(MOUNT_POINT TASK_REQUESTS_DIR);
+    if (!dir)
+    {
+        ESP_LOGE(TAG, "Failed to open directory: %s", TASK_REQUESTS_DIR);
+        return ESP_FAIL;
+    }
+
+    struct dirent *entry;
+    char filepaths[MAX_ENTRIES][PATH_LENGTH];
+    int count = 0;
+
+    // Prepare root object and "tasks" array
+    cJSON *root = cJSON_CreateObject();
+    cJSON_AddStringToObject(root, "id", device_id);
+    cJSON_AddStringToObject(root, "action", "update");
+    cJSON_AddStringToObject(root, "type", "event");
+    cJSON *events = cJSON_CreateArray();
+    cJSON_AddItemToObject(root, "event", events);
+
+    // Read request files
+    while ((entry = readdir(dir)) && count < MAX_ENTRIES)
+    {
+        if (entry->d_type != DT_REG)
+            continue;
+
+        char path[PATH_LENGTH];
+        snprintf(path, PATH_LENGTH, MOUNT_POINT EVENT_REQUESTS_DIR "/%s", entry->d_name);
+
+        // Extract UUID from filename (strip ".txt")
+        char uuid[128];
+        strncpy(uuid, entry->d_name, sizeof(uuid));
+        char *ext = strrchr(uuid, '.');
+        if (ext)
+            *ext = '\0';
+
+        cJSON *event = cJSON_CreateObject();
+        cJSON_AddStringToObject(event, "id", uuid);
+        cJSON_AddItemToArray(events, event);
+
+        strncpy(filepaths[count], path, sizeof(filepaths[count]));
+        count++;
+    }
+
+    closedir(dir);
+
+    if (count == 0)
+    {
+        cJSON_Delete(root);
+        ESP_LOGI(TAG, "No request files to sync.");
+        return ESP_OK;
+    }
+
+    // Publish to server
+    char *msg = cJSON_PrintUnformatted(root);
+    cJSON_Delete(root);
+
+    mqtt_publish(msg, strlen(msg));
+    size_t i = 0;
+    for (; i < MAX_RETRIES; i++)
+    {
+        mqtt_loop(MQTT_LOOP_TIMEOUT_MS);
+        if (cb_data->update_ack == 0)
+        {
+            ESP_LOGI(TAG, "No ack received, retrying...");
+            vTaskDelay(5000 / portTICK_PERIOD_MS);
+            mqtt_publish(msg, strlen(msg));
+        }
+        else
+        {
+            ESP_LOGI(TAG, "Server acknowledged the request batch.");
+            break;
+        }
+    }
+
+    free(msg);
+
+    if (i < MAX_RETRIES)
+    {
+        for (int j = 0; j < count; j++)
+        {
+            if (remove(filepaths[j]) != 0)
+            {
+                ESP_LOGW(TAG, "Failed to delete %s", filepaths[j]);
+            }
+            else
+            {
+                ESP_LOGI(TAG, "Deleted: %s", filepaths[j]);
+            }
+        }
+        return ESP_OK;
+    }
+
+    ESP_LOGE(TAG, "Failed to get server acknowledgment after %d retries.", MAX_RETRIES);
+    return ESP_FAIL;
+}
