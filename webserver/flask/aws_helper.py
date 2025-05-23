@@ -230,16 +230,12 @@ class AwsS3:
 
         obj, data = self.get_users()
 
-        found = False
         for user in data["users"]:
             if user["username"] == username:
                 for device in user["devices"]:
                     if device["id"] == device_id:
-                        found = True
                         device["name"] = name
                         break
-                if not found:
-                    user["devices"].append({"id": device_id, "name": name})
 
         obj.put(
             Body=(bytes(json.dumps(data, indent=2).encode("utf-8"))),

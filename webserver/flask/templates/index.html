@@ -885,9 +885,10 @@
                     eventName.className = 'event-name';
                     eventName.textContent = event.name;
 
+                    const startTime = new Date(event.starttime * 1000);
                     const eventTime = document.createElement('div');
                     eventTime.className = 'event-time';
-                    eventTime.textContent = unixToDate(event.starttime);
+                    eventTime.textContent = unixToDate(event.starttime) + "\n" + formatDateString(startTime);
 
                     const deleteBtn = document.createElement('span');
                     deleteBtn.className = 'delete-event-btn';
