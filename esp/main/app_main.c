@@ -373,6 +373,8 @@ void app_main()
 
             ESP_LOGI(TAG, "Preforming Server Sync!");
 
+            sync_database(&cb_data);
+
             // Sync time if not done yet
             if (!RTC_updated && wifi_connected)
             {
@@ -383,14 +385,12 @@ void app_main()
                 }
             }
 
-            sync_database(&cb_data);
-
             frame_timer = 0;
 
             // resume lvgl
             lvgl_port_unlock();
             vTaskDelay(pdMS_TO_TICKS(10));
-            //update draw content
+            // update draw content
             updateTaskBuff();
             drawTasks();
             updateEventBuff();
