@@ -412,12 +412,12 @@ esp_err_t RemoveEvent(const char *uuid)
 
 esp_err_t UploadEventRequests(struct callback_data_t *cb_data, const char *device_id)
 {
-    static const char *TAG = "messenger::UploadTaskRequests";
+    static const char *TAG = "messenger::UploadEventRequests";
 
-    DIR *dir = opendir(MOUNT_POINT TASK_REQUESTS_DIR);
+    DIR *dir = opendir(MOUNT_POINT EVENT_REQUESTS_DIR);
     if (!dir)
     {
-        ESP_LOGE(TAG, "Failed to open directory: %s", TASK_REQUESTS_DIR);
+        ESP_LOGE(TAG, "Failed to open directory: %s", EVENT_REQUESTS_DIR);
         return ESP_FAIL;
     }
 
