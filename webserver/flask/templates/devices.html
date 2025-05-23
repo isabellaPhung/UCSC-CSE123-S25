@@ -642,6 +642,7 @@
             // Fill in form with device details
             document.getElementById('device-name').value = device.name;
             document.getElementById('device-id').value = device.id;
+            document.getElementById('device-id').disabled = true;
             document.getElementById('edit-device-id').value = device.id;
             document.getElementById('device-error-message').style.display = 'none';
             
