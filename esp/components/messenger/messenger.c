@@ -201,7 +201,7 @@ esp_err_t HabitAddEntry(const char *habit_id, time_t datetime)
     // Set path name to UUID to be changed, this both makes the file contents apparent,
     // but also results put in the new requests file will be overwritten.
     char path[PATH_LENGTH];
-    snprintf(path, PATH_LENGTH, MOUNT_POINT HABIT_REQUESTS_DIR "/%s-%lld.txt", habit_id, datetime); // Ensure full path
+    snprintf(path, PATH_LENGTH, MOUNT_POINT HABIT_REQUESTS_DIR "/%s_%lld.txt", habit_id, datetime); // Ensure full path
 
     FILE *file = fopen_mkdir(path, "w");
     if (!file)
@@ -233,7 +233,7 @@ esp_err_t HabitRemoveEntry(const char *habit_id, time_t datetime)
     // Set path name to UUID to be changed, this both makes the file contents apparent,
     // but also results put in the new requests file will be overwritten.
     char path[PATH_LENGTH];
-    snprintf(path, PATH_LENGTH, MOUNT_POINT HABIT_REQUESTS_DIR "/%s-%lld.txt", habit_id, datetime); // Ensure full path
+    snprintf(path, PATH_LENGTH, MOUNT_POINT HABIT_REQUESTS_DIR "/%s_%lld.txt", habit_id, datetime); // Ensure full path
 
     FILE *file = fopen_mkdir(path, "w");
     if (!file)
@@ -311,7 +311,7 @@ esp_err_t UploadHabitRequests(struct callback_data_t *cb_data, const char *devic
             }
             else
             {
-                ESP_LOGE(TAG, "Filename format invalid.\n");
+                ESP_LOGE(TAG, "Filename format invalid %s.\n", temp);
             }
         }
 
