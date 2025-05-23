@@ -1,0 +1,5 @@
+https://pmdway.com/products/3-5-320-x-480-tft-color-touch-lcd-and-sd-card-socket-for-arduino-mega
+https://docs.cirkitdesigner.com/component/0545faa4-4e82-8059-e22b-8862a3789e46/adafruit-pcf8523-rtc
+https://github.com/esp-rs/esp-rust-board
+https://www.sameskydevices.com/blog/tactile-switches-101
+https://www.shutterstock.com/image-vector/sd-card-icon-vector-solid-illustration-410361592
