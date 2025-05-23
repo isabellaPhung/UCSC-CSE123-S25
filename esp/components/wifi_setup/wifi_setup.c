@@ -176,12 +176,18 @@ static esp_err_t login_post_handler(httpd_req_t *req) {
   char buf[BUF_LEN];
 
   httpd_req_recv(req, buf, MIN(length, BUF_LEN));
+  ESP_LOGI(TAG, "Recieved buffer: %s", buf);
 
   char ssid[MAX_SSID_LEN] = {0};
   char pswd[MAX_PSWD_LEN] = {0};
 
   httpd_query_key_value(buf, "ssid", ssid, MAX_SSID_LEN);
   httpd_query_key_value(buf, "pswd", pswd, MAX_PSWD_LEN);
+  char *garb = strchr(pswd, '\n');
+  if (garb) {
+    *garb = '\0';
+    ESP_LOGI(TAG, "Deleted garbo");
+  }
 
   ESP_LOGI(TAG, "SSID:%s Password:%s", ssid, pswd);
 
@@ -333,7 +339,7 @@ bool check_nvs_sta_config(void) {
   if (strlen((char *)config.sta.ssid) == 0) {
     return false;
   }
-  ESP_LOGI(TAG, "Connecting to SSID:%s", config.sta.ssid);
+  ESP_LOGI(TAG, "Connecting to SSID:%s with PWD: %s", config.sta.ssid, config.sta.password);
   return true;
 }
 
