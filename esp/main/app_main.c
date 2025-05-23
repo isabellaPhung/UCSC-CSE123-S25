@@ -364,7 +364,7 @@ void app_main()
         }
 
         // Request from server
-        if (frame_timer >= 3000 && is_wifi_connected()) // ~30 seconds
+        if (frame_timer >= 3000 && is_wifi_connected() && !isFocusMode()) // ~30 seconds
         {
             loadMsgCreate();
             vTaskDelay(pdMS_TO_TICKS(10));
