@@ -27,16 +27,14 @@
 
 #include "esp_log.h"
 
-#include "iot_button.h"
-#include "button_gpio.h"
+#include "driver/gpio.h"
 
-#define SYNC_PIN  0 //pin for sync button
+#define SYNC_BTN 0
 
 static const char *TAG = "MAIN";
 
 int wifi_connected = false;
 int RTC_updated = false;
-long int frame_timer = 0;
 
 void callback(const char *payload, size_t payload_length, void *cb_data)
 {
@@ -116,7 +114,7 @@ void callback(const char *payload, size_t payload_length, void *cb_data)
 }
 
 #ifndef CONFIG_DEVICE_ID
-#define CONFIG_DEVICE_ID "54"
+#define CONFIG_DEVICE_ID "55"
 #endif
 #define RETRY_DELAY_MS 5000U
 
@@ -227,67 +225,8 @@ int sync_database(struct callback_data_t *cb_data)
     return EXIT_SUCCESS;
 }
 
-static void sync_cb(void *cb_data)
-{
-    const char *local_tag = "button::callback";
-    ESP_LOGW(local_tag, "SYNC BUTTON PRESSED");
-    // Request from server
-    if (is_wifi_connected() && !isFocusMode()){
-        loadMsgCreate();
-        vTaskDelay(pdMS_TO_TICKS(10));
-        // suspend lvgl
-        lvgl_port_lock(0);
-
-        ESP_LOGI(local_tag, "Preforming Server Sync!");
-
-        sync_database(cb_data);
-
-        // Sync time if not done yet
-        if (!RTC_updated && wifi_connected)
-        {
-            int rc = SetTime();
-            if (rc == ESP_OK)
-            {
-                RTC_updated = true;
-            }
-        }
-
-        frame_timer = 0;
-
-        // resume lvgl
-        lvgl_port_unlock();
-        vTaskDelay(pdMS_TO_TICKS(10));
-        // update draw content
-        updateTaskBuff();
-        drawTasks();
-        updateEventBuff();
-        drawEvents();
-        updateHabitBuff();
-        drawHabits();
-        loadMsgRemove();
-    }
-}
-
-void init_sync_btn(void *cb_data){
-    const char *local_tag = "button::init";
-
-    // create gpio button
-    const button_config_t btn_cfg = {0};
-    const button_gpio_config_t gpio_btn_cfg = {
-        .gpio_num = SYNC_PIN,
-        .active_level = 0,
-    };
-    button_handle_t sync_btn;
-    esp_err_t ret = iot_button_new_gpio_device(&btn_cfg, &gpio_btn_cfg, &sync_btn);
-    if(ret != ESP_OK) {
-        ESP_LOGE(local_tag, "Button create failed");
-    }
-    iot_button_register_cb(sync_btn, BUTTON_SINGLE_CLICK, NULL, sync_cb, cb_data);
-}
-
 void app_main()
 {
-    
     // heap_caps_monitor_local_minimum_free_size_start();
     esp_log_level_set("*", ESP_LOG_INFO);
 
@@ -333,7 +272,6 @@ void app_main()
     // Initialize mqtt library
     assert(mqtt_init(&callback, (void *)&cb_data) == EXIT_SUCCESS);
 
-    init_sync_btn(&cb_data);
     // sync_database(&cb_data);
 
     // -------------------------------- Configure Clock (PCF8523) ---------------------------------
@@ -404,12 +342,16 @@ void app_main()
     //     ESP_LOGI(TAG, "Created Task!\n");
     // }
 
+    // --------------------------------- Create Sync Button -----------------------------------
+    gpio_set_direction(SYNC_BTN, GPIO_MODE_INPUT);
+
     // --------------------------------------- Runtime --------------------------------------------
     ESP_LOGW("main::Entering Runtime", "Free heap total: %lu bytes", esp_get_free_heap_size());
 
     app_main_display();
 
     long int frame_timer = 0;
+    bool startup = 1;
     while (1)
     {
         vTaskDelay(pdMS_TO_TICKS(10));
@@ -429,6 +371,42 @@ void app_main()
             updateFocusTimer();
         }
 
-        
+        // Request from server
+        if (startup || (gpio_get_level(SYNC_BTN) == 1 && is_wifi_connected() && !isFocusMode()))
+        {
+            loadMsgCreate();
+            vTaskDelay(pdMS_TO_TICKS(20));
+            // suspend lvgl
+            lvgl_port_lock(0);
+
+            ESP_LOGI(TAG, "Preforming Server Sync!");
+
+            sync_database(&cb_data);
+
+            // Sync time if not done yet
+            if (!RTC_updated && wifi_connected)
+            {
+                int rc = SetTime();
+                if (rc == ESP_OK)
+                {
+                    RTC_updated = true;
+                }
+            }
+
+            frame_timer = 0;
+
+            // resume lvgl
+            lvgl_port_unlock();
+            vTaskDelay(pdMS_TO_TICKS(10));
+            // update draw content
+            updateTaskBuff();
+            drawTasks();
+            updateEventBuff();
+            drawEvents();
+            updateHabitBuff();
+            drawHabits();
+            loadMsgRemove();
+        }
+    startup = 0;
     }
 }
