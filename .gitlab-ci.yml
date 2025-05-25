@@ -96,7 +96,7 @@ make-poster:
     name: pandoc/latex
     entrypoint: ["/bin/sh", "-c"]
   script:
-    - tlmgr install fvextra lineno beamerposter xkeyval ragged2e pgfplots type1cm changepage anyfontsize roboto
+    - tlmgr install fvextra lineno beamerposter xkeyval ragged2e pgfplots type1cm changepage anyfontsize roboto smartdiagram
     - apk --no-cache add make
     - cd doc/poster
     - make pdf
