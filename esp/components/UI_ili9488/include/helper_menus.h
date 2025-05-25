@@ -2,10 +2,8 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include <time.h>
 #include "lvgl__lvgl/lvgl.h"
-//#include "esp_timer.h"
-//#include "driver/timer.h"
+#include "time.h"
 
 #include "definitions.h"
 #include "messenger.h"
