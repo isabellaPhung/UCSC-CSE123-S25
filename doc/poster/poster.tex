@@ -108,42 +108,17 @@
       \item \textbf{Input}: User uses touch screen to navigate menus, edit data, and enter focus mode
       \item \textbf{Processing}: Custom microcontroller updates task database in real-time  
       \item \textbf{Display}: 7.5" LCD and webserver show current task/event list and status
-      \item \textbf{Storage}: RTC maintains data even when powered off
+      \item \textbf{Storage}: RTC maintains devices track of time even when powered off, and the onboard SD card maintains all user data between resets.
     \end{itemize}
 
-    The webapp allows the user to edit activities and view the calendar and actvities. 
+    The webapp allows the user to edit activities and view the calendar and actvities. While the standalone device allows the user to view and mark their goals as complete.
 
   \end{block}
     
    \begin{block}{Hardware design}
     \begin{center}
-      \smartdiagramset{
-        planet size = 8cm,
-        satellite size = 6cm,
-        planet text width = 7cm,
-        satellite text width = 5cm,
-        distance planet-satellite = 10cm,
-      }
-      \smartdiagram[constellation diagram]{%
-        {
-          ESP32C3
-        },
-        {
-          3.5" LCD
-        },
-        {
-          RTC
-        },
-        {
-          Button
-        }
-      }
+      \includegraphics{PrototypeDesign.jpg}
     \end{center}
-    The included image is low res, can we use a high-dpi, 
-    transparent background one?
-    \includegraphics[width=8cm]{ESP32-C3-DevKit-RUST-1_L_0.png}
-    \includegraphics[width=8cm]{MSP3520-002.png}
-    \includegraphics[width=6cm]{MFG-3295-top.png}
 
     Vivamus congue volutpat elit non semper. 
 
@@ -166,30 +141,27 @@
 
 \begin{column}{\colwidth}
 
-  \begin{block}{Prototype Design}
+    \begin{block}{Prototype Design}
+    \textbf{Entries}
 
-    Vivamus congue volutpat elit non semper. Praesent molestie nec erat ac
-    interdum. In quis suscipit erat. \textbf{Phasellus mauris felis, molestie
-    ac pharetra quis}, tempus nec ante. Donec finibus ante vel purus mollis
-    fermentum. Sed felis mi, pharetra eget nibh a, feugiat eleifend dolor. Nam
-    mollis condimentum purus quis sodales. Nullam eu felis eu nulla eleifend
-    bibendum nec eu lorem. Vivamus felis velit, volutpat ut facilisis ac,
-    commodo in metus.
+    For the purpose of allowing the user to achieve their goals and maintain a healthy routine, the device includes three tools to tackle the various aspects of one's day:
+
+    \begin{center}
+      \includegraphics{entry_logic.png}
+    \end{center}
+
+    \textbf{Server-Client Modularization}
+
+    The device is designed to work within the strict limitations of the ESP32C3 board while achiving both a direct seperation from the user's computer and an accurate display of the user's entires:
 
     \begin{enumerate}
-      \item \textbf{Morbi mauris purus}, egestas at vehicula et, convallis
-        accumsan orci. Orci varius natoque penatibus et magnis dis parturient
-        montes, nascetur ridiculus mus.
-      \item \textbf{Cras vehicula blandit urna ut maximus}. Aliquam blandit nec
-        massa ac sollicitudin. Curabitur cursus, metus nec imperdiet bibendum,
-        velit lectus faucibus dolor, quis gravida metus mauris gravida turpis.
-      \item \textbf{Vestibulum et massa diam}. Phasellus fermentum augue non
-        nulla accumsan, non rhoncus lectus condimentum.
+      \item \textbf{Server Implemenentation}. For any alteration the user is able to handle their data on the coorsponding webserver. Any entries placed into this server will be accessable to the user's device.
+      \item \textbf{Syncronization}. Periodically or at the user's discretion, the device achieves a full syncronization of the user's tasks an entires. First applying any alterations made from the device to the server's database, then retrieving the remaining altered information from the server with priority on entry deletion.
     \end{enumerate}
 
-  \end{block}
+    \end{block}
 
-  \begin{block}{User interface}
+    \begin{block}{User interface}
 
     Et rutrum ex euismod vel. Pellentesque ultricies, velit in fermentum
     vestibulum, lectus nisi pretium nibh, sit amet aliquam lectus augue vel
