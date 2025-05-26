@@ -96,15 +96,15 @@
     distraction-free environment.
   \end{block}
 
-  \begin{block}{Data flow}
+  \begin{block}{System Architecture} %formerly Data Flow
 
-    Nam vulputate nunc felis, non condimentum lacus porta ultrices. Nullam sed
-    sagittis metus. Etiam consectetur gravida urna quis suscipit.
+    Our device processes user input through a simple but effective data flow:
 
     \begin{itemize}
-      \item \textbf{Mauris tempor} risus nulla, sed ornare
-      \item \textbf{Libero tincidunt} a duis congue vitae
-      \item \textbf{Dui ac pretium} morbi justo neque, ullamcorper
+      \item \textbf{Input}: User uses touch screen to navigate menus, edit data, and enter focus mode
+      \item \textbf{Processing}: Custom microcontroller updates task database in real-time  
+      \item \textbf{Display}: 7.5" LCD and webserver show current task/event list and status
+      \item \textbf{Storage}: RTC maintains data even when powered off
     \end{itemize}
 
     Eget augue porta, bibendum venenatis tortor.
