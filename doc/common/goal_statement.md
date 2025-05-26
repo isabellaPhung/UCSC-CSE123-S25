@@ -1,1 +1,1 @@
-Create a standalone deivce that assists the user in completing scheduled tasks.
+Develop a system that utilizes a dedicated tablet device and a synchronous webapplication that organizes user activities on the basis of necessity, urgency, and frequency.
