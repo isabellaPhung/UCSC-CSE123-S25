@@ -1,1 +1,1 @@
-Scheduling software on generic devices like mobile phones come with distractions from other apps, leading to reduced effectiveness.
+Scheduling applications lack the medium to excercise greater precedence over other applications and lack organization between activities on the basis of necessity, urgency, freqeuncy and desire.
