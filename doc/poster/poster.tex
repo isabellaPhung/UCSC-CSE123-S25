@@ -113,10 +113,17 @@
       \end{block}
 
       \begin{block}{System Architecture}
-        \begin{center}
-          \includegraphics[width = 0.9 \textwidth]{PrototypeDesign.png}
-        \end{center}
-   
+      \begin{figure}
+        \begin{subfigure}[t]{0.54\textwidth}
+            \includegraphics[width =\textwidth]{PrototypeDesign.png}
+            \caption{Component Diagram}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.44\textwidth}
+            \includegraphics[width=\textwidth]{prototype.jpg}
+            \caption{Functional Prototype}
+        \end{subfigure}
+      \end{figure}
+
         \begin{itemize}
           \item \textbf{Input}: Touch screen to navigate menus, edit data, and enter focus tasks.
           \item \textbf{Processing}: Custom microcontroller updates task database in real-time.
