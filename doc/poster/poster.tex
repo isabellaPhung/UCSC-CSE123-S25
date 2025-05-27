@@ -13,6 +13,7 @@
 \usetheme{gemini}
 \usecolortheme{gemini}
 \usepackage{graphicx}
+\usepackage{subcaption}
 \graphicspath{{../common/personas}{../common/}{images}}
 \usepackage{booktabs}
 \usepackage{tikz}
@@ -99,30 +100,26 @@
     \input{build/goal_statement_md}
   \end{block}
 
-
   \begin{block}{Personas} 
-
-    
-
+  
   \end{block}
     
    \begin{block}{Hardware design}
     \begin{center}
       \includegraphics{PrototypeDesign.jpg}
     \end{center}
+  \end{block}
 
     \begin{block}{System Architecture} %formerly Data Flow
-
-    Our device processes user input through a simple but effective data flow:
-
+    
     \begin{itemize}
-      \item \textbf{Input}: User uses touch screen to navigate menus, edit data, and enter focus mode
-      \item \textbf{Processing}: Custom microcontroller updates task database in real-time  
-      \item \textbf{Display}: 7.5" LCD and webserver show current task/event list and status
+      \item \textbf{Input}: Touch screen to navigate menus, edit data, and enter focus tasks.
+      \item \textbf{Processing}: Custom microcontroller updates task database in real-time.
+      \item \textbf{Display}: 3.5" LCD and webserver show current task/event list and status.
       \item \textbf{Storage}: RTC maintains devices track of time even when powered off, and the onboard SD card maintains all user data between resets.
     \end{itemize}
 
-    The webapp allows the user to edit activities and view the calendar and actvities. While the standalone device allows the user to view and mark their goals as complete.
+    Webapp allows user to edit activities and view calendar. Standalone device allows the user to view and mark their goals.
 
   \end{block}
 
@@ -166,30 +163,26 @@
 
     \begin{block}{User interface}
 
-    Et rutrum ex euismod vel. Pellentesque ultricies, velit in fermentum
-    vestibulum, lectus nisi pretium nibh, sit amet aliquam lectus augue vel
-    velit. Suspendisse rhoncus massa porttitor augue feugiat molestie. Sed
-    molestie ut orci nec malesuada. Sed ultricies feugiat est fringilla
-    posuere.
-
     \begin{figure}
-      \centering
-      \begin{tikzpicture}
-        \begin{axis}[
-            scale only axis,
-            no markers,
-            domain=0:2*pi,
-            samples=100,
-            axis lines=center,
-            axis line style={-},
-            ticks=none]
-          \addplot[red] {sin(deg(x))};
-          \addplot[blue] {cos(deg(x))};
-        \end{axis}
-      \end{tikzpicture}
-      \caption{Another figure caption.}
-    \end{figure}
+    \centering
+        \begin{subfigure}[t]{0.49\textwidth}
+            \includegraphics[width=\textwidth]{taskEvent.png}
+            \caption{Main Menu}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.49\textwidth}
+            \includegraphics[width=\textwidth]{taskTile.png}
+            \caption{Detailed Task View}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.49\textwidth}
+            \includegraphics[width=\textwidth]{focusTile.png}
+            \caption{Focus Task View}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.49\textwidth}
+            \includegraphics[width=\textwidth]{habitTile.png}
+            \caption{Habit Tracking View}
+        \end{subfigure}
 
+    \end{figure} 
   \end{block}
 
   \begin{block}{Events}
