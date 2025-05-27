@@ -31,8 +31,10 @@
 % (N+1)*\sepwidth + N*\colwidth = \paperwidth
 \newlength{\sepwidth}
 \newlength{\colwidth}
+\newlength{\bigcolwidth}
 \setlength{\sepwidth}{0.025\paperwidth}
 \setlength{\colwidth}{0.45\paperwidth}
+\setlength{\bigcolwidth}{0.925\paperwidth}
 
 \newcommand{\separatorcolumn}{\begin{column}{\sepwidth}\end{column}}
 
@@ -87,173 +89,205 @@
 \begin{document}
 
 \begin{frame}[t]
-\begin{columns}[t]
-\separatorcolumn
+  \begin{columns}[t]
+    \separatorcolumn
 
-\begin{column}{\colwidth}
+    % ====================
+    % Begin column 1
+    % ====================
+    \begin{column}{\colwidth}
 
-  \begin{block}{Need Statement}
-    \input{build/need_statement_md}
-  \end{block}
+      \begin{block}{Abstract}
+        % goal and need statment, remade to fit the poster presentation's context
+        % required about 150+ words
+        \begin{enumerate}
+          \item \textbf{Presence:} Balanced between annoying and unnoticeable
+          \item \textbf{Configurable:} Integration with existing productivity tools ex: Google Calendar
+          \item \textbf{Accessible:} Easy to use and has data backup in case of device failure.
+        \end{enumerate}
+        \begin{itemize}
+          \item \textbf{Simultaneous Tasks:} Up to 100
+          \item \textbf{Price:} <\$100
+          \item \textbf{Devices per user:} Unlimited
+        \end{itemize}
+      \end{block}
 
-  \begin{block}{Goal Statement}
-    \input{build/goal_statement_md}
-  \end{block}
-
-  \begin{block}{Personas} 
-  
-  \end{block}
+      \begin{block}{Personas} 
     
-   \begin{block}{Hardware design}
-    \begin{center}
-      \includegraphics{PrototypeDesign.jpg}
-    \end{center}
-  \end{block}
-
-    \begin{block}{System Architecture} %formerly Data Flow
+    \begin{minipage}[t]{0.3\linewidth}
+      \centering
+      \includegraphics[width=0.8\linewidth]{camillia.png}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.65\linewidth}
+      \textbf{Camillia - Cardiologist}
+      
+      Cardiologist, wants to balance demanding work schedule with quality time with kids. Needs help organizing daily tasks so that she can make it to special occasions with her family.
+    \end{minipage}
     
-    \begin{itemize}
-      \item \textbf{Input}: Touch screen to navigate menus, edit data, and enter focus tasks.
-      \item \textbf{Processing}: Custom microcontroller updates task database in real-time.
-      \item \textbf{Display}: 3.5" LCD and webserver show current task/event list and status.
-      \item \textbf{Storage}: RTC maintains devices track of time even when powered off, and the onboard SD card maintains all user data between resets.
-    \end{itemize}
+    \vspace{0.5cm}
+    
+    \begin{minipage}[t]{0.3\linewidth}
+      \centering
+      \includegraphics[width=0.8\linewidth]{Elijah.png}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.65\linewidth}
+      \textbf{Elijah - IT receptionist}
+      
+      [IT receptionist, wants to keep track of all the message assignments and dynamically edit his schedule to adapt to meeting times. Is married and wants to spend time with adopted puppy.]
+    \end{minipage}
+    
+    \vspace{0.5cm}
+    
+    \begin{minipage}[t]{0.3\linewidth}
+      \centering
+      \includegraphics[width=0.8\linewidth]{Linda.png}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.65\linewidth}
+      \textbf{Linda - Marketing and Sales}
+      
+      [Is striving for managerial position but often struggles to find time to let loose and rest.]
+    \end{minipage}
 
-    Webapp allows user to edit activities and view calendar. Standalone device allows the user to view and mark their goals.
+    
+    \vspace{0.4cm}
+    
+    \begin{minipage}[t]{0.3\linewidth}
+      \centering
+      \includegraphics[width=0.8\linewidth]{Peyton.png}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.65\linewidth}
+      \textbf{Peyton - [Barista and Bartender]}
+      
+      [He works both jobs in a day and aspires to pick up new hobies and work out.]
+    \end{minipage}
+    
+    \vspace{0.4cm}
+    
+    \begin{minipage}[t]{0.3\linewidth}
+      \centering
+      \includegraphics[width=0.8\linewidth]{Mary.png}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.65\linewidth}
+      \textbf{Mary - [University Student]}
+      
+      [She has to balance school work, chores and social life. Productivity phone apps don't help.]
+    \end{minipage}
 
   \end{block}
 
-  \begin{block}{Data Flow}
-    \vskip 0.5cm
-    \begin{center}
-      \includegraphics[width = 0.8 \linewidth]{data_flow.png}
-    \end{center}
-  \end{block}
-\end{column}
+      \begin{block}{System Architecture}
+      \begin{figure}
+        \begin{subfigure}[t]{0.54\textwidth}
+            \includegraphics[width =\textwidth]{PrototypeDesign.png}
+            \caption{Component Diagram}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.44\textwidth}
+            \includegraphics[width=\textwidth]{prototype.jpg}
+            \caption{Functional Prototype}
+        \end{subfigure}
+      \end{figure}
 
-\separatorcolumn
+        \begin{itemize}
+          \item \textbf{Input}: Touch screen to navigate menus, edit data, and enter focus tasks.
+          \item \textbf{Processing}: Custom microcontroller updates task database in real-time.
+          \item \textbf{Display}: 3.5" LCD and webserver show current task/event list and status.
+          \item \textbf{Storage}: RTC maintains devices track of time even when powered off, and the onboard SD card maintains all user data between resets.
+        \end{itemize}
 
-\begin{column}{\colwidth}
-  \begin{block}{Server Architecture}
-    \vskip 0.5cm
-    \begin{center}
-      \includegraphics[width = 0.8 \linewidth]{web_server.png}
-    \end{center}
-  \end{block}
+        Webapp allows user to edit activities and view calendar. Standalone device allows the user to view and mark their goals.
 
-    \begin{block}{Prototype Design}
-    \textbf{Entries}
+      \end{block}
 
-    For the purpose of allowing the user to achieve their goals and maintain a healthy routine, the device includes three tools to tackle the various aspects of one's day:
+      \begin{block}{Prototype Design}
+        \textbf{Entries}
 
-    \begin{center}
-      \includegraphics{entry_logic.png}
-    \end{center}
+        To achieve their goals and maintain a healthy routine, device includes three tools to tackle the day:
 
-    \textbf{Server-Client Modularization}
+        \begin{center}
+          \includegraphics[width = 0.9 \textwidth]{entry_logic.png}
+        \end{center}
 
-    The device is designed to work within the strict limitations of the ESP32C3 board while achiving both a direct seperation from the user's computer and an accurate display of the user's entires:
+        \textbf{Server-Client Modularization}
 
-    \begin{enumerate}
-      \item \textbf{Server Implemenentation}. Users can manage their data on the corresponding web server, producing entries that are then accessible to their device.
-      \item \textbf{Syncronization}. The device periodically syncs by uploading local changes and retrieving server updates, prioritizing entry deletions.
-    \end{enumerate}
+        Device works with strict limitations of ESP32C3 microcontroller while separating the user's computer from accurate display of user entires:
 
-    \end{block}
+        \begin{enumerate}
+          \item \textbf{Server Implementation} Users manage their data on the web server, producing entries that are accessible to their device.
+          \item \textbf{Synchronization} Device periodically syncs by uploading local changes and retrieving server updates, prioritizing entry deletions.
+        \end{enumerate}
+      \end{block}
 
-    \begin{block}{User interface}
+    \end{column}
+    % ====================
+    % End column 1
+    % ====================
 
-    \begin{figure}
-    \centering
-        \begin{subfigure}[t]{0.49\textwidth}
+    \separatorcolumn
+
+    % ====================
+    % Begin column 2
+    % ====================
+    \begin{column}{\colwidth} 
+
+      \begin{block}{User interface}
+        \begin{figure}
+          \centering
+          \begin{subfigure}{0.49\textwidth}
             \includegraphics[width=\textwidth]{taskEvent.png}
             \caption{Main Menu}
-        \end{subfigure}
-        \begin{subfigure}[t]{0.49\textwidth}
+          \end{subfigure}
+          \hfill
+          \begin{subfigure}{0.49\textwidth}
             \includegraphics[width=\textwidth]{taskTile.png}
             \caption{Detailed Task View}
-        \end{subfigure}
-        \begin{subfigure}[t]{0.49\textwidth}
+          \end{subfigure}
+          \\
+          \begin{subfigure}{0.49\textwidth}
             \includegraphics[width=\textwidth]{focusTile.png}
             \caption{Focus Task View}
-        \end{subfigure}
-        \begin{subfigure}[t]{0.49\textwidth}
+          \end{subfigure}
+          \hfill
+          \begin{subfigure}{0.49\textwidth}
             \includegraphics[width=\textwidth]{habitTile.png}
             \caption{Habit Tracking View}
-        \end{subfigure}
+          \end{subfigure}
+        \end{figure} 
+      \end{block}
 
-    \end{figure} 
-  \end{block}
+      \begin{block}{Server Architecture}
+        \vskip 0.5cm
+        \begin{center}
+          \includegraphics[width = \linewidth]{data_flow.png}
+        \end{center}
+      \end{block}
 
-  \begin{block}{Events}
+      \begin{block}{Web Interface}
+        \begin{figure}
+          \begin{subfigure}{\textwidth}
+            \includegraphics[width = \textwidth]{web_mainview.png}
+            \caption{Home Page}
+          \end{subfigure}
+          \hfill
+          \begin{subfigure}{0.49\textwidth}
+            \includegraphics[width = \textwidth]{web_devices.png}
+            \caption{Device Management}
+          \end{subfigure}
+        \end{figure}
+      \end{block}
 
-    Nulla eget sem quam. Ut aliquam volutpat nisi vestibulum convallis. Nunc a
-    lectus et eros facilisis hendrerit eu non urna. Interdum et malesuada fames
-    ac ante \textit{ipsum primis} in faucibus. Etiam sit amet velit eget sem
-    euismod tristique. Praesent enim erat, porta vel mattis sed, pharetra sed
-    ipsum. Morbi commodo condimentum massa, \textit{tempus venenatis} massa
-    hendrerit quis. Maecenas sed porta est. Praesent mollis interdum lectus,
-    sit amet sollicitudin risus tincidunt non.
+    \end{column}
+    % ====================
+    % End column 2
+    % ====================
 
-    Etiam sit amet tempus lorem, aliquet condimentum velit. Donec et nibh
-    consequat, sagittis ex eget, dictum orci. Etiam quis semper ante. Ut eu
-    mauris purus. Proin nec consectetur ligula. Mauris pretium molestie
-    ullamcorper. Integer nisi neque, aliquet et odio non, sagittis porta justo.
+    \separatorcolumn
 
-    \begin{itemize}
-      \item \textbf{Sed consequat} id ante vel efficitur. Praesent congue massa
-        sed est scelerisque, elementum mollis augue iaculis.
-        \begin{itemize}
-          \item In sed est finibus, vulputate
-            nunc gravida, pulvinar lorem. In maximus nunc dolor, sed auctor eros
-            porttitor quis.
-          \item Fusce ornare dignissim nisi. Nam sit amet risus vel lacus
-            tempor tincidunt eu a arcu.
-          \item Donec rhoncus vestibulum erat, quis aliquam leo
-            gravida egestas.
-        \end{itemize}
-      \item \textbf{Sed luctus, elit sit amet} dictum maximus, diam dolor
-        faucibus purus, sed lobortis justo erat id turpis.
-      \item \textbf{Pellentesque facilisis dolor in leo} bibendum congue.
-        Maecenas congue finibus justo, vitae eleifend urna facilisis at.
-    \end{itemize}
-
-  \end{block}
-
-
-  \begin{exampleblock}{A highlighted block containing some math}
-
-    A different kind of highlighted block.
-
-    $$
-    \int_{-\infty}^{\infty} e^{-x^2}\,dx = \sqrt{\pi}
-    $$
-
-    Interdum et malesuada fames $\{1, 4, 9, \ldots\}$ ac ante ipsum primis in
-    faucibus. Cras eleifend dolor eu nulla suscipit suscipit. Sed lobortis non
-    felis id vulputate.
-
-    \heading{A heading inside a block}
-
-    Praesent consectetur mi $x^2 + y^2$ metus, nec vestibulum justo viverra
-    nec. Proin eget nulla pretium, egestas magna aliquam, mollis neque. Vivamus
-    dictum $\mathbf{u}^\intercal\mathbf{v}$ sagittis odio, vel porta erat
-    congue sed. Maecenas ut dolor quis arcu auctor porttitor.
-
-  \end{exampleblock}
-
-  \begin{block}{References}
-
-    \nocite{*}
-    \footnotesize{\bibliographystyle{plain}\bibliography{poster}}
-
-  \end{block}
-
-\end{column}
-
-\separatorcolumn
-
-\end{columns}
+  \end{columns}
 \end{frame}
 
 \end{document}
