@@ -97,13 +97,32 @@
     % ====================
     \begin{column}{\colwidth}
 
-      \begin{block}{Background}
-        % some kind of into/hook
-        % a rework of the need + goal
-        The product must be a web-connected, offline capable task management
-        device that keeps track of the user's habits, scheduled tasks, and 
-        upcoming events.
-        We created the device using the ESP-IDF platform targeting the ESP32-
+      \begin{block}{Introduction}
+        Current scheduling applications lack the ability to excercise 
+        greater precedence over other applications 
+        and organize activities by necessity, urgency, or frequency.
+
+        The Manufactured product design objectives include:
+        Presence: Device must command user attention in a way that is systematic but not overly frequent.
+        Configurable: Device software must be compatible with exsisting tools such as Google Calendar.
+        Accessible: Device must integrate intuitive user interface and must contain backups for device failures. 
+       
+        Target Audience:
+        \vspace{0.4cm}
+    
+        \begin{minipage}[t]{0.3\linewidth}
+          \centering
+          \includegraphics[width=0.8\linewidth]{Mary.png}
+        \end{minipage}
+        \hfill
+        \begin{minipage}[t]{0.65\linewidth}
+          \textbf{Mary - [University Student]}
+          
+          [She has to balance school work, chores and social life. Productivity phone apps don't help.]
+        \end{minipage}
+
+        
+        We desgined a prototype using the ESP-IDF platform targeting the ESP32-
         C3, with the following approach of separating the device and the 
         server:
 
