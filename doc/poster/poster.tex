@@ -100,7 +100,18 @@
   \end{block}
 
 
-  \begin{block}{System Architecture} %formerly Data Flow
+  \begin{block}{Personas} 
+
+    
+
+  \end{block}
+    
+   \begin{block}{Hardware design}
+    \begin{center}
+      \includegraphics{PrototypeDesign.jpg}
+    \end{center}
+
+    \begin{block}{System Architecture} %formerly Data Flow
 
     Our device processes user input through a simple but effective data flow:
 
@@ -112,26 +123,6 @@
     \end{itemize}
 
     The webapp allows the user to edit activities and view the calendar and actvities. While the standalone device allows the user to view and mark their goals as complete.
-
-  \end{block}
-    
-   \begin{block}{Hardware design}
-    \begin{center}
-      \includegraphics{PrototypeDesign.jpg}
-    \end{center}
-
-    Functional Prototype Hardware breakdown 
-
-    \begin{enumerate}
-      \item \textbf{Pin dedication}: ESP32C3 pins were dedicated to select, reset, right, left, up, and down buttons. They were also dedicated to the LCD screen,
-      and the real time clock. Pin management was one of the greater limitations of the prototype and one of the aspects that necessitates a custom dedicated microcontroller.
-      \item \textbf{User Input}: The buttons were the primary mode of user input. Within the LCD tablet the menus that are included are Habits, Tasks and Events. A highlight would
-      indicate the cursor position in the screen and the selection. Selecting an activity opened the option to enter focus mode which would open a timer and minimalist page. The options to 
-      reset the timer and end focus mode would be open within this menu and the time left would be displayed. Tasks and events are displayed on the main page with up to 4 being displayed at a time.
-      The user could scroll down to enter a new page with four new tasks and continue until all existing tasks were viewed. Selecting the habits page would open a menu organized by days of the week
-      and task. The user could select days to represent fullfullment of the habits for those respective days. 
-    \end{enumerate}
-
 
   \end{block}
 
