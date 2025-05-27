@@ -97,7 +97,7 @@ make-poster:
     entrypoint: ["/bin/sh", "-c"]
   script:
     - tlmgr install fvextra lineno beamerposter xkeyval ragged2e pgfplots type1cm changepage anyfontsize roboto smartdiagram xstring
-    - apk --no-cache add make
+    - apk --no-cache add make python3 imagemagick
     - cd doc/poster
     - make pdf
   artifacts:
