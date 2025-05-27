@@ -21,25 +21,24 @@ font = {
     "dpi": "300"
 }
 
-with Diagram("Data Flow", show=False, graph_attr=font, node_attr=font, edge_attr=font):
+with Diagram("", show=False, graph_attr=font, node_attr=font, edge_attr=font):
     esp32 = Custom("ESP32", "./custom/esp32.png")
-    tablet = Tablet("Web app")
+    tablet = Tablet("Users")
 
     with Cluster("AWS Cloud", graph_attr=font):
         s3 = S3("Data Storage")
         dns = Route53("DNS Service")
         completion = Lambda("Modify Data")
-        iotcore = IotCore("Receive Message")
+        iotcore = IotCore("Receive Messages")
 
         with Cluster("EC2 Instance", graph_attr=font):
                 caddy = Caddy("Reverse Proxy")
 
                 with Cluster("Docker Container", graph_attr=font):
                     gunicorn = Gunicorn("WSGI Server")
-                    flask = Flask("Framework")
+                    flask = Flask("Web Framework")
         
-    s3 << [flask, completion]
-    tablet >> Edge(label="HTTPS") >> dns >> caddy >> gunicorn >> flask
-    completion >> Edge(label="Publish") >>  iotcore
-    completion << Edge(label="Trigger") << iotcore
-    iotcore >> Edge(label="MQTT") <<  esp32
+    esp32 >> Edge(label="MQTT") >> iotcore
+    iotcore >> Edge(label="Trigger") >> completion >> s3
+    iotcore << Edge(label="Publish") << completion
+    s3 << flask << gunicorn << caddy << dns << Edge(label="HTTPS") << tablet

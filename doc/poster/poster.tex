@@ -13,7 +13,7 @@
 \usetheme{gemini}
 \usecolortheme{gemini}
 \usepackage{graphicx}
-\usepackage{subcaption}
+\usepackage[font={small}]{subcaption}
 \graphicspath{{../common/personas}{../common/}{images}}
 \usepackage{booktabs}
 \usepackage{tikz}
@@ -98,143 +98,126 @@
     \begin{column}{\colwidth}
 
       \begin{block}{Abstract}
-        % goal and need statment, remade to fit the poster presentation's context
-        % required about 150+ words
+        % some kind of into/hook
+        % a rework of the need + goal
+        The product must be a standalone, offline capable task management device 
+        that keeps track of the user's habits, scheduled tasks, and upcoming 
+        events.
+        We created the device using the ESP-IDF platform targeting the ESP32-
+        C3, with the following approach of separating the device and the 
+        server:
+
         \begin{enumerate}
-          \item \textbf{Presence:} Balanced between annoying and unnoticeable
-          \item \textbf{Configurable:} Integration with existing productivity tools ex: Google Calendar
-          \item \textbf{Accessible:} Easy to use and has data backup in case of device failure.
+          \item \textbf{Device Implementation} Users modify the status of 
+            tasks/events/habits on the device to be synced later.
+          \item \textbf{Server Implementation} Users manage their data on the
+            web server, producing entries that are accessible to their device.
+          \item \textbf{Synchronization} Device periodically syncs by uploading
+            local changes and retrieving the latest data from the server. 
         \end{enumerate}
-        \begin{itemize}
-          \item \textbf{Simultaneous Tasks:} Up to 100
-          \item \textbf{Price:} <\$100
-          \item \textbf{Devices per user:} Unlimited
-        \end{itemize}
+
       \end{block}
 
-      \begin{block}{Personas} 
-    
-    \begin{minipage}[t]{0.3\linewidth}
-      \centering
-      \includegraphics[width=0.8\linewidth]{camillia.png}
-    \end{minipage}
-    \hfill
-    \begin{minipage}[t]{0.65\linewidth}
-      \textbf{Camillia - Cardiologist}
-      
-      Cardiologist, wants to balance demanding work schedule with quality time with kids. Needs help organizing daily tasks so that she can make it to special occasions with her family.
-    \end{minipage}
-    
-    \vspace{0.5cm}
-    
-    \begin{minipage}[t]{0.3\linewidth}
-      \centering
-      \includegraphics[width=0.8\linewidth]{Elijah.png}
-    \end{minipage}
-    \hfill
-    \begin{minipage}[t]{0.65\linewidth}
-      \textbf{Elijah - IT receptionist}
-      
-      [IT receptionist, wants to keep track of all the message assignments and dynamically edit his schedule to adapt to meeting times. Is married and wants to spend time with adopted puppy.]
-    \end{minipage}
-    
-    \vspace{0.5cm}
-    
-    \begin{minipage}[t]{0.3\linewidth}
-      \centering
-      \includegraphics[width=0.8\linewidth]{Linda.png}
-    \end{minipage}
-    \hfill
-    \begin{minipage}[t]{0.65\linewidth}
-      \textbf{Linda - Marketing and Sales}
-      
-      [Is striving for managerial position but often struggles to find time to let loose and rest.]
-    \end{minipage}
-
-    
-    \vspace{0.4cm}
-    
-    \begin{minipage}[t]{0.3\linewidth}
-      \centering
-      \includegraphics[width=0.8\linewidth]{Peyton.png}
-    \end{minipage}
-    \hfill
-    \begin{minipage}[t]{0.65\linewidth}
-      \textbf{Peyton - [Barista and Bartender]}
-      
-      [He works both jobs in a day and aspires to pick up new hobies and work out.]
-    \end{minipage}
-    
-    \vspace{0.4cm}
-    
-    \begin{minipage}[t]{0.3\linewidth}
-      \centering
-      \includegraphics[width=0.8\linewidth]{Mary.png}
-    \end{minipage}
-    \hfill
-    \begin{minipage}[t]{0.65\linewidth}
-      \textbf{Mary - [University Student]}
-      
-      [She has to balance school work, chores and social life. Productivity phone apps don't help.]
-    \end{minipage}
-
-  \end{block}
+%      \begin{block}{Personas} 
+%    
+%    \begin{minipage}[t]{0.3\linewidth}
+%      \centering
+%      \includegraphics[width=0.8\linewidth]{camillia.png}
+%    \end{minipage}
+%    \hfill
+%    \begin{minipage}[t]{0.65\linewidth}
+%      \textbf{Camillia - Cardiologist}
+%      
+%      Cardiologist, wants to balance demanding work schedule with quality time with kids. Needs help organizing daily tasks so that she can make it to special occasions with her family.
+%    \end{minipage}
+%    
+%    \vspace{0.5cm}
+%    
+%    \begin{minipage}[t]{0.3\linewidth}
+%      \centering
+%      \includegraphics[width=0.8\linewidth]{Elijah.png}
+%    \end{minipage}
+%    \hfill
+%    \begin{minipage}[t]{0.65\linewidth}
+%      \textbf{Elijah - IT receptionist}
+%      
+%      [IT receptionist, wants to keep track of all the message assignments and dynamically edit his schedule to adapt to meeting times. Is married and wants to spend time with adopted puppy.]
+%    \end{minipage}
+%    
+%    \vspace{0.5cm}
+%    
+%    \begin{minipage}[t]{0.3\linewidth}
+%      \centering
+%      \includegraphics[width=0.8\linewidth]{Linda.png}
+%    \end{minipage}
+%    \hfill
+%    \begin{minipage}[t]{0.65\linewidth}
+%      \textbf{Linda - Marketing and Sales}
+%      
+%      [Is striving for managerial position but often struggles to find time to let loose and rest.]
+%    \end{minipage}
+%
+%    
+%    \vspace{0.4cm}
+%    
+%    \begin{minipage}[t]{0.3\linewidth}
+%      \centering
+%      \includegraphics[width=0.8\linewidth]{Peyton.png}
+%    \end{minipage}
+%    \hfill
+%    \begin{minipage}[t]{0.65\linewidth}
+%      \textbf{Peyton - [Barista and Bartender]}
+%      
+%      [He works both jobs in a day and aspires to pick up new hobies and work out.]
+%    \end{minipage}
+%    
+%    \vspace{0.4cm}
+%    
+%    \begin{minipage}[t]{0.3\linewidth}
+%      \centering
+%      \includegraphics[width=0.8\linewidth]{Mary.png}
+%    \end{minipage}
+%    \hfill
+%    \begin{minipage}[t]{0.65\linewidth}
+%      \textbf{Mary - [University Student]}
+%      
+%      [She has to balance school work, chores and social life. Productivity phone apps don't help.]
+%    \end{minipage}
+%
+%  \end{block}
 
       \begin{block}{System Architecture}
-      \begin{figure}
-        \begin{subfigure}[t]{0.54\textwidth}
-            \includegraphics[width =\textwidth]{PrototypeDesign.png}
-            \caption{Component Diagram}
-        \end{subfigure}
-        \begin{subfigure}[t]{0.44\textwidth}
-            \includegraphics[width=\textwidth]{prototype.jpg}
-            \caption{Functional Prototype}
-        \end{subfigure}
-      \end{figure}
+
+        \begin{figure}
+          \begin{subfigure}[t]{0.54\textwidth}
+              \includegraphics[width =\textwidth]{PrototypeDesign.png}
+              \caption{Component Diagram}
+          \end{subfigure}
+          \begin{subfigure}[t]{0.44\textwidth}
+              \includegraphics[width=\textwidth]{prototype.jpg}
+              \caption{Functional Prototype}
+          \end{subfigure}
+        \end{figure}
 
         \begin{itemize}
-          \item \textbf{Input}: Touch screen to navigate menus, edit data, and enter focus tasks.
-          \item \textbf{Processing}: Custom microcontroller updates task database in real-time.
-          \item \textbf{Display}: 3.5" LCD and webserver show current task/event list and status.
-          \item \textbf{Storage}: RTC maintains devices track of time even when powered off, and the onboard SD card maintains all user data between resets.
+          \item \textbf{Input}: Push-buttons used for navigating menus and
+            making modifications to data.
+          \item \textbf{Software}: Components manage task storage and
+            management, rendering of the user interface, wireless
+            communication, and initial setup.
+          \item \textbf{Display}: 3.5" LCD displays time, connection status,
+            and user data.
+          \item \textbf{Persistence}: RTC maintains devices track of time even 
+            when powered off, and the onboard SD card maintains all user data
+            between resets.
+          \item \textbf{Configuration}: Device enters softAP mode when losing
+            connection to an access point to allow Wi-Fi provisioning.
         \end{itemize}
 
-        Webapp allows user to edit activities and view calendar. Standalone device allows the user to view and mark their goals.
-
       \end{block}
 
-      \begin{block}{Prototype Design}
-        \textbf{Entries}
+     \begin{block}{User interface}
 
-        To achieve their goals and maintain a healthy routine, device includes three tools to tackle the day:
-
-        \begin{center}
-          \includegraphics[width = 0.9 \textwidth]{entry_logic.png}
-        \end{center}
-
-        \textbf{Server-Client Modularization}
-
-        Device works with strict limitations of ESP32C3 microcontroller while separating the user's computer from accurate display of user entires:
-
-        \begin{enumerate}
-          \item \textbf{Server Implementation} Users manage their data on the web server, producing entries that are accessible to their device.
-          \item \textbf{Synchronization} Device periodically syncs by uploading local changes and retrieving server updates, prioritizing entry deletions.
-        \end{enumerate}
-      \end{block}
-
-    \end{column}
-    % ====================
-    % End column 1
-    % ====================
-
-    \separatorcolumn
-
-    % ====================
-    % Begin column 2
-    % ====================
-    \begin{column}{\colwidth} 
-
-      \begin{block}{User interface}
         \begin{figure}
           \centering
           \begin{subfigure}{0.49\textwidth}
@@ -257,27 +240,63 @@
             \caption{Habit Tracking View}
           \end{subfigure}
         \end{figure} 
+
       \end{block}
 
-      \begin{block}{Server Architecture}
-        \vskip 0.5cm
+    \end{column}
+    % ====================
+    % End column 1
+    % ====================
+
+    \separatorcolumn
+
+    % ====================
+    % Begin column 2
+    % ====================
+    \begin{column}{\colwidth} 
+
+      \begin{block}{Prototype Design}
+
+        \textbf{Entries}
+
+        To achieve their goals and maintain a healthy routine, device includes 
+        three tools to tackle the day:
+
         \begin{center}
-          \includegraphics[width = \linewidth]{data_flow.png}
+          \includegraphics[width = 0.9 \textwidth]{entry_logic.png}
         \end{center}
+
       \end{block}
 
       \begin{block}{Web Interface}
+
         \begin{figure}
           \begin{subfigure}{\textwidth}
             \includegraphics[width = \textwidth]{web_mainview.png}
             \caption{Home Page}
           \end{subfigure}
-          \hfill
+          \\
           \begin{subfigure}{0.49\textwidth}
             \includegraphics[width = \textwidth]{web_devices.png}
             \caption{Device Management}
           \end{subfigure}
+          \hfill
+          \begin{subfigure}{0.49\textwidth}
+            \includegraphics[width = \textwidth]{web_addtask.png}
+            \caption{Task Creation}
+          \end{subfigure}
         \end{figure}
+      \end{block}
+
+      \begin{block}{Server Architecture}
+
+        \begin{itemize}
+          \item The device communicates with the cloud via MQTT
+          \item Messages are routed to/from the endpoint with lambda functions
+          \item The message queue and the web server both pull data from S3
+          \item Server software is deployed on an EC2 
+        \end{itemize}
+
       \end{block}
 
     \end{column}
@@ -288,6 +307,24 @@
     \separatorcolumn
 
   \end{columns}
+
+  \begin{columns}
+
+    \separatorcolumn
+
+    \begin{column}{\bigcolwidth}
+
+      \vskip 0.5cm
+      \begin{center}
+        \includegraphics[width = 0.95 \textwidth]{data_flow.png}
+      \end{center}
+
+    \end{column}
+
+    \separatorcolumn
+
+  \end{columns}
+
 \end{frame}
 
 \end{document}
