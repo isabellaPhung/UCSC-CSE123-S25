@@ -16,7 +16,7 @@ pdf: build/$(TARGET)
 DIAGRAMS_DIR := ../common/aws_chart
 
 $(DIAGRAMS_DIR)/.venv:
-	cd $(DIAGRAMS_DIR) && python3 -m venv $@
+	python3 -m venv $@
 $(DIAGRAMS_DIR)/.venv/bin/diagrams: $(DIAGRAMS_DIR)/.venv
 	cd $(DIAGRAMS_DIR) && . .venv/bin/activate && pip3 install -r requirements.txt
 
