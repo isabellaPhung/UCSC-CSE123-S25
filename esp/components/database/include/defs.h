@@ -7,7 +7,7 @@
 #define SQLITE_MEMORY_SIZE 52 * 1024
 
 #define MAX_NAME_SIZE 128
-#define MAX_DESC_SIZE 32
+#define MAX_DESC_SIZE 1024
 
 /// Priority is an offset parameter, this value decides how many seconds difference each point
 /// of priority is worth.
