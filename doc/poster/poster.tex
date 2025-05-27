@@ -190,7 +190,7 @@
 
         \begin{figure}
           \begin{subfigure}[t]{0.54\textwidth}
-              \includegraphics[width =\textwidth]{PrototypeDesign.png}
+              \includegraphics[width =\textwidth]{product_components.pdf}
               \caption{Component Diagram}
           \end{subfigure}
           \begin{subfigure}[t]{0.44\textwidth}
@@ -200,18 +200,17 @@
         \end{figure}
 
         \begin{itemize}
-          \item \textbf{Input}: Push-buttons used for navigating menus and
+          \item \textbf{Input}: Touch screen for navigating menus and
             making modifications to data.
           \item \textbf{Software}: Components manage task storage and
             management, rendering of the user interface, wireless
             communication, and initial setup.
-          \item \textbf{Display}: 3.5" LCD displays time, connection status,
+          \item \textbf{Display}: 7.5" OLED screen displays time, connection status,
             and user data.
           \item \textbf{Persistence}: RTC maintains devices track of time even 
-            when powered off, and the onboard SD card maintains all user data
+            when powered off, and the onboard flash memory maintains user data
             between resets.
-          \item \textbf{Configuration}: Device enters softAP mode when losing
-            connection to an access point to allow Wi-Fi provisioning.
+          \item \textbf{Configuration}: Device enters access point mode during set up to allow for Wi-Fi provisioning.
         \end{itemize}
 
       \end{block}
@@ -263,7 +262,7 @@
         three tools to tackle the day:
 
         \begin{center}
-          \includegraphics[width = 0.9 \textwidth]{entry_logic.png}
+          \includegraphics[width = 0.9 \textwidth]{entry_logic.pdf}
         \end{center}
 
       \end{block}
