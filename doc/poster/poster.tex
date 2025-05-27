@@ -21,6 +21,7 @@
 \pgfplotsset{compat=1.14}
 \usepackage{anyfontsize}
 \usepackage{smartdiagram}
+\usepackage{longtable}
 \usesmartdiagramlibrary{additions}
 
 % ====================
@@ -101,12 +102,27 @@
   \end{block}
 
   \begin{block}{Personas} 
-  
+    %TODO Personas 
   \end{block}
-    
-   \begin{block}{Hardware design}
+ 
+  \begin{block}{Design Objectives} 
+    \begin{enumerate}
+        \item \textbf{Presence:} Balanced between annoying and unnoticeable
+        \item \textbf{Configurable:} Integration with existing productivity tools ex: Google Calendar
+        \item \textbf{Accessible:} Easy to use and has data backup in case of device failure.
+    \end{enumerate}
+
+    \begin{itemize}
+        \item \textbf{Simultaneous Tasks:} Up to 100
+        \item \textbf{Price:} <\$100
+        \item \textbf{Devices per user:} Unlimited
+    \end{itemize}
+
+  \end{block}   
+
+  \begin{block}{Hardware design}
     \begin{center}
-      \includegraphics{PrototypeDesign.jpg}
+      \includegraphics[width = \linewidth]{PrototypeDesign.png}
     \end{center}
   \end{block}
 
@@ -144,7 +160,7 @@
     \begin{block}{Prototype Design}
     \textbf{Entries}
 
-    For the purpose of allowing the user to achieve their goals and maintain a healthy routine, the device includes three tools to tackle the various aspects of one's day:
+    To achieve their goals and maintain a healthy routine, device includes three tools to tackle the day:
 
     \begin{center}
       \includegraphics{entry_logic.png}
@@ -152,11 +168,11 @@
 
     \textbf{Server-Client Modularization}
 
-    The device is designed to work within the strict limitations of the ESP32C3 board while achiving both a direct seperation from the user's computer and an accurate display of the user's entires:
+    Device works with strict limitations of ESP32C3 microcontroller while separating the user's computer from accurate display of user entires:
 
     \begin{enumerate}
-      \item \textbf{Server Implemenentation}. Users can manage their data on the corresponding web server, producing entries that are then accessible to their device.
-      \item \textbf{Syncronization}. The device periodically syncs by uploading local changes and retrieving server updates, prioritizing entry deletions.
+      \item \textbf{Server Implementation} Users manage their data on the web server, producing entries that are accessible to their device.
+      \item \textbf{Synchronization} Device periodically syncs by uploading local changes and retrieving server updates, prioritizing entry deletions.
     \end{enumerate}
 
     \end{block}
