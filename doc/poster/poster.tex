@@ -120,17 +120,16 @@
       \includegraphics{PrototypeDesign.jpg}
     \end{center}
 
-    Vivamus congue volutpat elit non semper. 
+    Functional Prototype Hardware breakdown 
 
     \begin{enumerate}
-      \item \textbf{Morbi mauris purus}, egestas at vehicula et, convallis
-        accumsan orci. Orci varius natoque penatibus et magnis dis parturient
-        montes, nascetur ridiculus mus.
-      \item \textbf{Cras vehicula blandit urna ut maximus}. Aliquam blandit nec
-        massa ac sollicitudin. Curabitur cursus, metus nec imperdiet bibendum,
-        velit lectus faucibus dolor, quis gravida metus mauris gravida turpis.
-      \item \textbf{Vestibulum et massa diam}. Phasellus fermentum augue non
-        nulla accumsan, non rhoncus lectus condimentum.
+      \item \textbf{Pin dedication}: ESP32C3 pins were dedicated to select, reset, right, left, up, and down buttons. They were also dedicated to the LCD screen,
+      and the real time clock. Pin management was one of the greater limitations of the prototype and one of the aspects that necessitates a custom dedicated microcontroller.
+      \item \textbf{User Input}: The buttons were the primary mode of user input. Within the LCD tablet the menus that are included are Habits, Tasks and Events. A highlight would
+      indicate the cursor position in the screen and the selection. Selecting an activity opened the option to enter focus mode which would open a timer and minimalist page. The options to 
+      reset the timer and end focus mode would be open within this menu and the time left would be displayed. Tasks and events are displayed on the main page with up to 4 being displayed at a time.
+      The user could scroll down to enter a new page with four new tasks and continue until all existing tasks were viewed. Selecting the habits page would open a menu organized by days of the week
+      and task. The user could select days to represent fullfullment of the habits for those respective days. 
     \end{enumerate}
 
 
