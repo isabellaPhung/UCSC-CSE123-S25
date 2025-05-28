@@ -36,6 +36,6 @@ with Diagram("", show=False, graph_attr=font, node_attr=font, edge_attr=font):
     android >> dns
     device >> dns
     dns >> nginx
-    nginx >> Edge(label="/api") >> flask
-    nginx >> Edge(label="localhost") >> react
+    nginx >> Edge(xlabel="") >> flask << Edge(label="") << react
+    nginx >> Edge(label="/") >> react
     flask >> postgres
