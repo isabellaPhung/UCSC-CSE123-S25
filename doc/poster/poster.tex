@@ -59,7 +59,7 @@
   \and
   Lennan~Tuffy
 }
-\institute[UC Santa Cruz]{CSE 123 - Supervised by Prof. David Harrison}
+\institute[UC Santa Cruz]{CSE 123 - Supervised by Prof. David Harrison and Charlie Alders}
 \date{\today}
 
 % ====================
@@ -98,15 +98,15 @@
     \begin{column}{\colwidth}
 
       \begin{block}{Introduction}
-        Current scheduling applications lack the ability to excercise 
-        greater precedence over other applications 
-        and organize activities by necessity, urgency, or frequency.
+        Existing software-based scheduling solutions lack the ability to exercise 
+        greater precedence over distractions 
+        when organizing activities.
 
         Our design objectives include:
         \begin{itemize}
-            \item Presence: Device must command user attention in a way that is systematic but not overly frequent.
-            \item Configurable: Device software must be compatible with exsisting tools such as Google Calendar.
-            \item Accessible: Device must integrate intuitive user interface and must contain backups for device failures. 
+            \item \textbf{Presence:} Device must command user attention in a way that is systematic but not overly frequent.
+            \item \textbf{Configurable:} Device software must be compatible with existing tools such as Google Calendar.
+            \item \textbf{Accessible:} Device must integrate intuitive user interface and must contain backups for device failures. 
         \end{itemize}
        
         \textbf{Target Audience:}
@@ -125,9 +125,8 @@
         \end{itemize}
         \end{minipage}
 
-        
-        We desgined a prototype using the ESP-IDF platform targeting the ESP32-
-        C3, with the following approach of separating the device and the 
+        Our prototype uses the ESP-IDF platform targeting the ESP32-C3,
+        with the following approach of separating the device and the 
         server:
 
         \begin{enumerate}
@@ -234,42 +233,13 @@
             communication, and initial setup.
           \item \textbf{Display}: 7.5" OLED screen displays time, connection status,
             and user data.
-          \item \textbf{Persistence}: RTC maintains devices track of time even 
-            when powered off, and the onboard flash memory maintains user data
+          \item \textbf{Persistence}: RTC keeps time even 
+            when powered off, and onboard flash memory maintains user data
             between resets.
           \item \textbf{Configuration}: Device enters access point mode during set up to allow for Wi-Fi provisioning.
         \end{itemize}
-
       \end{block}
-
-     \begin{block}{User interface}
-
-        \begin{figure}
-          \centering
-          \begin{subfigure}{0.49\textwidth}
-            \includegraphics[width=\textwidth]{taskEvent.png}
-            \caption{Main Menu}
-          \end{subfigure}
-          \hfill
-          \begin{subfigure}{0.49\textwidth}
-            \includegraphics[width=\textwidth]{taskTile.png}
-            \caption{Detailed Task View}
-          \end{subfigure}
-          \\
-          \begin{subfigure}{0.49\textwidth}
-            \includegraphics[width=\textwidth]{focusTile.png}
-            \caption{Focus Task View}
-          \end{subfigure}
-          \hfill
-          \begin{subfigure}{0.49\textwidth}
-            \includegraphics[width=\textwidth]{habitTile.png}
-            \caption{Habit Tracking View}
-          \end{subfigure}
-        \end{figure} 
-
-      \end{block}
-
-    \end{column}
+         \end{column}
     % ====================
     % End column 1
     % ====================
@@ -287,20 +257,20 @@
         \begin{figure}
           \includegraphics[width = \textwidth]{entry_logic.pdf}
           \caption{To achieve their goals and maintain a healthy routine, device has
-        three tools to tackle the day}
+        three tools to tackle the day.}
         \end{figure}
 
       \end{block}
 
       \begin{block}{Web Interface}
         \begin{itemize}
-          \item \textbf{Daily overview}: A landing page for a devices's data 
+          \item \textbf{Daily overview}: A landing page for devices's data 
             that displays today's tasks, habits, and events.
           \item \textbf{Entry creation and modification}: Create and modify 
-            entries to be sent to the device form the cloud.
+            entries to be sent to the device from the cloud.
           \item \textbf{Monthly overview}: View scheduled tasks and events in a
             calendar view.
-          \item \textbf{Many-to-many usage}: multiple users may share multiple
+          \item \textbf{Many-to-many usage}: Multiple users may share multiple
             devices with others.
           \item \textbf{User configuration}: Sign up as a new user, or
             add/remove devices as a returning user.
@@ -325,7 +295,6 @@
       \end{block}
 
       \begin{block}{Server Architecture}
-
         \begin{itemize}
           \item The device communicates with the cloud via MQTT
           \item Messages are routed to/from the endpoint with lambda functions
@@ -340,13 +309,45 @@
       \end{block}
 
     \end{column}
+  \separatorcolumn
     % ====================
     % End column 2
     % ====================
 
-    \separatorcolumn
-
   \end{columns}
+
+  \begin{columns}
+      \separatorcolumn
+      \begin{column}{\bigcolwidth}
+  \vspace{-1.5cm}
+    \begin{block}{User interface}
+        \begin{figure}
+          \centering
+          \begin{subfigure}{0.24\textwidth}
+            \includegraphics[width=\textwidth]{taskEvent.png}
+            \caption{Main Menu}
+          \end{subfigure}
+          \hfill
+          \begin{subfigure}{0.24\textwidth}
+            \includegraphics[width=\textwidth]{taskTile.png}
+            \caption{Detailed Task View}
+          \end{subfigure}
+          \hfill
+          \begin{subfigure}{0.24\textwidth}
+            \includegraphics[width=\textwidth]{focusTile.png}
+            \caption{Focus Task View}
+          \end{subfigure}
+          \hfill
+          \begin{subfigure}{0.24\textwidth}
+            \includegraphics[width=\textwidth]{habitTile.png}
+            \caption{Habit Tracking View}
+          \end{subfigure}
+        \end{figure} 
+      \end{block}
+  \end{column}
+  \separatorcolumn
+  \end{columns}
+
 \end{frame}
 
 \end{document}
