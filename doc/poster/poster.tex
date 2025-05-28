@@ -212,15 +212,15 @@
         \begin{figure}
           \begin{subfigure}[t]{0.6\textwidth}
               \includegraphics[width =\textwidth]{aestheticRender.png}
-              \caption{Aesthetic Render}
+              %\caption{Aesthetic Render}
           \end{subfigure}
           \begin{subfigure}[t]{0.54\textwidth}
               \includegraphics[width =\textwidth]{product_components.pdf}
-              \caption{Component Diagram}
+              %\caption{Component Diagram}
           \end{subfigure}
           \begin{subfigure}[t]{0.44\textwidth}
               \includegraphics[width=\textwidth]{prototype.jpg}
-              \caption{Functional Prototype}
+              %\caption{Functional Prototype}
           \end{subfigure}
         \end{figure}
 
@@ -238,7 +238,7 @@
           \item \textbf{Configuration}: Device enters access point mode during set up to allow for Wi-Fi provisioning.
         \end{itemize}
       \end{block}
-         \end{column}
+    \end{column}
     % ====================
     % End column 1
     % ====================
@@ -251,14 +251,12 @@
     \begin{column}{\colwidth} 
 
       \begin{block}{Goal Driven Design}
-
-        \textbf{Entries}
-        \begin{figure}
+        \begin{center}
+          \vskip 0.5cm
           \includegraphics[width = \textwidth]{entry_logic.pdf}
-          \caption{To achieve their goals and maintain a healthy routine, device has
-        three tools to tackle the day.}
-        \end{figure}
-
+        \end{center}
+        To achieve their goals and maintain a healthy routine, device has
+        three tools to tackle the day.
       \end{block}
 
       \begin{block}{Web Interface}
@@ -274,7 +272,7 @@
           \item \textbf{User configuration}: Sign up as a new user, or
             add/remove devices as a returning user.
         \end{itemize}
-        \includegraphics[width = \textwidth]{web_mainview.png}
+        \includegraphics[width = 0.9 \textwidth]{web_mainview.png}
         %\begin{figure}
         %  \begin{subfigure}{\textwidth}
         %    \includegraphics[width = \textwidth]{web_mainview.png}
@@ -295,10 +293,12 @@
 
       \begin{block}{Server Architecture}
         \begin{itemize}
-          \item The device communicates with the cloud via MQTT
-          \item Messages are routed to/from the endpoint with lambda functions
-          \item The message queue and the web server both pull data from S3
-          \item Server software is deployed on an EC2 
+          \item Both the device and app connect to the server with HTTPS
+          \item Requests made to "/api" are forwarded to flask by NGINX
+          \item Requests made to "/" are forwarded to react
+          \item PostgreSQL stores device and user data, accessed by the web app
+            and the device
+          \item Server software is deployed on an EC2 in docker containers
         \end{itemize}
 
         \vskip 0.5cm
@@ -308,7 +308,7 @@
       \end{block}
 
     \end{column}
-  \separatorcolumn
+    \separatorcolumn
     % ====================
     % End column 2
     % ====================
@@ -316,10 +316,9 @@
   \end{columns}
 
   \begin{columns}
-      \separatorcolumn
-      \begin{column}{\bigcolwidth}
-  \vspace{-1.5cm}
-    \begin{block}{User interface}
+    \separatorcolumn
+    \begin{column}{\bigcolwidth}
+      \begin{block}{User interface}
         \begin{figure}
           \centering
           \begin{subfigure}{0.24\textwidth}
@@ -343,8 +342,8 @@
           \end{subfigure}
         \end{figure} 
       \end{block}
-  \end{column}
-  \separatorcolumn
+    \end{column}
+    \separatorcolumn
   \end{columns}
 
 \end{frame}
