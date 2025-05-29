@@ -210,7 +210,7 @@
                     return;
                 }
 
-                fetch('https://scheduleapp.click/api/signup', {
+                fetch('/api/signup', {
                     method: 'POST',
                     headers: {
                       'Content-Type': 'application/json'
@@ -236,11 +236,6 @@
                 const errorMessage = document.getElementById('error-message');
                 errorMessage.textContent = message;
                 errorMessage.style.display = 'block';
-            }
-            
-            // Generate random user ID
-            function generateUserId() {
-                return Math.random().toString(36).substr(2, 9);
             }
             
             // Check password strength
@@ -286,36 +281,6 @@
                     strengthMeter.className = 'strong';
                     strengthText.textContent = 'Strong';
                 }
-            }
-            
-            // Initialize user data storage
-            function initializeUserData(userId) {
-                // Initialize habits
-                const userHabits = {};
-                userHabits[userId] = [];
-                
-                // Initialize tasks
-                const userTasks = {};
-                userTasks[userId] = [];
-                
-                // Initialize events
-                const userEvents = {};
-                userEvents[userId] = {};
-                
-                // Check if data already exists
-                const habits = JSON.parse(localStorage.getItem('userHabits')) || {};
-                const tasks = JSON.parse(localStorage.getItem('userTasks')) || {};
-                const events = JSON.parse(localStorage.getItem('userEvents')) || {};
-                
-                // Merge new user data
-                Object.assign(habits, userHabits);
-                Object.assign(tasks, userTasks);
-                Object.assign(events, userEvents);
-                
-                // Save to localStorage
-                localStorage.setItem('userHabits', JSON.stringify(habits));
-                localStorage.setItem('userTasks', JSON.stringify(tasks));
-                localStorage.setItem('userEvents', JSON.stringify(events));
             }
         });
     </script>
