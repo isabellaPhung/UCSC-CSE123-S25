@@ -366,7 +366,7 @@ void app_main()
             struct tm currTime;
             pcf8523_read_time(&currTime);
             char timeBuffer[64];
-            strftime(timeBuffer, sizeof(timeBuffer), "%H:%M:%S %m-%d-%y %a", &currTime);
+            strftime(timeBuffer, sizeof(timeBuffer), "%H:%M:%S %p %m-%d-%y %a", &currTime);
             timeDisplay(timeBuffer);
             updateFocusTimer();
         }
