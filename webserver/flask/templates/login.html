@@ -138,13 +138,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-<!--            // Check if already logged in-->
-<!--            const currentUser = localStorage.getItem('currentUser');-->
-<!--            if (currentUser) {-->
-<!--                window.location.href = 'index';-->
-<!--                return;-->
-<!--            }-->
-            
             // Login button click handler
             document.getElementById('login-btn').addEventListener('click', function() {
                 login();
@@ -159,12 +152,23 @@
             document.getElementById('admin-link').addEventListener('click', function(e) {
                 e.preventDefault();
                 const adminPassword = prompt('Enter admin password:');
-                if (adminPassword === 'admin123') {
-                    localStorage.setItem('isAdmin', 'true');
-                    window.location.href = 'admin';
-                } else {
-                    alert('Invalid admin password');
-                }
+
+                fetch('/api/admin', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({password: adminPassword})
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        alert('Invalid admin password');
+                    }
+                    else {
+                        localStorage.setItem('isAdmin', 'true');
+                        window.location.href = 'admin';
+                    }
+                });
             });
             
             // Handle Enter key press

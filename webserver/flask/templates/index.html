@@ -855,21 +855,21 @@
             eventsList.innerHTML = '';
 
             fetch('/api/get_events', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': getCookie('csrf_access_token')
-                    },
-                    body: JSON.stringify({current: todayTime})
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        console.error("Failed to get events");
-                    }
-                    return response.json()
-                })
-                .then(data => {
-                    const events = data.event;
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': getCookie('csrf_access_token')
+                },
+                body: JSON.stringify({current: todayTime})
+            })
+            .then(response => {
+                if (!response.ok) {
+                    console.error("Failed to get events");
+                }
+                return response.json()
+            })
+            .then(data => {
+                const events = data.event;
 
                 events.forEach(event => {
                     const eventContainer = document.createElement('div');
@@ -903,7 +903,7 @@
                      eventInfo.className = 'event-info';
                      eventInfo.appendChild(eventName);
                      eventInfo.appendChild(eventTime);
-                    
+
                      eventContainer.appendChild(eventInfo);
                      eventContainer.appendChild(deleteBtn);
 
