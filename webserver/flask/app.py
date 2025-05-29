@@ -72,6 +72,15 @@ def admin_authenticate():
     return {"admin": False}, 400
 
 
+@app.route("/api/delete_user", methods=["POST"])
+def admin_delete_user():
+    username = request.json.get("username")
+
+    if not s3_conn.delete_user(username):
+        return {"delete_user": False}, 400
+    return {"delete_user": True}, 200
+
+
 @app.route("/api/signup", methods=["POST"])
 def api_signup():
     fullname = request.json.get("fullname")

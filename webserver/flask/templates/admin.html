@@ -324,8 +324,6 @@
             
             // Load users from localStorage
             function loadUsers() {
-                let users;
-
                 fetch('/api/get_users', {
                     method: 'GET'
                 })
@@ -336,8 +334,7 @@
                     return response.json()
                 })
                 .then(data => {
-                    console.log(data);
-                    users = data.users;
+                    const users = data.users;
 
                     const usersTbody = document.getElementById('users-tbody');
 
@@ -391,7 +388,7 @@
                         deleteBtn.title = 'Delete User';
                         deleteBtn.addEventListener('click', function() {
                             if (confirm(`Are you sure you want to delete ${user.username}?`)) {
-                                deleteUser(user.id);
+                                deleteUser(user.username);
                             }
                         });
 
@@ -510,9 +507,6 @@
                     
                     // Add user to array
                     users.push(newUser);
-                    
-                    // Initialize user data storage
-                    initializeUserData(newUser.id);
                 }
                 
                 // Save to localStorage
@@ -524,21 +518,23 @@
             }
             
             // Delete user
-            function deleteUser(userId) {
-                // Get existing users
-                const users = JSON.parse(localStorage.getItem('users')) || [];
-                
-                // Filter out the user to delete
-                const updatedUsers = users.filter(u => u.id !== userId);
-                
-                // Save to localStorage
-                localStorage.setItem('users', JSON.stringify(updatedUsers));
-                
-                // Delete user data
-                deleteUserData(userId);
-                
-                // Reload users
-                loadUsers();
+            function deleteUser(usernameVal) {
+                fetch('/api/delete_user', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({username: usernameVal})
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        console.log('Unable to delete user');
+                        return;
+                    }
+                    else {
+                        loadUsers();
+                    }
+                });
             }
             
             // Format date
@@ -550,54 +546,6 @@
             // Generate random user ID
             function generateUserId() {
                 return Math.random().toString(36).substr(2, 9);
-            }
-            
-            // Initialize user data storage
-            function initializeUserData(userId) {
-                // Initialize habits
-                const userHabits = {};
-                userHabits[userId] = [];
-                
-                // Initialize tasks
-                const userTasks = {};
-                userTasks[userId] = [];
-                
-                // Initialize events
-                const userEvents = {};
-                userEvents[userId] = {};
-                
-                // Check if data already exists
-                const habits = JSON.parse(localStorage.getItem('userHabits')) || {};
-                const tasks = JSON.parse(localStorage.getItem('userTasks')) || {};
-                const events = JSON.parse(localStorage.getItem('userEvents')) || {};
-                
-                // Merge new user data
-                Object.assign(habits, userHabits);
-                Object.assign(tasks, userTasks);
-                Object.assign(events, userEvents);
-                
-                // Save to localStorage
-                localStorage.setItem('userHabits', JSON.stringify(habits));
-                localStorage.setItem('userTasks', JSON.stringify(tasks));
-                localStorage.setItem('userEvents', JSON.stringify(events));
-            }
-            
-            // Delete user data
-            function deleteUserData(userId) {
-                // Get existing data
-                const habits = JSON.parse(localStorage.getItem('userHabits')) || {};
-                const tasks = JSON.parse(localStorage.getItem('userTasks')) || {};
-                const events = JSON.parse(localStorage.getItem('userEvents')) || {};
-                
-                // Delete user data
-                delete habits[userId];
-                delete tasks[userId];
-                delete events[userId];
-                
-                // Save to localStorage
-                localStorage.setItem('userHabits', JSON.stringify(habits));
-                localStorage.setItem('userTasks', JSON.stringify(tasks));
-                localStorage.setItem('userEvents', JSON.stringify(events));
             }
         });
     </script>
