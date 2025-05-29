@@ -15,7 +15,6 @@ app.config['JWT_COOKIE_CSRF_PROTECT'] = True
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
 app.config["JWT_TOKEN_LOCATION"] = [os.getenv("JWT_TOKEN_LOCATION")]
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = int(os.getenv("JWT_ACCESS_TOKEN_EXPIRES"))
-# app.config["JWT_REFRESH_COOKIE_PATH"] = "/token/refresh"
 
 jwt = JWTManager(app)
 
@@ -62,6 +61,15 @@ def logout():
     if request.cookies.get("device_id"):
         resp.set_cookie("device_id", "", expires=0)
     return resp, 200
+
+
+@app.route("/api/admin", methods=["POST"])
+def admin_authenticate():
+    password = request.json.get("password")
+
+    if password == os.getenv("ADMIN_PASSWORD"):
+        return {"admin": True}, 200
+    return {"admin": False}, 400
 
 
 @app.route("/api/signup", methods=["POST"])
