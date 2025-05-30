@@ -10,6 +10,6 @@ in its server software stack.
 Caddy is a web server that automatically generates and renews TLS certifiates.
 Ideally, NGINX should be used as the server, as it is more performant. %FIXME
 
-![Connection between the prototype device and server](prototype_data_flow.png)
+![Connection between the prototype device and server](images/prototype_data_flow.png)
 
-![Server architecture of the ideal product](data_flow.png)
+![Server architecture of the ideal product](images/data_flow.png)

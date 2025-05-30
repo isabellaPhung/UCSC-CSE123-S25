@@ -1,4 +1,4 @@
-![Overall structure of the device\label{emb_flow}](embedded_system_flow_chart.png){ width=70% }
+![Overall structure of the device\label{emb_flow}](images/embedded_system_flow_chart.png){ width=70% }
 
 ## Device Design
 
@@ -18,7 +18,7 @@ Throughout work periods, the user has full control of the system, they are allow
 
 As the product focuses on time management, the hardware on board the device relies on data management. The data provided by the user is essential to allow the device to operate, this input data has separate data types for the separate systems of the device, which can be seen below as **Tasks**, **Habits**, and **Events**.
 
-![Data management and logic of the device\label{design_logic}](design_logic.png){ width=70% }
+![Data management and logic of the device\label{design_logic}](images/design_logic.png){ width=70% }
 
 Tasks are an objective that must be complete by a target date. These have a description, due date, and scope, which the device uses to derive the priority of such a task. High priority tasks are presented to the user during the beginning of a work period.
 
