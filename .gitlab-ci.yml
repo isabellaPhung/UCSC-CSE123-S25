@@ -86,6 +86,25 @@ make-demo-presentation:
       - doc/demo_presentation/build/Demo_Presentation.pdf
     expire_in: 1 week
 
+make-presentation:
+  rules:
+    - changes:
+      - doc/common/**/*
+      - doc/final_presentation/*
+      - .gitlab-ci.yml
+  image:
+    name: pandoc/latex
+    entrypoint: ["/bin/sh", "-c"]
+  script:
+    - tlmgr install fvextra lineno
+    - apk --no-cache add make
+    - cd doc/final_presentation
+    - make pdf
+  artifacts:
+    paths:
+      - doc/final_presentation/build/CSE123_Final_Presentation_Group2.pdf
+    expire_in: 1 week
+
 make-poster:
   rules:
     - changes:
