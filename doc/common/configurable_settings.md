@@ -1,5 +1,6 @@
 Some of the User Configurable settings are and values displayed are:
 - Switch User/Log out
+- Disconnect from Wifi/Airplane Mode 
 - Time format: 24 hr vs 12 hr, include or exclude seconds
 - Date format: Change between date formats such as MDY, DMY, YMD.
 - Timezone

@@ -11,7 +11,7 @@ Dependent variables: File contents (database), file size (bytes), power off beha
 
 Procedure:
 
-1. Verify the device is connected to the internet by checking the wifi symbol in the top right. If the wifi symbol is not displayed, connect to the device's access point and provide it wifi credentials.
+1. Power on the device and verify it is connected to the internet by checking the wifi symbol in the top right. If the wifi symbol is not displayed, connect to the device's access point and provide it wifi credentials.
 2. Create a test user on the web app. 
 3. Log into the user via a laptop or mobile device. 
 4. Add the device to the user using the corresponding device ID.
