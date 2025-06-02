@@ -1,6 +1,7 @@
 Some of the User Configurable settings are and values displayed are:
 - Switch User/Log out
 - Disconnect from Wifi/Airplane Mode 
+- Power saving mode: When enabled, device will enter sleep mode after one minute of inactivity.
 - Time format: 24 hr vs 12 hr, include or exclude seconds
 - Date format: Change between date formats such as MDY, DMY, YMD.
 - Timezone
