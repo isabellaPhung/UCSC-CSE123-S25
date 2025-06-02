@@ -28,7 +28,8 @@ Procedure for a thermal shock testing chamber:
 5. After 3 hrs, drop the device to the lower chamber. Device should dwell at this temperature for 3 hrs.
 6. Raise the device to the upper chamber to repeat the thermal shock cycle one more time. After the cycles are complete, set the chamber to return to 25C and dwell for 2 hrs to allow the device to return to room temperature.
 
-    ![IEC 60068-2-14 Thermal Shock](images/thermal_shock.png){width="50%"}
+![IEC 60068-2-14 Thermal Shock](images/thermal_shock.png){width="50%"}
+
 Expectation: Device should remain functional through then entire duration of the test and outer casing should be free of cracks and remain structurally intact.
 
 [^1]: https://fr4material.com/index.php/understanding-fr4-sheet-temperature-specifications/

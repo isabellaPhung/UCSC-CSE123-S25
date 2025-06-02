@@ -1,4 +1,6 @@
 ### Data cloud synchronization
+Introduction: Cloud synchromization and wifi connection are one of the key components of productivity device features and must be tested to ensure full functionality.
+
 Scope: flash storage, file operations, cloud operations
 
 Apparatus: productivity device, host machine for flashing and running tests, cloud server access

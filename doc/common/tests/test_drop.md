@@ -1,4 +1,6 @@
 ### Drop testing
+Introduction: Everyday lightweight devices face wear and tear. One of the common sources of damage being dropping the device. In order to replicate all the ways in which the productivity device can be damaged, drop testing is performed to ensure the device remains functional after damage.
+
 Scope: device structural integrity
 
 Apparatus: productivity device, host machine for functionality tests, measuring tape, adjustable height desk
