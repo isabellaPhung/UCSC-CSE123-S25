@@ -1,14 +1,11 @@
-::: {#drop-testing}
 ### Drop testing
-:::
-
 Scope: device structural integrity
 
-Apparatus: productivity device, measuring tape, adjustable height desk.
+Apparatus: productivity device, host machine for functionality tests, measuring tape, adjustable height desk
 
-Independent variables: device integrity
+Independent variables: device integrity, full device functionality
 
-Dependent variables: drop height
+Dependent variables: drop height, device drop orientation
 
 Procedure:
 
