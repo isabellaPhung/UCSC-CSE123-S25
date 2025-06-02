@@ -11,7 +11,7 @@ Dependent variables: power on behaviour (planned)
 
 Procedure:
 
-1. Turn on the device. Visually confirm that the LCD boots within 10 seconds of powering on.
+1. Turn on the device and connect it to the host machine. Visually confirm that the LCD boots within 10 seconds of powering on.
 2. Run the test_screen.py pytest tool. This test program runs through a gamut of visuals and will calibrate touch input.
 
 Expectation: LCD is visually confirmed to be capable of displaying a full range of RGB colors with no dead pixels or cracked screen. Touch input is reactive and calibrated such that touches are accurate to the screen display.
