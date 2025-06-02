@@ -28,10 +28,49 @@
     \end{itemize}
   \end{columns}
 
-  \note[item]{MQTT: persistent connection not possible --- mesage \textit{queue} not utilized}
+  \note[item]{MQTT: no persistent connection --- no mesage \textit{queue}}
   \note[item]{ESP32-C3: RISC-V SoCs do not support memory expansion}
   \note[item]{Disucss potential alternatives: Pi Zero 2W, ESP32-S3 }
 
+\end{frame}
+
+\begin{frame}
+  \frametitle{Memory usage}
+
+  The prototype design ran into memory availability issues
+  \begin{itemize}
+    \item 188 kB of static memory (58.4\% of available memory)
+    \begin{itemize}
+      \item 66 kB used by the graphics library
+      \item Remaining memory is used up by heap allocations
+    \end{itemize}
+    \item Would need more if introducing more features
+    \begin{itemize}
+      \item BLE
+      \item Persistent connection
+    \end{itemize}
+  \end{itemize}
+  There are better boards that could have been used for the prototype
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Wi-Fi and MQTT}
+
+  \begin{itemize}
+    \item Wi-Fi provisioning + connection + MQTT = 100 kB (static \& dynamic)
+    \item No memory = no persistent session = no stored messages
+    \item User makes change $\rightarrow$ need to send entire backup
+  \end{itemize}
+
+  An HTTP server that responds to "changes since X" may be a better approach.
+
+  \note[item]{persistent sessions store non-ack'd qos = 1 messages}
+  \note[item]{after a reconnect, non-ack'd items are re-sent}
+  \note[item]{instead of connecting and having a worker thread, the prototype
+  connects, spends 5s, then disconnects, ending the session}
+  \note[item]{Ideally, ask for the entire thing on power-on, then react to any
+  new messages during the persistent connection.}
 \end{frame}
 
 \begin{frame}
@@ -50,8 +89,11 @@
     \includegraphics[width = 0.9 \textwidth]{data_flow.png}
   \end{center}
 
-  \note[item]{React web app and the device will make requests to "/api" to interact with the server data}
-  \note[item]{Both user and device will interact with the api after ensuring they have an un-expired jwt}
+  \note[item]{React web app and the device will make requests to "/api" to
+  interact with the server data}
+  \note[item]{Both user and device will interact with the api after ensuring
+  they have an un-expired jwt}
+
 \end{frame}
 
 \end{document}
