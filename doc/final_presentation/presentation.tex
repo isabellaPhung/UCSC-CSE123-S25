@@ -35,7 +35,7 @@
 
   \note[item]{MQTT: no persistent connection --- no message \textit{queue}}
   \note[item]{ESP32-C3: RISC-V SoCs do not support memory expansion}
-  \note[item]{Discuss potential alternatives: Pi Zero 2W, ESP32-S3 }
+  \note[item]{Discuss potential alternatives: ESP32-S3, Teensy 4.1, STM32H7 line, Pi Zero 2W}
 
 \end{frame}
 
@@ -50,16 +50,15 @@
       \item 60 kB used by neworking
       \item 133 kB left for dynamic memory
     \end{itemize}
-    \item Would need more if introducing more features
+    \item Different features
     \begin{itemize}
-      \item BLE
+      \item BLE for Wifi info
       \item Persistent connection
     \end{itemize}
   \end{itemize}
   There are better boards that could have been used for the prototype
 
-  \note[item]{GPU option: frame buffer is still in ram, but graphic operations
-  are offloaded}
+  \note[item]{GPU option: If we utilized dual cpus for the graphical display , display would be faster}
   \note[item]{LVGL already supports custom external gpu rendering}
   \note[item]{With more memory and parallel processing, current approach should
   be more performant}
@@ -81,12 +80,12 @@
   \note[item]{after a reconnect, non-ack'd items are re-sent}
   \note[item]{instead of connecting and having a worker thread, the prototype
   connects, spends 5s, then disconnects, ending the session}
-  \note[item]{Ideally, ask for the entire thing on power-on, then react to any
+  \note[item]{Final product asks for the entire thing on power-on, then react to any
   new messages during the persistent connection.}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Aesthetic rendering}
+  \frametitle{Final Manufactured Product}
 
   \begin{center}
     \includegraphics[width = 0.9 \textwidth]{schedule_companion_render.png}
