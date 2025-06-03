@@ -30,13 +30,13 @@ Procedure:
     at all angles to document the progressive damage and a functionality
     test must be performed after each drop.
 
-    ![First orientation](drop_1.jpg){width="\\textwidth"}
+    ![First orientation](images/drop_1.jpg){width="\\textwidth"}
 
-    ![Second orientation](drop_2.jpg){width="\\textwidth"}
+    ![Second orientation](images/drop_2.jpg){width="\\textwidth"}
 
-    ![Third orientation](drop_3.jpg){width="\\textwidth"}
+    ![Third orientation](images/drop_3.jpg){width="\\textwidth"}
 
-    ![Fourth orientation](drop_4.jpg){width="\\textwidth"}
+    ![Fourth orientation](images/drop_4.jpg){width="\\textwidth"}
 
 4.  The device will be dropped once more, this time by having the tester
     hold the device facing themselves 100 centimeters above the ground
@@ -45,7 +45,7 @@ Procedure:
     again, images should be taken of the device and a functionality test
     must be performed after the drop.
 
-    ![Final drop orientation](drop_5.jpg){#fig:drop width="50%"}
+    ![Final drop orientation](images/drop_5.jpg){#fig:drop width="50%"}
 
 Expectation: No cracking on the LCD screen and device remains fully
 functional after all five drops. Minor defects on the plastic housing
