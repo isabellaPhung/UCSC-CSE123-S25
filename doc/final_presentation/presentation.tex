@@ -22,15 +22,15 @@
     What could be better
     \begin{itemize}
       \item MQTT
-      \item LVGL: screen rendering
+      \item Memory usage
       \item SoC specs
       \item Device authentication
     \end{itemize}
   \end{columns}
 
-  \note[item]{MQTT: no persistent connection --- no mesage \textit{queue}}
+  \note[item]{MQTT: no persistent connection --- no message \textit{queue}}
   \note[item]{ESP32-C3: RISC-V SoCs do not support memory expansion}
-  \note[item]{Disucss potential alternatives: Pi Zero 2W, ESP32-S3 }
+  \note[item]{Discuss potential alternatives: Pi Zero 2W, ESP32-S3 }
 
 \end{frame}
 
@@ -41,8 +41,9 @@
   \begin{itemize}
     \item 188 kB of static memory (58.4\% of available memory)
     \begin{itemize}
-      \item 66 kB used by the graphics library
-      \item Remaining memory is used up by heap allocations
+      \item 66 kB used by graphics
+      \item 60 kB used by neworking
+      \item 133 kB left for dynamic memory
     \end{itemize}
     \item Would need more if introducing more features
     \begin{itemize}
@@ -51,6 +52,12 @@
     \end{itemize}
   \end{itemize}
   There are better boards that could have been used for the prototype
+
+  \note[item]{GPU option: frame buffer is still in ram, but graphic operations
+  are offloaded}
+  \note[item]{LVGL already supports custom external gpu rendering}
+  \note[item]{With more memory and parallel processing, current approach should
+  be more performant}
 
 \end{frame}
 
@@ -93,7 +100,26 @@
   interact with the server data}
   \note[item]{Both user and device will interact with the api after ensuring
   they have an un-expired jwt}
+  \note[item]{With device jwt, we should have better security and a proper
+  device authentication process}
 
+\end{frame}
+
+\begin{frame}
+  \frametitle{Our goal}
+
+  \begin{quote}{}
+    \input{build/goal_statement_md}
+  \end{quote}
+
+  \input{build/design_objective_table_md}
+
+  \begin{center}
+    Did we succeed?
+  \end{center}
+
+  \note[item]{No to sync time}
+  \note[item]{Battery seems feasible}
 \end{frame}
 
 \end{document}
