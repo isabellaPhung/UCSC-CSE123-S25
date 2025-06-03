@@ -1,0 +1,2 @@
+- mirrors web app a lot
+- includes bluetooth functionality for adding in device ssid

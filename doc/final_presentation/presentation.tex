@@ -6,41 +6,21 @@
 \frame{\titlepage}
 
 \begin{frame}
-  \frametitle{Schedule Structure}
+  \frametitle{Introduction}
+  \begin{quote}{}
+    \input{build/goal_statement_md}
+  \end{quote}
+
   \includegraphics[width=\textwidth]{images/goal_completion.png}
 \end{frame}
 
 \begin{frame}
-  \frametitle{The prototype}
-
-  \begin{columns}
-    \column{0.5\textwidth}
-    What worked
-    \begin{itemize}
-      \item SQLite3
-      \item Persistence
-      \item Web server
-      \item Wi-Fi provisioning
-    \end{itemize}
-
-    \column{0.5\textwidth}
-    What could be better
-    \begin{itemize}
-      \item MQTT
-      \item Memory usage
-      \item SoC specs
-      \item Device authentication
-    \end{itemize}
-  \end{columns}
-
-  \note[item]{MQTT: no persistent connection --- no message \textit{queue}}
-  \note[item]{ESP32-C3: RISC-V SoCs do not support memory expansion}
-  \note[item]{Discuss potential alternatives: ESP32-S3, Teensy 4.1, STM32H7 line, Pi Zero 2W}
-
+  \frametitle{Prototyped elements of design}
+    %TODO TABLE OF ALL MANUFACTURED PRODUCT FEATURES, COLOR WHICH ONES WE DID IN PROTOTYPE
 \end{frame}
 
 \begin{frame}
-  \frametitle{Memory usage}
+  \frametitle{Biggest Roadblock: Memory usage}
 
   The prototype design ran into memory availability issues
   \begin{itemize}
@@ -62,6 +42,7 @@
   \note[item]{LVGL already supports custom external gpu rendering}
   \note[item]{With more memory and parallel processing, current approach should
   be more performant}
+  \note[item]{This taught us our hardware requirements for the manufactured product}
 
 \end{frame}
 
@@ -83,13 +64,38 @@
   \note[item]{Final product asks for the entire thing on power-on, then react to any
   new messages during the persistent connection.}
 \end{frame}
-
 \begin{frame}
-  \frametitle{Final Manufactured Product}
+    
+  \frametitle{What did we learn from the prototype?}
 
-  \begin{center}
-    \includegraphics[width =\textwidth]{schedule_companion_render.png}
-  \end{center}
+  \begin{columns}
+    \column{0.5\textwidth}
+    What worked:
+    \begin{itemize}
+      \item SQLite3
+      \item Persistence
+      \item Web server
+      \item Wi-Fi provisioning
+    \end{itemize}
+
+    \column{0.5\textwidth}
+    What is improved in the manufactured product:
+    \begin{itemize}
+      \item MQTT
+      \item Memory usage
+      \item SoC specs
+      \item Device authentication
+      \item Additional features
+      \item Screen size and touch
+      \item Haptics and audio 
+    \end{itemize}
+  \end{columns}
+
+  \note[item]{MQTT: no persistent connection --- no message \textit{queue}}
+  \note[item]{ESP32-C3: RISC-V SoCs do not support memory expansion}
+  \note[item]{Discuss potential alternatives: ESP32-S3, Teensy 4.1, STM32H7 line, Pi Zero 2W}
+  \note[item]{Components: add aptics, audio, improve screen and touch}
+  \note[item]{Additional features: time blocks, event organization}
 
 \end{frame}
 
@@ -110,11 +116,17 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Our goal}
+  \frametitle{Tests}
+ %tests we can and cant do 
+\end{frame}
 
-  \begin{quote}{}
-    \input{build/goal_statement_md}
-  \end{quote}
+\begin{frame}
+  \frametitle{Test Results}
+ %results of tests we did 
+\end{frame}
+
+\begin{frame}
+  \frametitle{Initial goal}
 
   \input{build/design_objective_table_md}
 
@@ -125,5 +137,22 @@
   \note[item]{No to sync time}
   \note[item]{Battery seems feasible}
 \end{frame}
+
+\begin{frame}
+  \frametitle{Finalized Specs}
+    %TODO NEW DESIGN OBJECTIVE TABLE WITH WHAT THE MANUFACTURED PRODUCT ACTUALLY WILL HAVE
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Final Manufactured Product}
+
+  \begin{center}
+    \includegraphics[width =\textwidth]{schedule_companion_render.png}
+  \end{center}
+  %TALK ABOUT DESIGN CHOICES FOR NOT KICK STAND, TALK ABOUT REPAIRABILITY
+
+\end{frame}
+
 
 \end{document}
