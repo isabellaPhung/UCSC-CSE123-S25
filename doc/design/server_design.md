@@ -16,7 +16,15 @@ Ideally, NGINX should be used as the server, as it is more performant. %FIXME
 ![Server architecture of the ideal product](images/data_flow.png)
 
 **Database Connection**
+
 The web server retrieves and updates the user’s data by accessing the cloud database.
 In our prototype, this involves using Amazon’s boto3 Python toolkit to connect to our AWS S3 buckets.
 All credentials and database configuration details are stored in a .env file, which is accessible by the Python code when the Docker container has been started.
 Ideally, the cloud database should be a PostgreSQL instance running on a server. TODO: why postgres instead of s3
+
+**Flask API**
+
+The Flask server has API endpoints which communicate with the S3 buckets.
+This includes endpoints to verify login credentials, get tasks/events/habits for a specific device, and update tasks/events/habits for a device.
+The Flask server also has login and logout token endpoints to set and remove cookies containing JWT access tokens.
+If an access token for a user is expired or not found, the Flask app will redirect the user to the login page. TODO: elaborate more? mention javascript fetch
