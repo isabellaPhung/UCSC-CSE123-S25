@@ -11,17 +11,17 @@ Dependent variables: chamber temperature and humidity
 
 Procedure for 2x thermal testing chambers:
 
-1. Place the device atop a flat surface such as wood or a metal tray.
+1. Remove the device's lithium ion cells and set them aside. Place the device atop a flat surface such as wood or a metal tray.
 2. Feed a cable for the host machine through the port of the thermal chamber. Connect the end of the cable to the monitoring host machine.
 3. Before connecting the productivity device, close and cool the test chamber to the temperature minimum of -40C. Down ramp should be set to 5C/min.
 4. Once thermal chamber is stable at the minimum temperature, open the test chamber and place the device and the tray inside of the thermal chamber.
 5. Wearing gloves, connect the cable from the host machine into the productivity device. Check that the productivity device is on, connected to the internet and is loaded with an existing test account with tasks, events, and habits. Host machine should be set up to monitor device functionality for the entire duration of the test. Device should be dwell at this temperature for 3hrs.
-5. Set up a second host machine in the second thermal chamber in the same way as the first thermal chamber. Close and heat the chamber to 85C with an up ramp of 5C/min.
-5. Open both test chambers and unplug the device while wearing protective gloves or using tongs. Transfer the device to the second hot chamber as quickly as possible. Plug the productivity device into the second monitoring host device, ensure the device is recieving power and communicating to the host device. Close the test chamber. Device should dwell at this temperature for 3hrs.
-6. Repeat the transfer process from the cold chamber to the hot chamber. Perform a total of two cycles, then set the chamber to return to 25C with a ramp of 5C/min and dwell for 2 hrs to allow the device to return to room temperature.
+6. Set up a second host machine in the second thermal chamber in the same way as the first thermal chamber. Close and heat the chamber to 85C with an up ramp of 5C/min.
+7. Open both test chambers and unplug the device while wearing protective gloves or using tongs. Transfer the device to the second hot chamber as quickly as possible. Plug the productivity device into the second monitoring host device, ensure the device is recieving power and communicating to the host device. Close the test chamber. Device should dwell at this temperature for 3hrs.
+8. Repeat the transfer process from the cold chamber to the hot chamber. Perform a total of two cycles, then set the chamber to return to 25C with a ramp of 5C/min and dwell for 2 hrs to allow the device to return to room temperature.
 
 Procedure for a thermal shock testing chamber:
-1. Feed a cable for the monitoring host machine through the port of the thermal chamber. 
+1. Remove the device's lithium ion cells and set them aside. Feed a cable for the monitoring host machine through the port of the thermal chamber. 
 2. Set one chamber to 85C and the other to -40C. 
 3. Close the test chamber.
 4. Once the chambers are at stable temperature. While wearing protective gloves, place the productivity device inside of one of the chambers of the thermal chamber. Connect the cable to it and check that the productivity device is on, connected to the internet and is loaded with an existing test account with tasks, events, and habits. Host machine should be set up to monitor device functionality for the entire duration of the test. Device should be dwell at this temperature for 3hrs.
