@@ -5,10 +5,9 @@
 \maketitle
 \newpage
 
-\section{Front Matter}
-\subsection{Executive Summary}
+\section{Executive Summary}
 \input{build/executive_summary_md}
-\subsection{Ethics Statement}
+
 \input{build/ethics_statement_md}
 
 \newpage
@@ -23,51 +22,73 @@
 \input{build/mary_md}
 \input{build/peyton_md}
 
-\section{Problem Definition}
 \subsection{Need}
 \input{build/need_statement_md}
 \subsection{Goal}
 \input{build/goal_statement_md}
-\subsection{Design Objectives}
-\input{build/design_objective_md}
-\input{build/design_objective_table_md}
 
-\section{Concepts Considered}
-\subsection{Conceptualizations}
-\input{build/morphological_chart_md}
-\subsection{Brainstorming Output}
-\input{build/brainstorm_md}
+\subsection{Existing Designs}
+% TODO
 
-\section{Concept Selection}
-\input{build/decision_table_md}
+\subsection{Sustainability Statement}
+% TODO
 
 \section{Detail of Design}
-\input{build/device_design_md}
-\input{build/cloud_design_md}
-
-% FIXME re-order winter quarter content
-\input{build/hardware_md}
-\input{build/server_design_md}
-
-\section{Economic Analysis}
+% TODO Images of CAD, Drawing, Photo of the prototype 
 \subsection{Design for Manufacture and Assembly}
 \input{build/design_for_manufacture_and_assembly_md}
 \subsection{Life Cycle Assessment}
 \input{build/lifecycle_assessment_md}
 
-\section{Outstanding Issues}
-\input{outstanding_issues}
+% TODO Block Diagrams
+% Wiring Diagrams
+% State Transition Diagrams
+% Technology ( languages, hardware, etc. )
+% Simulation
+% Modeling
+
+% TODO split device design into the hardware part, and each component should have one section
+%\input{build/device_design_md} % FIXME rewrite and transfer to one of the below
+%\input{build/cloud_design_md} %FIXME rewrite and transfer to one of the below
+% TODO list improvements in each section 
+\input{build/server_design_md}
+\input{build/hardware_md}
+\input{build/software_md}
+
+\section{Evaluation}
+% Functional Prototype ( go into a lot of detail, include photographs  )
+% Testing  ( this is where you show the prototype works )
+\subsection{Prototype Demonstration Procedure}
+\input{build/demo_procedure_md}
 
 \appendix
-\section{Appendices}
-\subsection{Models and Simulations}
-TBA
-\subsection{Decision Table Inputs}
+
+\section{Problem Foundation}
+\subsection{Design Objectives}
+\input{build/design_objective_md}
+\input{build/design_objective_table_md}
+\subsection{Conceptualizations}
+\input{build/morphological_chart_md}
+\subsection{Brainstorming}
+\input{build/brainstorm_md}
+\subsection{Concept Selection}
+\input{build/decision_table_md}
+
+\section{Planning}
+% TODO Basic Plan / Gantt Chart
+% Division of labor during prototyping phase
+% Collaboration ( did you use tools beyond your repository? how did you assign tasks? )
+
+\section{Testing}
 \subsection{Test Plan}
 \input{build/test_plan_md}
 \subsection{Tests}
 \input{tests}
-%\subsection{Test Results}
-\subsection{Prototype demonstration procedure}
-\input{build/demo_procedure_md}
+\subsection{Test Results}
+% TODO
+
+\section{Review}
+% TODO One paragraph from each team member:
+% Reflect on what went well and what you might do differently if you were to do it again
+
 \end{document}

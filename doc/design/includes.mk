@@ -44,6 +44,7 @@ INSERT_MD += ../common/demo_procedure.md
 
 INSERT_MD += server_design.md
 INSERT_MD += hardware.md
+INSERT_MD += software.md
 
 INSERT_TEX := tests.tex
 INSERT_TEX += outstanding_issues.tex
