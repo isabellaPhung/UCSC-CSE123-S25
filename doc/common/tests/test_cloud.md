@@ -3,11 +3,11 @@ Introduction: Cloud synchromization and wifi connection are one of the key compo
 
 Scope: flash storage, file operations, cloud operations
 
-Apparatus: productivity device, host machine for flashing and running tests, cloud server access
+Apparatus: productivity device, laptop or mobile device for web app interaction
 
 Independent variables: cloud data storage, flash storage
 
-Dependent variables: File contents (database), file size (bytes), power off behaviour (planned, power-loss)
+Dependent variables: File contents (database), power on behaviour (planned)
 
 Procedure:
 
