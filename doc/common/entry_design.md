@@ -1,6 +1,4 @@
-![Overall structure of the device\label{emb_flow}](images/embedded_system_flow_chart.png){ width=70% }
-
-## Device Design
+## Entry Design
 
 The schedule companion is designed to interact with the user through guided workflows based on the data entries they provide, enabling a streamlined approach to task and time management tailored to the user's daily routine and priorities.
 
@@ -26,7 +24,7 @@ Habits, in contrast to tasks, represent repeated behaviors the user wishes to cu
 
 There is also an auxiliary category visible in Figure \ref{design_logic} labeled *hobbies*. These are undated task entries, included as a means for users to track long-term personal projects or leisurely goals without the pressure of deadlines. By omitting due dates, hobbies serve as a gentle encouragement rather than an obligation, however the device will offer the same focus mode functionality for these low priority achievements as was introduced for work periods. The device would rely on the priority parameter dictated by the user to order the entries such that the user can readily choose a task that they find most pressing or prominent.
 
-## SQL Integration
+### Database Integration
 
 The relationships between tasks, habits, events, and their associated data are maintained using a relational SQL database. This model was chosen for its robustness in expressing complex data interrelations and its efficiency in handling queries related to sorting, filtering, and retrieving contextual information.
 
