@@ -11,7 +11,7 @@ The schedule companion is expected to operate offline using two 3500mAh 3.7V 186
 
 ##PCB
 As mentioned earlier, it is preferrable to keep the product fairly modular, mounted into the PCB housing using screws. 
-    ![First orientation](images/product_pcb_diagram.pdf){width="\\textwidth"}
+    ![Manufactured PCB Diagram](images/product_pcb_diagram.png){width="\\textwidth"}
 
 
 [^1]:https://web.archive.org/web/20090411024100/http://www.sony.com.cn/products/ed/battery/download.pdf
