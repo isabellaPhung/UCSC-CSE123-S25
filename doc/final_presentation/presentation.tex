@@ -1,5 +1,7 @@
 \documentclass{beamer}
 \usepackage{presentation}
+\usepackage{colortbl}
+\usepackage[none]{hyphenat} %prevents hyphenation
 
 \begin{document}
 
@@ -21,7 +23,17 @@
 
 \begin{frame}
   \frametitle{Prototyped elements of design}
-    %TODO TABLE OF ALL MANUFACTURED PRODUCT FEATURES, COLOR WHICH ONES WE DID IN PROTOTYPE
+\centering
+\small
+\begin{tabular}{|p{0.2\textwidth}|p{0.2\textwidth}|p{0.2\textwidth}|p{0.2\textwidth}|}
+\hline
+\cellcolor[HTML]{CFE2F3}Interactive UI        & Touchscreen                                           & \cellcolor[HTML]{CFE2F3}Web app functionality & \cellcolor[HTML]{CFE2F3}Cloud server functionality \\ \hline
+\cellcolor[HTML]{CFE2F3}User account creation & \cellcolor[HTML]{CFE2F3}Wifi Provisioning             & Battery powered                               & \cellcolor[HTML]{CFE2F3}New user creation          \\ \hline
+\cellcolor[HTML]{CFE2F3}New device addition                           & \cellcolor[HTML]{CFE2F3}Many devices to one user      & \cellcolor[HTML]{CFE2F3}Offline Usage         & \cellcolor[HTML]{CFE2F3}Real Time Clock display    \\ \hline
+\cellcolor[HTML]{CFE2F3}Focus Mode            & \cellcolor[HTML]{CFE2F3}Task and Event Implementation & \cellcolor[HTML]{CFE2F3}Habit Implementation  & Time Blocking                                      \\ \hline
+Configurable User Settings                    & End to End encryption                                 & Phone App                                     & Haptics and Audio feedback                         \\ \hline
+One device to many users                      & Schedule sorting                                      & Power button                                  &                                                    \\ \hline
+\end{tabular}
 \end{frame}
 
 \begin{frame}
@@ -41,10 +53,10 @@
       \item Persistent connection
     \end{itemize}
   \end{itemize}
-  There are better boards that could have been used for the prototype
+  ESP32C3 chip is insufficient for the manufactured product.
 
-  \note[item]{GPU option: If we utilized dual cpus for the graphical display , display would be faster}
-  \note[item]{LVGL already supports custom external gpu rendering}
+  \note[item]{GPU option: If we utilized dual cpus for the graphical display, display would be faster}
+  \note[item]{LVGL already custom external gpu rendering}
   \note[item]{With more memory and parallel processing, current approach should
   be more performant}
   \note[item]{This taught us our hardware requirements for the manufactured product}
@@ -60,7 +72,7 @@
     \item User makes change $\rightarrow$ need to send entire backup
   \end{itemize}
 
-  An HTTP server that responds to "changes since X" may be a better approach.
+  An HTTP server that responds to "changes since X" is a more efficient approach.
 
   \note[item]{persistent sessions store non-ack'd qos = 1 messages}
   \note[item]{after a reconnect, non-ack'd items are re-sent}
@@ -80,7 +92,7 @@
       \item SQLite3
       \item Persistence
       \item Web server
-      \item Wi-Fi provisioning
+      \item SoftAP Wi-Fi provisioning
     \end{itemize}
 
     \column{0.5\textwidth}
@@ -90,17 +102,20 @@
       \item Memory usage
       \item SoC specs
       \item Device authentication
+      \item End to End Encryption 
       \item Additional features
       \item Screen size and touch
       \item Haptics and audio 
+      \item Bluetooth Wi-Fi provisioning
     \end{itemize}
   \end{columns}
 
   \note[item]{MQTT: no persistent connection --- no message \textit{queue}}
   \note[item]{ESP32-C3: RISC-V SoCs do not support memory expansion}
   \note[item]{Discuss potential alternatives: ESP32-S3, Teensy 4.1, STM32H7 line, Pi Zero 2W}
-  \note[item]{Components: add aptics, audio, improve screen and touch}
+  \note[item]{Components: add haptics, audio, improve screen and touch}
   \note[item]{Additional features: time blocks, event organization}
+  \note[item]{Although we can use SoftAP, Bluetooth Wifi provisioning using a phone app is a better user experience}
 
 \end{frame}
 
@@ -115,7 +130,7 @@
   interact with the server data}
   \note[item]{Both user and device will interact with the api after ensuring
   they have an un-expired jwt}
-  \note[item]{With device jwt, we should have better security and a proper
+  \note[item]{With device jwt, we will have better security and a proper
   device authentication process}
 
 \end{frame}
@@ -131,16 +146,15 @@
       \item LCD testing
       \item New Device Addition
       \item New User Registration 
-      
     \end{itemize}
 
     \column{0.5\textwidth}
     Manufactured product tests:
     \begin{itemize}
-      \item Durabilty testing
-      \item Thermal testing 
-      \item Battery life cycle testing
-      \item Haptics and sound testing 
+      \item Durabilty
+      \item Thermal
+      \item Battery life cycle
+      \item Haptics and sound
     \end{itemize}
   \end{columns}
   \note[item]{Durability testing: includes chemical testing, drop testing, tensile testing, UV testing}
@@ -149,9 +163,7 @@
 
 \begin{frame}
   \frametitle{Test Results}
-  %results of tests we dida
-  \note
-  \note[item]{Mention that we can't test device durability because we didn't prototype the casing/aesthetic model}
+  %TODO results of tests we did
 \end{frame}
 
 \begin{frame}
@@ -186,7 +198,7 @@
   
   \note[item]{The triangular volume on the back of the device serves as a kickstand and case for electronics.}
   \note[item]{Keeps center of gravity low makes it difficult to tip over}
-  \note[item]{A large space is necessary to fit two 18650 battery cells}
+  \note[item]{A large space is necessary to fit two 18650 battery cells which we selected over a specific pouch battery for repairability}
   \note[item]{Provides room for easily assembly and disassembly, good for repairability.}
 
 \end{frame}
