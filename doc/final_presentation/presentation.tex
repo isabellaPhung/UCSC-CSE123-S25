@@ -117,19 +117,36 @@
 
 \begin{frame}
   \frametitle{Tests}
-  %tests we can and cant do
-  TODO: provide a few examples
-  \begin{itemize}
-    \item Device durability tests
-    \item Device startup/wifi connection tests
-    \item Cloud database connection tests
-    \item any web app or UI tests?
-    \end{itemize} 
+  \begin{columns}
+    \column{0.5\textwidth}
+    Prototype feasible tests:
+    \begin{itemize}
+      \item Wifi Provisioning
+      \item Data Persistance
+      \item LCD testing
+      \item New Device Addition
+      \item New User Registration 
+      
+    \end{itemize}
+
+    \column{0.5\textwidth}
+    Manufactured product tests:
+    \begin{itemize}
+      \item Durabilty testing
+      \item Thermal testing 
+      \item Battery life cycle testing
+      \item Haptics and sound testing 
+       
+    \end{itemize}
+  \end{columns}
+  \note[item]{Durability testing: includes chemical testing, drop testing, tensile testing, UV testing}
+  \note[item]{Battery life cycle: charge speed, battery degredation, battery life}
 \end{frame}
 
 \begin{frame}
   \frametitle{Test Results}
-  %results of tests we did
+  %results of tests we dida
+  \note
   \note[item]{Mention that we can't test device durability because we didn't prototype the casing/aesthetic model}
 \end{frame}
 
@@ -148,7 +165,6 @@
 
 \begin{frame}
   \frametitle{Finalized Specs}
-    %TODO NEW DESIGN OBJECTIVE TABLE WITH WHAT THE MANUFACTURED PRODUCT ACTUALLY WILL HAVE
   \input{build/Finalized_Specs_md}
 
 \end{frame}
