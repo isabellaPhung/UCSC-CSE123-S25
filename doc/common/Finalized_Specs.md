@@ -6,5 +6,5 @@
 | Cloud sync time    | Seconds | **5**                         |
 | Simultaneous tasks | Tasks   | Up to 100                 |
 | Database Size      | Bytes   | Up to 60 GB, non-volatile |
-| Battery life       | Hours   | **30**                        |
+| **Standby** Battery life       | Hours   | **30**                        |
 | Wakeup time        | Seconds | **2**                         |

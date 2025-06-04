@@ -7,8 +7,10 @@
 \usepackage{graphicx}
 \graphicspath{{../common/personas}{../common/}{../common/images}{images}}
 \usepackage{hyperref}
-\usepackage[none]{hyphenat} %prevents hyphenation
 \usepackage{colortbl}
+
+\hyphenpenalty=10000 %preventing hyphenation
+\exhyphenpenalty=100
 
 \usetheme{Rochester}
 %\setbeameroption{show notes on second screen}
