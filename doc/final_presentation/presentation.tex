@@ -1,5 +1,6 @@
 \documentclass{beamer}
 \usepackage{presentation}
+\usepackage{graphicx}
 
 \begin{document}
 
@@ -12,6 +13,11 @@
   \end{quote}
 
   \includegraphics[width=\textwidth]{images/goal_completion.png}
+
+  \note[item]{The intent of this project is to facilitate \emph{Goal Completion}, which our task managed through \emph{entry management}}
+  \note[item]{Tasks are defined objectives that must be completed by a given deadline.}
+  \note[item]{Events represent fixed intervals of time and are recorded within the device’s internal calendar.}
+  \note[item]{Habits, in contrast to tasks, represent repeated behaviors the user wishes to cultivate.}
 \end{frame}
 
 \begin{frame}
@@ -172,10 +178,18 @@
 \begin{frame}
   \frametitle{Final Manufactured Product}
 
-  \begin{center}
-    \includegraphics[width =\textwidth]{schedule_companion_render.png}
-  \end{center}
+  \begin{minipage}{0.33\linewidth}
+    \includegraphics[width=\linewidth]{schedule_companion_render_back.png}
+  \end{minipage}
+  \hfill
+  \begin{minipage}{0.65\linewidth}
+    \includegraphics[width=\linewidth]{schedule_companion_render.png}
+  \end{minipage}%
+  
   %TALK ABOUT DESIGN CHOICES FOR NOT KICK STAND, TALK ABOUT REPAIRABILITY
+  \note[item]{The triangular volume on the back of the device serves as a kickstand and case for electronics.}
+  \note[item]{A large space is necessary to fit our battery cells}
+  \note[item]{Provides room for easily assembly and disassembly, good for repairability.}
 
 \end{frame}
 
