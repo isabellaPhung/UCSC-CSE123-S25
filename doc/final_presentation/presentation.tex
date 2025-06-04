@@ -42,7 +42,7 @@ One device to many users                      & Schedule sorting                
     \item 188 kB of static memory (58.4\% of available memory)
     \begin{itemize}
       \item 66 kB used by graphics
-      \item 60 kB used by neworking
+      \item 60 kB used by networking
       \item 133 kB left for dynamic memory
     \end{itemize}
     \item Different features
@@ -94,14 +94,14 @@ One device to many users                      & Schedule sorting                
     \end{itemize}
 
     \column{0.5\textwidth}
-    What is improved in the manufactured product:
+    What is improved and included in the manufactured product:
     \begin{itemize}
       \item MQTT
       \item Memory usage
       \item SoC specs
       \item Device authentication
       \item End to End Encryption 
-      \item Additional features
+      \item Additional software features
       \item Screen size and touch
       \item Haptics and audio 
       \item Bluetooth Wi-Fi provisioning
@@ -112,7 +112,7 @@ One device to many users                      & Schedule sorting                
   \note[item]{ESP32-C3: RISC-V SoCs do not support memory expansion}
   \note[item]{Discuss potential alternatives: ESP32-S3, Teensy 4.1, STM32H7 line, Pi Zero 2W}
   \note[item]{Components: add haptics, audio, improve screen and touch}
-  \note[item]{Additional features: time blocks, event organization}
+  \note[item]{Additional features: time blocks, custom schedule organization}
   \note[item]{Although we can use SoftAP, Bluetooth Wifi provisioning using a phone app is a better user experience}
 
 \end{frame}
@@ -140,28 +140,44 @@ One device to many users                      & Schedule sorting                
     Prototype feasible tests:
     \begin{itemize}
       \item Wifi Provisioning
-      \item Data Persistance
-      \item LCD testing
-      \item New Device Addition
+      \item Boot time 
+      \item Sync time 
       \item New User Registration 
+      \item New Device Addition
+      \item Many to One Support 
+      \item Data Persistence
     \end{itemize}
 
     \column{0.5\textwidth}
     Manufactured product tests:
     \begin{itemize}
-      \item Durabilty
+      \item Durability
       \item Thermal
       \item Battery life cycle
       \item Haptics and sound
     \end{itemize}
   \end{columns}
   \note[item]{Durability testing: includes chemical testing, drop testing, tensile testing, UV testing}
-  \note[item]{Battery life cycle: charge speed, battery degredation, battery life}
+  \note[item]{Battery life cycle: charge speed, battery degradation, battery life}
 \end{frame}
 
 \begin{frame}
   \frametitle{Test Results}
-  %TODO results of tests we did
+    \centering
+    \begin{tabular}{l
+    >{\columncolor[HTML]{9AFF99}}l }
+    \hline
+    Test                  & \cellcolor[HTML]{FFFFFF}Results                      \\
+    \hline
+    Wifi Provisioning     & PASS                         \\
+    Boot time             & PASS                         \\
+    Sync time             & \cellcolor[HTML]{FFCCC9}FAIL \\
+    New User Registration & PASS                         \\
+    New Device Addition   & PASS                         \\
+    Many to One Support   & PASS                         \\
+    Data Persistence      & PASS                         \\
+    \hline
+    \end{tabular}
 \end{frame}
 
 \begin{frame}
