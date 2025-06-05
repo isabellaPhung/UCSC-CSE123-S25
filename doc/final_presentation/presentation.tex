@@ -8,8 +8,25 @@
 \begin{frame}
   \frametitle{Introduction}
   \begin{quote}{}
-    \input{build/goal_statement_md}
+    Single Purpose Cloud Connected Tablet for organizing scheduled items by necessity, urgency and frequency
   \end{quote}
+
+  \begin{minipage}{0.33\textwidth}
+    \includegraphics[width=\textwidth]{schedule_companion_render_back.png}
+  \end{minipage}
+  \hfill
+  \begin{minipage}{0.65\textwidth}
+    \includegraphics[width=\textwidth]{schedule_companion_render.png}
+  \end{minipage}%
+  \note[item]{maybe elaborate more on exactly why we did this project}
+  \note[item]{The triangular volume on the back of the device serves as a kickstand and case for electronics.}
+  \note[item]{Keeps center of gravity low makes it difficult to tip over}
+  \note[item]{A large space is necessary to fit two 18650 battery cells which we selected over a specific pouch battery for repairability}
+  \note[item]{Provides room for easily assembly and disassembly, good for repairability.}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Scheduled Activity Design}
 
   \includegraphics[width=\textwidth]{goal_completion.png}
 
@@ -20,65 +37,25 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Prototyped elements of design}
-\centering
-\small
-\begin{tabular}{|p{0.2\textwidth}|p{0.2\textwidth}|p{0.2\textwidth}|p{0.2\textwidth}|}
-\hline
-\cellcolor[HTML]{CFE2F3}Interactive UI        & Touchscreen                                           & \cellcolor[HTML]{CFE2F3}Web app functionality & \cellcolor[HTML]{CFE2F3}Cloud server functionality \\ \hline
-\cellcolor[HTML]{CFE2F3}User account creation & \cellcolor[HTML]{CFE2F3}Wifi Provisioning             & Battery powered                               & \cellcolor[HTML]{CFE2F3}New user creation          \\ \hline
-\cellcolor[HTML]{CFE2F3}New device addition                           & \cellcolor[HTML]{CFE2F3}Many devices to one user      & \cellcolor[HTML]{CFE2F3}Offline Usage         & \cellcolor[HTML]{CFE2F3}Real Time Clock display    \\ \hline
-\cellcolor[HTML]{CFE2F3}Focus Mode            & \cellcolor[HTML]{CFE2F3}Task and Event Implementation & \cellcolor[HTML]{CFE2F3}Habit Implementation  & Time Blocking                                      \\ \hline
-Configurable User Settings                    & End to End encryption                                 & Phone App                                     & Haptics and Audio feedback                         \\ \hline
-One device to many users                      & Schedule sorting                                      & Power button                                  &                                                    \\ \hline
-\end{tabular}
+  \frametitle{Features}
+  \begin{table}
+    \centering
+    \small
+    \begin{tabular}{|p{0.2\textwidth}|p{0.2\textwidth}|p{0.2\textwidth}|p{0.2\textwidth}|}
+      \hline
+      \cellcolor[HTML]{CFE2F3}Interactive UI           & \cellcolor[HTML]{CFE2F3}Web app                       & \cellcolor[HTML]{CFE2F3}Cloud server               & \cellcolor[HTML]{CFE2F3}Account creation         \\ \hline
+      \cellcolor[HTML]{CFE2F3}User / device creation   & \cellcolor[HTML]{CFE2F3}Device management             & \cellcolor[HTML]{CFE2F3}Many devices to one user   & \cellcolor[HTML]{CFE2F3}Many users to one device \\ \hline
+      \cellcolor[HTML]{CFE2F3}Focus Mode               & \cellcolor[HTML]{CFE2F3}Task and event implementation & \cellcolor[HTML]{CFE2F3}Habits implementation      & \cellcolor[HTML]{CFE2F3}Offline usage            \\ \hline
+      \cellcolor[HTML]{CFE2F3}Wi-Fi provisioning       & \cellcolor[HTML]{CFE2F3}Real-time clock display       & \cellcolor[HTML]{CFE2F3} Encrypted data in transit & Battery powered                                  \\ \hline
+      Configurable user settings                       & Phone app                                             & Touch controls                                     & Haptics and audio feedback                       \\ \hline
+      Schedule sorting                                 & Time blocking                                         & Power button                                       &                                                  \\ \hline
+    \end{tabular}
+  \end{table}
+
+  \renewcommand{\thefootnote}{\roman{footnote}}
+  \footnotetext[0]{Successfully prototyped features are highlighted}
 \end{frame}
 
-\begin{frame}
-  \frametitle{Biggest Roadblock: Memory usage}
-
-  The prototype design ran into memory availability issues
-  \begin{itemize}
-    \item 188 kB of static memory (58.4\% of available memory)
-    \begin{itemize}
-      \item 66 kB used by graphics
-      \item 60 kB used by networking
-      \item 133 kB left for dynamic memory
-    \end{itemize}
-    \item Different features
-    \begin{itemize}
-      \item BLE for Wifi info
-      \item Persistent connection
-    \end{itemize}
-  \end{itemize}
-  ESP32C3 chip is insufficient for the manufactured product.
-
-  \note[item]{GPU option: If we utilized dual cpus for the graphical display, display would be faster}
-  \note[item]{LVGL already custom external gpu rendering}
-  \note[item]{With more memory and parallel processing, current approach should
-  be more performant}
-  \note[item]{This taught us our hardware requirements for the manufactured product}
-
-\end{frame}
-
-\begin{frame}
-  \frametitle{Wi-Fi and MQTT}
-
-  \begin{itemize}
-    \item Wi-Fi provisioning + connection + MQTT = 100 kB (static \& dynamic)
-    \item No memory = no persistent session = no stored messages
-    \item User makes change $\rightarrow$ need to send entire backup
-  \end{itemize}
-
-  An HTTP server that responds to "changes since X" is a more efficient approach.
-
-  \note[item]{persistent sessions store non-ack'd qos = 1 messages}
-  \note[item]{after a reconnect, non-ack'd items are re-sent}
-  \note[item]{instead of connecting and having a worker thread, the prototype
-  connects, spends 5s, then disconnects, ending the session}
-  \note[item]{Final product asks for the entire thing on power-on, then react to any
-  new messages during the persistent connection.}
-\end{frame}
 \begin{frame}
     
   \frametitle{What did we learn from the prototype?}
@@ -96,17 +73,40 @@ One device to many users                      & Schedule sorting                
     \column{0.5\textwidth}
     What is improved and included in the manufactured product:
     \begin{itemize}
-      \item MQTT
-      \item Memory usage
+      \item Comunication protocol
       \item SoC specs
       \item Device authentication
-      \item End to End Encryption 
       \item Additional software features
       \item Screen size and touch
       \item Haptics and audio 
       \item Bluetooth Wi-Fi provisioning
     \end{itemize}
   \end{columns}
+  
+  \note[item]{ The prototype design ran into memory availability issues}
+    \note[item]{ 188 kB of static memory (58.4\% of available memory)}
+      \note[item]{ 66 kB used by graphics}
+      \note[item]{ 60 kB used by networking}
+      \note[item]{ 133 kB left for dynamic memory}
+  \note[item]{ ESP32C3 chip is insufficient for the manufactured product.}
+
+  \note[item]{GPU option: If we utilized dual cpus for the graphical display, display would be faster}
+  \note[item]{LVGL already custom external gpu rendering}
+  \note[item]{With more memory and parallel processing, current approach should
+  be more performant}
+  \note[item]{This taught us our hardware requirements for the manufactured product}
+  
+  \note[item]{ An HTTP server that responds to "changes since X" is a more efficient approach.}
+    \note[item]{ Wi-Fi provisioning + connection + MQTT = 100 kB (static \& dynamic)}
+    \note[item]{ No memory = no persistent session = no stored messages}
+    \note[item]{ User makes change $\rightarrow$ need to send entire backup}
+
+  \note[item]{persistent sessions store non-ack'd qos = 1 messages}
+  \note[item]{after a reconnect, non-ack'd items are re-sent}
+  \note[item]{instead of connecting and having a worker thread, the prototype
+  connects, spends 5s, then disconnects, ending the session}
+  \note[item]{Final product asks for the entire thing on power-on, then react to any
+  new messages during the persistent connection.}
 
   \note[item]{MQTT: no persistent connection --- no message \textit{queue}}
   \note[item]{ESP32-C3: RISC-V SoCs do not support memory expansion}
@@ -131,6 +131,13 @@ One device to many users                      & Schedule sorting                
   \note[item]{With device jwt, we will have better security and a proper
   device authentication process}
 
+\end{frame}
+\begin{frame}
+  \frametitle{Wiring Diagram}
+  \begin{center}
+    \includegraphics[width = \textwidth]{product_pcb_diagram.pdf}
+  \end{center}
+  \note[item]{made abstract for different potential components}
 \end{frame}
 
 \begin{frame}
@@ -181,54 +188,24 @@ One device to many users                      & Schedule sorting                
 \end{frame}
 
 \begin{frame}
-  \frametitle{Initial goal}
-
-  \input{build/design_objective_table_md}
-
-  \begin{center}
-    Did we succeed?
-  \end{center}
-
-  \note[item]{No to sync time}
-  \note[item]{Battery seems feasible}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Finalized Specs}
-  \centering
+  \frametitle{Specs}
+  \begin{table}
+    \centering
     \begin{tabular}{lllll}
-    \hline
-    Specifications                & Units   & \multicolumn{3}{l}{Value}                        \\
-    \hline
-    Price                         & USD     & \textbf{\$100}     & \textbf{$\rightarrow$} & \textbf{\$150} \\
-    Devices per user              & Units   & \textbf{Unlimited} & \textbf{$\rightarrow$} & \textbf{10}    \\
-    Users per device              & Units   & \textbf{Unlimited} & \textbf{$\rightarrow$} & \textbf{8}     \\
-    Cloud sync time               & Seconds & \textbf{10}        & \textbf{$\rightarrow$} & \textbf{5}     \\
-    Simultaneous tasks             & Tasks   & \multicolumn{3}{l}{Up to 100}                    \\
-    Database Size                 & Bytes   & \multicolumn{3}{l}{60 GB, non-volatile}          \\
-    \textbf{Standby} Battery life & Hours   & \textbf{200}       & \textbf{$\rightarrow$} & \textbf{30}    \\
-    Wakeup time                   & Seconds & \textbf{3}         & \textbf{$\rightarrow$} & \textbf{2}    \\
-    \hline
+      \hline
+      Specifications                & Units   & \multicolumn{3}{l}{Value} \\
+      \hline
+      Price                & USD     & \$100     & $\rightarrow$ & \$150 \\
+      Devices per user     & Devices & Unlimited & $\rightarrow$ & 10    \\
+      Users per device     & Users   & Unlimited & $\rightarrow$ & 10    \\
+      Cloud sync time      & Seconds & 10        & $\rightarrow$ & 100m  \\
+      \# enteies           & Entries & 100       & $\rightarrow$ & 8000  \\
+      Database Size        & Bytes   & 60G       & $\rightarrow$ & 16M   \\
+      Standby Battery life & Hours   & 200       & $\rightarrow$ & 30    \\
+      Wakeup time          & Seconds & 3         & $\rightarrow$ & 100m  \\
+      \hline
     \end{tabular}
+  \end{table}
 \end{frame}
-
-\begin{frame}
-  \frametitle{Final Manufactured Product}
-
-  \begin{minipage}{0.33\textwidth}
-    \includegraphics[width=\textwidth]{schedule_companion_render_back.png}
-  \end{minipage}
-  \hfill
-  \begin{minipage}{0.65\textwidth}
-    \includegraphics[width=\textwidth]{schedule_companion_render.png}
-  \end{minipage}%
-  
-  \note[item]{The triangular volume on the back of the device serves as a kickstand and case for electronics.}
-  \note[item]{Keeps center of gravity low makes it difficult to tip over}
-  \note[item]{A large space is necessary to fit two 18650 battery cells which we selected over a specific pouch battery for repairability}
-  \note[item]{Provides room for easily assembly and disassembly, good for repairability.}
-
-\end{frame}
-
 
 \end{document}

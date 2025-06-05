@@ -26,16 +26,15 @@ with Diagram("", show=False, graph_attr=font, node_attr=font, edge_attr=font):
         dns = Route53("DNS Service")
 
         with Cluster("EC2 Instance", graph_attr=font):
-            with Cluster("React Docker Image", graph_attr=font):
-                nginx = Nginx("NGINX server")
-                react = React("Web Application")
-            with Cluster("Flask Docker Image", graph_attr=font):
-                flask = Flask("Web Framework")
+            nginx = Nginx("NGINX server")
+            react = React("Web Application")
+            flask = Flask("Web Framework")
             postgres = Postgresql("User + Device Data")
 
     android >> dns
     device >> dns
     dns >> nginx
-    nginx >> Edge(xlabel="") >> flask << Edge(label="") << react
-    nginx >> Edge(label="/") >> react
+    nginx >> Edge(xlabel="Reverse Proxy") >> flask
+    nginx >> Edge(label="/")  >> react
+    react >> Edge(label="/api") >> flask
     flask >> postgres
