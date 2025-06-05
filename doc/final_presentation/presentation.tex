@@ -38,21 +38,24 @@
 
 \begin{frame}
   \frametitle{Features}
-\centering
-\small
-\begin{tabular}{|p{0.2\textwidth}|p{0.2\textwidth}|p{0.2\textwidth}|p{0.2\textwidth}|}
-\hline
-\cellcolor[HTML]{CFE2F3}Interactive UI        & Touchscreen                                           & \cellcolor[HTML]{CFE2F3}Web app functionality & \cellcolor[HTML]{CFE2F3}Cloud server functionality \\ \hline
-\cellcolor[HTML]{CFE2F3}User account creation & \cellcolor[HTML]{CFE2F3}Wifi Provisioning             & Battery powered                               & \cellcolor[HTML]{CFE2F3}New user creation          \\ \hline
-\cellcolor[HTML]{CFE2F3}New device addition                           & \cellcolor[HTML]{CFE2F3}Many devices to one user      & \cellcolor[HTML]{CFE2F3}Offline Usage         & \cellcolor[HTML]{CFE2F3}Real Time Clock display    \\ \hline
-\cellcolor[HTML]{CFE2F3}Focus Mode            & \cellcolor[HTML]{CFE2F3}Task and Event Implementation & \cellcolor[HTML]{CFE2F3}Habit Implementation  & Time Blocking                                      \\ \hline
-Configurable User Settings                    & Phone App                                     & Haptics and Audio feedback                        & One device to many users                      \\ \hline
-Schedule sorting                                      & Power button & &                                                    \\ \hline
-\end{tabular}
-\renewcommand{\thefootnote}{\roman{footnote}}
-\footnotetext[0]{Successfully prototyped features are highlighted}
+  \begin{table}
+    \centering
+    \small
+    \begin{tabular}{|p{0.2\textwidth}|p{0.2\textwidth}|p{0.2\textwidth}|p{0.2\textwidth}|}
+      \hline
+      \cellcolor[HTML]{CFE2F3}Interactive UI           & \cellcolor[HTML]{CFE2F3}Web app                       & \cellcolor[HTML]{CFE2F3}Cloud server               & \cellcolor[HTML]{CFE2F3}Account creation         \\ \hline
+      \cellcolor[HTML]{CFE2F3}User / device creation   & \cellcolor[HTML]{CFE2F3}Device management             & \cellcolor[HTML]{CFE2F3}Many devices to one user   & \cellcolor[HTML]{CFE2F3}Many users to one device \\ \hline
+      \cellcolor[HTML]{CFE2F3}Focus Mode               & \cellcolor[HTML]{CFE2F3}Task and event implementation & \cellcolor[HTML]{CFE2F3}Habits implementation      & \cellcolor[HTML]{CFE2F3}Offline usage            \\ \hline
+      \cellcolor[HTML]{CFE2F3}Wi-Fi provisioning       & \cellcolor[HTML]{CFE2F3}Real-time clock display       & \cellcolor[HTML]{CFE2F3} Encrypted data in transit & Battery powered                                  \\ \hline
+      Configurable user settings                       & Phone app                                             & Touch controls                                     & Haptics and audio feedback                       \\ \hline
+      Schedule sorting                                 & Time blocking                                         & Power button                                       &                                                  \\ \hline
+    \end{tabular}
+  \end{table}
+
+  \renewcommand{\thefootnote}{\roman{footnote}}
+  \footnotetext[0]{Successfully prototyped features are highlighted}
 \end{frame}
-  
+
 \begin{frame}
     
   \frametitle{What did we learn from the prototype?}
@@ -79,7 +82,7 @@ Schedule sorting                                      & Power button & &        
       \item Screen size and touch
       \item Haptics and audio 
       \item Bluetooth Wi-Fi provisioning
-      \item Persistant Wi-Fi connection
+      \item Persistent Wi-Fi connection
     \end{itemize}
   \end{columns}
   
@@ -189,21 +192,23 @@ Schedule sorting                                      & Power button & &        
 
 \begin{frame}
   \frametitle{Specs}
-  \centering
+  \begin{table}
+    \centering
     \begin{tabular}{lllll}
-    \hline
-    Specifications                & Units   & \multicolumn{3}{l}{Value}                        \\
-    \hline
-    Price                         & USD     & \textbf{\$100}     & \textbf{$\rightarrow$} & \textbf{\$150} \\
-    Devices per user              & Units   & \textbf{Unlimited} & \textbf{$\rightarrow$} & \textbf{10}    \\
-    Users per device              & Units   & \textbf{Unlimited} & \textbf{$\rightarrow$} & \textbf{8}     \\
-    Cloud sync time               & Seconds & \textbf{10}        & \textbf{$\rightarrow$} & \textbf{5}     \\
-    Simultaneous tasks             & Tasks   & \multicolumn{3}{l}{Up to 100}                    \\
-    Database Size                 & Bytes   & \multicolumn{3}{l}{60 GB, non-volatile}          \\
-    \textbf{Standby} Battery life & Hours   & \textbf{200}       & \textbf{$\rightarrow$} & \textbf{30}    \\
-    Wakeup time                   & Seconds & \textbf{3}         & \textbf{$\rightarrow$} & \textbf{2}    \\
-    \hline
+      \hline
+      Specifications                & Units   & \multicolumn{3}{l}{Value} \\
+      \hline
+      Price                         & USD     & \textbf{\$100}     & \textbf{$\rightarrow$} & \textbf{\$150} \\
+      Devices per user              & Devices & \textbf{Unlimited} & \textbf{$\rightarrow$} & \textbf{10}    \\
+      Users per device              & Users   & \textbf{Unlimited} & \textbf{$\rightarrow$} & \textbf{10}    \\
+      Cloud sync time               & Seconds & \textbf{10}        & \textbf{$\rightarrow$} & \textbf{100m}  \\
+      \# enteies                    & Entries & \textbf{100}       & \textbf{$\rightarrow$} & \textbf{8000}  \\
+      Database Size                 & Bytes   & \textbf{60G}       & \textbf{$\rightarrow$} & \textbf{16M}   \\
+      \textbf{Standby} Battery life & Hours   & \textbf{200}       & \textbf{$\rightarrow$} & \textbf{30}    \\
+      Wakeup time                   & Seconds & \textbf{3}         & \textbf{$\rightarrow$} & \textbf{100m}  \\
+      \hline
     \end{tabular}
+  \end{table}
 \end{frame}
 
 \end{document}
