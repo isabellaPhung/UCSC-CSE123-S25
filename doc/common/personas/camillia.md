@@ -10,7 +10,7 @@
 
 ### Goals {#c_goals .unnumbered .unlisted}
 
-- Needs to stay on top of her patients, but also wants to be present for her kids events
+- Needs to stay on top of her patients, but also wants to be present for her kids' events
 
 ### Behaviors {#c_behav .unnumbered .unlisted}
 

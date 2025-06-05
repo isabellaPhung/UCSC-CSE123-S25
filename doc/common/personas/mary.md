@@ -4,7 +4,7 @@
 
 ### Info {#m_info .unnumbered .unlisted}
 
-- single, no children
+- Single, no children
 - 22 years old
 - Occupation: University student
 
