@@ -1,5 +1,9 @@
 \documentclass{article}
 \usepackage{design}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, shapes.geometric}
+
 \begin{document}
 
 \maketitle
@@ -49,6 +53,7 @@
 
 % TODO split device design into the hardware part, and each component should have one section
 \input{build/entry_design_md} % Explains the entry management concept of the device
+\input{build/device_statemachine_md}
 %\input{build/cloud_design_md} %FIXME rewrite and transfer to one of the below
 % TODO list improvements in each section 
 \input{build/server_design_md}
