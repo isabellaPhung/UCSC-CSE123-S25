@@ -4,10 +4,10 @@
 
 ### Info {#e_info .unnumbered .unlisted}
 
-- has a partner, no children
+- Has a partner, no children
 - 26 years old
 - Occupation: IT Help at a drone development company
-- recently adopted a puppy
+- Recently adopted a puppy
 
 ### Goals {#e_goals .unnumbered .unlisted}
 

@@ -11,7 +11,7 @@
 ### Goals {#l_goals .unnumbered .unlisted}
 
 - Focused on her work and beginning to take on a managerial role at her company
-- Needs to manage multiple meetings per day and planning tasks for others
+- Needs to manage multiple meetings per day and plan tasks for others
 
 ### Behaviors {#l_behav .unnumbered .unlisted}
 

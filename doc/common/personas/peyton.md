@@ -4,7 +4,7 @@
 
 ### Info {#p_info .unnumbered .unlisted}
 
-- has a partner, with one child
+- Has a partner, with one child
 - 31 years old
 - Occupation: Barista and bartender
 
