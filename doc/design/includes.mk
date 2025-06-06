@@ -1,5 +1,8 @@
 INSERT_MD := ../common/ethics_statement.md
 
+INSERT_MD += ../common/existing_designs.md
+INSERT_MD += ../common/sustainability_statement.md
+
 INSERT_MD += ../common/tests/test_persistence.md
 INSERT_MD += ../common/tests/test_cloud.md
 INSERT_MD += ../common/tests/test_drop.md
