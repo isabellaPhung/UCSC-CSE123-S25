@@ -9,7 +9,7 @@ The prototype implements this by using
 in its server software stack.
 Caddy is a web server that automatically generates and renews TLS certificates. It also redirects any HTTP client traffic to HTTPS.
 In our prototype, Caddy acts as an HTTPS reverse proxy, communicating with the client through HTTPS and with the Flask server through HTTP.
-Ideally, NGINX should be used as the server, as it is more performant. %FIXME
+In production, NGINX will be used as the server, as it is more performant. %FIXME
 
 ![Connection between the prototype device and server](images/prototype_data_flow.png)
 
@@ -20,7 +20,7 @@ Ideally, NGINX should be used as the server, as it is more performant. %FIXME
 The web server retrieves and updates the user’s data by accessing the cloud database.
 In our prototype, this involves using Amazon’s boto3 Python toolkit to connect to our AWS S3 buckets.
 All credentials and database configuration details are stored in a .env file, which is accessible by the Python code when the Docker container has been started.
-Ideally, the cloud database should be a PostgreSQL instance running on a server. TODO: why postgres instead of s3
+In our final design, the cloud database is a PostgreSQL instance running on a server. TODO: why postgres instead of s3
 
 ### Flask API {-}
 
