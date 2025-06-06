@@ -1,4 +1,4 @@
-Some of the User Configurable settings are and values displayed are:
+Some of the User Configurable settings are and values displayed on the webapp and app are:
 - Switch User/Log out
 - Disconnect from Wifi/Airplane Mode 
 - Screen Brightness
@@ -10,5 +10,6 @@ Some of the User Configurable settings are and values displayed are:
 - Focus mode timer duration
 - Focus mode pomodoro setting: user can switch between a standard timer or a setting that will automatically begin a 15 minute break timer
 - Device ID
-- Software version
+- Check for Updates: checks for available updates and asks the user if they want to update their device if an update exists
+- Software version: lists current software version
 - Factory reset
