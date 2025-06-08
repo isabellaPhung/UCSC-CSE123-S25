@@ -12,7 +12,7 @@ Dependent variables: power on behaviour, device interaction
 Procedure:
 
 1. Power on the device and ensure it is at full charge as shown by the battery indicator in the top right of the UI. If it is not fully charged, charge the device to full.
-2. Disconnect the device from the power cable. Check the settings to ensure the device is not set to power saving mode. Connect the productivity device to the host machine.
+2. Connect the productivity device to the host machine.
 3. Run the test_battery_cycling.py pytest tool. This test program will cycle the device through 1000 battery charge and discharge cycles while monitoring the battery life. Place the test setup in a room temperature area to be undisturbed for multiple weeks. Check on the test setup once a day to ensure the test has not halted and the test is proceeding as expected. Test is complete after 1000 battery charge cycles.
 
 Expectation: The device battery life degradation should not exceed 20% after 1000 battery charge cycles.

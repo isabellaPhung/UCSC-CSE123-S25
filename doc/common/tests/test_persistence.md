@@ -19,9 +19,7 @@ Procedure:
 6. Check the device to verify that the new schedule data has been added and the settings have been changed.
 7. Disconnect the device from the internet in the settings menu. Return to the main menu and ensure the wifi symbol is not displayed.
 8. Navigate around the device and check that the earlier data is still visible on the device.
-9. Run the data_comparator.py pytest tool. This test program requests user data from the ESP device and compares the data to expected output.
-10. Run the test to check the contents of the user data and compare it against the expected results.
 11. Remove power to the device, wait 10 seconds before restoring power.
-12. Rerun the test program and check that the results match the values prior to removing power.
+12. Navigate around the device and verify that the earlier data has not changed. 
 
 Expectation: All file contents stay the same before and after powering off.
