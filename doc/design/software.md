@@ -6,6 +6,6 @@ The software for the ESP32-C3 was written in the C programming language, with th
 
 ### Rendering the UI
 
-### COmmunicatin with the server 
+### Communicatin with the server
 
 ### Wi-Fi Provisioning

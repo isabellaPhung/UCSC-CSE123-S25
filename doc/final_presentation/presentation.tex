@@ -46,7 +46,7 @@
       \cellcolor[HTML]{CFE2F3}Interactive UI           & \cellcolor[HTML]{CFE2F3}Web app                       & \cellcolor[HTML]{CFE2F3}Cloud server               & \cellcolor[HTML]{CFE2F3}Account creation         \\ \hline
       \cellcolor[HTML]{CFE2F3}User / device creation   & \cellcolor[HTML]{CFE2F3}Device management             & \cellcolor[HTML]{CFE2F3}Many devices to one user   & \cellcolor[HTML]{CFE2F3}Many users to one device \\ \hline
       \cellcolor[HTML]{CFE2F3}Focus Mode               & \cellcolor[HTML]{CFE2F3}Task and event implementation & \cellcolor[HTML]{CFE2F3}Habits implementation      & \cellcolor[HTML]{CFE2F3}Offline usage            \\ \hline
-      \cellcolor[HTML]{CFE2F3}Wi-Fi provisioning       & \cellcolor[HTML]{CFE2F3}Real-time clock display       & \cellcolor[HTML]{CFE2F3} Encrypted data in transit & Battery powered                                  \\ \hline
+      \cellcolor[HTML]{CFE2F3}Wi-Fi provisioning       & \cellcolor[HTML]{CFE2F3}Real-time clock display       & \cellcolor[HTML]{CFE2F3}Encrypted data in transit  & Battery powered                                  \\ \hline
       Configurable user settings                       & Phone app                                             & Touch controls                                     & Haptics and audio feedback                       \\ \hline
       Schedule sorting                                 & Time blocking                                         & Power button                                       & Chassis                                       \\ \hline
     \end{tabular}
@@ -83,37 +83,17 @@
     \end{itemize}
   \end{columns}
   
-  \note[item]{ The prototype design ran into memory availability issues}
-    \note[item]{ 188 kB of static memory (58.4\% of available memory)}
-      \note[item]{ 66 kB used by graphics}
-      \note[item]{ 60 kB used by networking}
-      \note[item]{ 133 kB left for dynamic memory}
-  \note[item]{ ESP32C3 chip is insufficient for the manufactured product.}
-
-  \note[item]{GPU option: If we utilized dual cpus for the graphical display, display would be faster}
   \note[item]{LVGL already custom external gpu rendering}
-  \note[item]{With more memory and parallel processing, current approach should
-  be more performant}
-  \note[item]{This taught us our hardware requirements for the manufactured product}
   
-  \note[item]{ An HTTP server that responds to "changes since X" is a more efficient approach.}
-    \note[item]{ Wi-Fi provisioning + connection + MQTT = 100 kB (static \& dynamic)}
-    \note[item]{ No memory = no persistent session = no stored messages}
-    \note[item]{ User makes change $\rightarrow$ need to send entire backup}
+  \note[item]{no stores messages $\rightarrow$ need to send entire backup every time}
+  \note[item]{An HTTP server that responds to "changes since X" is a more efficient approach.}
+  \note[item]{Ideal gets whole backup on power on, gets new messages as it polls}
 
-  \note[item]{persistent sessions store non-ack'd qos = 1 messages}
-  \note[item]{after a reconnect, non-ack'd items are re-sent}
-  \note[item]{instead of connecting and having a worker thread, the prototype
-  connects, spends 5s, then disconnects, ending the session}
-  \note[item]{Final product asks for the entire thing on power-on, then react to any
-  new messages during the persistent connection.}
-
-  \note[item]{MQTT: no persistent connection --- no message \textit{queue}}
   \note[item]{ESP32-C3: RISC-V SoCs do not support memory expansion}
   \note[item]{Discuss potential alternatives: ESP32-S3, Teensy 4.1, STM32H7 line, Pi Zero 2W}
   \note[item]{Components: add haptics, audio, improve screen and touch}
   \note[item]{Additional features: time blocks, custom schedule organization}
-  \note[item]{Although we can use SoftAP, Bluetooth Wifi provisioning using a phone app is a better user experience}
+  \note[item]{BLE Wi-Fi provisioning component already exists}
 
 \end{frame}
 
@@ -174,7 +154,7 @@
     \begin{tabular}{l
     >{\columncolor[HTML]{9AFF99}}l }
     \hline
-    Test                  & \cellcolor[HTML]{FFFFFF}Results                      \\
+    Test                  & \cellcolor[HTML]{FFFFFF}Results \\
     \hline
     Wifi Provisioning     & PASS                         \\
     Boot time             & PASS                         \\
