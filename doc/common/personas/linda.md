@@ -1,4 +1,4 @@
-### Linda Alfreda {-}
+### Linda Alfreda {.unnumbered .unlisted}
 
 ![Linda](Linda.jpg)
 

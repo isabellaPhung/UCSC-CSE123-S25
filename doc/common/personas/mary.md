@@ -1,4 +1,4 @@
-### Mary Torfinn {-}
+### Mary Torfinn {.unnumbered .unlisted}
 
 ![Mary](Mary.jpg)
 

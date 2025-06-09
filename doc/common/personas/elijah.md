@@ -1,4 +1,4 @@
-### Elijah Eiko {-} 
+### Elijah Eiko {.unnumbered .unlisted}
 
 ![Elijah](Elijah.png)
 

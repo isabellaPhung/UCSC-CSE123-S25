@@ -39,7 +39,7 @@ make-design:
     name: pandoc/latex
     entrypoint: ["/bin/sh", "-c"]
   script:
-    - tlmgr install fvextra lineno appendix
+    - tlmgr install fvextra lineno appendix footmisc
     - apk --no-cache add make
     - cd doc/design
     - make pdf
@@ -86,12 +86,12 @@ make-demo-presentation:
       - doc/demo_presentation/build/Demo_Presentation.pdf
     expire_in: 1 week
 
-make-presentation:
+make-final-presentation:
   rules:
     - changes:
-      - doc/common/**/*
+      #- doc/common/**/*
       - doc/final_presentation/*
-      - .gitlab-ci.yml
+      #- .gitlab-ci.yml
   image:
     name: pandoc/latex
     entrypoint: ["/bin/sh", "-c"]

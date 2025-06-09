@@ -27,7 +27,7 @@ The wiring diagram for the prototype is described by Figure \ref{proto_schem}
 
 ![Schematic of the prototype \label{proto_schem}](../../hardware/prototype_schematic.pdf)
 
-### Suggestions for improvement
+### Suggestions for improvement {#suggestion_hw}
 
 Presented below are suggestions for selecting hardware components that overcome limits and design issues found in the prototype.
 Suggestions are based on products that exist at the time of writing.
