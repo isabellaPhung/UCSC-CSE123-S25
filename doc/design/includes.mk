@@ -47,7 +47,7 @@ INSERT_MD += ../common/test_plan.md
 INSERT_MD += ../common/demo_procedure.md
 
 INSERT_MD += server_design.md
-INSERT_MD += hardware.md
+INSERT_MD += prototype_hardware.md
 INSERT_MD += software.md
 
 INSERT_TEX := tests.tex
