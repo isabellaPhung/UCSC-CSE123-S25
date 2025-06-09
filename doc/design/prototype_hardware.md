@@ -1,5 +1,19 @@
 ## Prototype Hardware
 
+![Prototype Overview](../common/images/prototype1.jpg)
+
+![Prototype off](../common/images/prototype2.jpg)
+
+![Prototype on](../common/images/prototype3.jpg)
+
+![Prototype ESP32-C3 closeup](../common/images/prototype4.jpg)
+
+![Prototype Screen and sync button closeup](../common/images/prototype5.jpg)
+
+![Prototype RTC and screen connections](../common/images/prototype6.jpg)
+
+![Prototype tactile buttons closeup](../common/images/prototype7.jpg)
+
 ### Schematic
 
 The prototype consists of the microcontroller dev-board, an 3.5 inch LCD touch screen breakout board, a real-time clock breakout board, and several tactile buttons for navigating the UI of the device.
@@ -8,9 +22,10 @@ The prototype consists of the microcontroller dev-board, an 3.5 inch LCD touch s
 - **MSP3520**: An inexpensive, SPI TFT LCD touch screen that comes with an SD card reader.
 - **Adafruit 3295**: A breakout board for the PCF8523 real time clock.
 
-The wiring diagram is described by Figure \ref{proto_schem}
+The wiring diagram for the prototype is described by Figure \ref{proto_schem}
 
 ![Schematic of the prototype \label{proto_schem}](../../hardware/prototype_schematic.pdf)
+
 ### Suggestions for improvement
 
 Presented below are suggestions for selecting hardware components that overcome limits and design issues found in the prototype.
