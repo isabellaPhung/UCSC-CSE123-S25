@@ -14,7 +14,7 @@ make-pdf:
     name: pandoc/latex
     entrypoint: ["/bin/sh", "-c"]
   script:
-    - tlmgr install fvextra lineno
+    - tlmgr install fvextra lineno appendix
     - apk --no-cache add make
     - cd doc/asgn1
     - make pdf
