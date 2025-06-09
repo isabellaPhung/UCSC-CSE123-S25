@@ -34,27 +34,14 @@ Procedure:
 -     Include moisture cycles: 102 minutes dry / 18 minutes water spray
 -     Continue exposure to reach total of 50 kWh/m²
 
-5.  IEC 60068-2-5 Method Sb Weathering Test:
-
--     Apply combined UV radiation, controlled temperature, and humidity
--     Expose device to simulated solar radiation per Method Sb procedures
--     Monitor for surface degradation, cracking, or discoloration
--     Total additional exposure: 35 kWh/m² (cumulative 100 kWh/m²)
-
-6.  ISO 4892-3 Fluorescent UV Supplemental Testing:
-
--     Conduct additional UVB-313 lamp exposure for 24 hours
--     Maintain temperature at 60°C ± 5°C with no condensation
--     Focus on polymer component degradation assessment
-
-7.  Post-Exposure Evaluation:
+5.  Post-Exposure Evaluation:
 -     Allow device to stabilize at room temperature for 4 hours
 -     Repeat all baseline measurements
 -     Calculate retention percentages for all optical properties
 -     Perform visual inspection for surface defects, crazing, or chalking
 -     Test all device functions including wifi connectivity and data persistence
 
-8. Additional Assessments per Standards:
+6. Additional Assessments per Standards:
 -     Measure surface hardness change using pencil hardness test
 -     Evaluate adhesion of coatings using tape test method
 -     Document any delamination or blistering of screen protectors
