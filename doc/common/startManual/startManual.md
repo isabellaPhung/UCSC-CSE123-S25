@@ -2,7 +2,7 @@ Welcome to your new productivity partner!
 Start with connecting your device to the provided power supply.
 When the device displays the following screen, the device is ready to be connected to the internet.
 
-![wifi connection screen](wifiConnect.png){width="50%"}
+![Wifi connection screen](wifiConnect.png){width="50%"}
 
 Connect to the indicated access point with your personal device. It will redirect you to a page where you can enter your wifi information.
 
@@ -14,7 +14,7 @@ Be sure to log in or create an account at [scheduleapp.click](scheduleapp.click)
 
 Once logged in, you'll see the following screen. Follow the instructions on screen to add your device. 
 
-![Device setup](web_devices.png){width="50%"}
+![Device setup page](web_devices.png){width="75%"}
 
 1. Power on your new device and ensure it's connected to Wi-Fi.
 2. Find the Device ID on the back of your device or in the settings menu.
@@ -24,6 +24,6 @@ Once logged in, you'll see the following screen. Follow the instructions on scre
 
 You can now add tasks, habits, and events via the web app and they will show up on the device!
 
-![add schedule](add.png){width="50%"}
+![Device Dashboard](add.png)
 
 Be sure to customize your device's timezone and in the settings window of the website!
