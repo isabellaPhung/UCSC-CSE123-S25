@@ -14,7 +14,7 @@ pdf: build/$(TARGET)
 vpath %.md ../common ../common/personas ../common/tests ../common/tests ../common/startManual 
 build/%_md.tex: %.md
 	@mkdir -p build
-	pandoc -f markdown-implicit_figures -t latex $< -o $@
+	pandoc -f markdown -t latex $< -o $@
 
 build/$(TARGET): $(MAIN_TEX) $(INSERT_TEX) $(CONVERT_TEX)
 	@mkdir -p build
