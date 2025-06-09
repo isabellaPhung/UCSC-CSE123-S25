@@ -6,7 +6,7 @@ Apparatus: productivity device, UV chamber with fluorescent UV lamps (UVA-340 an
 
 Independent variables: UV exposure type (UVA, UVB, full spectrum solar simulation), exposure duration (15 kWh/m², 50 kWh/m², 100 kWh/m²), irradiance level (0.89 W/m²/nm at 340nm), temperature during exposure (60°C ± 5°C, 65°C ± 3°C), humidity level (50% RH, 65% RH)
 
-Dependent variables: Display brightness levels (cd/m²), color coordinates (CIE Lab*), luminance uniformity (%), touch sensitivity response time (ms), surface gloss retention (%), housing color change (ΔE), material degradation (visual inspection), optical transmittance (%)
+Dependent variables: Display brightness levels (cd/m²), color coordinates (CIE Lab*), luminance uniformity (%), touch sensitivity response time (ms), surface gloss retention (%), housing color change ($\Delta$E), material degradation (visual inspection), optical transmittance (%)
 
 Procedure:
 
@@ -67,7 +67,7 @@ Procedure:
 
 Expectation: After 100 kWh/m² total UV exposure across multiple test methods, 
 the device should maintain at least 85% of original display brightness, show color 
-change (ΔE) less than 3.0, retain full touch sensitivity with response times within 
+change ($\Delta$E) less than 3.0, retain full touch sensitivity with response times within 
 10% of baseline, and exhibit no visible surface degradation or functional failures. 
 Housing materials should show minimal discoloration and maintain structural integrity 
 per IEC 60068-2-5 requirements.

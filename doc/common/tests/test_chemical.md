@@ -12,6 +12,7 @@ Dependent variables: plastic housing integrity
 Procedure:
 
 Chemicals:
+
 - 99% Isopropyl Alchohol
 - Acetone
 - Clorox

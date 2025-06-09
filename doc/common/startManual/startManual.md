@@ -2,7 +2,7 @@ Welcome to your new productivity partner!
 Start with connecting your device to the provided power supply.
 When the device displays the following screen, the device is ready to be connected to the internet.
 
-<img src="wifiConnect.png" alt="wifi connection screen" style="width:25%; height:auto;">
+![wifi connection screen](wifiConnect.png){width="50%"}
 
 Connect to the indicated acces point with your personal device. It will redirect you to a page where you can enter your wifi information.
 
@@ -10,11 +10,11 @@ Once complete, your productivity partner is ready for your schedule!
 
 Be sure to log in or create an account at [scheduleapp.click](scheduleapp.click) or you can scan this QR code! 
 
-<img src="scheduleapp_click.jpg" alt="scheduleapp.click QR code" style="width:25%; height:auto;">
+![scheduleapp.click QR Code](scheduleapp_click.png){width="25%"}
 
 Once logged in, you'll see the following screen. Follow the instructions on screen to add your device. 
 
-<img src="web_devices.png" alt="Device setup on webpage" style="width:25%; height:auto;">
+![Device setup](web_devices.png){width="50%"}
 
 1. Power on your new device and ensure it's connected to Wi-Fi.
 2. Find the Device ID on the back of your device or in the settings menu.
@@ -24,6 +24,6 @@ Once logged in, you'll see the following screen. Follow the instructions on scre
 
 You can now add tasks, habits, and events via the web app and they will show up on the device!
 
-<img src="add.png" alt="add tasks, events, or habits" style="width:25%; height:auto;">
+![add schedule](add.png){width="50%"}
 
 Be sure to customize your device's timezone and in the settings window of the website!

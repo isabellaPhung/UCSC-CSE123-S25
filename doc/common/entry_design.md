@@ -14,7 +14,7 @@ The user maintains complete agency throughout the process. Work periods can be p
 
 To inform the device’s behavior, user-supplied data is categorized into three primary entry types: **Tasks**, **Events**, and **Habits**, each fulfilling a specific role within the internal logic of the system and mirroring aspects of one's day-to-day experiences.
 
-![Data management and logic of the device\label{design_logic}](images/design_logic.png){ width=70% }
+![Data management and logic of the device\label{design_logic}](images/design_logic.png){ width=100% }
 
 Tasks are defined objectives that must be completed by a given deadline. Each task entry includes a textual description, a due date stored as a Unix timestamp, and a priority parameter that conveys the size or effort required as seen by the user. The device uses these values, particularly the due date and priority, to determine task priority and ensure that more urgent or significant tasks are surfaced first during work periods.
 

@@ -19,13 +19,6 @@
 \newpage
 
 \section{Background}
-\subsection{Personas}
-\input{build/camillia_md}
-\input{build/elijah_md}
-\input{build/linda_md}
-\input{build/mary_md}
-\input{build/peyton_md}
-
 \subsection{Need}
 \input{build/need_statement_md}
 \subsection{Goal}
@@ -33,42 +26,103 @@
 
 \subsection{Existing Designs}
 \input{build/existing_designs_md}
+\pagebreak
+
+\subsection{Personas}
+The following are a few target audiences for our productivity device:
+\input{build/camillia_md}
+\input{build/elijah_md}
+\input{build/linda_md}
+\input{build/mary_md}
+\input{build/peyton_md}
 
 \subsection{Sustainability Statement}
 \input{build/sustainability_statement_md}
+\pagebreak
 
-\section{Detail of Design}
-% TODO Images of CAD, Drawing, Photo of the prototype 
+\section{Design}
+\subsection{Hardware}
+\input{build/manufactured_design_md}
+\input{build/device_component_design_md}
+\pagebreak
+
 \subsection{Design for Manufacture and Assembly}
 \input{build/design_for_manufacture_and_assembly_md}
 \subsection{Life Cycle Assessment}
 \input{build/lifecycle_assessment_md}
+\pagebreak
 
-% TODO Block Diagrams
-% Wiring Diagrams
-% State Transition Diagrams
-% Technology ( languages, hardware, etc. )
-% Simulation
-% Modeling
-
-% TODO split device design into the hardware part, and each component should have one section
+\pagebreak
 \input{build/entry_design_md} % Explains the entry management concept of the device
 \input{build/device_statemachine_md}
-%\input{build/cloud_design_md} %FIXME rewrite and transfer to one of the below
-% TODO list improvements in each section 
+\pagebreak
+
+\subsection{Software}
 \input{build/server_design_md}
-\input{build/prototype_hardware_md}
-\input{build/software_md}
+%\input{build/cloud_design_md} %FIXME rewrite and transfer to one of the below
+\pagebreak
+
+%storing data on flash
+%TODO
+\pagebreak
+
+%device UI
+\input{build/device_ui_requirements_md}
+\input{../common/UI_user_tutorial/user_tutorial}
+\input{build/configurable_settings_md}
+\pagebreak
+
+% server communication from device
+%TODO
+\pagebreak
+
+% webapp
+\input{build/webapp_design_spec_md}
+\pagebreak
+
+% wifi Provisioning
+%TODO
+\pagebreak
+
+% Third party integration
+%TODO
+\pagebreak
+
+\subsection{Additional Requirements}
+Alongside the device, a printed start up manual must be included with the device. An example is shown below:
+\input{build/startManual_md}
+\pagebreak
 
 \section{Evaluation}
+\subsection{Functional Prototype}
 % Functional Prototype ( go into a lot of detail, include photographs  )
-% Testing  ( this is where you show the prototype works )
-\subsection{Prototype Demonstration Procedure}
-\input{build/demo_procedure_md}
+\input{build/prototype_hardware_md}
+\input{build/prototype_vs_manufactured_md}
+\pagebreak
+
+\subsection{Testing}
+\subsubsection{Test Plan}
+\input{build/test_plan_md}
+\input{build/test_suite_md}
+\pagebreak
+
+\subsubsection{Tests}
+\input{prototype_tests}
+
+\subsubsection{Test Results}
+\input{prototype_test_results}
+
+\subsection{Feasability of Design} %explicitly lay out if this design works
+% TODO: discuss the feasibility of the design
+% I think it makes sense to reference the original decision table and show the finalized specs
+\input{build/decision_table_md}
+\input{build/Finalized_Specs_md}
+\pagebreak
+
 
 \appendix
 
-\section{Problem Foundation}
+\section{Appendix 1: Problem Formulation}
 \subsection{Design Objectives}
 \input{build/design_objective_md}
 \input{build/design_objective_table_md}
@@ -78,21 +132,18 @@
 \input{build/brainstorm_md}
 \subsection{Concept Selection}
 \input{build/decision_table_md}
+\pagebreak
 
-\section{Planning}
-% TODO Basic Plan / Gantt Chart
+\section{Appendix 2: Planning}
+\input{build/gantt_md}
+\subsection{Division of Labor}
 % Division of labor during prototyping phase
-% Collaboration ( did you use tools beyond your repository? how did you assign tasks? )
+\pagebreak
 
-\section{Testing}
-\subsection{Test Plan}
-\input{build/test_plan_md}
-\subsection{Tests}
-\input{tests}
-\subsection{Test Results}
-% TODO
+\section{Appendix 3: Manufactured Device Tests}
+\input{manufactured_tests}
 
-\section{Review}
+\section{Appendix 4: Review}
 % TODO One paragraph from each team member:
 % Reflect on what went well and what you might do differently if you were to do it again
 

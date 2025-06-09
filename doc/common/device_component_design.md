@@ -9,9 +9,10 @@ Device requires flash memory, which can be added as a separate module or as an I
 The schedule companion, unless set to power saving mode, will keep its screen on until the user presses the power button to return it to sleep mode. In power saving mode, it will automatically enter sleep mode after one minute of inactivity, but focus mode timers will continue to count down even in sleep mode. When the device is on very low battery, it will power off and display a low battery icon when the power button is pressed. If the battery is too low, the device will be unable to display any icon at all. Once the device has been recharged enough, the device will power on as per typical operation. A long press will make the device fully power off. 
 The schedule companion is expected to operate offline using two 3500mAh 3.7V 18650 batteries wired in series in an easily removable battery holder. Rather than using a specific pouch battery, this would allow for the user to easily replace the batteries in the event of cell failure and make the device highly repairable. The power PCB will require step-down converter, as well as charge balancing circuitry, and a thermometer to monitor the internal device temperature to only allow charging from 0C to 45C as is recommended for lithium-ion batteries[^1]. Although precise battery life cannot be calculated, rough estimations approximate minimum battery life to be 4.6 hours, assuming the microcontroller and its peripherals draws 200mA[^2] and the screen uses 550mA[^3] for a total of 750mA of current. Using a 1A charger with 85% charging efficiency will require about the same amount of time to charge as it does to discharge, about 4 hours, calculated using the following formula: Charging Time = (Battery Capacity / Charging Current) × (100 / Efficiency)[^4]. The device is also expected to operate when plugged in without the batteries as well.
 
-##PCB
+## PCB
 As mentioned earlier, it is preferrable to keep the product fairly modular, mounted into the PCB housing using screws. 
-    ![Manufactured PCB Diagram](images/product_pcb_diagram.png){width="\\textwidth"}
+
+![Manufactured PCB Diagram](images/product_pcb_diagram.png){width="\\textwidth"}
 
 
 [^1]:https://web.archive.org/web/20090411024100/http://www.sony.com.cn/products/ed/battery/download.pdf
