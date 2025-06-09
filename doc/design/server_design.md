@@ -44,6 +44,6 @@ If an access token for a user is expired or not found, the Flask app will redire
 %% Flask must be replaced in order to account specialized throughput and secruity requirments. 
 %% MQTT should be replaced with the HTTP protocol for universality and for the leveraging of exisiting web infastructure.
 
-### Suggestions for improvement
+### Suggestions for improvement {#suggestion_cloud}
 %% TODO move improvments here, similar in style to prototype hardware
 

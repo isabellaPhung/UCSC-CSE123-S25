@@ -2,7 +2,7 @@
 The overall plan for the project was managed with a gantt chart.
 Issue metadata was used to generate the chart when there were updates to the plan.
 
-![The gannt chart at the end of the prototype development](gantt.png)
+![The gannt chart at the end of the prototype development](images/gantt.png)
 
 ## Division of Labor
 Isabella, Lennan, and Mason worked on writing software to run on the hardware.

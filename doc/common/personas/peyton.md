@@ -1,4 +1,4 @@
-### Peyton Woodie {-}
+### Peyton Woodie {.unnumbered .unlisted}
 
 ![Peyton](Peyton.jpg)
 
