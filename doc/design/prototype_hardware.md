@@ -1,18 +1,18 @@
 ## Prototype Hardware
 
-![Prototype Overview](../common/images/prototype1.jpg)
+![Prototype off](../common/images/prototype1.jpg)
 
-![Prototype off](../common/images/prototype2.jpg)
+![Prototype on](../common/images/prototype2.jpg)
 
-![Prototype on](../common/images/prototype3.jpg)
+![Prototype ESP32-C3 closeup](../common/images/prototype3.jpg)
 
-![Prototype ESP32-C3 closeup](../common/images/prototype4.jpg)
+![Prototype Screen and sync button closeup](../common/images/prototype4.jpg)
 
-![Prototype Screen and sync button closeup](../common/images/prototype5.jpg)
+![Prototype RTC and screen connections](../common/images/prototype5.jpg)
 
-![Prototype RTC and screen connections](../common/images/prototype6.jpg)
+![Prototype tactile buttons closeup](../common/images/prototype6.jpg)
 
-![Prototype tactile buttons closeup](../common/images/prototype7.jpg)
+![Prototype home screen closeup](../common/images/prototype7.jpg)
 
 ### Schematic
 
