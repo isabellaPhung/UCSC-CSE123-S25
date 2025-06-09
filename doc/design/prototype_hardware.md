@@ -1,6 +1,7 @@
 ## Prototype Hardware
+Images of the prototype are found in figures \ref{prototype1}-\ref{prototype7}.
 
-![Prototype off](../common/images/prototype1.jpg)
+![Prototype off \label{prototype1}](../common/images/prototype1.jpg)
 
 ![Prototype on](../common/images/prototype2.jpg)
 
@@ -12,7 +13,7 @@
 
 ![Prototype tactile buttons closeup](../common/images/prototype6.jpg)
 
-![Prototype home screen closeup](../common/images/prototype7.jpg)
+![Prototype home screen closeup \label{prototype7}](../common/images/prototype7.jpg)
 
 ### Schematic
 

@@ -1,4 +1,4 @@
-INSERT_MD := ../common/ethics_statement.md
+INSERT_MD += ../common/ethics_statement.md
 
 INSERT_MD += ../common/existing_designs.md
 INSERT_MD += ../common/sustainability_statement.md
@@ -38,8 +38,6 @@ INSERT_MD += ../common/tests/test_thermalShock.md
 INSERT_MD += ../common/tests/test_UV.md
 INSERT_MD += ../common/tests/test_wifi.md
 INSERT_MD += ../common/tests/test_wifi_report.md
-
-INSERT_TEX += ../common/tests/test_drop.tex
 
 INSERT_MD += ../common/personas/camillia.md
 INSERT_MD += ../common/personas/elijah.md
@@ -86,8 +84,8 @@ INSERT_MD += ../common/startManual/startManual.md
 INSERT_MD += server_design.md
 INSERT_MD += prototype_hardware.md
 
-
-INSERT_TEX := ../common/UI_user_tutorial/user_tutorial.tex
-INSERT_TEX := prototype_tests.tex
-INSERT_TEX := prototype_test_results.tex
-INSERT_TEX := manufactured_tests.tex
+INSERT_TEX += ../common/tests/test_drop.tex
+INSERT_TEX += ../common/UI_user_tutorial/user_tutorial.tex
+INSERT_TEX += prototype_tests.tex
+INSERT_TEX += prototype_test_results.tex
+INSERT_TEX += manufactured_tests.tex
