@@ -1,2 +1,2 @@
-- mirrors web app a lot
+- mirrors web app in terms of functionality and design
 - includes bluetooth functionality for adding in device ssid

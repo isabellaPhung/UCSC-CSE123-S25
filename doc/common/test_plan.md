@@ -11,9 +11,6 @@ The following are tests that will be performed on both the prototype and the man
 - test_restoration.md
 - test_security.md
 - test_soundhaptics.md
-- test_sync_basic.md
-- test_sync_dual.md
-- test_sync_redo.md
 - test_syncTime.md
 - test_wifi.md
 
