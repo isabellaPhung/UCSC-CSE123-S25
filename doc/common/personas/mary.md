@@ -1,6 +1,6 @@
 ### Mary Torfinn {.unnumbered .unlisted}
 
-![Mary](Mary.jpg)
+![Mary](Mary.jpg)\
 
 ### Info {#m_info .unnumbered .unlisted}
 

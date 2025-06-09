@@ -1,15 +1,16 @@
-# Device Physical Design
-## Processor
+## Hardware Design
+%% TODO remove mentions of the prototype in this section
+### Processor
 Initial schedule companion prototype used an ESP32C3 board which was determined to be too limited in memory for this product's intended features. The ESP32C3 also uses RISCV which cannot operate with external RAM modules. A system with greater than 520 KB of RAM and an ARM based CPU is preferred for this device. The CPU of the ESP32C3 board ran at 160MHz but a lower clock speed is acceptable, as the main bottleneck in the prototype was the limited memory. An ESP32-S3 unlike the C3, is capable of interfacing with external RAM modules, making it a potential alternative to the C3 microcontroller. However, ESP-IDF only supports Espressif branded external memory. A Teensy 4.1 with its 1MB of RAM and RAM expansion capabilities makes for another potential microcontroller candidate for this device, although it is limited to one core which may cause bottlenecks. STM32H7 series chips are another inexpensive option with 1MB of built in RAM, RAM expansion capabilities, and ARM based dual-cores, allowing for one to handle device cloud interactions, and the other for graphics display.
 
-## Additional Components
+### Additional Components
 Device requires flash memory, which can be added as a separate module or as an IC chip on the device board. A separate module using an SD card is preferable to make the product more easily repairable. An external RTC module with a coin cell battery is also required to keep time and should be placed in the device housing such that the coin cell is easily replaceable in the event it runs out of charge. A small button motor and speaker must also be included in the productivity device for haptics. A button for powering on and restarting the device is also required. The device will use a USBC port for power. The PCB should also include a debugging interface such as JTAG. The device will also have a screen protector applied to the LCD screen to protect the surface from scratches.
 
-## Power
+### Power
 The schedule companion, unless set to power saving mode, will keep its screen on until the user presses the power button to return it to sleep mode. In power saving mode, it will automatically enter sleep mode after one minute of inactivity, but focus mode timers will continue to count down even in sleep mode. When the device is on very low battery, it will power off and display a low battery icon when the power button is pressed. If the battery is too low, the device will be unable to display any icon at all. Once the device has been recharged enough, the device will power on as per typical operation. A long press will make the device fully power off. 
 The schedule companion is expected to operate offline using two 3500mAh 3.7V 18650 batteries wired in series in an easily removable battery holder. Rather than using a specific pouch battery, this would allow for the user to easily replace the batteries in the event of cell failure and make the device highly repairable. The power PCB will require step-down converter, as well as charge balancing circuitry, and a thermometer to monitor the internal device temperature to only allow charging from 0C to 45C as is recommended for lithium-ion batteries[^1]. Although precise battery life cannot be calculated, rough estimations approximate minimum battery life to be 4.6 hours, assuming the microcontroller and its peripherals draws 200mA[^2] and the screen uses 550mA[^3] for a total of 750mA of current. Using a 1A charger with 85% charging efficiency will require about the same amount of time to charge as it does to discharge, about 4 hours, calculated using the following formula: Charging Time = (Battery Capacity / Charging Current) × (100 / Efficiency)[^4]. The device is also expected to operate when plugged in without the batteries as well.
 
-## PCB
+### PCB
 As mentioned earlier, it is preferrable to keep the product fairly modular, mounted into the PCB housing using screws. 
 
 ![Manufactured PCB Diagram](images/product_pcb_diagram.png){width="\\textwidth"}

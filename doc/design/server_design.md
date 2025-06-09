@@ -1,10 +1,7 @@
 ## Server design
 
 Two data-flow diagrams are presented below;
-Figure \ref{proto_flow} shows the structure of the cloud server during the prototyping stage,
 while Figure \ref{manu_flow} shows a re-consideration of server components based on data gathered from the prototype.
-
-![Connection between the prototype device and server \label{proto_flow}](images/prototype_data_flow.png)
 
 ![Server architecture of the ideal product \label{manu_flow}](images/data_flow.png)
 
@@ -43,7 +40,3 @@ If an access token for a user is expired or not found, the Flask app will redire
 %% S3 object storage must be replaced with PostgreSQL to accomadate for complex quiries, joins and relational data. Its essential for real timeoperations.
 %% Flask must be replaced in order to account specialized throughput and secruity requirments. 
 %% MQTT should be replaced with the HTTP protocol for universality and for the leveraging of exisiting web infastructure.
-
-### Suggestions for improvement {#suggestion_cloud}
-%% TODO move improvments here, similar in style to prototype hardware
-

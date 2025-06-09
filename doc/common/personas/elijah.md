@@ -1,6 +1,6 @@
 ### Elijah Eiko {.unnumbered .unlisted}
 
-![Elijah](Elijah.png)
+![Elijah](Elijah.png)\
 
 ### Info {#e_info .unnumbered .unlisted}
 

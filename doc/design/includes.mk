@@ -72,7 +72,6 @@ INSERT_MD += planning.md
 
 INSERT_MD += ../common/manufactured_design.md
 INSERT_MD += ../common/device_ui_requirements.md
-INSERT_MD += ../common/device_component_design.md
 INSERT_MD += ../common/configurable_settings.md
 INSERT_MD += ../common/webapp_design_spec.md
 INSERT_MD += ../common/prototype_vs_manufactured.md
@@ -82,8 +81,12 @@ INSERT_MD += ../common/Finalized_Specs.md
 INSERT_MD += ../common/startManual/startManual.md
 
 INSERT_MD += server_design.md
+INSERT_MD += hardware_design.md
 INSERT_MD += prototype_hardware.md
+INSERT_MD += prototype_software.md
+INSERT_MD += prototype_server.md
 
+INSERT_MD += eval_hardware.md
 INSERT_TEX := ../common/UI_user_tutorial/user_tutorial.tex
 INSERT_TEX += prototype_tests.tex
 INSERT_TEX += prototype_test_results.tex

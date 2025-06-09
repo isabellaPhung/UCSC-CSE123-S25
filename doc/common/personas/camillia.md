@@ -1,6 +1,6 @@
 ### Camillia Anas {.unnumbered .unlisted}
 
-![Camillia](Camillia.jpg)
+![Camillia](Camillia.jpg)\
 
 ### Info {#c_info .unnumbered .unlisted}
 

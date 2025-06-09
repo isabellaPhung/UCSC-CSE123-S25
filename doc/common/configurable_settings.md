@@ -1,5 +1,5 @@
 ## Configurable Settings
-Some of the User Configurable settings are and values displayed on the webapp and phone app are:
+Some of the User Configurable settings are and values displayed on the web app and phone app are:
 
 - Switch User/Log out
 - Disconnect from Wifi/Airplane Mode 

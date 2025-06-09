@@ -1,6 +1,6 @@
 ### Linda Alfreda {.unnumbered .unlisted}
 
-![Linda](Linda.jpg)
+![Linda](Linda.jpg)\
 
 ### Info {#l_info .unnumbered .unlisted}
 

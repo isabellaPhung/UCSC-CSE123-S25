@@ -1,6 +1,6 @@
 ### Peyton Woodie {.unnumbered .unlisted}
 
-![Peyton](Peyton.jpg)
+![Peyton](Peyton.jpg)\
 
 ### Info {#p_info .unnumbered .unlisted}
 
