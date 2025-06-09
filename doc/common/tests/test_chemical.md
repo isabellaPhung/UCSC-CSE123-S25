@@ -1,4 +1,4 @@
-### Chemical testing
+### Chemical Exposure
 Introduction: Users may use household cleaning products on the surface of the device to sterilize or clean it of dust. These chemicals may weaken or damage the device housing. This test determines what chemicals the users must avoid use on the device. Material samples must be at least 3 inches by 3 inches.
 
 Scope: chemical material testing 

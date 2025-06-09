@@ -4,7 +4,7 @@ When the device displays the following screen, the device is ready to be connect
 
 ![wifi connection screen](wifiConnect.png){width="50%"}
 
-Connect to the indicated acces point with your personal device. It will redirect you to a page where you can enter your wifi information.
+Connect to the indicated access point with your personal device. It will redirect you to a page where you can enter your wifi information.
 
 Once complete, your productivity partner is ready for your schedule!
 

@@ -1,4 +1,4 @@
-### Data cloud synchronization
+### Secure connection test
 Scope: cloud operations, security
 
 Apparatus: productivity device, host machine for flashing and running tests, cloud server access

@@ -1,4 +1,4 @@
-### Battery Life Cycle Testing
+### Battery Life Cycle
 Introduction: While the device is intended to be generally stationary, the productivity device also includes a battery for portable use. Lithium ion batteries experience capacity degredation as they are charged and discharged throughout their lifespan. Battery degradation from 100% down to 80% can be seen anywhere between 500 to 2000 charging cycles. To ensure that the device doesn't experience severe battery life fall off, battery cycling testing is performed to ensure charge management circuitry functionality and battery quality.
 
 Scope: Battery, Power

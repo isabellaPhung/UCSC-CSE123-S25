@@ -1,4 +1,4 @@
-### Factory Reset test
+### Factory Reset verification
 Introduction: When issues arise in a device or if a user wants a fresh start, the productivity device must be able to be reset to a clean slate. 
 
 Scope: flash storage, device operations

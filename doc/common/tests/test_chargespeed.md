@@ -1,4 +1,4 @@
-### Charge Speed Testing
+### Charge Speed
 Introduction: While the device is intended to be generally stationary, the productivity device also includes a battery for portable use. The following test ensures the device is capable of charging to full in the expected duration of time.
 
 Scope: Battery, Charging, Power
