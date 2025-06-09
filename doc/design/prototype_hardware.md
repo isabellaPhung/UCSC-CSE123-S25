@@ -17,7 +17,6 @@ The wiring diagram is described by Figure \ref{proto_schem}
 Presented below are suggestions for selecting hardware components that overcome limits and design issues found in the prototype.
 Suggestions are based on products that exist at the time of writing.
 
-
 - Microcontroller:
   - Baseline: ESP32-C3 - 32-bit RISC-V core, 400 KB SRAM, 22 GPIOs
   - ESP32-S3 series - Xtensa LX7, 512 KB SRAM, 45 GPIOs

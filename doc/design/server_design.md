@@ -1,6 +1,14 @@
 ## Server design
 
-### Encryption {-}
+Two data-flow diagrams are presented below;
+Figure \ref{proto_flow} shows the structure of the cloud server during the prototyping stage,
+while Figure \ref{manu_flow} shows a re-consideration of server components based on data gathered from the prototype.
+
+![Connection between the prototype device and server \label{proto_flow}](images/prototype_data_flow.png)
+
+![Server architecture of the ideal product \label{manu_flow}](images/data_flow.png)
+
+### Encryption
 
 Security is a high priority when involving user data in a system involving the cloud.
 To ensure security of the data being transmitted from the user to the device and back, the data must be encypted using Transport Layer Security (TLS).
@@ -11,18 +19,15 @@ Caddy is a web server that automatically generates and renews TLS certificates. 
 In our prototype, Caddy acts as an HTTPS reverse proxy, communicating with the client through HTTPS and with the Flask server through HTTP.
 In production, NGINX will be used as the server, as it is more performant. %FIXME
 
-![Connection between the prototype device and server](images/prototype_data_flow.png)
 
-![Server architecture of the ideal product](images/data_flow.png)
-
-### Database Connection {-}
+### Database Connection
 
 The web server retrieves and updates the user’s data by accessing the cloud database.
 In our prototype, this involves using Amazon’s boto3 Python toolkit to connect to our AWS S3 buckets.
 All credentials and database configuration details are stored in a .env file, which is accessible by the Python code when the Docker container has been started.
 In our final design, the cloud database is a PostgreSQL instance running on a server. TODO: why postgres instead of s3
 
-### Flask API {-}
+### Flask API
 
 The Flask server has API endpoints which communicate with the S3 buckets.
 This includes endpoints to verify login credentials, get tasks/events/habits for a specific device, and update tasks/events/habits for a device.
@@ -39,3 +44,6 @@ If an access token for a user is expired or not found, the Flask app will redire
 %% S3 object storage must be replaced with PostgreSQL to accomadate for complex quiries, joins and relational data. Its essential for real timeoperations.
 %% Flask must be replaced in order to account specialized throughput and secruity requirments. 
 %% MQTT should be replaced with the HTTP protocol for universality and for the leveraging of exisiting web infastructure. 
+
+### Suggestions for improvement
+%% TODO move improvments here, similar in style to prototype hardware
