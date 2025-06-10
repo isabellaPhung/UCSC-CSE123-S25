@@ -31,8 +31,12 @@ The schedule companion requires a web application that will provide the user wit
     
 
 **Main Page**
--
+- Access to Tasks, Habit, Event, Calendar, Device Managment, and Login in page
+- Display of Today's Tasks, Habits and events with their times
+    - Times implemented with Unix Timestamps
+
 **Task Management**
+
 
 **Habit Management**
 
