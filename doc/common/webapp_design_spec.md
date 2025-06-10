@@ -7,9 +7,9 @@ The schedule companion requires a web application that will provide the user wit
 - User Authentication through login page
     - Sign up option within login page to register new user
         - create account with full name, username, email, and password
-            -username uniqness check
-            -password strength validation with visual feedback
-            -automatic user ID generation 
+            - username uniqness check
+            - password strength validation with visual feedback
+            - automatic user ID generation 
     - forgot password option to reset credentials
     - prompts user for email and password 
         - credential validation against existing user
@@ -23,10 +23,15 @@ The schedule companion requires a web application that will provide the user wit
         - Device will utilize wifi to link to Webserver
         - Option to link Device to user account
     - Switch between user devices 
+    - Remove device from user directory
+- Device State Persistence
+    - Remember selected device across sessions
+    - Handle device availability and connection status
+    - User data linked synced to Device
     
 
 **Main Page**
-
+-
 **Task Management**
 
 **Habit Management**
