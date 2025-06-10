@@ -2,9 +2,9 @@ Welcome to your new productivity partner!
 Start with connecting your device to the provided power supply.
 When the device displays the following screen, the device is ready to be connected to the internet.
 
-![Wifi connection screen](wifiConnect.png){width="50%"}
+![Wifi connection screen](wifi_setup.png){width="50%"}
 
-Connect to the indicated access point with your personal device. It will redirect you to a page where you can enter your wifi information.
+Download the Productivity Partner App and follow the instructions to connect to your device and enter in the wifi credentials.
 
 Once complete, your productivity partner is ready for your schedule!
 
