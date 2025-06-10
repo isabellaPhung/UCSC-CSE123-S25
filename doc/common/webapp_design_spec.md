@@ -4,6 +4,7 @@ The schedule companion requires a web application that will provide the user wit
 
 
 **Authentication and User Management:**
+
 - User Authentication through login page
     - Sign up option within login page to register new user
         - create account with full name, username, email, and password
@@ -18,6 +19,7 @@ The schedule companion requires a web application that will provide the user wit
         - includes persistant login state across browser sessions
 
 **Device management**
+
 - Device Registration
     - Add device with unique Device ID
         - Device will utilize wifi to link to Webserver
@@ -31,6 +33,7 @@ The schedule companion requires a web application that will provide the user wit
     
 
 **Main Page**
+
 - Access to Tasks, Habit, Event, Calendar, Device Managment, and Login in page
 - Display of Today's Tasks, Habits and events with their times
     - Times implemented with Unix Timestamps

@@ -11,6 +11,8 @@ The wiring diagram for the prototype is described by Figure \ref{proto_schem}
 
 ![Prototype on](../common/images/prototype2.jpg){ height=40% }
 
+![Prototype without screen and RTC](../common/images/prototype8.jpg){ height=40% }
+
 ![Prototype ESP32-C3 closeup](../common/images/prototype3.jpg){ height=40% }
 
 ![Prototype Screen and sync button closeup](../common/images/prototype4.jpg){ height=40% }
