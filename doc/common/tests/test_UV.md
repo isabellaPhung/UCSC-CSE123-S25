@@ -22,7 +22,7 @@ Procedure:
 
 -     Place device in UV chamber with UVA-340 lamps
 -     Set irradiance to 0.89 W/m²/nm at 340nm wavelength
--     Maintain specimen temperature at 60°C ± 5°C
+-     Maintain specimen temperature at 60°C ± 5°C(standard specimen temperature)
 -     Expose for cycles totaling 15 kWh/m² UV dose
 -     Monitor UV intensity continuously with calibrated radiometer
 
@@ -30,7 +30,7 @@ Procedure:
 
 -     Transfer device to xenon arc chamber for full spectrum solar simulation
 -     Set irradiance to 0.55 W/m² at 340nm with daylight filters
--     Maintain black panel temperature at 65°C ± 3°C
+-     Maintain black panel temperature at 65°C ± 3°C(black panel temperature)
 -     Include moisture cycles: 102 minutes dry / 18 minutes water spray
 -     Continue exposure to reach total of 50 kWh/m²
 
@@ -52,7 +52,7 @@ Procedure:
 
     
 
-Expectation: After 100 kWh/m² total UV exposure across multiple test methods, 
+Expectation: After 65 kWh/m² total UV exposure across multiple test methods, 
 the device should maintain at least 85% of original display brightness, show color 
 change ($\Delta$E) less than 3.0, retain full touch sensitivity with response times within 
 10% of baseline, and exhibit no visible surface degradation or functional failures. 
