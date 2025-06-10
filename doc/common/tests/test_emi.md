@@ -6,7 +6,7 @@ Introduction: Electronic devices require rigorous testing to guarantee electroma
 
 **Independent variables:** test frequency ranges (150 kHz-30 MHz, 30 MHz-1 GHz, 1-6 GHz), field strength levels (1 V/m, 3 V/m, 10 V/m), EUT operational modes (standby, active use, wireless transmission), antenna orientations (horizontal, vertical polarization), measurement distances (3m, 10m)
 
-**Dependent variables:** emission amplitude (dBμV, dBμV/m), immunity performance criteria (A, B, C), functional operation status (pass/fail), wireless communication quality (%), touchscreen sensitivity (%), error rates during immunity testing (%), field uniformity measurements (dB)
+**Dependent variables:** emission amplitude (dBuV, dBuV/m), immunity performance criteria (A, B, C), functional operation status (pass/fail), wireless communication quality (%), touchscreen sensitivity (%), error rates during immunity testing (%), field uniformity measurements (dB)
 
 ## Procedure
 
@@ -19,18 +19,18 @@ Introduction: Electronic devices require rigorous testing to guarantee electroma
    - Establish cable configuration per ANSI C63.4 requirements
 
 3. **CISPR 32 Conducted Emissions Testing (150 kHz - 30 MHz):**
-   - Connect device AC adapter through 50μH/50Ω LISN on ground plane
+   - Connect device AC adapter through 50uH/50ohm LISN on ground plane
    - Position device on non-metallic table 80 cm above ground plane
    - Configure EMI receiver with 9 kHz resolution bandwidth and quasi-peak detector
    - Exercise all device functions during measurement including wireless transmission
-   - Monitor both line and neutral conductors with Class B limits (250-500 μV)
+   - Monitor both line and neutral conductors with Class B limits (250-500 uV)
 
 4. **ANSI C63.4 Radiated Emissions Testing (30 MHz - 1 GHz):**
    - Place device in semi-anechoic chamber 3 meters from receiving antenna
    - Scan antenna height 1-4 meters while rotating device through 360 degrees
    - Use biconical antenna (30-300 MHz) and log-periodic antenna (200 MHz-1 GHz)
    - Measure both horizontal and vertical polarizations with quasi-peak detector
-   - Apply Class B limits (100-200 μV/m depending on frequency)
+   - Apply Class B limits (100-200 uV/m depending on frequency)
 
 5. **Extended Radiated Emissions Testing (1-6 GHz):**
    - Continue testing using horn antennas for frequencies above 1 GHz
@@ -47,7 +47,7 @@ Introduction: Electronic devices require rigorous testing to guarantee electroma
 
 7. **IEC 61000-4-6 Conducted Immunity Testing (150 kHz - 80 MHz):**
    - Inject 3V EMF using appropriate coupling/decoupling networks
-   - Apply 150Ω common-mode impedance for unshielded cables
+   - Apply 150ohm common-mode impedance for unshielded cables
    - Use 80% amplitude modulation with systematic frequency stepping
    - Monitor charging, data transfer, and wireless functions
 
@@ -76,4 +76,4 @@ Introduction: Electronic devices require rigorous testing to guarantee electroma
 
 ## Expectation
 
-The device should demonstrate full compliance with FCC Part 15 Class B emission limits showing conducted emissions below 250-500 μV quasi-peak (150 kHz-30 MHz) and radiated emissions below 100-200 μV/m at 3 meters (30 MHz-1 GHz), maintain Performance Criterion A during radiated immunity testing at 3 V/m field strength, show no functional degradation during ±4 kV ESD contact discharge testing, exhibit wireless coexistence with no interference between internal modules during simultaneous operation, and demonstrate consistent EMC performance across all operational configurations including battery operation, multiple orientations, and various peripheral connections.
+The device should demonstrate full compliance with FCC Part 15 Class B emission limits showing conducted emissions below 250-500 uV quasi-peak (150 kHz-30 MHz) and radiated emissions below 100-200 uV/m at 3 meters (30 MHz-1 GHz), maintain Performance Criterion A during radiated immunity testing at 3 V/m field strength, show no functional degradation during ±4 kV ESD contact discharge testing, exhibit wireless coexistence with no interference between internal modules during simultaneous operation, and demonstrate consistent EMC performance across all operational configurations including battery operation, multiple orientations, and various peripheral connections.
