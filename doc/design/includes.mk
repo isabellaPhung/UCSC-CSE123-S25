@@ -82,6 +82,7 @@ INSERT_MD += ../common/startManual/startManual.md
 
 INSERT_MD += server_design.md
 INSERT_MD += hardware_design.md
+INSERT_MD += server_communication.md
 INSERT_MD += prototype_hardware.md
 INSERT_MD += prototype_software.md
 INSERT_MD += prototype_server.md
