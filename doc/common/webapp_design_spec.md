@@ -42,6 +42,7 @@ The schedule companion requires a web application that will provide the user wit
     - View Event duration and due date
 
 **Task Addition** 
+
 Creation
 - Prompts user for task name, due date, due time, priority, and description
     - Set priority level using numeric values 1-3
@@ -60,6 +61,7 @@ Display
 - Real-time timestamp display and conversion to readable format
 
 **Habit Management**
+
 Habit Creation 
 - Prompts user with Day of the week display that allows user to select days habit should be fullfilled
 - Prompts user for Habit name
@@ -81,10 +83,44 @@ Daily Habit Display
 - Completion status visualization with checkboxes
 
 **Event Management**
+
 Event Creation 
 - Prompts user for Event name, Event date, start time, priority, duration, and description
     - Define start date and specific time (hour, minute, AM/PM)
         - Convert time selection to Unix timestamp for storage
 
+Event Status Tracking
+- Determine "active" events (currently happening based on start time + duration)
+- Track event completion or cancellation
+- Soft delete functionality for events
+
+Event Display
+- Show events by date range
+- Display calculated duration and end times
+- Visual indicators for currently active events
+- Time-based sorting of events
+
 
 **Calendar**
+
+Calendar Integration Functions
+Monthly Calendar Display
+
+Generate calendar grid for any month/year
+Critical: Properly handle month boundaries and leap years
+Navigate between months with controls
+Highlight current day across all calendar views
+
+Task-Calendar Integration
+
+Display tasks on their scheduled dates within calendar
+Critical: Limit visible tasks per day (typically 3) with overflow indicators
+Handle multiple tasks on same date
+Click-through functionality to detailed day view
+
+Day View Modal
+
+Show all tasks and events for selected date
+Sort items chronologically by time
+Full detail expansion for each item
+Critical: Filter by exact date match using timestamp ranges
