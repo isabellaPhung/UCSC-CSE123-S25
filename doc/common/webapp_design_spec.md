@@ -1,4 +1,4 @@
-# Webpage Design Philosophy
+## Webpage Design Philosophy
 
 The schedule companion requires a web application that will provide the user with a medium to manage user-to-device settings, manage user data, and view or edit scheduled items. This section of the document provides the principles that are necessary to the design of this webpage. These principles revolve around the categories defined in entry design and their acionable functionality within the user interface. It also includes necessary applications for the user interface such as the login, device management, and calendar pages. 
 
