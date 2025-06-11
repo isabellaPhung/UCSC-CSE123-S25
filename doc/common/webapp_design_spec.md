@@ -60,7 +60,31 @@ Display
 - Real-time timestamp display and conversion to readable format
 
 **Habit Management**
+Habit Creation 
+- Prompts user with Day of the week display that allows user to select days habit should be fullfilled
+- Prompts user for Habit name
+- Add and remove habit options 
+
+Habit Definition
+- bitwise flags to define weekly schedule
+- Flag mapping: Monday=0x20, Tuesday=0x10, Wednesday=0x08, Thursday=0x04, Friday=0x02, Saturday=0x01, Sunday=0x40
+- Calculate combined flags for multiple day selection
+
+Habit Completion Tracking
+- Track daily completion status per habit
+- Maintain completion history across different dates
+- Visual distinction between scheduled versus non-scheduled days
+
+Daily Habit Display
+- Provide full weekly grid view in dedicated habits page
+- Current day highlighting in weekly view
+- Completion status visualization with checkboxes
 
 **Event Management**
+Event Creation 
+- Prompts user for Event name, Event date, start time, priority, duration, and description
+    - Define start date and specific time (hour, minute, AM/PM)
+        - Convert time selection to Unix timestamp for storage
+
 
 **Calendar**
