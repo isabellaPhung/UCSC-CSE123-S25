@@ -35,11 +35,29 @@ The schedule companion requires a web application that will provide the user wit
 **Main Page**
 
 - Access to Tasks, Habit, Event, Calendar, Device Managment, and Login in page
+- Add, Delete or Complete Tasks, Habits or Events
 - Display of Today's Tasks, Habits and events with their times
     - Times implemented with Unix Timestamps
+    - View Task description, priority, compeltion and due times
+    - View Event duration and due date
 
-**Task Management**
-
+**Task Addition** 
+Creation
+- Prompts user for task name, due date, due time, priority, and description
+    - Set priority level using numeric values 1-3
+        - Initialize completion status as 0 (incomplete)
+    - Define due date and specific time (hour, minute, AM/PM)
+        - Convert time selection to Unix timestamp for storage
+Management
+- Toggle completion status: 0 (incomplete) - 1 (complete)
+- Soft delete functionality: set completion status to 2 (deleted)
+- Maintain completion state persistence across sessions
+Display
+- Filter tasks by date range (today, specific dates)
+- Sort by completion status first, then priority level
+- Visual priority indicators with color coding
+- Expandable detail view showing full task information
+- Real-time timestamp display and conversion to readable format
 
 **Habit Management**
 
