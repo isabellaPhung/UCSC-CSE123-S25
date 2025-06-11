@@ -103,24 +103,23 @@ Event Display
 
 **Calendar**
 
-Calendar Integration Functions
 Monthly Calendar Display
 
-Generate calendar grid for any month/year
-Critical: Properly handle month boundaries and leap years
-Navigate between months with controls
+- Generate calendar grid for any month/year
+- Properly handle month boundaries and leap years
+- Navigate between months with controls
+- 
 Highlight current day across all calendar views
 
-Task-Calendar Integration
-
-Display tasks on their scheduled dates within calendar
-Critical: Limit visible tasks per day (typically 3) with overflow indicators
-Handle multiple tasks on same date
-Click-through functionality to detailed day view
+- Task-Calendar Integration
+- Display tasks on their scheduled dates within calendar
+- Limit visible tasks per day with overflow indicators
+- Handle multiple tasks on same date
+- Click-through functionality to detailed day view
 
 Day View Modal
 
-Show all tasks and events for selected date
-Sort items chronologically by time
-Full detail expansion for each item
-Critical: Filter by exact date match using timestamp ranges
+- Show all tasks and events for selected date
+- Sort items chronologically by time
+- Full detail expansion for each item
+- Filter by exact date match using timestamp ranges
