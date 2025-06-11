@@ -108,7 +108,7 @@ Monthly Calendar Display
 - Generate calendar grid for any month/year
 - Properly handle month boundaries and leap years
 - Navigate between months with controls
-- 
+
 Highlight current day across all calendar views
 
 - Task-Calendar Integration
