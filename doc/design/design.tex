@@ -45,29 +45,30 @@ The following are a few target audiences for our productivity device:
 \input{build/entry_design_md} % Explains the entry management concept of the device
 \input{build/device_statemachine_md}
 
-\input{build/server_design_md}
-%\input{build/cloud_design_md} %FIXME rewrite and transfer to one of the below
-
 \input{build/hardware_design_md}
 
-%storing data on flash
-%TODO
+% TODO storing data on flash
+% flash storage and fatfs is not that big of a design challenge
+% I think it should be mentioned in the eval section, and note in
+% the entry design a bit more on nvs
 
 %device UI
 \input{build/device_ui_requirements_md}
 \input{../common/UI_user_tutorial/user_tutorial}
 \input{build/configurable_settings_md}
 
-\input{server_communication_md}
+% wifi Provisioning
+% TODO
+
+\input{build/server_communication_md}
+
+\input{build/server_design_md}
 
 % webapp
 \input{build/webapp_design_spec_md}
 
-% wifi Provisioning
-%TODO
-
 % Third party integration
-%TODO
+% TODO
 
 \input{build/manufactured_design_md}
 
@@ -94,7 +95,7 @@ Alongside the device, a printed start up manual must be included with the device
 \input{build/prototype_vs_manufactured_md}
 
 \subsection{Suggestions for Improvement}
-\input{eval_hardware_md}
+\input{build/eval_hardware_md}
 
 \newpage
 

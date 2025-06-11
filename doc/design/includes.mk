@@ -64,8 +64,6 @@ INSERT_MD += ../common/executive_summary.md
 INSERT_MD += ../common/entry_design.md
 INSERT_MD += ../common/device_statemachine.md
 
-INSERT_MD += ../common/cloud_design.md
-
 INSERT_MD += ../common/test_plan.md
 
 INSERT_MD += planning.md
@@ -88,6 +86,7 @@ INSERT_MD += prototype_software.md
 INSERT_MD += prototype_server.md
 
 INSERT_MD += eval_hardware.md
+
 INSERT_TEX := ../common/UI_user_tutorial/user_tutorial.tex
 INSERT_TEX += prototype_tests.tex
 INSERT_TEX += prototype_test_results.tex
