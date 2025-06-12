@@ -30,7 +30,7 @@ If an access token for a user is expired or not found, the Flask app will redire
 
 ### Device security
 
-When adding devices to accounts, it's important to ensure that users aren't able to randomly 
-%% TODO describe adding a device, but with api token or some other
-%% measure of seciryt so that the device can access the api
-%% withous users guessing random ids
+When associating devices to accounts, it's important to ensure that users aren't able to access devices which aren't theirs.
+In order to do this, each device will be shipped with a serial number and a code.
+When adding a device, the user must enter the serial number and code, along with a name for the device.
+%% TODO describe adding a device (with api token/security), accessing device data endpoint needs proper token
