@@ -1,45 +1,45 @@
 ## Webpage Design Philosophy
 
-The schedule companion requires a web application that will provide the user with a medium to manage user-to-device settings, manage user data, and view or edit scheduled items. This section of the document provides the principles that are necessary to the design of this webpage. These principles revolve around the categories defined in entry design and their acionable functionality within the user interface. It also includes necessary applications for the user interface such as the login, device management, and calendar pages. 
+The schedule companion requires a web application that will provide the user with a medium to manage user-to-device settings, manage user data, and view or edit scheduled items. This section of the document provides the principles that are necessary to the design of this webpage. These principles revolve around the categories defined in entry design and their actionable functionality within the user interface. It also includes necessary applications for the user interface such as the login, device management, and calendar pages. 
 
 
 **Authentication and User Management:**
 
 - User Authentication through login page
     - Sign up option within login page to register new user
-        - create account with full name, username, email, and password
-            - username uniqness check
-            - password strength validation with visual feedback
-            - automatic user ID generation 
-    - forgot password option to reset credentials
-    - prompts user for email and password 
-        - credential validation against existing user
-        - session token managment with CSRF protection
-        - secure login state across browser session
-        - includes persistant login state across browser sessions
+        - Create account with full name, username, email, and password
+            - Username uniqness check
+            - Password strength validation with visual feedback
+            - Automatic user ID generation 
+    - Forgot password option to reset credentials
+    - Prompts user for email and password 
+        - Credential validation against existing user
+        - Session token managment with CSRF protection
+        - Secure login state across browser session
+        - Sncludes persistent login state across browser sessions
 
 **Device management**
 
 - Device Registration
-    - Add device with unique Device ID
-        - Device will utilize wifi to link to Webserver
-        - Option to link Device to user account
+    - Add device with unique device ID
+        - Device will utilize wifi to link to webserver
+        - Option to link device to user account
     - Switch between user devices 
     - Remove device from user directory
 - Device State Persistence
     - Remember selected device across sessions
     - Handle device availability and connection status
-    - User data linked synced to Device
+    - User data linked synced to device
     
 
 **Main Page**
 
-- Access to Tasks, Habit, Event, Calendar, Device Managment, and Login in page
-- Add, Delete or Complete Tasks, Habits or Events
-- Display of Today's Tasks, Habits and events with their times
-    - Times implemented with Unix Timestamps
-    - View Task description, priority, compeltion and due times
-    - View Event duration and due date
+- Access to tasks, habit, event, calendar, device managment, and login page
+- Add, delete or complete Tasks, habits or events
+- Display of today's tasks, habits and events with their times
+    - Times implemented with Unix timestamps
+    - View task description, priority, completion and due times
+    - View event duration and due date
 
 **Tasks** 
 
@@ -64,12 +64,12 @@ The schedule companion requires a web application that will provide the user wit
 **Habits**
 
 - Creation 
-    - Prompts user with Day of the week display that allows user to select days habit should be fullfilled
-    - Prompts user for Habit name
+    - Prompts user with day of the week display that allows user to select days when habit should be fullfilled
+    - Prompts user for habit name
     - Add and remove habit options 
 - Definition
-    - bitwise flags to define weekly schedule
-    - Flag mapping: Monday=0x20, Tuesday=0x10, Wednesday=0x08, Thursday=0x04, Friday=0x02, Saturday=0x01, Sunday=0x40
+    - Citwise flags to define weekly schedule
+    - Flag mapping: Sunday=0x40, Monday=0x20, Tuesday=0x10, Wednesday=0x08, Thursday=0x04, Friday=0x02, Saturday=0x01
     - Calculate combined flags for multiple day selection
 - Completion Tracking
     - Track daily completion status per habit
@@ -83,7 +83,7 @@ The schedule companion requires a web application that will provide the user wit
 **Events**
 
 - Creation 
-    - Prompts user for Event name, Event date, start time, priority, duration, and description
+    - Prompts user for event name, event date, start time, priority, duration, and description
     - Define start date and specific time (hour, minute, AM/PM)
     - Convert time selection to Unix timestamp for storage
 - Status Tracking
@@ -103,7 +103,7 @@ The schedule companion requires a web application that will provide the user wit
     - Properly handle month boundaries and leap years
     - Navigate between months with controls
 - Highlight current day across all calendar views
-    - Task-Calendar Integration
+    - Task-calendar integration
     - Display tasks on their scheduled dates within calendar
     - Limit visible tasks per day with overflow indicators
     - Handle multiple tasks on same date
