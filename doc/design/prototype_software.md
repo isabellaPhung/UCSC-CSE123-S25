@@ -14,3 +14,34 @@ While the GUI and database components interact through random access memory, the
 When alterations are made to an entry on the database a similar procedure is preformed. When a user preforms one of the several possible alterations to an entry or creates a new entry in the habit system, a new corresponding plaintext file is produced holding the relevant information about the change. Correlating each entry with its own file was intentionally preformed to avoid creating multiple tickets in case the user made several alterations to an entry's state before a cloud synchronization was preformed, in which case the alteration file would be continuously overwritten with the most recent change, effectively avoiding any redundant information from being parsed to the server. During cloud synchronization, each of these response files would be serialized into JSON and sent to the server, upon acknowledgement the file is then removed from flash memory. This would make sure that the client information is sent at least once. The server will compare the response with its own database, thus sending multiple alteration requests on the same entry will have no effect, and the client will be ensured that the server will have been given the same modification that the user made on the client.
 
 This system of housing all data on the disk between cloud synchronization is highly robust, as all unfinished work will remain within non-volatile memory between power cycles. Furthermore, as our device must be capable of total offline use, all unsent alterations to the database will be preserved until broker connection could once again be secured, regardless of power cycling or later adjustments to the status of an entry by the user.
+
+The device's Wi-Fi configuration is done through a HTTP server running on the device bound to its Wi-Fi access point.
+The access point allows the user to connect to the device and access a landing page with a form to submit an SSID and password.
+The device changes between the Wi-Fi connection modes
+--- station only mode (sta), softAP only mode, and softAP + station mode (apsta) ---
+based on its current state.
+When the device boots, it checks the non-volatile storage (NVS) for an existing connection configuration.
+Based on the results, it starts the ap or sta mode.
+Figure \ref{wifi_prov_flow} shows the steps taken after the device boots.
+Because the esp_wifi component is based on event callbacks, the provisioning process is able to run without blocking.
+The HTTP server can be configured to either use a captive server, which redirects all HTTP requests to the login page, or with HTTPS.
+Unfortunately these features are mutually exclusive,
+tough a newer version of the esp-idf has introduced a feature that is able to do both at the same time with a different technology.
+
+\input{wifi_provisioning}
+
+The device is able to communicate with the server using coreMQTT and mbedTLS to establish a connection to the MQTT broker.
+The main process must initialize the MQTT state, then follow these steps to communicate with the server:
+
+1. Connect to the endpoint and clean any broken sessions that are present.
+2. Subscribe to the device's topic and wait for a confirmation from the broker.
+3. Publish the desired message to the topic. (Outlined in section \ref{device-server-communication})
+4. Enter the process loop for a specified length of time.
+5. Unsubscribe from the topic and wait for an acknowledgement.
+6. Disconnect from the endpoint and close the connection.
+
+coreMQTT is created to be used with an event callback structure, so any incoming messages must be handled in the callback as well.
+In order to access the published payloads from outside of the library's functions,
+a callback function type may be given to the initialization function.
+This callback function is defined in the app_main.c file, and is triggered when any message is published on the device's topic.
+The payload is then saved on disk to be processed later.

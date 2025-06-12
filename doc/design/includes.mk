@@ -93,3 +93,4 @@ INSERT_TEX += prototype_test_results.tex
 INSERT_TEX += manufactured_tests.tex
 INSERT_TEX += ../common/tests/test_drop.tex
 INSERT_TEX += ../common/UI_user_tutorial/user_tutorial.tex
+INSERT_TEX += wifi_provisioning.tex
