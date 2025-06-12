@@ -9,7 +9,7 @@ Dependent variables: Update packets[id, completion status], cloud storage task l
 
 Procedure:
 
-1. Manually upload a list of tasks containing only one task which is incomplete to the cloud data storage.
+1. Clear a device's data on the cloud storage then add a single task on the web dashboard.
 2. Allow the device to receive the task list from the cloud.
 3. Disconnect the device from the internet, and mark the task as completed.
 4. On the cloud storage, manually set the task to be deleted.

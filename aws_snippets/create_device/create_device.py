@@ -4,8 +4,8 @@ import json
 
 if __name__ == '__main__':
     argc = len(sys.argv)
-    if argc < 3:
-        print(f"Usage: {sys.argv[0]} <access key> <secret key> <message json> <device id>")
+    if argc < 4:
+        print(f"Usage: {sys.argv[0]} <access key> <secret key> <device id>")
         exit()
 
     access_key = sys.argv[1]

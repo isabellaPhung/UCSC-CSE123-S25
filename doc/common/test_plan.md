@@ -11,6 +11,7 @@ The following are tests that will be performed on both the prototype and the man
 - Persistence of data after power-off
 - User data restoration on new device/Many devices to one user
 - Secure connection
+- Modifying entries to and from the device.
 - Sync time 
 - Wifi Connection
 - Cloud synchronization updates: basic

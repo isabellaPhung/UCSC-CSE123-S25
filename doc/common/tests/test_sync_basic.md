@@ -9,7 +9,7 @@ Dependent variables: Update packets[id, completion status]
 
 Procedure:
 
-1. Manually upload a list of tasks containing only one task which is incomplete to the cloud data storage.
+1. Clear a device's data on the cloud storage then add a single incomplete task on the web dashboard.
 2. Send an update to the cloud to complete the task with the same ID.
 3. Verify that the cloud entry point received the massage.
 4. Verify that the message was routed to the correct services, and that the task list in the cloud storage has been modified.
