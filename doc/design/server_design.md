@@ -8,9 +8,9 @@ The server architecture is summarized in Figure \ref{manu_flow}.
 ### Encryption
 
 Security is a high priority when involving user data in a system involving the cloud.
-To ensure security of the data being transmitted from the user to the device and back, the data must be encrypted using Transport Layer Security (TLS).
-NGINX creates a secure conneciton by sending the ssl certificate to clients.
-NGINX serves requests to the server coming from the client or the device, and routes it to the approcpirate endpoint.
+To ensure security of the data being transmitted between the user and the device, the data must be encrypted using Transport Layer Security (TLS).
+NGINX creates a secure connection by sending the ssl certificate to clients.
+NGINX serves requests to the server coming from the client or the device, and routes it to the appropriate endpoint.
 
 ### Database Connection
 
@@ -25,11 +25,12 @@ The Flask server has API endpoints which communicate with the database.
 This includes endpoints to verify login credentials, get tasks/events/habits for a specific device, and update tasks/events/habits for a device.
 The Flask server also has login and logout token endpoints to set and remove cookies containing JWT access tokens.
 If an access token for a user is expired or not found, the Flask app will redirect the user to the login page. 
-%% TODO elaborate more? mention javascript fetch
+%% TODO elaborate more? mention javascript fetch is used to display user data on the web app
 %% TODO device cookies, not just login
 
 ### Device security
 
+When adding devices to accounts, it's important to ensure that users aren't able to randomly 
 %% TODO describe adding a device, but with api token or some other
 %% measure of seciryt so that the device can access the api
 %% withous users guessing random ids
