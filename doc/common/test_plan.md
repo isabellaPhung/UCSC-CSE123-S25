@@ -13,6 +13,9 @@ The following are tests that will be performed on both the prototype and the man
 - Secure connection
 - Sync time 
 - Wifi Connection
+- Cloud synchronization updates: basic
+- Cloud synchronization updates: dual updates
+- Cloud synchronization updates: undoing edits
 
 The following are tests should be performed on samples of the manufactured product to ensure its construction quality and additional features beyond the prototype.
 

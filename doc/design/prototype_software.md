@@ -26,7 +26,7 @@ Figure \ref{wifi_prov_flow} shows the steps taken after the device boots.
 Because the esp_wifi component is based on event callbacks, the provisioning process is able to run without blocking.
 The HTTP server can be configured to either use a captive server, which redirects all HTTP requests to the login page, or with HTTPS.
 Unfortunately these features are mutually exclusive,
-tough a newer version of the esp-idf has introduced a feature that is able to do both at the same time with a different technology.
+though a newer version of the esp-idf has introduced a feature that is able to do both at the same time with a different technology.
 
 \input{wifi_provisioning}
 

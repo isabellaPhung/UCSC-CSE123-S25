@@ -41,85 +41,75 @@ The schedule companion requires a web application that will provide the user wit
     - View Task description, priority, compeltion and due times
     - View Event duration and due date
 
-**Task Addition** 
+**Tasks** 
 
-Creation
-- Prompts user for task name, due date, due time, priority, and description
-    - Set priority level using numeric values 1-3
-        - Initialize completion status as 0 (incomplete)
-    - Define due date and specific time (hour, minute, AM/PM)
-        - Convert time selection to Unix timestamp for storage
-Management
-- Toggle completion status: 0 (incomplete) - 1 (complete)
-- Soft delete functionality: set completion status to 2 (deleted)
-- Maintain completion state persistence across sessions
-Display
-- Filter tasks by date range (today, specific dates)
-- Sort by completion status first, then priority level
-- Visual priority indicators with color coding
-- Expandable detail view showing full task information
-- Real-time timestamp display and conversion to readable format
+- Addition
+    - Prompts user for task name, due date, due time, priority, and description
+        - Set priority level using numeric values 1-3
+            - Initialize completion status as 0 (incomplete)
+        - Define due date and specific time (hour, minute, AM/PM)
+            - Convert time selection to Unix timestamp for storage
 
-**Habit Management**
+- Management
+    - Toggle completion status: 0 (incomplete) - 1 (complete)
+    - Soft delete functionality: set completion status to 2 (deleted)
+    - Maintain completion state persistence across sessions
+- Display
+    - Filter tasks by date range (today, specific dates)
+    - Sort by completion status first, then priority level
+    - Visual priority indicators with color coding
+    - Expandable detail view showing full task information
+    - Real-time timestamp display and conversion to readable format
 
-Habit Creation 
-- Prompts user with Day of the week display that allows user to select days habit should be fullfilled
-- Prompts user for Habit name
-- Add and remove habit options 
+**Habits**
 
-Habit Definition
-- bitwise flags to define weekly schedule
-- Flag mapping: Monday=0x20, Tuesday=0x10, Wednesday=0x08, Thursday=0x04, Friday=0x02, Saturday=0x01, Sunday=0x40
-- Calculate combined flags for multiple day selection
+- Creation 
+    - Prompts user with Day of the week display that allows user to select days habit should be fullfilled
+    - Prompts user for Habit name
+    - Add and remove habit options 
+- Definition
+    - bitwise flags to define weekly schedule
+    - Flag mapping: Monday=0x20, Tuesday=0x10, Wednesday=0x08, Thursday=0x04, Friday=0x02, Saturday=0x01, Sunday=0x40
+    - Calculate combined flags for multiple day selection
+- Completion Tracking
+    - Track daily completion status per habit
+    - Maintain completion history across different dates
+    - Visual distinction between scheduled versus non-scheduled days
+- Daily Habit Display
+    - Provide full weekly grid view in dedicated habits page
+    - Current day highlighting in weekly view
+    - Completion status visualization with checkboxes
 
-Habit Completion Tracking
-- Track daily completion status per habit
-- Maintain completion history across different dates
-- Visual distinction between scheduled versus non-scheduled days
+**Events**
 
-Daily Habit Display
-- Provide full weekly grid view in dedicated habits page
-- Current day highlighting in weekly view
-- Completion status visualization with checkboxes
-
-**Event Management**
-
-Event Creation 
-- Prompts user for Event name, Event date, start time, priority, duration, and description
+- Creation 
+    - Prompts user for Event name, Event date, start time, priority, duration, and description
     - Define start date and specific time (hour, minute, AM/PM)
-        - Convert time selection to Unix timestamp for storage
-
-Event Status Tracking
-- Determine "active" events (currently happening based on start time + duration)
-- Track event completion or cancellation
-- Soft delete functionality for events
-
-Event Display
-- Show events by date range
-- Display calculated duration and end times
-- Visual indicators for currently active events
-- Time-based sorting of events
-
+    - Convert time selection to Unix timestamp for storage
+- Status Tracking
+    - Determine "active" events (currently happening based on start time + duration)
+    - Track event completion or cancellation
+    - Soft delete functionality for events
+- Display
+    - Show events by date range
+    - Display calculated duration and end times
+    - Visual indicators for currently active events
+    - Time-based sorting of events
 
 **Calendar**
 
-Monthly Calendar Display
-
-- Generate calendar grid for any month/year
-- Properly handle month boundaries and leap years
-- Navigate between months with controls
-
-Highlight current day across all calendar views
-
-- Task-Calendar Integration
-- Display tasks on their scheduled dates within calendar
-- Limit visible tasks per day with overflow indicators
-- Handle multiple tasks on same date
-- Click-through functionality to detailed day view
-
-Day View Modal
-
-- Show all tasks and events for selected date
-- Sort items chronologically by time
-- Full detail expansion for each item
-- Filter by exact date match using timestamp ranges
+- Monthly Calendar Display
+    - Generate calendar grid for any month/year
+    - Properly handle month boundaries and leap years
+    - Navigate between months with controls
+- Highlight current day across all calendar views
+    - Task-Calendar Integration
+    - Display tasks on their scheduled dates within calendar
+    - Limit visible tasks per day with overflow indicators
+    - Handle multiple tasks on same date
+    - Click-through functionality to detailed day view
+- Day View Modal
+    - Show all tasks and events for selected date
+    - Sort items chronologically by time
+    - Full detail expansion for each item
+    - Filter by exact date match using timestamp ranges
