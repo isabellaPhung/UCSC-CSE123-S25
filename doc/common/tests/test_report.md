@@ -1,15 +1,11 @@
----
-title: Productivity Device Test Report
----
+\noindent
+**Test Purpose**:
 
-Test Purpose
-============
+\noindent
+**Test Method**:
 
-Test Method
-===========
+\noindent
+**Test Results**:
 
-Test Results
-============
-
-Final Analysis
-==============
+\noindent
+**Final Analysis**:
