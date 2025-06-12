@@ -1,9 +1,6 @@
-TODO: existing designs
+There are a variety of existing digital planners available on the market, one of which is the [Skylight calendar](https://www.skylightframe.com/products/skylight-calendar/). 
+It has a 15" touchscreen, 16GB of storage, and mobile app with third party integration from external scheduling applications such as Google Calendar and Outlook. It has todo list functionality, as well has up to date weather, calendar view, sleep mode, parental locking, many devices to one account as well as many users to one account. They have a monthly subscription plan with meal planning and phone screensaver functionality.
+However while this device is very similar to ours by having a dedicated calendar device, it is not intended to be portable. It does not have a battery and it is unknown if the device operates without wifi connectivity. Unlike our device, the screen is large enough for an on screen keyboard when entering the wifi information, whereas ours will use an phone app for wifi provisioning. This device mainly serves as a digital calendar rather than providing guided focus sessions using timers as our devices does.
 
-[Skylight calendar (closest to ours)](https://www.skylightframe.com/products/skylight-calendar-max-classic-black/?g_acctid=110-583-3170&g_adgroupid=&g_adid=&g_adtype=none&g_campaign=SCM%7CPmax%7CCal_US&g_campaignid=21332136378&g_keyword=&g_keywordid=&g_network=x&utm_source=google&utm_medium=performance_max&utm_campaign=21332136378&utm_content=&utm_term=&device=c&utm_country=US&utm_product=calendar&gad_source=1&gad_campaignid=21332136900&gbraid=0AAAAAD1GDW0XvEk3pWOpEzmgcQ5Fa6UkZ&gclid=EAIaIQobChMI6P-V_tnjjQMVFj1ECB2jrjNzEAQYAyABEgI9MPD_BwE)
-
-[TimeTune app (example of a software-only)](https://play.google.com/store/apps/details?id=com.gmail.jmartindev.timetune&hl=en_US)
-
-Skylight is the most similar to our device, but we designed a more streamlined device with a focus on productivity, not just planning.
-
-TimeTune (or any other scheduling/productivity app) has functionality that we have implemented but one of our design objectives was to have a device separate from the phone.
+Additional existing products also include productivity apps available on any smartphone. [TimeTune app (example of a software-only)](https://play.google.com/store/apps/details?id=com.gmail.jmartindev.timetune&hl=en_US)
+ has similar functionality to our device implmentation such as time blocking, pop up notifications, a timer-based focus mode, and habit statistics. However, one of our key design objectives was to have a device separate from ones phone. A phone has countless distractions from messages, entertainment, and social media. So it was crucial that there exist a device that would be separate from a persons smartphone while still remaining portable.
