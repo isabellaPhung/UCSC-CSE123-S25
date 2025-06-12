@@ -19,6 +19,7 @@ The update function reads the contents of the incoming message and makes changes
 
 The web server is hosted on a AWS EC2 instance deploying Caddy, gunicorn, and flask.
 Caddy is a web server that automatically generates and renews TLS certificates.
-Caddy communicates with the client through HTTPS, and forwards requests to the docker container that contains the gunicorn and flask sevrer.
+The Caddy server is configured with a Caddyfile to act as an HTTPS reverse proxy for our flask server running over HTTP.
+Caddy communicates with the client through HTTPS, and forwards requests to the docker container that contains the gunicorn and flask server.
 The docker container is configured with a Dockerfile and credentials stored in a `.env` file.
-Flask is used in conjunction with boto3 --- the python AWS SDK --- to serve the web app and to fetch user and device data.
+Flask is used in conjunction with boto3 --- the Python AWS SDK --- to serve the web app and to fetch user and device data.
