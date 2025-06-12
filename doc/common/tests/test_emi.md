@@ -1,4 +1,4 @@
-# Electromagnetic interference testing
+### Electromagnetic interference testing
 
 Introduction: Electronic devices require rigorous testing to guarantee electromagnetic compatibility and reliable performance throughout their operational lifespan. Electromagnetic interference represents a significant regulatory and performance challenge for portable tablet devices, particularly those integrating multiple wireless functions and high-frequency digital circuits. The primary testing standards utilized for EMI/EMC evaluation include FCC Part 15 for North American markets, which establishes emission limits and certification requirements for both unintentional and intentional radiators. This regulatory framework is complemented by CISPR 32/EN 55032 for emission testing, CISPR 35/EN 55035 for immunity requirements, and IEC 61000-4 series standards for specific immunity phenomena.
 
@@ -8,7 +8,7 @@ Introduction: Electronic devices require rigorous testing to guarantee electroma
 
 **Dependent variables:** emission amplitude (dBuV, dBuV/m), immunity performance criteria (A, B, C), functional operation status (pass/fail), wireless communication quality (%), touchscreen sensitivity (%), error rates during immunity testing (%), field uniformity measurements (dB)
 
-## Procedure
+Procedure:
 
 1. Verify the device is fully charged and operational by powering on and checking all basic functions.
 
@@ -74,6 +74,6 @@ Introduction: Electronic devices require rigorous testing to guarantee electroma
     - Evaluate EMC performance with different screen brightness levels
     - Test with various applications and processing loads active
 
-## Expectation
+Expectation:
 
 The device should demonstrate full compliance with FCC Part 15 Class B emission limits showing conducted emissions below 250-500 uV quasi-peak (150 kHz-30 MHz) and radiated emissions below 100-200 uV/m at 3 meters (30 MHz-1 GHz), maintain Performance Criterion A during radiated immunity testing at 3 V/m field strength, show no functional degradation during ±4 kV ESD contact discharge testing, exhibit wireless coexistence with no interference between internal modules during simultaneous operation, and demonstrate consistent EMC performance across all operational configurations including battery operation, multiple orientations, and various peripheral connections.

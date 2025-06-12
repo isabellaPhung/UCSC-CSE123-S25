@@ -1,4 +1,4 @@
-# UV Exposure Testing
+### UV Exposure Testing
 
 Introduction: Electronic devices require rigorous testing to guarantee longevity and reliable performance throughout their operational lifespan. Ultraviolet radiation exposure represents a significant environmental hazard for portable tablet devices, particularly those used in outdoor applications or near windows where solar radiation can cause material degradation, display performance deterioration, and housing discoloration. The primary testing standard utilized for UV exposure evaluation is IEC 60068-2-5, which specifies comprehensive methods for testing electronic equipment under simulated solar radiation and accelerated weathering conditions. This standard is complemented by ASTM G154 for fluorescent UV lamp testing, ASTM G155 for xenon arc exposure simulation, and ISO 4892 series for international harmonization.
 
@@ -10,7 +10,7 @@ Introduction: Electronic devices require rigorous testing to guarantee longevity
 
 **Dependent variables:** Display brightness levels (cd/m2), color coordinates (CIE Lab*), luminance uniformity (%), touch sensitivity response time (ms), surface gloss retention (%), housing color change (Delta E), material degradation (visual inspection), optical transmittance (%)
 
-## Procedure
+Procedure:
 
 1. Verify the device is fully charged and operational by powering on and checking all basic functions.
 
@@ -46,6 +46,6 @@ Introduction: Electronic devices require rigorous testing to guarantee longevity
    - Evaluate adhesion of coatings using tape test method
    - Document any delamination or blistering of screen protectors
 
-## Expectation
+Expectation:
 
 After 65 kWh/m2 total UV exposure across multiple test methods, the device should maintain at least 85% of original display brightness, show color change (Delta E) less than 3.0, retain full touch sensitivity with response times within 10% of baseline, and exhibit no visible surface degradation or functional failures. Housing materials should show minimal discoloration and maintain structural integrity per IEC 60068-2-5 requirements.
