@@ -3,21 +3,13 @@ The software for the ESP32-C3 was written in the C programming language, with th
 
 The ESP32-C3 had three major roles to fill in our prototype: the graphical user interface (GUI), the database, and cloud synchronization. The GUI displays each respective type of entry within the database through a page system that the user can navigate using the directional buttons. The database maintains each entry on flash memory, manipulating entry data, and providing organized lists of entry data for the GUI to display. Cloud synchronization sends details about how the user modified their entries on the client, then receives a copy of all data within the server's database for the client's database to compare to.
 
-% GUI
-
 The GUI is the most called system during runtime, which outputs to the device's monitor and inputs from the button interface on each cycle. Monitor communication is established through Serial Peripheral Interface (SPI) protocol, and rendered to using the Light and Versatile Graphics Library (LGVL). This graphics library provided a lightweight and fast C based GUI for display on the screen. Inputs where handled using the esp-iot button component, implementing our buttons for directional navigation, item selection, and on demand synchronization.
-
-% Database
 
 The database is relied upon by the GUI to output organized entries to memory. The software is only designed to hold the entries on the current screen to memory, all entries are to be stored within flash memory for long term storage and retrieval. This database was designed in sqlite3 for its lightweight and powerful tool set in handling these snippets of data, allowing fo
 
 The database component serves as the persistent storage and retrieval system for all user-generated data, including tasks, events, habits, and habit entries. Implemented using SQLite3, it offers a lightweight yet robust solution well-suited for embedded environments, balancing performance with minimal resource overhead. To conserve memory, the system is designed to keep only the entries relevant to the current GUI screen in active memory. All long-term data is stored within flash memory through the database, allowing for efficient retrieval while maintaining a low runtime footprint. On screen changes, the GUI calls the database to retrieve the relevant entries for display. To improve modularity and reduce processing overhead on the interface side, these entries are returned in a pre-sorted state, ready for direct use by the frontend logic. Furthermore, when a task is marked as complete or deleted, the database is responsible for updating the underlying records accordingly, ensuring consistency between the visual representation and the stored data.
 
-% Cloud
-
 The prototype makes use of the coreMQTT and mbedTLS libraries to establish a secure connection to the MQTT broker. This connection is only established when the user presses the synchronization button, at which case the device will begin the multiple step process of synchronizing the user's data between the client and server. To prevent data races, the user's input is blocked and a loading popup will display on the monitor until all procedures are complete.
-
-% Messenger
 
 While the GUI and database components interact through random access memory, the cloud and database components interact through flash memory. Since the ESP32-C3 had limited remaining RAM while the MQTT broker was connected, we had to rely on our generous amount of flash memory at our disposal. We used an intermediary system, that retained the JSON messages and wrote the plaintext to a separate temporary file, as this would avoid the burden of having to deserialize the message and place it into the relational database while our resources were at their most stressed state. After accepting all messages from the broker, the client could then disconnect, freeing up enough resources for our database to then effectively parse all data left within the temporary file. Sending all server information to the client is the safest and simplest method to ensure the client and server display have identical data sets.
 
