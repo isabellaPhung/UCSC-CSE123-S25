@@ -87,6 +87,12 @@ INSERT_MD += prototype_server.md
 
 INSERT_MD += eval_hardware.md
 
+INSERT_MD += akanksha_review.md 
+INSERT_MD += isabella_review.md 
+INSERT_MD += lennan_review.md 
+INSERT_MD += mason_review.md
+INSERT_MD += sulaiman_review.md
+
 INSERT_TEX := ../common/UI_user_tutorial/user_tutorial.tex
 INSERT_TEX += prototype_tests.tex
 INSERT_TEX += prototype_test_results.tex
