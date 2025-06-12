@@ -25,12 +25,16 @@ The Flask server has API endpoints which communicate with the database.
 This includes endpoints to verify login credentials, get tasks/events/habits for a specific device, and update tasks/events/habits for a device.
 The Flask server also has login and logout token endpoints to set and remove cookies containing JWT access tokens.
 If an access token for a user is expired or not found, the Flask app will redirect the user to the login page. 
-%% TODO elaborate more? mention javascript fetch is used to display user data on the web app
-%% TODO device cookies, not just login
+Device selection is also controlled through the Flask server.
+When a user selects a device, the server sets a cookie with an API token for that device.
+The database endpoints are used by the web app and device, and the endpoints with cookies are used by the web app to keep track of the current user/device.
 
 ### Device security
 
 When associating devices to accounts, it's important to ensure that users aren't able to access devices which aren't theirs.
 In order to do this, each device will be shipped with a serial number and a code.
 When adding a device, the user must enter the serial number and code, along with a name for the device.
-%% TODO describe adding a device (with api token/security), accessing device data endpoint needs proper token
+This way, a user can't access a different device by mistyping or trying different serial numbers because the code won't match.
+When the user selects a device, the server creates an API token for the device by encrypting the account's username and selected device.
+This token is then sent to the server on all API requests.
+This prevents users without access to a device from getting data from the API since their token will fail to be decrypted successfully.
