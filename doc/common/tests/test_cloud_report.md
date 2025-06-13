@@ -10,7 +10,10 @@ Exact testing procedures can be found at \ref{cloud_procedure}. Results are visu
 \noindent
 **Test Results**:
 
-- Device was booted with no information to connect to the internet
+- Device was booted with no information to connect to the internet as shown in fig. \ref{clean_device}
+    
+    ![Clean device with no schedule info \label{clean_device}](test_images/cloud_6.jpg){width="50%"}
+
 - Connected to prototype device via SoftAP as shown in the fig. \ref{portal} and entered in wifi credentials
 
     ![Captive Portal \label{portal}](test_images/cloud_3.png){width="50%"}
