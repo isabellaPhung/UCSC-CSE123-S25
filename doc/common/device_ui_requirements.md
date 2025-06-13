@@ -36,3 +36,5 @@ The UI must display some manner of wifi symbol on the screen when the user is vi
 Pop ups appear on the lower area of the screen prompting the user if they want to enter focus mode for certain tasks if the user has enabled the guided time block system.
 
 The UI must also adapt according to the user configuration settings. Color theme settings change the colors of the UI, text size settings scale the text, and changing the timezone and time display settings change the time values on the device appropriately. 
+
+Whenever a user tries to add a device to their account, a pop up will appear on the screen stating "User <username> is trying to add this device to their account." with two buttons allowing the user to confirm that this is them or to reject the addition.

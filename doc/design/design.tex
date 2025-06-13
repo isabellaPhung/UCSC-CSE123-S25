@@ -47,18 +47,10 @@ The following are a few target audiences for our productivity device:
 
 \input{build/hardware_design_md}
 
-% TODO storing data on flash
-% flash storage and fatfs is not that big of a design challenge
-% I think it should be mentioned in the eval section, and note in
-% the entry design a bit more on nvs
-
 %device UI
 \input{build/device_ui_requirements_md}
 \input{../common/UI_user_tutorial/user_tutorial}
 \input{build/configurable_settings_md}
-
-% wifi Provisioning
-% TODO
 
 \input{build/server_communication_md}
 
@@ -66,6 +58,9 @@ The following are a few target audiences for our productivity device:
 
 % webapp
 \input{build/webapp_design_spec_md}
+
+%phone app
+\input{build/phone_app_design_md}
 
 % Third party integration
 % TODO
@@ -77,6 +72,7 @@ Each device will be shipped with a unique serial number (ID) and an 8-digit code
 Alongside the device, a printed start up manual must be included with the device. An example is shown below:
 
 \input{build/startManual_md}
+Additional specifications for the manufactured design are described in section \ref{improvements} and section \ref{final_specs}.
 \newpage
 
 \subsection{Design for Manufacture and Assembly} \label{DMA}
@@ -93,7 +89,7 @@ Alongside the device, a printed start up manual must be included with the device
 \input{build/prototype_software_md}
 \input{build/prototype_server_md}
 
-\subsection{Manufactured Design Improvements}
+\subsection{Manufactured Design Improvements} \label{improvments}
 \input{build/eval_hardware_md}
 
 \newpage
@@ -110,13 +106,11 @@ Alongside the device, a printed start up manual must be included with the device
 \subsubsection{Test Results}
 \input{prototype_test_results}
 
-\subsection{Feasibility of Design}%explicitly lay out if this design works
-% TODO: discuss the feasibility of the design
-% I think it makes sense to reference the original decision table and show the finalized specs
+\subsection{Feasibility of Design}
 After running through multiple tests using the prototype device, the manufactured design was demonstrated to be a practical product. Wifi and server connection as well as basic device functionality were shown to work. With device processor and memory improvements, additional features will be added to further expand the productivity device's capabilities.
-Referencing our initial \hyperref{design_obj}, we revised the specifications of the manufactured design as shown in the table below.
+Referencing our initial \href{design_obj}{design objectives}, we revised the specifications of the manufactured design as shown in the table below.
 
-\input{build/Finalized_Specs_md}
+\input{build/Finalized_Specs_md}\ref{final_specs}
 
 \newpage
 \appendix
