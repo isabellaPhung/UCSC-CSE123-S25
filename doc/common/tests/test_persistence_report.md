@@ -1,11 +1,11 @@
-### Persistence of data after power-off
+### Persistence of data after power-off test report
 \noindent
 **Test Purpose**:
 This is intended to verify that the device is capable of retaining user data after shutdown without internet connection.
 
 \noindent
 **Test Procedure**:
-Exact testing procedures can be found at \label{persistence_procedure}. Results are visually observed.
+Exact testing procedures can be found at \ref{persistence_procedure}. Results are visually observed.
 
 \noindent
 **Test Results**:

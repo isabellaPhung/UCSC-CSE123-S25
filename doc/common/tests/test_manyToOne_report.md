@@ -1,4 +1,4 @@
-### Many Users to One Device
+### Many Users to One Device test report
 \noindent
 **Test Purpose**:
 This is intended to verify that the device is capable of many users to one device.

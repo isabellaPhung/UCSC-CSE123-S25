@@ -10,14 +10,7 @@ Exact testing procedures can be found at \ref{cloud_procedure}. Results are visu
 \noindent
 **Test Results**:
 
-- Device was booted with no information to connect to the internet as shown in fig. \ref{clean_device}
-    
-    ![Clean device with no schedule info \label{clean_device}](test_images/cloud_6.jpg){width="50%"}
-
-- Connected to prototype device via SoftAP as shown in the fig. \ref{portal} and entered in wifi credentials
-
-    ![Captive Portal \label{portal}](test_images/cloud_3.png){width="50%"}
-
+- Device had existing wifi credentials on it from \ref{wifi_test} so test is begun from step 2
 - Logged into scheduleapp.click using an existing test account as shown in the fig. \ref{login}
     
     ![Logging in with test user credentials \label{login}](test_images/cloud_1.png){width="50%"}
@@ -27,7 +20,7 @@ Exact testing procedures can be found at \ref{cloud_procedure}. Results are visu
     ![No devices under the test user \label{no_device}](test_images/cloud_2.png){width="50%"}
     
     ![Adding device under test user \label{add_device}](test_images/cloud_4.png){width="50%"}
-- Dashboard was empty, so added multiple test tasks, habits, and events as shown in fig. \label{test_schedule}
+- Dashboard was empty, so added multiple test tasks, habits, and events as shown in fig. \ref{test_schedule}
     
     ![Adding a test schedule \label{test_schedule}](test_images/cloud_5.png){width="50%"}
 

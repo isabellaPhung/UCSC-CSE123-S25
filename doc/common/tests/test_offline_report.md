@@ -1,11 +1,11 @@
-### Device Sync after Offline Use
+### Device Sync after Offline Use test report
 \noindent
 **Test Purpose**:
 This is intended to verify that the device is capable of operation when not connected to the internet and that the server will update with device changes after reconnecting to the internet.
 
 \noindent
 **Test Procedure**:
-Exact testing procedures can be found at \label{offline_procedure}. Results are visually observed.
+Exact testing procedures can be found at \ref{offline_procedure}. Results are visually observed.
 
 \noindent
 **Test Results**:
