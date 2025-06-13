@@ -14,7 +14,7 @@ Press the sync button on the device.
 
 \noindent
 **Test Results**:
-TODO
+The device has deleted the task, and the task does not show up on the web app.
 
 \noindent
 **Final Analysis**:

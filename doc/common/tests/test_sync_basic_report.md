@@ -14,7 +14,7 @@ Verify that the task is complete on the web app.
 
 \noindent
 **Test Results**:
-TODO
+The web app shows a completed task.
 
 \noindent
 **Final Analysis**:
