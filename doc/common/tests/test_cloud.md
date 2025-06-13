@@ -1,4 +1,4 @@
-### Data cloud synchronization
+### Data cloud synchronization \label{cloud_procedure}
 Introduction: Cloud synchronization and wifi connection are one of the key components of productivity device features and must be tested to ensure full functionality.
 
 Scope: flash storage, file operations, cloud operations
@@ -18,4 +18,4 @@ Procedure:
 5. Add a task, event, and habit to be written to the device. Change the time setting from 12 hour to 24 hour display. 
 6. Check the device to verify that the new schedule data has been added and the settings have been changed.
 
-Expectation: Within 10 seconds, the device should be updated with the new schedule and setting information.
+Expectation: The device should be updated with the new schedule and setting information after syncing.
