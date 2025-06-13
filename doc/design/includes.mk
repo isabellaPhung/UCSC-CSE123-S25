@@ -79,6 +79,7 @@ INSERT_MD += ../common/webapp_design_spec.md
 INSERT_MD += ../common/prototype_vs_manufactured.md
 INSERT_MD += ../common/test_suite.md
 INSERT_MD += ../common/Finalized_Specs.md
+INSERT_MD += ../common/why.md
 
 INSERT_MD += ../common/startManual/startManual.md
 
