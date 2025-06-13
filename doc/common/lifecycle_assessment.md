@@ -2,7 +2,7 @@
 
 - **Objects**: Semiconductor Chips, Memory Modules, Sensors, Display Driver Circuitry, Backplane Electronics
 
-- **Sourcing**: Generally Sourced from Semiconductor Fabs in Taiwan, South Korea, or China.
+- **Sourcing**: Generally sourced from semiconductor fabs in Taiwan, South Korea, or China.
 
 - **Sustainability**: Material extraction is correlated with high carbon emissions.
   Manufacturing requires high energy expenditure.
@@ -26,22 +26,22 @@
 
 - **Objects**: A blend of recycled polymers and bio-based sugarcane renewable source
 
-- **Sourcing**: They are generally sourced from Malaysia and Indonesia, which specialize in recycled plastics and exercise  ISO 14021 audits and similar standards to verify their recycled content and eco-friendly production processes.
+- **Sourcing**: They are generally sourced from Malaysia and Indonesia, which specialize in recycled plastics and exercise ISO 14021 audits and similar standards to verify their recycled content and eco-friendly production processes.
 
 - **Sustainability**: The plastic blend would require less energy and is engineered for easier recyclability.
 
 ### Device Internal Structure {.unnumbered .unlisted}
 
-- **Objects**:Recycled Aluminum
+- **Objects**: Recycled Aluminum
 
-- **Sourcing**: Generally sourced from certified European or American Recycling plants.
+- **Sourcing**: Generally sourced from certified European or American recycling plants.
 
-- **Sustainability**: Reprocessing recycled Aluminum requires about 5% of the energy expenditure of newly processed Aluminum.
-  This process lowers embodied carbon as well
+- **Sustainability**: Reprocessing recycled aluminum requires about 5% of the energy expenditure of newly processed aluminum.
+  This process lowers embodied carbon as well.
 
 ### Prints On Packaging and Printed Materials {.unnumbered .unlisted}
 
-- **Objects**: Vegetable non-VOC Inks --- these Inks are made from renewable sources and contain minimal volatile organic compound (VOC) concentrations.
+- **Objects**: Vegetable non-VOC Inks --- these inks are made from renewable sources and contain minimal volatile organic compound (VOC) concentrations.
 
 - **Sourcing**: These are generally sourced from eco-friendly chemical suppliers in Europe. 
 
@@ -49,10 +49,10 @@
 
 ### Packaging {.unnumbered .unlisted}
 
-- **Objects**: FSC-Certified Recycled Cardboard(Forest Stewardship Council) and Minimal Bio-Based Plastic Films.
-  The Films are used for shrink wrapping in packaging.
+- **Objects**: FSC-Certified Recycled Cardboard (Forest Stewardship Council) and Minimal Bio-Based Plastic Films.
+  The films are used for shrink wrapping in packaging.
 
-- **Sourcing**: FSC-certified recycled Cardboard comes from European suppliers, and The Bio-Based Films are generally sourced from South East Asia, generally from Indonesia and Malaysia. 
+- **Sourcing**: FSC-certified recycled cardboard comes from European suppliers, and the bio-based films are generally sourced from Southeast Asia, often from Indonesia and Malaysia. 
 
-- **Sustainability**: FSC-certified recycled Cardboard boasts a lower carbon footprint. Both require less energy expenditure and are easily recycled. 
+- **Sustainability**: FSC-certified recycled cardboard boasts a lower carbon footprint. Both require less energy expenditure and are easily recycled. 
 
