@@ -8,15 +8,15 @@ The schedule companion requires a web application that will provide the user wit
 - User Authentication through login page
     - Sign up option within login page to register new user
         - Create account with full name, username, email, and password
-            - Username uniqness check
+            - Username uniqueness check
             - Password strength validation with visual feedback
             - Automatic user ID generation 
     - Forgot password option to reset credentials
     - Prompts user for email and password 
         - Credential validation against existing user
-        - Session token managment with CSRF protection
+        - Session token management with CSRF protection
         - Secure login state across browser session
-        - Sncludes persistent login state across browser sessions
+        - Includes persistent login state across browser sessions
 
 **Device management**
 
@@ -29,13 +29,13 @@ The schedule companion requires a web application that will provide the user wit
 - Device State Persistence
     - Remember selected device across sessions
     - Handle device availability and connection status
-    - User data linked synced to device
+    - User data linked to device
     
 
 **Main Page**
 
 - Access to tasks, habit, event, calendar, device managment, and login page
-- Add, delete or complete Tasks, habits or events
+- Add, delete or complete tasks, habits or events
 - Display of today's tasks, habits and events with their times
     - Times implemented with Unix timestamps
     - View task description, priority, completion and due times
@@ -68,7 +68,7 @@ The schedule companion requires a web application that will provide the user wit
     - Prompts user for habit name
     - Add and remove habit options 
 - Definition
-    - Citwise flags to define weekly schedule
+    - Bitwise flags to define weekly schedule
     - Flag mapping: Sunday=0x40, Monday=0x20, Tuesday=0x10, Wednesday=0x08, Thursday=0x04, Friday=0x02, Saturday=0x01
     - Calculate combined flags for multiple day selection
 - Completion Tracking
@@ -110,6 +110,6 @@ The schedule companion requires a web application that will provide the user wit
     - Click-through functionality to detailed day view
 - Day View Modal
     - Show all tasks and events for selected date
-    - Sort items chronologically by time
+    - Sort items chronologically
     - Full detail expansion for each item
     - Filter by exact date match using timestamp ranges

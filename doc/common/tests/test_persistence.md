@@ -1,4 +1,4 @@
-### Persistence of data after power-off
+### Persistence of data after power-off \label{persistence_procedure}
 Introduction: One of the key features of the productivity device is its offline usage, meaning that data must persist after being turned off and without internet access.
 
 Scope: flash storage, file operations
@@ -19,7 +19,7 @@ Procedure:
 6. Check the device to verify that the new schedule data has been added and the settings have been changed.
 7. Disconnect the device from the internet in the settings menu. Return to the main menu and ensure the wifi symbol is not displayed.
 8. Navigate around the device and check that the earlier data is still visible on the device.
-11. Remove power to the device, wait 10 seconds before restoring power.
-12. Navigate around the device and verify that the earlier data has not changed. 
+9. Remove power to the device, wait 10 seconds before restoring power.
+10. Navigate around the device and verify that the earlier data has not changed. 
 
 Expectation: All file contents stay the same before and after powering off.
