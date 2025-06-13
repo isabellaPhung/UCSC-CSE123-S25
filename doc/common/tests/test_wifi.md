@@ -1,4 +1,4 @@
-### Wifi Connection
+### Wifi Connection \label{wifi_procedure}
 Introduction: Since the device does not have a keyboard for inputing wifi information, the user must connect to the device access point using a laptop or mobile device to enter in this information. The following test checks the functionality of this feature.
 
 Scope: wifi connection, access point 
