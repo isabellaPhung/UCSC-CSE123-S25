@@ -1,7 +1,7 @@
 ### Boot time test report
 \noindent
 **Test Purpose**:
-This is intended to verify that the device is capable of booting within 3 seconds as is described in our initial design objectives 
+This is intended to verify that the device is capable of booting within 3 seconds as is described in our initial design objectives.
 
 \noindent
 **Test Procedure**:

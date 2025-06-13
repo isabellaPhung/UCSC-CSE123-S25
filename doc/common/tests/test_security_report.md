@@ -1,7 +1,7 @@
 ### Secure connection test report
 \noindent
 **Test Purpose**:
-This is intended to verify that the device is capable of connecting to the internet and synchronizing with server information.
+This is intended to verify that the device connection to the server is secure and encrypted.
 
 \noindent
 **Test Procedure**:

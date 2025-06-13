@@ -1,4 +1,4 @@
-### Sync time 
+### Sync time \label{sync_time_procedure}
 Introduction: The productivity device periodically synchronizes its data with the server. One of the key design goals of this device was for the sync time to be under 10 seconds.
 
 Scope: flash storage, file operations, cloud operations
