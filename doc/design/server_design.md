@@ -32,8 +32,10 @@ The database endpoints are used by the web app and device, and the endpoints wit
 ### Device security
 
 When associating devices to accounts, it's important to ensure that users aren't able to access devices which aren't theirs.
-In order to do this, each device will be shipped with a serial number and a code.
-When adding a device, the user must enter the serial number and code, along with a name for the device.
+In order to do this, each device will be shipped with a serial number (ID) and a code.
+When adding a device, the user must enter the ID and code, along with a name for the device.
+The server will then notify the device that a user is trying to link with it, and will ask for confirmation.
+Once the user clicks "confirm" on the device, the device ID will be linked with their account.
 This way, a user can't access a different device by mistyping or trying different serial numbers because the code won't match.
 When the user selects a device, the server creates an API token for the device by encrypting the account's username and selected device.
 This token is then sent to the server on all API requests.
