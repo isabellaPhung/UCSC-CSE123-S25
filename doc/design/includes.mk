@@ -88,6 +88,8 @@ INSERT_MD += prototype_hardware.md
 INSERT_MD += prototype_software.md
 INSERT_MD += prototype_server.md
 
+INSERT_MD += phone_app_design.md
+
 INSERT_MD += eval_hardware.md
 
 INSERT_MD += akanksha_review.md 
