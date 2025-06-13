@@ -1,6 +1,6 @@
 TODO: sustainability statement
 
 In designing this device, we wanted to create a sustainable product.
-One way we will do this is by using recyclable materials like LCD or E-Ink screens instead of LCD displays, TODO
-When handling our high performance electronics, which are not so easily recyclable, we will work with suppliers who adhere to environmental and social governance (ESG) standards.
-We are commited to TODO
+Our device will be built using recyclable materials for its casing and internal structure, and we will work with suppliers who adhere to environmental and social governance (ESG) standards.
+We will also use sustainable packaging materials such as vegetable inks for printing, recycled cardboard, and bio-based plastic films.
+We are commited to minimizing the environmental impacts involved with the creation, usage, and disposal of our device.
