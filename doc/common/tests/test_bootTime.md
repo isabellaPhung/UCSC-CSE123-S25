@@ -1,4 +1,4 @@
-### Boot time 
+### Boot time \label{boot_procedure}
 Introduction: One of the key design goals of this device was for the boot time to be under 3 seconds. This test verifies this requirement.
 
 Scope: device functionality
