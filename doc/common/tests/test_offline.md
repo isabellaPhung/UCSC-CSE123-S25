@@ -21,6 +21,6 @@ Procedure:
 8. Navigate around the device and check that the earlier data is still visible on the device.
 9. Interact with the device by setting one of the tasks to complete, deleting an event, and updating a habit. Wait 10 minutes.
 10. Reconnect the device to the internet by navigating back to the settings and turning the wifi back on.
-11. Refresh the web app after 10 seconds. The interacted with tasks, events, and habits should now be updated on the web app.
+11. Refresh the web app after 10 seconds. The modified tasks, events, and habits should now be updated on the web app.
 
-Expectation: The interacted with tasks, events, and habits should be updated on the web app after reconnection to the device within 10 seconds.
+Expectation: The modified tasks, events, and habits should be updated on the web app after reconnection to the device within 10 seconds.
