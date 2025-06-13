@@ -5,7 +5,7 @@ This is intended to verify that the device is capable of connecting to the inter
 
 \noindent
 **Test Procedure**:
-Exact testing procedures can be found at \ref{cloud_procedure}. Results are visually observed.
+Exact testing procedures can be found at \ref{wifi_procedure}. Results are visually observed.
 
 \noindent
 **Test Results**:

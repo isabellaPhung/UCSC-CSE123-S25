@@ -1,4 +1,4 @@
-### Secure connection test
+### Secure connection test \label{security_procedure}
 Scope: cloud operations, security
 
 Apparatus: productivity device, host machine for flashing and running tests, cloud server access
