@@ -71,6 +71,7 @@ INSERT_MD += ../common/test_plan.md
 
 INSERT_MD += planning.md
 
+INSERT_MD += ../common/third-party_integration.md
 INSERT_MD += ../common/manufactured_design.md
 INSERT_MD += ../common/device_ui_requirements.md
 INSERT_MD += ../common/configurable_settings.md
