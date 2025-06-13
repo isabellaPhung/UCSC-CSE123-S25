@@ -11,7 +11,7 @@ Suggestions are based on products that exist at the time of writing.
   - Raspberry Pi Zero 2W - ARM Cortex-A53, 512MB of SDRAM
   - Teensy 4.1 - ARM Cortex-M7, 1024K RAM
 
-The development kit used in the prototype ran into several limits: the number of available GPIO pins, and the memory availability. When not syncing, roughly 188kB of memory was in use, with 133kB remaining for dynamic memory. When in use, the device had very little remaining free RAM which would be occupied when performing synchronization.
+The development kit used in the prototype ran into several limits: the number of available GPIO pins, and the memory availability. At compile time, roughly 188kB of static memory was in use, with 133kB remaining for dynamic memory. When in use, the device had very little remaining free RAM which would be occupied when performing synchronization.
 The prototype ran into memory allocation issues when running the basic program loop and in order to get all of the components working simultaneously, wifi and graphics buffers were reduced heavily, resulting in a much slower UI and synchronization process.
 A microcontroller with more RAM is necessary to operate the device without making compromises to the program in order to save on memory usage.
 The prototype also did not make use of multithreading, running entiirely on one thread which meant much less performance and the user could not interact with the device during synchronization.
