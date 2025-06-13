@@ -2,7 +2,7 @@
 
 Figure \ref{proto_flow} shows the structure of the cloud server during the prototyping stage.
 The server consists of two parts: an MQTT endpoint that processes incoming and outbound messages,
-and a web server that hosts the web app and processes any changes to the suer data.
+and a web server that hosts the web app and processes any changes to the user data.
 Both components exchange data with the S3 data storage, where the user and device data exists.
 
 ![Connection between the prototype device and server \label{proto_flow}](images/prototype_data_flow.png)
