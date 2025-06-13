@@ -23,7 +23,7 @@ Procedure:
    - Position device on non-metallic table 80 cm above ground plane
    - Configure EMI receiver with 9 kHz resolution bandwidth and quasi-peak detector
    - Exercise all device functions during measurement including wireless transmission
-   - Monitor both line and neutral conductors with Class B limits (250-500 uV)
+   - Monitor both line and neutral conductors with Class B limits (631 µV quasi-peak and 200 µV average for frequencies above 500 kHz)
 
 4. **ANSI C63.4 Radiated Emissions Testing (30 MHz - 1 GHz):**
    - Place device in semi-anechoic chamber 3 meters from receiving antenna
@@ -76,4 +76,4 @@ Procedure:
 
 Expectation:
 
-The device should demonstrate full compliance with FCC Part 15 Class B emission limits showing conducted emissions below 250-500 uV quasi-peak (150 kHz-30 MHz) and radiated emissions below 100-200 uV/m at 3 meters (30 MHz-1 GHz), maintain Performance Criterion A during radiated immunity testing at 3 V/m field strength, show no functional degradation during ±4 kV ESD contact discharge testing, exhibit wireless coexistence with no interference between internal modules during simultaneous operation, and demonstrate consistent EMC performance across all operational configurations including battery operation, multiple orientations, and various peripheral connections.
+The device should demonstrate full compliance with FCC Part 15 Class B emission limits showing conducted emissions below 631 µV quasi-peak and 200 µV average (150 kHz-30 MHz) and radiated emissions below 100-200 uV/m at 3 meters (30 MHz-1 GHz), maintain Performance Criterion A during radiated immunity testing at 3 V/m field strength, show no functional degradation during ±4 kV ESD contact discharge testing, exhibit wireless coexistence with no interference between internal modules during simultaneous operation, and demonstrate consistent EMC performance across all operational configurations including battery operation, multiple orientations, and various peripheral connections.
