@@ -35,6 +35,7 @@ Manufacturing Process:
 Choose manufacturing techniques that are optimized for high‑volume, low‑cost production.
 Specify processes with low energy consumption and minimal waste.
 Supplier Standards:
+Work with suppliers who adhere to environmental and social governance (ESG) standards.
 
 6. Quality Assurance and Testing
 Design for Testability:
@@ -43,6 +44,7 @@ Ensure that all critical interfaces are accessible for in‑process quality assu
 Tolerance Verification:
 Create detailed CAD drawings with precise dimensions and tolerance specifications to be shared with suppliers and manufacturing partners.
 Implement in‑line inspection procedures to verify material quality and assembly integrity.
+
 7. Sustainability and End-of-Life
 Recyclability:
 Design the product for ease of disassembly, marking components clearly for recycling.
