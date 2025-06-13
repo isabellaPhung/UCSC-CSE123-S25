@@ -1,4 +1,4 @@
-### Device Sync after Offline Use
+### Device Sync after Offline Use \label{offline_procedure}
 Introduction: One of the key features of the productivity device is its offline usage and that the data from the device will be synchronized to the cloud after reconnection to the internet.
 
 Scope: flash storage, file operations
@@ -11,7 +11,7 @@ Dependent variables: File contents (database), file size (bytes)
 
 Procedure:
 
-1. Power on the device and verify it is connected to the internet by checking the wifi symbol in the top right. If the wifi symbol is not displayed, connect to the device's access point and provide it wifi credentials.
+1. Power on the device and verify it is connected to the internet by checking the wifi symbol in the top right. If the wifi symbol is not displayed, connect to the device's access point and provide it wifi credentials. If the device already has existing a schedule and is registered under a user, skip to step 7.
 2. Create a test user on the web app. 
 3. Log into the user via a laptop or mobile device. 
 4. Add the device to the user using the corresponding device ID.
